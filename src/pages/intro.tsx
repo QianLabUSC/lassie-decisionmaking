@@ -40,7 +40,7 @@ export default function Intro(props) {
             // When the user completes the intro section, set the "introCompleted" state property to true
             // so that the user will not be redirected to the intro section when revisiting the website
             dispatch({type: Action.SET_INTRO_STATUS, value: true});
-            history.push("/geo");
+            history.push("/decision");
 
             console.log({globalState}); // for debugging
         } else {
