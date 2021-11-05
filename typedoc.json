@@ -1,0 +1,10 @@
+{
+    "mode": "file",
+    "out": "docs",
+    "tsconfig": "./tsconfig.json",
+    "excludeNotExported": true,
+    "includeDeclarations": true,
+    "excludeExternals": true,
+    "ignoreCompilerErrors": true,
+    "externalPattern": "**/node_modules/**"
+}

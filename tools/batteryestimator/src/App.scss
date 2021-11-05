@@ -1,0 +1,63 @@
+body {
+    background-color: #3492eb;
+}
+
+.root {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    padding: 50px;
+    width: 1000px;
+    margin: auto;
+    // color: #3492eb;
+
+    h1 {
+        padding: 10px;
+        background-color: white;
+        border-radius: 10px;
+    }
+
+    .container {
+        vertical-align: top;
+
+        .col {
+            vertical-align: top;
+            display: inline-block;
+            width: calc(50% - 30px);
+
+            .block {
+                vertical-align: top;
+                background-color: white;
+                border-radius: 10px;
+                padding: 10px;
+                display: inline-block;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+    
+        }
+
+        .col:first-child {
+            margin-right: 40px;
+        }
+
+        .inputRow {
+            margin-bottom: 20px;
+
+            input {
+                padding: 5px;
+                border-radius: 5px;
+                outline: none;
+                width: 70px;
+                text-align: right;
+                float: right;
+            }
+
+            span {
+                display: inline-block;
+                width: 60%;
+            }
+
+        }
+
+    }
+
+}

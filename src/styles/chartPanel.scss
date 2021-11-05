@@ -1,0 +1,221 @@
+@import "./variables.scss";
+
+.chartPanelContainer {
+    padding: 20px;
+    height: calc(100% - 50px);
+    .chartPanel {
+        font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+        background-color: $lightGray;
+        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+        padding: 10px;
+        height: calc(100% - 60px);
+        .chartTabs {
+            width: 100%;
+            height: 60px;
+            text-align: center;
+            .chartTab {
+                box-sizing: border-box;
+                display: inline-block;
+                padding: 10px;
+                cursor: pointer;
+                border-bottom: solid 2px rgba(1, 1, 1, 0);
+                transition: border-bottom 200ms linear;
+            }
+            .chartTab:hover {
+                border-bottom: solid 2px rgba(0.5, 0.5, 0.5, 0.5);
+            }
+            .chartTabSelected {
+                border-bottom: solid 2px black;
+            }
+        }
+        .chartLegend {
+            height: 50px;
+            text-align: center;
+            margin-top: 10px;
+            .chartLegendTitle {
+                margin-right: 10px;
+            }
+            .chartLegendItem {
+                height: 20px;
+                vertical-align: middle;
+                background-color: $darkGray;
+                padding: 3px;
+                border-radius: 3px;
+                margin-right: 15px;
+                display: inline-flex;
+                align-items: center;
+                flex-direction: row;
+                .legendLabel {
+                    margin-right: 5px;
+                }
+                .legendCircle {
+                    width: 15px;
+                    height: 15px;
+                    border-radius: 50%;
+                    border: solid 1px black;
+                    display: inline-block;
+                }
+            }
+        }
+        .chartsArea {
+            height: calc(100% - 160px);
+            width: 100%;
+            .chartEvenlyDistributed {
+                width: 100%;
+                height: 25%;
+                position: relative;
+            }
+            .chartOneThird {
+                width: 100%;
+                height: 33%;
+                position: relative;
+            }
+            .chartFull {
+                width: 100%;
+                height: 100%;
+                position: relative;
+            }
+            .chartHidden {
+                display: none;
+                width: 0%;
+                height: 0%;
+                position: relative;
+            }
+        }
+        .optionsPanel {
+            height: calc(100% - 40px);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+
+            .titleSection {
+                height: 10%;
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                border-bottom: solid 1px black;
+                button {
+                    cursor: pointer;
+                    position: absolute;
+                    right: 20px;
+                    top: 0px;
+                    background-color: #114B5F;
+                    color: white;
+                    padding: 10px;
+                    width: 100px;
+                    border: none;
+                    border-radius: 5px;
+                }
+
+                button:hover {
+                    color: white;
+                    background-color: rgba(17, 75, 95, 0.5);
+                }
+            }
+
+            .row {
+                height: 90%;
+                .col { display: inline-block; width: 50%; vertical-align: top; height: 100%; }
+            }
+            .displayOption {
+                cursor: pointer;
+                padding: 20px;
+                border-radius: 5px;
+                width: 80%;
+                margin: auto;
+                margin-bottom: 20px;
+                border: solid 2px gray;
+
+                h3 { margin: 5px; }
+            }
+
+            .displayOptionSelected {
+                background-color: #114B5F;
+                color: white;
+                border-color: black;
+
+                h3 { color: #fcca03; }
+            }
+
+            .displayOption:hover {
+                background-color: #114B5F;
+                color: white;
+                border-color: black;
+            }
+
+            .subtitleSection {
+                height: 10%;
+                overflow: hidden;
+                h3 { margin-bottom: 5px; }
+                p {
+                    font-style: italic;
+                    font-size: smaller;
+                    margin: 0px;
+                }
+            }
+
+            .transectSelectSection {
+                background-color: #dedede;
+                border-radius: 10px;
+                padding: 20px;
+                height: calc(40% - 40px);
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-content: flex-start;
+                justify-content: flex-start;
+                overflow-y: scroll;
+
+                .transectEntry {
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    flex-direction: row;
+                    border-radius: 5px;
+                    width: 40%;
+                    margin: auto;
+                    margin-bottom: 20px;
+                    padding: 10px;
+                    
+                    .icon {
+                        margin-right: 10px;
+                        display: inline;
+                        width: 15px;
+                        height: 15px;
+                        border-radius: 50%;
+                        border: solid 1px black;
+                        display: inline-block;
+                    }
+                    .iconSelected { background-color: #fcca03; }
+                    .iconUnselected { background-color: rgba(0, 0, 0, 0); }
+    
+                    .label { display: inline; }
+                }
+
+                .transectEntryExcluded {
+                    color: black;
+                    background-color: transparent;
+                    border: solid 2px gray;
+                }
+
+                .transectEntryExcluded:hover { background-color: rgba(19, 81, 102, 0.4); }
+
+                .transectEntryIncluded {
+                    background-color: #114B5F;
+                    color: white;
+                    border: solid 2px black;
+                }
+
+                .transectEntryIncluded:hover { background-color: rgba(19, 81, 102, 0.4); }
+            }
+        }
+    }
+
+    .chartPanelFullSize {
+        height: calc(100vh - 60px);
+    }
+}
+
+.chartPanelContainerFullHeight {
+    height: 100%;
+}

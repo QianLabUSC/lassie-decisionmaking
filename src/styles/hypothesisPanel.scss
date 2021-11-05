@@ -1,0 +1,52 @@
+.HypothesisPanel {
+    .title {
+        font-size: 2vh;
+        margin-top: 0px;
+    }
+    
+    .hypothesisBlock {
+        text-align: left;
+        margin-bottom: 15px;
+        .hypothesisTitle {
+            font-size: 1.7vh;
+            color: #114B5F;
+            font-family: Helvetic, sans-serif;
+            margin-bottom: 2px;
+        }
+        .hypothesisText {
+            font-size: 1.5vh;
+        }
+    }
+    .hypothesisBlock:last-child { margin: 0; }
+
+    // @media only screen and (max-height: 900px) {
+    //     .hypothesisBlock > .hypothesisTitle {
+    //         font-size: 2vh;
+    //     }
+    //     .hypothesisBlock > .hypothesisText {
+    //         font-size: 2vh;
+    //     }
+    // }
+}
+
+.HypothesisPanelIntro {
+    .title {
+        font-size: 2vh;
+        margin-top: 0px;
+    }
+    
+    .hypothesisBlock {
+        text-align: left;
+        margin-bottom: 15px;
+        .hypothesisTitle {
+            font-size: 2vh;
+            color: #114B5F;
+            font-family: Helvetic, sans-serif;
+            margin-bottom: 5px;
+        }
+        .hypothesisText {
+            font-size: 2vh;
+        }
+    }
+    .hypothesisBlock:last-child { margin: 0; }
+}

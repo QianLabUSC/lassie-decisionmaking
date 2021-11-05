@@ -1,0 +1,48 @@
+@import "./variables.scss";
+
+.checkbox {
+    cursor: pointer;
+    border: solid 2px $baseBlue;
+    border-radius: 5px;
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+
+    .filling {
+        margin: 10%;
+        width: 80%;
+        height: 80%;
+        border-radius: 2px;
+        background-color: $baseBlue;
+        transition: background-color 0.25s ease;
+    }
+
+    .empty {        
+        background-color: white;
+    }
+}
+
+table.radioButtonGroup > tbody {
+    td { vertical-align: middle; padding-bottom: 20px; }
+    td:first-child { padding-right: 20px; }
+}
+
+.rankedScale {
+    width: 250px;
+    height: 55px;
+    text-align: center;
+    margin: auto;
+    .inputs {
+        margin-bottom: 10px;
+        .checkbox {
+            margin: 0px 10px;
+            text-align: center;
+            vertical-align: middle;
+            width: 20px;
+            height: 20px;
+        }
+    }
+    
+    span:first-of-type { float: left; }
+    span:last-child { float: right; }
+}

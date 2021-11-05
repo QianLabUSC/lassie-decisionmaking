@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <code>Generate Sample Points</code>
+        <br/>
+        <code>Input a version of the diagram where the stoss slope is colored with red, the rest in black.</code>
+        <br/>
+        <input id="fileInput" type="file"/>
+        <br/>
+        <div>
+            <canvas id="canvas" width="1100" height="321"></canvas>
+            <br/>
+            <textarea id="output" rows="30" cols="60"></textarea>
+        </div>
+        <script>
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            const imageWidth = 1100;
+            const imageHeight = 321;
+            const finalPointCount = 22;
+
+            let colWidth = 1; // Pixel width of each column
+            let slopeY = [];
+            let points = [];
+
+            let totalLength = 0;
+
+            const findSlopeY = () => {
+                slopeY = [];
+                // traverse the canvas horizontally from left to right, one colWidth unit at a time
+                for (let x = 0; x < imageWidth; x += colWidth) {
+                    let minY = imageHeight + 1; // minY starts at the bottom of the image
+                    let maxY = -1; // maxY starts at the top of the image
+                    let found = 0;
+                    // for each column, traverse the canvas vertically from top to bottom, one unit at time
+                    for (let y = 0; y < imageHeight; y++) {
+                        // Get underlying pixel data for each one pixel. For every pixel in an ImageData object
+                        // there are four pieces of information, the RGBA values:
+                        //     R - The color red (from 0-255)
+                        //     G - The color green (from 0-255)
+                        //     B - The color blue (from 0-255)
+                        //     A - The alpha channel (from 0-255; 0 is transparent and 255 is fully visible) 
+                        const color = ctx.getImageData(x, y, 1, 1).data; 
+                        const isRed = (color[0] > 200) && (color[1] < 50) && (color[2] < 50);
+                        if (isRed) {
+                            found++;
+                            if (y < minY) minY = y;
+                            else if (y > maxY) maxY = y;
+                        }
+                    }
+
+                    // add coordinates to the slopeY array that trace the red line such that each vertical column in the image
+                    // contains one red coordinate point
+                    if (found) {
+                        // if only one pixel in a column is red, then add that one coordinate to the slopeY array
+                        if (found === 1) {
+                            slopeY.push({x, y: (minY < imageHeight + 1) ? minY : maxY});
+                        // if more than one pixel in a column is red, then add the average coordinate in that column to the slopeY array
+                        } else {
+                            const meanY = (minY + maxY) / 2;
+                            slopeY.push({x, y: meanY});
+                        }
+                    }
+                }
+            }
+
+            // this function draws an colored line over the red transect slope line
+            const drawPoints = (points, color) => {
+                ctx.fillStyle = color;
+                const pointSize = 4;
+                points.forEach(point => {
+                    ctx.fillRect(point.x - (pointSize / 2), point.y - (pointSize / 2), pointSize, pointSize);
+                });
+                ctx.fillStyle = "#000";
+            }
+
+            // helper function to find the distance between two points
+            const distance = (a, b) => Math.sqrt(Math.pow(b.x - a.x, 2), Math.pow(b.y - a.y, 2));
+
+            // this function gets the total distance when traversing the red slopeY line from point to point
+            const getTotalLength = () => {
+                totalLength = 0;
+                for (let i = 0; i < slopeY.length - 1; i++) {
+                    totalLength += distance(slopeY[i + 1], slopeY[i]);
+                }
+            }
+
+            // get the last item in the given array
+            const last = a => a[a.length - 1];
+
+            // this function adds the 22 points to the points array
+            const findPoints = () => {
+                const gap = (totalLength / (finalPointCount - 1));
+                let currentPoint = 0;
+
+                for (let i = 0; i < finalPointCount - 1; i++) {
+                    if (points.length > 0) {
+                        let d = 0;
+                        // move to the next coordinate in the slopeY array that is at least the gap distance away from the last point 
+                        // that was added to the points array
+                        while (d < gap && currentPoint < slopeY.length) {
+                            currentPoint++;
+                            d = distance(slopeY[currentPoint], last(points));
+                        }
+                    }
+                    // add the next coordinate in the slopeY array to points array
+                    points.push(slopeY[currentPoint]);
+                    currentPoint++;
+                }
+                
+                // add the last point in the slopeY array to the points array
+                points.push(last(slopeY));
+            }
+
+            const writeOutput = () => {
+                let result = "const sampleLocations = [\n";
+                points.forEach(point => {
+                    result += `\t[${point.x}, ${point.y}],\n`;
+                });
+                result += "];\n";
+                document.getElementById("output").value = result;
+            }
+
+            document.getElementById("fileInput").addEventListener("change", () => {
+                const url = URL.createObjectURL(document.getElementById("fileInput").files[0]);
+                let image = new Image();
+                image.onload = function() {
+                    ctx.drawImage(image, 0, 0);
+                    setTimeout(() => {
+                        findSlopeY();
+                        drawPoints(slopeY, "#00FFFF");
+                        getTotalLength();
+                        findPoints();
+                        drawPoints(points, "#6600cc");
+                        writeOutput();
+                    }, 10);
+                };
+                image.src = url;
+            }, false);
+        </script>
+    </body>
+</html>

@@ -1,0 +1,234 @@
+@import "./variables.scss";
+
+.decisionPage {
+
+    .title {
+        text-align: center;
+    }
+    .center-grid {
+        display: flex;
+        justify-content: space-around;
+    }
+    .vertical-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        button {
+            margin-bottom: 10;
+        }
+        .MuiButtonGroup-root {
+            margin-bottom: 10
+        }
+    }
+    .instructions {
+        p {
+            margin-bottom: 10;
+            font-size: 1rem;
+            color: rgb(155, 20, 10);
+        }
+        li {
+            margin-bottom: 10;
+            font-size: 1rem;
+        }
+    }
+
+    .rocInput {
+        margin-bottom: 16;
+        width: 50;
+        text-align: center;
+    }
+    .popoverList {
+        width: 500;
+        margin: 10px;
+        padding-inline-start: 20px;
+        .MuiTypography-h6 {
+            font-size: 0.8rem;
+        }
+    }
+    .hypothesisPanel {
+        text-align: left;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+    .hypothesisContentWrapper {
+        height: min-content;
+    }
+
+    .rightDecisionPanel {
+        font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+        padding: 20px;
+        height: 100%;
+
+        .rightDecisionPanelContainer {
+            background-color: $lightGray;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+            height: 95vh;
+            width: 47vw;
+
+            .collectionRightPanel {
+                padding-top: 20px;
+
+                .middleRow {
+                    padding: 20px;
+                    text-align: center;
+                    height: 15%;
+                    width: 90%;
+                    margin-bottom: 2vh;
+                    align-items: center;
+                    padding-left: 5%;
+
+                    .batteryPanel {
+                        display: inline-block;
+                        vertical-align: middle;
+                        margin-right: 1%;
+                    }
+                    .buttonPanel {
+                        display: inline-block;
+                        height: 100%;
+                        width: 60%;
+                        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+                        background-color: white;
+                        border-radius: 4px;
+                        padding-left: 1%;
+                        padding-top: 2%;
+                        min-height: 22vh;
+
+                        .timer-button-wrapper {
+                            width: 90%;
+                            padding-left: 7%;
+
+                            .nextStepButton {
+                                width: 100%;
+                                vertical-align: middle;
+                                margin-left: 15%;
+                                margin-top: 18%;
+                                
+                            }
+
+                            .buttonStack {
+                                display: inline-block;
+                                width: 90%;
+                                padding-left: 30%;
+                                padding-top: 5%;
+                                vertical-align: middle;
+                                
+                                .deviateButton, .moreMeasurementsButton, .quitButton { 
+                                    //height: 35px; 
+                                    width: 75%; 
+                                    margin-bottom: 20px; 
+                                    display: flex;
+                                    align-items: right;
+                                    padding: 1%;
+                                }
+                            }
+
+                            .timer-wrapper {
+                                display: flex;
+                                justify-content: center;
+                                padding-left: 30%;
+                                margin-bottom: 7%;
+
+                                .timer {
+                                    font-family: "Montserrat";
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    width: 40%;
+                                    font-size: 2vh;
+                                }
+                                
+                                .text {
+                                    color: #aaa;
+                                    font-size: 1.5vh;
+                                }
+                                
+                                .value {
+                                    font-size: 2vh;
+                                }
+                            }
+
+                            .button-wrapper {
+                                padding-left: 30%;
+                                display: flex;
+                                justify-content: center;
+                            }
+                            
+                        }
+                    }
+                }
+            }
+
+            .rowTableContainer {
+                width: 70%;
+                padding: 20px;
+                margin: auto;
+                height: 35%;
+                max-height: 20vh;
+                overflow-y: scroll;
+                background-color: white;
+                border-radius: 4px;
+                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+            }
+            .clickableImageContainer {
+                width: min-content;
+                margin: auto;
+            }
+            .buttonList {
+                text-align: center;
+                .decisionButton {
+                    width: 40%;
+                    margin: auto;
+                    margin-bottom: 15px;
+                }
+            }
+            
+        }
+
+        .rightDecisionPanelHypothesis {
+            padding-top: 20px;
+            padding-left: 20px;
+            background-color: $lightGray;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+            height: 92vh;
+            width: 45vw;
+            z-index: 0;
+
+            .hypothesisContainer {
+                height: 67vh;
+                position: relative;
+                z-index: 2;
+            }
+
+            .intro {
+                width: 90%;
+                margin: auto;
+                margin-bottom: 5px;
+                margin-top: 0px;
+                font-size: 15px;
+            }
+            hr {
+                margin-bottom: 20px;
+            }
+            .confirmButtonContainer {
+                width: 100%;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                margin-top: 12vh;
+            }
+            .mapConclusionImageContainer {
+                display: flex;
+                justify-content: flex-end;
+                margin-top: 0;
+                z-index: 1;
+            
+                .mapConclusionImage {
+                    position: relative;
+                    width: 22.5vw;
+                    max-height: 25vh;
+                }
+            }
+        }
+    }
+}

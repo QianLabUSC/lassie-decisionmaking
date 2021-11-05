@@ -1,0 +1,32 @@
+@import "./variables.scss";
+
+.chartOptionsSummary {
+    height: 30px;
+    width: 75%;
+    margin: auto;
+    background-color: $darkGray;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .block {
+        display: inline-block;
+        margin-right: 10px;
+        padding-right: 10px;
+        border-right: solid 1px gray;
+    }
+
+    button {
+        display: inline-block;
+        background-color: $baseBlue;
+        color: white;
+        padding: 5px;
+        border: none;
+        border-radius: 5px;
+        width: 200px;
+        cursor: pointer;
+    }
+
+}

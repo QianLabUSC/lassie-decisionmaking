@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <code>Format list of coordinates to JS style array</code>
+        <br/>
+        <div>
+            <textarea id="input" rows="30" cols="60"></textarea>
+            <textarea id="output" rows="30" cols="60"></textarea>
+        </div>
+        <button id="convertButton">Convert</button>
+        <script>
+            document.getElementById("convertButton").addEventListener('click', () => {
+                const text = document.getElementById('input').value;
+                const lines = text.trim().split('\n');
+
+                const coords = [];
+                for (let i = 0; i < lines.length / 4; i++) {
+                    coords.push({
+                        start: {x: lines[4 * i], y: lines[4 * i + 1]},
+                        end: {x: lines[4 * i + 2], y: lines[4 * i + 3]}
+                    });
+                }
+
+                let startPoints = "const startPoints = [\n";
+                let endPoints = "const endPoints = [\n";
+
+                coords.forEach(c => {
+                    startPoints += `\t[${c.start.x}, ${c.start.y}],\n`
+                    endPoints += `\t[${c.end.x}, ${c.end.y}],\n`
+                });
+
+                startPoints += "\n];";
+                endPoints += "\n];";
+
+                let result = startPoints + "\n\n" + endPoints;
+                document.getElementById("output").value = result;
+
+            });
+        </script>
+    </body>
+</html>
