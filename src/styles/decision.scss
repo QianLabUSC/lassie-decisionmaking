@@ -67,7 +67,7 @@
             width: 47vw;
 
             .collectionRightPanel {
-                padding-top: 20px;
+                padding-top: 2vh;
 
                 .middleRow {
                     padding: 20px;
@@ -162,9 +162,12 @@
             .rowTableContainer {
                 width: 70%;
                 padding: 20px;
-                margin: auto;
-                height: 35%;
-                max-height: 20vh;
+                margin-top: 2vh;
+                margin-bottom: 2vh;
+                margin-left: auto;
+                margin-right: auto;
+                height: 25%;
+                max-height: 15vh;
                 overflow-y: scroll;
                 background-color: white;
                 border-radius: 4px;
@@ -182,7 +185,40 @@
                     margin-bottom: 15px;
                 }
             }
-            
+            .user-feedback {
+                width: 90%;
+                height: 50vh;
+                max-height: 50vh;
+                padding-left: 2vh;
+                padding-right: 2vh;
+                padding-top: 1vh;
+                padding-bottom: 3vh;
+                background-color: white;
+                margin-top: 2vh;
+                margin-bottom: 5vh;
+                margin-left: auto;
+                margin-right: auto;
+                overflow-y: auto;
+                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+                animation: flashingOutline 2s infinite ease-in-out;
+
+                .submit-user-feedback-button {
+                    display: flex;
+                    justify-content: center;
+                }
+            }
+
+            @keyframes flashingOutline {
+                0%	    { outline: solid; outline-color: #10c018;}
+                50%	    { outline: solid; outline-color: white;}
+                100%	{ outline: solid; outline-color: #10c018;}
+            }
+
+            .quit {
+                margin-top: 5vh;
+                display: flex;
+                justify-content: center;
+            }
         }
 
         .rightDecisionPanelHypothesis {

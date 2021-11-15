@@ -1,0 +1,14 @@
+.rhex-icon {
+    display: inline-block;
+    position: absolute;
+    animation-name: bounce;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-duration: 0.75s;
+}
+
+@keyframes bounce {
+    from {transform: translateY(0vh);}
+    to {transform: translateY(0.5vh);}
+}
+

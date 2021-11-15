@@ -19,11 +19,12 @@ const globalMoistureImage = require('../../assets/GlobalMoisture.png');
 
 export default function Intro(props) {
     const history = useHistory();
-    const [currentPage, setCurrentPage] = useState(0);
+    const [globalState, dispatch] = useStateValue();
+    //const [currentPage, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(6);
     const [animationDirection, setAnimationDirection] = useState("Right");
     const [localHypos, setLocalHypos] = useState<HypothesisResponse>(defaultHypothesisResponse);
     const [globalHypos, setGlobalHypos] = useState<HypothesisResponse>(defaultHypothesisResponse);
-    const [globalState, dispatch] = useStateValue();
     const pageCount = 7;
 
     const onBackClick = () => {
@@ -35,14 +36,14 @@ export default function Intro(props) {
 
     const onNextClick = () => {
         if (currentPage + 1 >= pageCount) {
-            // dispatch({ type: Action.SET_INITIAL_HYPOS, value: [...hypos]});
             
+            dispatch({ type: Action.SET_CUR_TRANSECT_IDX, value: 0 });
+
             // When the user completes the intro section, set the "introCompleted" state property to true
             // so that the user will not be redirected to the intro section when revisiting the website
             dispatch({type: Action.SET_INTRO_STATUS, value: true});
             history.push("/decision");
 
-            console.log({globalState}); // for debugging
         } else {
             setAnimationDirection("Right");
             setTimeout(() => {

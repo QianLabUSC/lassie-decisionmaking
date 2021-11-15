@@ -6,6 +6,8 @@ import { getNearestIndex } from '../util';
 import { useStateValue, Action } from '../state';
 import AddSamplePopup from './AddSamplePopup';
 import PositionIndicator from './PositionIndicator';
+import PositionIndicatorRhex from './PositionIndicatorRhex';
+import { propertyOf } from 'lodash';
 
 const diagram = require('../../assets/diagram_scalebar.png');
 
@@ -34,10 +36,12 @@ interface IProps {
   addDataFunc: (row: IRow) => void,
   setPopOver: (popoverContent : any) => void,
   transectIdx: number,
+  robotSuggestion?: IRow | undefined,
+  showRobotSuggestion: boolean,
   width?: number
 }
 
-export default function ClickableImage({ enabled , addDataFunc, setPopOver, transectIdx, width } : IProps) {
+export default function ClickableImage({ enabled, addDataFunc, setPopOver, transectIdx, robotSuggestion, showRobotSuggestion, width } : IProps) {
   const [clickPosition, setClickPosition] = useState({
     left: 0,
     top: 0,
@@ -150,6 +154,21 @@ export default function ClickableImage({ enabled , addDataFunc, setPopOver, tran
             type={type}
           />;
         })
+      }
+      {
+        <PositionIndicatorRhex
+          left={(rows[rows.length - 1].normOffsetX - 7) * height / NORMALIZED_HEIGHT}
+          top={(rows[rows.length - 1].normOffsetY - 50) * height / NORMALIZED_HEIGHT}
+        />
+      }
+      {showRobotSuggestion && robotSuggestion && 
+        <PositionIndicator
+          left={robotSuggestion.normOffsetX * height / NORMALIZED_HEIGHT}
+          top={robotSuggestion.normOffsetY * height / NORMALIZED_HEIGHT}
+          rowIndex={rows.length}
+          isHovered={robotSuggestion.isHovered}
+          type={robotSuggestion.type}
+        />
       }
     </div>
   );

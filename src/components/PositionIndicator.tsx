@@ -56,6 +56,14 @@ const useStyles = makeStyles(theme => ({
       textDecoration: 'line-through',
     }
   },
+  [RowType.ROBOT_SUGGESTION]: {
+    '& .dot': {
+      backgroundColor: '#cc0000'
+    },
+    '& .content': {
+      color: '#cc0000',
+    }
+  },
 }));
 
 export default function PositionIndicator({ left, top, type, rowIndex, isHovered }) {

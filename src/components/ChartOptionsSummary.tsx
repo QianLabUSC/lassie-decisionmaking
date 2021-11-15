@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { useState } from 'react';
 import "../styles/chartOptionsSummary.scss";
 import Tooltip from '@material-ui/core/Tooltip';
+import { Transect, TransectType } from '../types';
 
 interface ChartOptionsSummaryProps {
-    includedTransects: number[],
+    curTransectIdx: number,
+    transectIndices: Transect[],
     displayOption: number,
     onOptionsClick: () => any
 }
@@ -18,7 +19,7 @@ export default function ChartOptionsSummary(props: ChartOptionsSummaryProps) {
     return (
         <div className="chartOptionsSummary">
             <div className="block">
-                Showing data from <b>{ props.includedTransects.length }</b> transect{props.includedTransects.length !== 1 ? "s" : ""}
+                Showing data from Transect <b>{ props.transectIndices[props.curTransectIdx].number + 1 }</b>
             </div>
             <div className="block">
                 Display Mode <b>{ props.displayOption === 0 ? "Raw" : "Averaged" }</b>
