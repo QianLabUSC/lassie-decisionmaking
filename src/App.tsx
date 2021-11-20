@@ -15,11 +15,12 @@ import { Annotation } from './pages/annotation';
 import { SavedProgress } from './pages/savedProgress';
 import { GlobalDialog } from './components/GlobalDialog';
 import { logTrace } from './logger';
-import { TraceType } from './types';
+import { TraceType, ActualStrategyTransect } from './types';
 import ThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import { storeState, stateExists, removeStoredState, getStoredState } from './handlers/LocalStorageHandler';
-import { AUTO_LOAD_MS } from './constants';
-import { parseQueryString } from "./util";
+import { AUTO_LOAD_MS, SampleState, defaultHypothesisResponse } from './constants';
+import { getMoistureData, getGrainData, getShearData } from './util';
+import { initialStrategyAlt } from './strategyTemplates';
 
 const theme = createMuiTheme({
   palette: {
@@ -41,8 +42,20 @@ let currentPathname = '', currentSearch = '';
 // A wrapper in order to access the state value
 function RouteWrapper() {
   const [globalState, dispatch] = useStateValue();
+  const { dataVersion } = globalState;
   const history = useHistory();
   const location = useLocation();
+
+  const addActualStrategyTransect = (type: 'planned' | 'deviated', id: number) => {
+    const actualStrategyTransect: ActualStrategyTransect = {
+      type: type,
+      number: id,
+      samples: [],
+      localHypotheses: {...defaultHypothesisResponse},
+      globalHypotheses: {...defaultHypothesisResponse}
+    };
+    dispatch({ type: Action.ADD_ACTUAL_STRATEGY_TRANSECT, value: actualStrategyTransect });
+  }
 
   useEffect(() => {
     history.listen((newLocation, action) => {
@@ -70,33 +83,19 @@ function RouteWrapper() {
     });
   }, [history]);
 
-  // This useEffect calls the "parseQueryString" function in util.ts to enable 2 versions of the 
-  // website to be administered:  
-  // Original version with manual execution of strategy: https://www.seas.upenn.edu/~foraging/field/dev/#/
-  // New version with robotic suggested execution of strategy: https://www.seas.upenn.edu/~foraging/field/dev/#/?v=1
+// Load initial strategy and shear, moisture, and grain datasets
   useEffect(() => {
-    const queryParams = parseQueryString(location.search);
-    if (!stateExists()) {
-      if (Number.parseInt(queryParams["v"]) === 1) {
-        dispatch({type: Action.SET_ROBOT_VERSION, value: true});
-        history.push("/");
-      }
-    } else {
-      // If the URL parameter for the robotVersion doesn't match that in the previously stored state, then refresh the 
-      // website by restoring the initial state and updating its robotVersion variable
-      const data = getStoredState();
-      if (!queryParams["v"] && data.state.robotVersion) {
-        history.push("/");
-        removeStoredState();
-      } else if (Number.parseInt(queryParams["v"]) === 1 && !data.state.robotVersion) {
-        dispatch({type: Action.SET_ROBOT_VERSION, value: true});
-        history.push("/");
-        removeStoredState();
-      }
-    }
-    history.replace({
-      search: undefined
-    });
+    const shearData = getShearData(dataVersion.local);
+    const moistureData = getMoistureData();  
+    const grainData = getGrainData(dataVersion.global);
+    dispatch({ type: Action.SET_MOISTURE_DATA, value: moistureData });
+    dispatch({ type: Action.SET_FULL_DATA, value: shearData });
+    dispatch({ type: Action.SET_GRAIN_DATA, value: grainData });
+    dispatch({ type: Action.SET_STRATEGY_TRANSECTS, value: initialStrategyAlt.transectIndices })
+    dispatch({ type: Action.SET_STRATEGY_SAMPLES, value: initialStrategyAlt.transectSamples })
+    dispatch({ type: Action.SET_CUR_ROW_IDX, value: 0 });
+    dispatch({ type: Action.CHANGE_SAMPLE_STATE, value: SampleState.FEEDBACK });
+    addActualStrategyTransect('planned', initialStrategyAlt.transectIndices[0].number);
   }, []);
 
   // When user closes the tab, save the user's progress
@@ -172,16 +171,16 @@ function RouteWrapper() {
     <div>
       <Switch>
         <Route exact path="/" component={Intro}/>
-        <Route path="/strategy" render={props => (
-          globalState.introCompleted ? <Strategy/> : <Redirect to={{ pathname: '/'}}/> )} />
+        {/* <Route path="/strategy" render={props => (
+          globalState.introCompleted ? <Strategy/> : <Redirect to={{ pathname: '/'}}/> )} /> */}
         <Route path="/decision" render={props => (
           globalState.introCompleted ? <Decision/> : <Redirect to={{ pathname: '/'}}/> )} />
         <Route path="/conclusion" render={props => (
           globalState.introCompleted ? <Conclusion/> : <Redirect to={{ pathname: '/'}}/> )} />
-        <Route path="/hypo" render={props => (
-          globalState.introCompleted ? <Hypo/> : <Redirect to={{ pathname: '/'}}/> )} />
-        <Route path="/geo" render={props => (
-          globalState.introCompleted ? <Geo/> : <Redirect to={{ pathname: '/'}}/> )} />
+        {/* <Route path="/hypo" render={props => (
+          globalState.introCompleted ? <Hypo/> : <Redirect to={{ pathname: '/'}}/> )} /> */}
+        {/* <Route path="/geo" render={props => (
+          globalState.introCompleted ? <Geo/> : <Redirect to={{ pathname: '/'}}/> )} /> */}
         <Route path="/annotation" render={props => (
           globalState.introCompleted ? <Annotation/> : <Redirect to={{ pathname: '/'}}/> )} />
         <Route path="/survey" render={props => (

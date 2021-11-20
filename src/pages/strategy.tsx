@@ -153,9 +153,9 @@ export default function Strategy() {
         <div>
           <ImgAlert open={!!showImgAlert} />
           <div>
-            <div className="clickableImageContainer">
+            {/* <div className="clickableImageContainer">
               <ClickableImage enabled={imgClickEnabled} addDataFunc={() => {}} setPopOver={setImgAlert} transectIdx={curTransectIdx} />
-            </div>
+            </div> */}
           </div>
           <div className="buttonRow">
             <Button variant="contained" color="primary" disabled={rows.length === 0} onClick={onFinalizeClick}>Strategy Completed</Button>
