@@ -9,7 +9,7 @@ export const initialStrategyAlt = {
     transectSamples: [
         [
             { index: 0, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 229, normOffsetY: 70, isHovered: false },
-            { index: 11, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 669, normOffsetY: 179, isHovered: false },
+            { index: 10, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 629, normOffsetY: 160, isHovered: false },
             { index: 21, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 1069, normOffsetY: 289, isHovered: false },
         ]
     ]
