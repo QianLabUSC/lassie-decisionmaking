@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import { Paper, Select, MenuItem } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
 
 import { MultiStepDialog, ConfirmDialog } from '../components/Dialogs';
 import TransectTable from '../components/TransectTable';
@@ -13,18 +13,16 @@ import ClickableImage from '../components/ClickableImage';
 import RowTable from '../components/RowTable';
 
 import { Action, useStateValue } from '../state';
-import { SampleState, TransectState, NUM_OF_HYPOS, confidenceTexts, defaultHypothesisResponse, windPositionIndices, 
+import { SampleState, TransectState, defaultHypothesisResponse, windPositionIndices, 
   DOMINANT_WIND_DIRECTION, initialViewState } from '../constants';
 import { TransectType, Transect, TraceType, DataLayer, ActualStrategyTransect, HypothesisResponse } from '../types';
 import { getBatteryCost, getMoistureData, getGrainData, getShearData } from '../util';
-import { initialStrategyTemplates } from '../strategyTemplates';
 import { logTrace } from '../logger';
 import { Typography } from '@material-ui/core';
 import HelpIcon from '@material-ui/icons/Help';
 import ChartPanel from '../components/ChartPanel';
 import { initializeCharts, updateCharts } from '../handlers/ChartHandler';
 import Battery from '../components/Battery';
-import { Hidden } from '@material-ui/core';
 import "../styles/geo.scss";
 
 const arrowImage = require('../../assets/arrow.png');
@@ -137,26 +135,6 @@ const useStyle = makeStyles(theme => ({
     fontSize: 14,
     borderRadius: 4,
   },
-  //Styling for initial strategy template dropdown menu
-  initialStrategyTemplateSelectionMenu: {
-    position: 'absolute',
-    top: '7%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    zIndex: 999,
-    textAlign: "center",
-    fontFamily: "Roboto, Helvetica, Arial, sans-serif",
-    fontWeight: "bold",
-    backgroundColor: "#114B5F",
-    color: "white",
-    padding: 10,
-    fontSize: 18,
-    borderRadius: 4,
-    width: 275,
-  },
-  initialStrategyTemplateSelectionMenuIcon: {
-    fill: "white",
-  },
 }));
 
 export function Geo() {
@@ -164,7 +142,7 @@ export function Geo() {
   const history = useHistory();
   const [globalState, dispatch] = useStateValue();
   const [mapRotation, setMapRotation] = useState(0);
-  const { sampleState, transectState, strategy, initialStrategyData, actualStrategyData, mainEntered, dataVersion, robotVersion } = globalState;
+  const { sampleState, transectState, strategy,  actualStrategyData, mainEntered, dataVersion } = globalState;
   const { transectIndices, curTransectIdx, transectSamples } = strategy;
 
   // Lifecycle hooks
@@ -198,8 +176,6 @@ export function Geo() {
   // Map state management
   const [viewState, setViewState] = useState(initialViewState); // hook for managing map view state 
   const [mapResetOpen, setMapResetOpen] = useState(false); // hook for resetting map view 
-  // Initial strategy templates
-  const [initialStrategyTemplateNumber, setInitialStrategyTemplateNumber] = useState(0);
 
   // Load the shear, moisture, and grain data when the map page is first shown
   if (!mainEntered) {
@@ -242,18 +218,6 @@ export function Geo() {
     logTrace(TraceType.SET_DATA_VIS_TYPE, layerType as string);
     setDataLayer(layerType);
   };
-
-  // Handler for initial strategy template selection
-  const onInitialStrategyTemplateClick = (event) => {
-    if (!robotVersion) {
-      return;
-    }
-    setInitialStrategyTemplateNumber(event.target.value);
-    dispatch({ type: Action.SET_STRATEGY_TRANSECTS, value: initialStrategyTemplates[event.target.value].transectIndices })
-    dispatch({ type: Action.SET_STRATEGY_SAMPLES, value: initialStrategyTemplates[event.target.value].transectSamples })
-    dispatch({ type: Action.SET_CUR_TRANSECT_IDX, value: initialStrategyTemplates[event.target.value].transectIndices.length });
-    dispatch({ type: Action.SET_CUR_ROW_IDX, value: 0 });
-  }
 
   const onTransectClick = (transectId) => {
     if (!enableSelectTransect || transectId === -1) return;
@@ -642,13 +606,13 @@ export function Geo() {
       top: 100
     }}>
       <RowTable editable={false} rows={transectSamples[templateOverviewIdx]} />
-      <ClickableImage
+      {/* <ClickableImage
         enabled={false}
         addDataFunc={() => { }}
         setPopOver={() => { }}
         width={500}
         transectIdx={templateOverviewIdx}
-      />
+      /> */}
     </Paper>;
 
   const chartPanelPopup = (
@@ -778,27 +742,6 @@ export function Geo() {
               Wind Direction
             </div>
           </div>
-        )
-      }
-      {
-        !chartPanelOpen && robotVersion && transectState === TransectState.INITIAL_STRATEGY && (
-          <div>
-            <Select
-              value={initialStrategyTemplateNumber}
-              onChange={onInitialStrategyTemplateClick}
-              className={classes.initialStrategyTemplateSelectionMenu}
-              inputProps={{
-                classes: {
-                    icon: classes.initialStrategyTemplateSelectionMenuIcon,
-                },
-            }}
-            >
-              <MenuItem value={0}>Choose Template Strategy</MenuItem>
-              <MenuItem value={1}>Template 1</MenuItem>
-              <MenuItem value={2}>Template 2</MenuItem>
-              <MenuItem value={3}>Template 3</MenuItem>
-            </Select>
-          </div>  
         )
       }
       {

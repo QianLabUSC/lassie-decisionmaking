@@ -4,7 +4,6 @@ import { SampleState, TransectState, BATTERY_COST_PER_SAMPLE, defaultHypothesisR
 import { Transect, DialogProps, InitialStrategyData, InitialStrategyTransect, InitialStrategySample, 
   ActualStrategyData, HypothesisResponse, DataVersion } from './types';
 import { getShearData, getMoistureData, getGrainData } from './util';
-import { debugInitialStrategy } from './strategyTemplates';
 
 interface IStrategy {
   curTransectIdx: number,
@@ -115,64 +114,6 @@ export const initialState : IState = {
     lastHoverRowIdx: -1,
     transectIndices: [], 
     transectSamples: [], // Same length as transectIndices
-  },
-  robotVersion: false,
-  initialStrategyData: {
-    transects: [],
-    samples: [],
-    localHypothesis: {...defaultHypothesisResponse},
-    globalHypothesis: {...defaultHypothesisResponse},
-  },
-  actualStrategyData: {
-    transects: []
-  },
-  batteryLevel: 0,
-  lastActualBatteryLevel: 0,
-  batteryWarning: false,
-  finalLocalHypothesis: {...defaultHypothesisResponse},
-  finalGlobalHypothesis: {...defaultHypothesisResponse},
-  introCompleted: false,
-  submitted: false
-};
-
-// Comprehensive debugging state
-const useDebugInitialState = false; // Toggle this to set initial sample state for debugging
-const debugInitialState : IState = {
-  sampleState: SampleState.COLLECT_DATA,
-  transectState: TransectState.INITIAL_STRATEGY,
-  concludeQuestions: null,
-  showNOMInput: false,
-  isAlternativeHypo: false,
-  imgClickEnabled: true,
-  mainEntered: false,
-  decisionEntered: false,
-  showROC: false,
-  showBattery: false,
-  fullData: getShearData(1),
-  moistureData: getMoistureData(),
-  grainData: getGrainData(2),
-  dataVersion: {
-    local: 1,
-    global: 2,
-  },
-  chart: null,
-  chartSettings: {
-    mode: 0,
-    includedTransects: [],
-    excludedTransects: [],
-    updateRequired: true
-  },
-  initialHypos: [],
-  initialGlobalHypos: [],
-  hypoConfidence: [],
-  roc: [],
-  dialogProps: null,
-  strategy: {
-    curTransectIdx: debugInitialStrategy.transectIndices.length,
-    curRowIdx: 0,
-    lastHoverRowIdx: -1,
-    transectIndices: debugInitialStrategy.transectIndices,
-    transectSamples: debugInitialStrategy.transectSamples,
   },
   robotVersion: false,
   initialStrategyData: {
@@ -622,7 +563,7 @@ type ReducerType = [IState, DispatchType];
 const StateContext = createContext<ReducerType>({} as any);
 
 export const StateProvider = ({ children }) => (
-  <StateContext.Provider value={useReducer(reducer, useDebugInitialState ? debugInitialState : initialState)}>
+  <StateContext.Provider value={useReducer(reducer, initialState)}>
     {children}
   </StateContext.Provider>
 );

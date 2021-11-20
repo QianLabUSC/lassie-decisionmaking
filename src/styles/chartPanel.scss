@@ -115,7 +115,7 @@
 
             .row {
                 height: 90%;
-                .col { display: inline-block; width: 50%; vertical-align: top; height: 100%; }
+                .col { display: inline-block; width: 50%; vertical-align: top; height: 100%; text-align: center; transform: translateX(50%); }
             }
             .displayOption {
                 cursor: pointer;
