@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NORMALIZED_CREST_RANGE, SampleState } from '../constants';
+import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NORMALIZED_CREST_RANGE, SampleState, NUM_MEASUREMENTS, RowType } from '../constants';
 import { getNearestIndex } from '../util';
 import { useStateValue, Action } from '../state';
 import AddSamplePopup from './AddSamplePopup';
@@ -38,10 +38,14 @@ interface IProps {
   transectIdx: number,
   robotSuggestion?: IRow | undefined,
   showRobotSuggestion: boolean,
+  setDisableSubmitButton: any,
+  numImgClicks: number,
+  setNumImgClicks: any,
   width?: number
 }
 
-export default function ClickableImage({ enabled, addDataFunc, setPopOver, transectIdx, robotSuggestion, showRobotSuggestion, width } : IProps) {
+export default function ClickableImage({ enabled, addDataFunc, setPopOver, transectIdx, robotSuggestion, showRobotSuggestion, 
+  setDisableSubmitButton, numImgClicks, setNumImgClicks, width } : IProps) {
   const [clickPosition, setClickPosition] = useState({
     left: 0,
     top: 0,
@@ -126,17 +130,42 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     setPopOver(null);
     setClickIndex(index);
     setClickPosition({ left: offsetX, top: offsetY, normOffsetX, normOffsetY });
+    // dispatch({
+    //   type: Action.SHOW_NOM_INPUT,
+    //   value: true
+    // });
+
+    console.log({rows});
+
+    if (numImgClicks > 0) {
+      dispatch({
+        type: Action.DELETE_ROW, // add the new row to the state
+        value: rows.length - 1
+      });
+    }
+
+    setNumImgClicks(numImgClicks + 1);
+
+    const newRow : IRow = {
+      index: clickIndex,
+      measurements: NUM_MEASUREMENTS,
+      type: RowType.NORMAL,
+      normOffsetX,
+      normOffsetY,
+      isHovered: false
+    };
     dispatch({
-      type: Action.SHOW_NOM_INPUT,
-      value: true
+      type: Action.ADD_ROW, // add the new row to the state
+      value: newRow
     });
+    setDisableSubmitButton(false);
   }
 
   return (
     <div id="clickable-image" style={{ position: 'relative' }} >
       <img ref={imgHeightRef} className={sampleState > SampleState.COLLECT_DATA ? `${classes.imageDecision} ${enabled ? classes.cross : ''}` : `${classes.image} ${enabled ? classes.cross : ''}` } id="pos-picker" src={diagram} onClick={onImageClick}/>
       {
-        showNOMInput && <AddSamplePopup clickPosition={clickPosition} clickIndex={clickIndex} onAddData={addDataFunc}/>
+        showNOMInput && <AddSamplePopup clickPosition={clickPosition} clickIndex={clickIndex} onAddData={addDataFunc} setDisableSubmitButton={setDisableSubmitButton}/>
       }
       {
         rows.map((row, index) => {

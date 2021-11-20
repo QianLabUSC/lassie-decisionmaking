@@ -19,7 +19,7 @@ export default function ChartOptionsSummary(props: ChartOptionsSummaryProps) {
     return (
         <div className="chartOptionsSummary">
             <div className="block">
-                Showing data from Transect <b>{ props.transectIndices[props.curTransectIdx].number + 1 }</b>
+                Collected Data from the Transect
             </div>
             <div className="block">
                 Display Mode <b>{ props.displayOption === 0 ? "Raw" : "Averaged" }</b>

@@ -104,54 +104,16 @@ export default function Popup(props) {
       normOffsetY,
       isHovered: false
     };
-    // Evaluate whether the next step would exceed battery limit
-    const nextRows= [...rows, newRow];
-    const nextSamples = transectSamples.map((t, idx) => {
-      if (idx === curTransectIdx) {
-        return nextRows;
-      }
-      return t;
+    dispatch({
+      type: Action.ADD_ROW, // add the new row to the state
+      value: newRow
     });
-    const batteryCost = getBatteryCost(transectIndices, nextSamples);
-    if (batteryCost >= 1) {
-      let text = ["You do not have enough battery life remaining."];
-      let onOk = () => dispatch({ type: Action.SET_DIALOG_PROPS, value: null });
-      let onCancel: any = null;
-      
-      if (sampleState === SampleState.DEVIATED) {
-        text = [
-          "If you collect more data here now, you won’t have enough battery to complete your entire field initial strategy.",
-          "Press Ok to take additional measurements.  Note that this will cut off a corresponding number of measurements from the end of your initial strategy."
-        ];
-        onOk = () => {
-          dispatch({ type: Action.SET_DIALOG_PROPS, value: null});
-          dispatch({ type: Action.ADD_ROW, value: newRow });
-          const newSamples = trimSamplesByBatteryUsage(batteryCost, transectSamples);
-          dispatch({ type: Action.TRIM_SAMPLES_FROM_END, value: {newSamples} });
-          onAddData(newRow);
-        };
-        onCancel = () => dispatch({ type: Action.SET_DIALOG_PROPS, value: null });
-      }
-
-      dispatch({
-        type: Action.SET_DIALOG_PROPS,
-        value: {
-          type: DialogType.SIMPLE,
-          text: text,
-          onOk: onOk,
-          onCancel: onCancel
-        } as DialogProps
-      });
-    } else {
-      dispatch({
-        type: Action.ADD_ROW, // add the new row to the state
-        value: newRow
-      });
-      if (sampleState === SampleState.DEVIATED) {
-        onAddData(newRow);
-      }
-    }    
+    if (sampleState === SampleState.DEVIATED) {
+      onAddData(newRow);
+    }  
     close();
+    dispatch({ type: Action.IMG_CLICK_ENABLED, value: false });
+    props.setDisableSubmitButton(false);
   };
 
   const onCancelClick = () => {

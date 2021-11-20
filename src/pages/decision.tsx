@@ -27,6 +27,7 @@ import { initializeCharts } from '../handlers/ChartHandler';
 import Battery from '../components/Battery';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import { sampleRobotSuggestion } from '../strategyTemplates';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const mapConclusionImage = require('../../assets/map_conclusion.png');
 
@@ -54,6 +55,8 @@ export default function Main() {
   } = globalState;
   const { curRowIdx, curTransectIdx, transectSamples, transectIndices } = strategy;
   const rows = transectSamples[curTransectIdx] || [];
+
+  const [numImgClicks, setNumImgClicks] = useState(0);
 
   const [initialSampleState, setInitialSampleState] = useState(sampleState);
   // Stores state to show local, then global hypothesis response before leaving page.
@@ -140,7 +143,7 @@ export default function Main() {
   }
 
   // Add data from initial strategy to charts
-  if (curRowIdx < rows.length) {
+  if (curRowIdx < rows.length && numImgClicks === 0) {
     addDataToPlot(curTransectIdx, rows[curRowIdx]);
   }
 
@@ -401,71 +404,102 @@ export default function Main() {
   // Hooks for obtaining user feedback on what they think the objective should be at each data collection step
   const [userFeedbackStep, setUserFeedbackStep] = useState(0); // controls which set of questions are being asked to the user during each step
   const [objective, setObjective] = useState(0); // stores objective for each data collection step
+  const [objectiveFreeResponse, setObjectiveFreeResponse] = useState(""); // stores user's free response for the objective
   const [acceptOrReject, setAcceptOrReject] = useState(0); // stores whether the user accepts or rejects the robot's suggestion at each step
   const [acceptFollowUp, setAcceptFollowUp] = useState(0); // stores how effective the user believes the robot's suggestion is at achieving the objective
   const [rejectReason, setRejectReason] = useState(0); // stores why the user rejected the robot's suggestion at each step
+  const [rejectReasonFreeResponse, setRejectReasonFreeResponse] = useState(""); // stores user's free response for the reason for rejecting the robot's suggestion
   const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
   const [robotSuggestion, setRobotSuggestion] = useState<IRow>(); // stores robot's suggested sample location at each step
-  const [showRobotSuggestion, setShowRobotSuggestion] = useState(false);
+  const [showRobotSuggestion, setShowRobotSuggestion] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
+  const [disableSubmitButton, setDisableSubmitButton] = useState(false);
+  const [numSubmitClicks, setNumSubmitClicks] = useState(0);
 
   const objectiveQuestions = 
     <div className="objective-questions">
       <p><strong>Based on the data collected so far, what do you think RHex's next objective should be?</strong></p>
       <RadioButtonGroup options={objectiveOptions} selectedIndex={objective} onChange={i => setObjective(i)}/>
     </div>
+
+  const onObjectiveTextChange = e => {
+    setObjectiveFreeResponse(e.target.value);
+  }
+  const objectiveFreeResponseQuestion = 
+    <div className="objective-free-response-question" style={{marginBottom: '2vh'}}>
+      <p><strong>Please describe what you believe the objective should be:</strong></p>
+      <textarea onChange={onObjectiveTextChange} rows={5} cols={85}/>
+    </div>
   
   const acceptOrRejectQuestions = 
-  <div className="accept-or-reject-questions">
-    <p><strong>Based on the objective you've selected, RHex suggests sampling next from the red location on the transect above! Do you accept or reject this suggestion?</strong></p>
-    <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => setAcceptOrReject(i)}/>
-  </div>
+    <div className="accept-or-reject-questions">
+      <p><strong>Based on the objective you've selected, RHex suggests sampling next from the red location on the transect above! Do you accept or reject this suggestion?</strong></p>
+      <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => setAcceptOrReject(i)}/>
+    </div>
 
   const acceptFollowUpQuestions = 
-  <div className="accept-follow-up-questions">
-    <p><strong>Did going to RHex's suggested location achieve your intended objective?</strong></p>
-    <RadioButtonGroup options={acceptFollowUpOptions} selectedIndex={acceptFollowUp} onChange={i => setAcceptFollowUp(i)}/>
-  </div>
+    <div className="accept-follow-up-questions">
+      <p><strong>Did going to RHex's suggested location achieve your intended objective?</strong></p>
+      <RadioButtonGroup options={acceptFollowUpOptions} selectedIndex={acceptFollowUp} onChange={i => setAcceptFollowUp(i)}/>
+    </div>
 
   const rejectReasonQuestions = 
-  <div className="reject-reason-questions">
-    <p><strong>Why did you reject RHex's suggested location?</strong></p>
-    <RadioButtonGroup options={rejectReasonOptions} selectedIndex={rejectReason} onChange={i => setRejectReason(i)}/>
-  </div>
+    <div className="reject-reason-questions">
+      <p><strong>Why did you reject RHex's suggested location?</strong></p>
+      <RadioButtonGroup options={rejectReasonOptions} selectedIndex={rejectReason} onChange={i => setRejectReason(i)}/>
+    </div>
   
+  const onRejectReasonTextChange = e => {
+    setRejectReasonFreeResponse(e.target.value);
+  }
+
+  const rejectReasonFreeResponseQuestion = 
+    <div className="reject-reason-free-response-question" style={{marginBottom: '2vh'}}>
+      <p><strong>Please state your reason for rejecting the suggestion:</strong></p>
+      <textarea onChange={onRejectReasonTextChange} rows={5} cols={85}/>
+    </div>
+
   const userLocationSelectionQuestion = 
-  <div className="user-location_selection-question">
-    <p><strong>Please select the next location you'd like to sample from by clicking anywhere along the transect surface in the image above. When you have finalized your selection and are ready to collect data from that location, click "Submit."</strong></p>
-  </div>
+    <div className="user-location_selection-question">
+      <p><strong>Please select the next location you'd like to sample from by clicking anywhere along the transect surface in the image above. When you have finalized your selection and are ready to collect data from that location, click "Submit."</strong></p>
+    </div>
 
   const transitionQuestions = 
-  <div className="reject-reason-questions">
-    <p><strong>What would you like to do next?</strong></p>
-    <RadioButtonGroup options={transitionOptions} selectedIndex={transition} onChange={i => setTransition(i)}/>
-  </div>
+    <div className="reject-reason-questions">
+      <p><strong>What would you like to do next?</strong></p>
+      <RadioButtonGroup options={transitionOptions} selectedIndex={transition} onChange={i => setTransition(i)}/>
+    </div>
 
+  // Match the order of UserFeedbackSteps in 'constants.ts'
   const userFeedbackStepMap = [
     objectiveQuestions,
+    objectiveFreeResponseQuestion,
     acceptOrRejectQuestions,
     acceptFollowUpQuestions,
     rejectReasonQuestions,
+    rejectReasonFreeResponseQuestion,
     userLocationSelectionQuestion,
-    transitionQuestions,
+    transitionQuestions, // to be changed
     transitionQuestions,
   ]
 
-  const onSubmitObjective = () => {
+  const onSubmit = () => {
+    setNumSubmitClicks(numSubmitClicks + 1);
     switch (userFeedbackStep) {
       case UserFeedbackStep.OBJECTIVE: {
         if (objective !== 4) {
-          console.log("show suggestion!");
           setRobotSuggestion(sampleRobotSuggestion);
           setShowRobotSuggestion(true);
           setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
         } else {
-          console.log("no suggestion!");
-          setImgClickEnabled(true);
-          setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
+          setUserFeedbackStep(UserFeedbackStep.OBJECTIVE_FREE_RESPONSE);
         }
+        return;
+      }
+      case UserFeedbackStep.OBJECTIVE_FREE_RESPONSE: {
+        setDisableSubmitButton(true);
+        setImgClickEnabled(true);
+        setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
+        setNumImgClicks(0);
         return;
       }
       case UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION: {
@@ -473,12 +507,12 @@ export default function Main() {
           if (robotSuggestion) {
             let newRow = {...robotSuggestion, type: RowType.NORMAL};
             addDataToPlot(curTransectIdx, newRow);
-            setShowRobotSuggestion(false);
           }
           setUserFeedbackStep(UserFeedbackStep.ACCEPT_FOLLOW_UP);
         } else if (acceptOrReject === 1) {
           setUserFeedbackStep(UserFeedbackStep.REJECT_REASON);
         }
+        setShowRobotSuggestion(false);
         return;
       }
       case UserFeedbackStep.ACCEPT_FOLLOW_UP: {
@@ -486,11 +520,25 @@ export default function Main() {
         return;
       }
       case UserFeedbackStep.REJECT_REASON: {
+        if (rejectReason === 0) {
+          setDisableSubmitButton(true);
+          setImgClickEnabled(true);
+          setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
+          setNumImgClicks(0);
+        } else if (rejectReason === 1) {
+          setUserFeedbackStep(UserFeedbackStep.REJECT_REASON_FREE_RESPONSE);
+        }
+        return;
+      }
+      case UserFeedbackStep.REJECT_REASON_FREE_RESPONSE: {
+        setDisableSubmitButton(true);
         setImgClickEnabled(true);
         setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
+        setNumImgClicks(0);
         return;
       }
       case UserFeedbackStep.USER_LOCATION_SELECTION: {
+        addDataToPlot(curTransectIdx, rows[rows.length - 1]);
         setImgClickEnabled(false);
         setUserFeedbackStep(UserFeedbackStep.TRANSITION);
         return;
@@ -501,8 +549,10 @@ export default function Main() {
         } else if (transition === 1) {
           setUserFeedbackStep(UserFeedbackStep.OBJECTIVE);
         } else if (transition === 2) {
+          setDisableSubmitButton(true);
           setImgClickEnabled(true);
           setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
+          setNumImgClicks(0);
         } else if (transition === 3) {
           onConcludeClick();
         }
@@ -511,17 +561,26 @@ export default function Main() {
     }
   }
 
+  const clickableImageTip = "Please select a location on the transect to sample from between the crest and interdune";
+  const clickableImageTipStyle = {
+      fontSize: '12px'
+  }
+
+
+
   // Right panel to display when collecting data, sampleState != FINISH_TRANSECT
   const collectionRightPanel = (
     <div className="collectionRightPanel">
       <ImgAlert open={!!showImgAlert} />
-      <div className="clickableImageContainer">
-        <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx} robotSuggestion={robotSuggestion} showRobotSuggestion={showRobotSuggestion} />  
-      </div>
-      <div className="user-feedback">
+      <Tooltip title={userFeedbackStep !== UserFeedbackStep.USER_LOCATION_SELECTION ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
+          <div className="clickableImageContainer">
+            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx} robotSuggestion={robotSuggestion} showRobotSuggestion={showRobotSuggestion} setDisableSubmitButton={setDisableSubmitButton} numImgClicks={numImgClicks} setNumImgClicks={setNumImgClicks}/>  
+          </div>
+      </Tooltip>
+      <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
         {userFeedbackStepMap[userFeedbackStep]}
         <div className="submit-user-feedback-button">
-          <Button variant="contained" color="secondary" onClick={onSubmitObjective}>
+          <Button disabled={disableSubmitButton} variant="contained" color="secondary" onClick={onSubmit}>
             Submit
           </Button>
         </div>

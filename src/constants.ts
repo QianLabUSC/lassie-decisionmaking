@@ -13,6 +13,7 @@ export const NORMALIZED_HEIGHT = 321;
 export const NORMALIZED_CREST_RANGE = {min: 209, max: 1089} // {209 = 229 - sqrt(400)}, {1089 = 1069 + sqrt(400)}
 
 export const NUM_OF_LOCATIONS = 22;
+export const NUM_MEASUREMENTS = 3;
 export const MAX_NUM_OF_MEASUREMENTS = 30;
 export const MAX_NUM_OF_TRANSECTS = 5;
 export const POPOVER_TIME = 3000;
@@ -323,8 +324,8 @@ export const shearChartOption = {
             label: function(tooltipItem, data) {
               const { datasetIndex, index } = tooltipItem;
               const rawData = data.datasets[datasetIndex].data[index];
-              const { x, y } = rawData;
-              return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+              const { x, y, rowIndex } = rawData;
+              return `Sample ${rowIndex + 1}: (${x.toFixed(2)}, ${y.toFixed(2)})`;
             }
         }
     }
@@ -405,8 +406,8 @@ export const moistChartOption = {
             label: function(tooltipItem, data) {
               const { datasetIndex, index } = tooltipItem;
               const rawData = data.datasets[datasetIndex].data[index];
-              const { x, y } = rawData;
-              return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+              const { x, y, rowIndex } = rawData;
+              return `Sample ${rowIndex + 1}: (${x.toFixed(2)}, ${y.toFixed(2)})`;
             }
         }
     }
@@ -487,8 +488,8 @@ export const shearMoistChartOption = {
             label: function(tooltipItem, data) {
               const { datasetIndex, index } = tooltipItem;
               const rawData = data.datasets[datasetIndex].data[index];
-              const { x, y } = rawData;
-              return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+              const { x, y, rowIndex } = rawData;
+              return `Sample ${rowIndex + 1}: (${x.toFixed(2)}, ${y.toFixed(2)})`;
             }
         }
     }
@@ -570,8 +571,8 @@ export const grainChartOption = {
             label: function(tooltipItem, data) {
               const { datasetIndex, index } = tooltipItem;
               const rawData = data.datasets[datasetIndex].data[index];
-              const { x, y } = rawData;
-              return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+              const { x, y, rowIndex } = rawData;
+              return `Sample ${rowIndex + 1}: (${x.toFixed(2)}, ${y.toFixed(2)})`;
             }
         }
     }
@@ -625,9 +626,11 @@ export const countdownDuration = 10;
 
 export enum UserFeedbackStep {
   OBJECTIVE,
+  OBJECTIVE_FREE_RESPONSE,
   ACCEPT_OR_REJECT_SUGGESTION,
   ACCEPT_FOLLOW_UP,
   REJECT_REASON,
+  REJECT_REASON_FREE_RESPONSE,
   USER_LOCATION_SELECTION,
   HYPOTHESIS_CONFIDENCE,
   TRANSITION,
@@ -661,7 +664,7 @@ export const rejectReasonOptions = [
 ]
 
 export const transitionOptions = [
-  "See RHex’s suggestion for where to sample next to achieve the same objective", 
+  "See RHex’s suggestion for where to sample next to achieve the most recently selected objective", 
   "Update RHex’s objective to receive a new suggestion of where to sample next",
   "Ignore suggestions and tell RHex where to sample next” -- user is free to select any location",
   "Stop data collection and make a conclusion about the hypothesis",

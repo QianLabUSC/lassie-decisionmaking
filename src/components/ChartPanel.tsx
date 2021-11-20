@@ -10,10 +10,10 @@ import "../styles/chartPanel.scss";
 type ChartPanelMode = "TransectView" | "GlobalHypothesisView" | "FieldView" | "ConclusionView";
 
 const chartTabMap: {[key in ChartPanelMode]: string[]} = {
-    "TransectView": ["Shear Strength", "Moisture", "Shear vs. Moisture"],
+    "TransectView": ["Shear vs. Moisture", "Shear Strength", "Moisture"],
     "GlobalHypothesisView": ["Grain Size"],
-    "FieldView": ["Shear Strength", "Moisture", "Shear vs. Moisture"],
-    "ConclusionView": ["Shear Strength", "Moisture", "Shear vs. Moisture"]
+    "FieldView": ["Shear vs. Moisture", "Shear Strength", "Moisture"],
+    "ConclusionView": ["Shear vs. Moisture", "Shear Strength", "Moisture"]
 };
 const chartClassMap: {[key in ChartPanelMode]: string[][]} = {
     "TransectView": [
@@ -126,14 +126,14 @@ export default function ChartPanel(props: ChartPanelProps) {
                         displayOption={displayOption}
                         onOptionsClick={() => setShowOptions(true)}/>
                     <div className="chartsArea">
-                        <div className={chartClassMap[props.mode][tab][0]} id="shearChartParent">
+                        <div className={chartClassMap[props.mode][tab][0]} id="shearMoistChartParent">
+                            <canvas id={`shearMoistChart${chartIDSuffix}`} />
+                        </div>
+                        <div className={chartClassMap[props.mode][tab][1]} id="shearChartParent">
                             <canvas id={`shearChart${chartIDSuffix}`} />
                         </div>
-                        <div className={chartClassMap[props.mode][tab][1]} id="moistChartParent">
+                        <div className={chartClassMap[props.mode][tab][2]} id="moistChartParent">
                             <canvas id={`moistChart${chartIDSuffix}`} />
-                        </div>
-                        <div className={chartClassMap[props.mode][tab][2]} id="shearMoistChartParent">
-                            <canvas id={`shearMoistChart${chartIDSuffix}`} />
                         </div>
                         <div className={chartClassMap[props.mode][tab][3]} id="grainChartParent">
                             <canvas id={`grainChart${chartIDSuffix}`} />
