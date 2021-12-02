@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
 import { NORMALIZED_WIDTH, RowType, transectLines, BATTERY_COST_PER_SAMPLE,
-  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations } from './constants';
+  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations, NUM_OF_LOCATIONS } from './constants';
 import { measurements } from './mesurements';
 import { dataset } from './data/rhexDataset';
-import { Transect, TransectType } from './types';
+import { Transect, TransectType, ActualStrategySample } from './types';
 import { IState } from './state';
 
 export const isProduction = () => {
@@ -112,22 +112,14 @@ export function getBatteryCost(transectIndices: Transect[], transectSamples: IRo
   return cost;
 }
 
-// Function to load moisture data (there is only 1 moisture dataset - called in strategy.tsx
+// Function to load moisture data
 export function getMoistureData() {
-  // There is only 1 moisture dataset
   return dataset.moisture;
 }
 
-// Function to load grain data (global hypothesis) - called in geo.tsx
-export function getGrainData(dataVersionGlobal: number) {
-  if (dataVersionGlobal === 1) return dataset.grain1;
-  return dataset.grain2;
-}
-
-// Function to load shear data (local hypothesis) - called in geo.tsx
-export function getShearData(dataVersionLocal: number) {
-  if (dataVersionLocal === 1) return dataset.shear0; 
-  return dataset.shear1;
+// Function to load shear data 
+export function getShearData() {
+  return dataset.shear; 
 }
 
 export function getRandomMeasurements(isAlternativeHypo = false) {
@@ -279,26 +271,26 @@ function createRNG(seedString) {
 // The transectIndex is also transect id. Location index is the value in [0, 21] for the position of the sample 
 // on the curve. Measurements is the number of measurements taken at that point.
 export function getMeasurements(globalState: IState, transectIndex: number, locationIndex: number, measurements: number) {
-  const { fullData, moistureData, grainData } = globalState;
-  const transectGroup = Math.floor(transectIndex / 3);
+  const { fullData, moistureData } = globalState;
   // Should seed include the current number of measurements taken?
   const seed = `${transectIndex}${measurements}`;
   const rng = createRNG(seed);
   const shearValues: number[] = [];
   const moistureValues: number[] = [];
-  const grainValues: number[] = [];
   const shearMoistureValues: {shearValue: number, moistureValue: number}[] = [];
 
   for (let i = 0; i < measurements; i++) {
-    const j = Math.floor(rng() * MAX_NUM_OF_MEASUREMENTS);
-    //console.log({transectIndex, locationIndex, measurements, j}); // for debugging
-    shearValues.push(fullData[transectGroup][locationIndex][j]);
-    moistureValues.push(moistureData[transectGroup][locationIndex][j]);
-    grainValues.push(grainData[transectGroup][locationIndex][j]);
-    shearMoistureValues.push({shearValue: fullData[transectGroup][locationIndex][j], moistureValue: moistureData[transectGroup][locationIndex][j]});
+    // const j = Math.floor(rng() * MAX_NUM_OF_MEASUREMENTS);
+    // //console.log({transectIndex, locationIndex, measurements, j}); // for debugging
+    // shearValues.push(fullData[locationIndex][j]);
+    // moistureValues.push(moistureData[locationIndex][j]);
+    // shearMoistureValues.push({shearValue: fullData[locationIndex][j], moistureValue: moistureData[locationIndex][j]});
+    shearValues.push(fullData[locationIndex][i]);
+    moistureValues.push(moistureData[locationIndex][i]);
+    shearMoistureValues.push({shearValue: fullData[locationIndex][i], moistureValue: moistureData[locationIndex][i]});
   }
   //console.log({shearValues, moistureValues, grainValues, shearMoistureValues}); // for debugging
-  return {shearValues, moistureValues, grainValues, shearMoistureValues};
+  return {shearValues, moistureValues, shearMoistureValues};
 }
 
 // This function parses the URL to determine whether the original or robotic version of the website will be used
@@ -316,4 +308,132 @@ export function parseQueryString(query: string) {
     queryParams[decodeURI(block.substring(0, i))] = decodeURI(block.substring(i + 1));
   });
   return queryParams;
+}
+
+// Interface for aggregated sample data by location (indices 0 - 21 on the transect)
+interface IAggregatedSamplesByLoc {
+  location: number,
+  measurements: number,
+  moisture: number[],
+  shear: number[],
+}
+
+// This function calculates the robot's suggested location
+export function calculateRobotSuggestions(actualStrategySamples: ActualStrategySample[]) {
+
+  let robotSuggestion : IRow[] = [];
+
+  // Create an array which contains the aggregated sample data by location
+  let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = buildAggregatedSamplesByLocation(actualStrategySamples);
+  
+  // Compute the Measurement Noise (standard deviation of shear strength at each location that has been sampled)
+  let std_loc = computeMeasurementNoise(aggregatedSamplesByLoc);
+
+  // Compute the direct Information Spatial Coverage for each sampled location
+  let spatial_coverage = computeInformationSpatialCoverage(aggregatedSamplesByLoc);
+
+  // Compute the Information Reward for each sampled location
+  let spatial_reward = computeInformationSpatialReward(aggregatedSamplesByLoc, spatial_coverage);
+  
+
+
+  console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward});
+
+  return robotSuggestion;
+}
+
+
+function buildAggregatedSamplesByLocation(actualStrategySamples: ActualStrategySample[]) {
+
+  let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = [];
+  for (let i = 0; i < actualStrategySamples.length; i++) {
+
+    // Accumulate the total samples for each location
+    let locationExists = false;
+    for (let j = 0; j <  aggregatedSamplesByLoc.length; j++) {
+      if (actualStrategySamples[i].index == aggregatedSamplesByLoc[j].location) {
+        locationExists = true;
+        aggregatedSamplesByLoc[j].measurements += aggregatedSamplesByLoc[0][i].measurements;
+        aggregatedSamplesByLoc[j].moisture.push(...actualStrategySamples[i].moisture);
+        aggregatedSamplesByLoc[j].shear.push(...actualStrategySamples[i].shear);
+      }
+    }
+
+    // Location doesn't yet exist in the copy of the transect samples
+    if (!locationExists) {
+      let temp = {
+        location: actualStrategySamples[i].index,
+        measurements: actualStrategySamples[i].measurements,
+        moisture: actualStrategySamples[i].moisture,
+        shear: actualStrategySamples[i].shear,
+      };
+      aggregatedSamplesByLoc.push(temp);
+    }
+  }
+
+  // Sort the transect samples by the location index in ascending order
+  aggregatedSamplesByLoc.sort((a, b) => (a.location > b.location) ? 1 : -1);
+
+  return aggregatedSamplesByLoc;
+}
+
+
+function computeMeasurementNoise(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[]) {
+  let std_loc = new Array(NUM_OF_LOCATIONS).fill(0);
+  for (let i = 0; i < aggregatedSamplesByLoc.length; i++) {
+    const n = aggregatedSamplesByLoc[i].shear.length;
+    const mean = aggregatedSamplesByLoc[i].shear.reduce((a, b) => a + b) / n;
+    const std = Math.sqrt(aggregatedSamplesByLoc[i].shear.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / (n - 1));
+    std_loc[aggregatedSamplesByLoc[i].location] = std;
+  }
+  return std_loc;
+}
+
+function computeInformationSpatialCoverage(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[]) {
+  let I_s = new Array(NUM_OF_LOCATIONS).fill(0);
+
+  for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
+    for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
+      let I_s_s = Math.exp(-1/Math.sqrt(aggregatedSamplesByLoc[j].measurements));
+      let guassmf = Math.exp((-Math.pow((i - aggregatedSamplesByLoc[j].location), 2) / (2 * Math.pow(1.5, 2))));
+      I_s[i] += I_s_s * guassmf;
+      I_s[i] = Math.min(I_s[i], 1); // set an upper bound of 1 for the information coverage
+    }
+  }
+  return I_s;
+}
+
+function computeInformationSpatialReward(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], spatial_coverage : number[]) {
+  let R_s_set = new Array(NUM_OF_LOCATIONS).fill(0);
+
+  for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
+
+    let I_s_s_increase = 0;
+
+    for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
+      if (aggregatedSamplesByLoc[j].location == i) {
+        I_s_s_increase = Math.exp(-1 / Math.sqrt(aggregatedSamplesByLoc[j].measurements + 3)) - Math.exp(-1 / Math.sqrt(aggregatedSamplesByLoc[j].measurements));
+        break;
+      }
+    }
+
+    if (I_s_s_increase == 0) {
+      I_s_s_increase = Math.exp(-1 / Math.sqrt(3))
+    }
+    
+    let I_s_s_increase_infer_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+    let Max_increase_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+    let R_s_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+
+    for (let k = 0; k < NUM_OF_LOCATIONS; k++) {
+      let guassmf = Math.exp((-Math.pow((k - i), 2) / (2 * Math.pow(1.5, 2))));
+      I_s_s_increase_infer_matrix[k] = I_s_s_increase * guassmf;
+      Max_increase_matrix[k] = 1 - spatial_coverage[k];
+      R_s_matrix[k] = Math.min(I_s_s_increase_infer_matrix[k], Max_increase_matrix[k]);
+    }
+
+    let R_s = R_s_matrix.reduce((a, b) => a + b, 0);
+    R_s_set[i] = R_s;
+  }
+  return R_s_set;
 }

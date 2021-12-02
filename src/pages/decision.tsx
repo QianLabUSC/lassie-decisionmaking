@@ -13,7 +13,7 @@ import Popbox from '../components/Popbox';
 import RowTable from '../components/RowTable';
 import ClickableImage from '../components/ClickableImage';
 import { ConfirmDialog, MultiStepDialog } from '../components/Dialogs';
-import { getMeasurements } from '../util';
+import { getMeasurements, calculateRobotSuggestions } from '../util';
 import {
   SampleState, RowType, PopboxTypeEnum, DISABLE_ROC, confidenceTexts, NUM_OF_HYPOS,
   UserFeedbackStep, objectiveOptions, acceptOrRejectOptions, acceptFollowUpOptions, rejectReasonOptions, transitionOptions
@@ -48,10 +48,8 @@ export default function Main() {
   const [globalState, dispatch] = useStateValue();
 
   const {
-    sampleState, transectState, chart, imgClickEnabled,
-    showROC, fullData, moistureData, grainData,
-    strategy, decisionEntered, initialStrategyData, actualStrategyData,
-    batteryLevel, batteryWarning, chartSettings, robotVersion
+    sampleState, chart, imgClickEnabled, strategy, actualStrategyData, 
+    batteryLevel, batteryWarning, chartSettings,
   } = globalState;
   const { curRowIdx, curTransectIdx, transectSamples, transectIndices } = strategy;
   const rows = transectSamples[curTransectIdx] || [];
@@ -74,6 +72,7 @@ export default function Main() {
   // Initial page set up
   useEffect(() => {
     console.log({globalState}); // for debugging
+    
     setImgClickEnabled(false);
 
     // Make sure charts are ready for decision page
@@ -81,6 +80,12 @@ export default function Main() {
 
     // Make the charts update on first render
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
+
+    // for (let i = 0; i < actualStrategyData.transects[0].samples.length; i++) {
+    //   console.log(actualStrategyData.transects[0].samples[i].index);
+    // }
+    //console.log(actualStrategyData.transects[0]);
+    //calculateRobotSuggestions(actualStrategyData.transects[0].samples);
 
     return () => {
       dispatch({
@@ -100,7 +105,6 @@ export default function Main() {
       normOffsetY: row.normOffsetY,
       moisture: row.moisture,
       shear: row.shear,
-      grain: row.grain,
       batteryLevelBefore: batteryLevel,
       batteryWarningShown: batteryWarning
     };
@@ -110,11 +114,10 @@ export default function Main() {
   // Function to add next sample to the data plot
   const addDataToPlot = (transectIdx: number, row : IRow, doNotAddToRow?: boolean, saveToActualStrategy?: boolean) => {
     const { index, measurements } = row;
-    const {shearValues, moistureValues, grainValues} = getMeasurements(globalState, transectIndices[transectIdx].number, index, measurements);
+    const {shearValues, moistureValues } = getMeasurements(globalState, transectIndices[transectIdx].number, index, measurements);
     const newRow = { ...row };
     newRow.moisture = moistureValues;
     newRow.shear = shearValues;
-    newRow.grain = grainValues;
 
     if (!doNotAddToRow) {
       // Add measurement values to row
@@ -488,6 +491,10 @@ export default function Main() {
       case UserFeedbackStep.OBJECTIVE: {
         if (objective !== 4) {
           setRobotSuggestion(sampleRobotSuggestion);
+          
+          console.log(actualStrategyData.transects[0]);
+          calculateRobotSuggestions(actualStrategyData.transects[0].samples);
+
           setShowRobotSuggestion(true);
           setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
         } else {
