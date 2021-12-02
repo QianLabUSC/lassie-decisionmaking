@@ -19,7 +19,7 @@ import { TraceType, ActualStrategyTransect } from './types';
 import ThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import { storeState, stateExists, removeStoredState, getStoredState } from './handlers/LocalStorageHandler';
 import { AUTO_LOAD_MS, SampleState, defaultHypothesisResponse } from './constants';
-import { getMoistureData, getGrainData, getShearData } from './util';
+import { getMoistureData, getShearData } from './util';
 import { initialStrategyAlt } from './strategyTemplates';
 
 const theme = createMuiTheme({
@@ -85,12 +85,10 @@ function RouteWrapper() {
 
 // Load initial strategy and shear, moisture, and grain datasets
   useEffect(() => {
-    const shearData = getShearData(dataVersion.local);
+    const shearData = getShearData();
     const moistureData = getMoistureData();  
-    const grainData = getGrainData(dataVersion.global);
     dispatch({ type: Action.SET_MOISTURE_DATA, value: moistureData });
     dispatch({ type: Action.SET_FULL_DATA, value: shearData });
-    dispatch({ type: Action.SET_GRAIN_DATA, value: grainData });
     dispatch({ type: Action.SET_STRATEGY_TRANSECTS, value: initialStrategyAlt.transectIndices })
     dispatch({ type: Action.SET_STRATEGY_SAMPLES, value: initialStrategyAlt.transectSamples })
     dispatch({ type: Action.SET_CUR_ROW_IDX, value: 0 });

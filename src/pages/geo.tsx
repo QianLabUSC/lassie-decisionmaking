@@ -16,7 +16,7 @@ import { Action, useStateValue } from '../state';
 import { SampleState, TransectState, defaultHypothesisResponse, windPositionIndices, 
   DOMINANT_WIND_DIRECTION, initialViewState } from '../constants';
 import { TransectType, Transect, TraceType, DataLayer, ActualStrategyTransect, HypothesisResponse } from '../types';
-import { getBatteryCost, getMoistureData, getGrainData, getShearData } from '../util';
+import { getBatteryCost, getMoistureData, getShearData } from '../util';
 import { logTrace } from '../logger';
 import { Typography } from '@material-ui/core';
 import HelpIcon from '@material-ui/icons/Help';
@@ -192,9 +192,9 @@ export function Geo() {
     // The shear, moisture, and grain datasets are loaded when the map page is loaded. Depending on
     // the user input (samples at various transects), functions in util.ts will pull the data points  
     // to populate the share, moisture, and grain charts.
-    const shearData = getShearData(dataVersion.local);
+    const shearData = getShearData();
     const moistureData = getMoistureData();  
-    const grainData = getGrainData(dataVersion.global);
+
     // console.log({shearData}); // for debugging
     // console.log({moistureData}); // for debugging
     // console.log({grainData}); // for debugging
@@ -206,10 +206,6 @@ export function Geo() {
     dispatch({
       type: Action.SET_FULL_DATA,
       value: shearData
-    });
-    dispatch({
-      type: Action.SET_GRAIN_DATA,
-      value: grainData
     });
   }
 
@@ -415,7 +411,7 @@ export function Geo() {
       // Find the index of the last row that has measurement data.
       let lastRow = 0;
       for (let row = 0; row < transectSamples[transectIndex].length; row++) {
-        if (transectSamples[transectIndex][row].grain) lastRow = row;
+        if (transectSamples[transectIndex][row].moisture) lastRow = row;
       }
 
       // Discard all rows after the last row with measurement data.

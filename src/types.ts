@@ -109,9 +109,8 @@ export interface ActualStrategySample {
   measurements: number,
   normOffsetX: number,
   normOffsetY: number,
-  moisture: number,
+  moisture: number[],
   shear: number[],
-  grain: number,
   batteryLevelBefore: number,
   batteryWarningShown: boolean
 }
