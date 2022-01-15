@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
 import { NORMALIZED_WIDTH, RowType, transectLines, BATTERY_COST_PER_SAMPLE,
-  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations } from './constants';
+  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS } from './constants';
 import { measurements } from './mesurements';
 import { dataset } from './data/rhexDataset';
-import { Transect, TransectType } from './types';
+import { Transect, TransectType, ActualStrategySample } from './types';
 import { IState } from './state';
 
 export const isProduction = () => {
@@ -112,22 +112,14 @@ export function getBatteryCost(transectIndices: Transect[], transectSamples: IRo
   return cost;
 }
 
-// Function to load moisture data (there is only 1 moisture dataset - called in strategy.tsx
+// Function to load moisture data
 export function getMoistureData() {
-  // There is only 1 moisture dataset
   return dataset.moisture;
 }
 
-// Function to load grain data (global hypothesis) - called in geo.tsx
-export function getGrainData(dataVersionGlobal: number) {
-  if (dataVersionGlobal === 1) return dataset.grain1;
-  return dataset.grain2;
-}
-
-// Function to load shear data (local hypothesis) - called in geo.tsx
-export function getShearData(dataVersionLocal: number) {
-  if (dataVersionLocal === 1) return dataset.shear0; 
-  return dataset.shear1;
+// Function to load shear data 
+export function getShearData() {
+  return dataset.shear; 
 }
 
 export function getRandomMeasurements(isAlternativeHypo = false) {
@@ -279,26 +271,26 @@ function createRNG(seedString) {
 // The transectIndex is also transect id. Location index is the value in [0, 21] for the position of the sample 
 // on the curve. Measurements is the number of measurements taken at that point.
 export function getMeasurements(globalState: IState, transectIndex: number, locationIndex: number, measurements: number) {
-  const { fullData, moistureData, grainData } = globalState;
-  const transectGroup = Math.floor(transectIndex / 3);
+  const { fullData, moistureData } = globalState;
   // Should seed include the current number of measurements taken?
   const seed = `${transectIndex}${measurements}`;
   const rng = createRNG(seed);
   const shearValues: number[] = [];
   const moistureValues: number[] = [];
-  const grainValues: number[] = [];
   const shearMoistureValues: {shearValue: number, moistureValue: number}[] = [];
 
   for (let i = 0; i < measurements; i++) {
-    const j = Math.floor(rng() * MAX_NUM_OF_MEASUREMENTS);
-    //console.log({transectIndex, locationIndex, measurements, j}); // for debugging
-    shearValues.push(fullData[transectGroup][locationIndex][j]);
-    moistureValues.push(moistureData[transectGroup][locationIndex][j]);
-    grainValues.push(grainData[transectGroup][locationIndex][j]);
-    shearMoistureValues.push({shearValue: fullData[transectGroup][locationIndex][j], moistureValue: moistureData[transectGroup][locationIndex][j]});
+    // const j = Math.floor(rng() * MAX_NUM_OF_MEASUREMENTS);
+    // //console.log({transectIndex, locationIndex, measurements, j}); // for debugging
+    // shearValues.push(fullData[locationIndex][j]);
+    // moistureValues.push(moistureData[locationIndex][j]);
+    // shearMoistureValues.push({shearValue: fullData[locationIndex][j], moistureValue: moistureData[locationIndex][j]});
+    shearValues.push(fullData[locationIndex][i]);
+    moistureValues.push(moistureData[locationIndex][i]);
+    shearMoistureValues.push({shearValue: fullData[locationIndex][i], moistureValue: moistureData[locationIndex][i]});
   }
   //console.log({shearValues, moistureValues, grainValues, shearMoistureValues}); // for debugging
-  return {shearValues, moistureValues, grainValues, shearMoistureValues};
+  return {shearValues, moistureValues, shearMoistureValues};
 }
 
 // This function parses the URL to determine whether the original or robotic version of the website will be used
@@ -317,3 +309,421 @@ export function parseQueryString(query: string) {
   });
   return queryParams;
 }
+
+// Interface for aggregated sample data by location (indices 0 - 21 on the transect)
+interface IAggregatedSamplesByLoc {
+  location: number,
+  measurements: number,
+  moisture: number[],
+  shear: number[],
+}
+
+// This function calculates the robot's suggested location
+export function calculateRobotSuggestions(actualStrategySamples: ActualStrategySample[], globalState: IState) {
+
+  let robotSuggestion : IRow[] = [];
+
+  // Create an array which contains the aggregated sample data by location
+  let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = buildAggregatedSamplesByLocation(actualStrategySamples);
+  
+  // Compute the Measurement Noise (standard deviation of shear strength at each location that has been sampled)
+  let std_loc = computeMeasurementNoise(aggregatedSamplesByLoc);
+
+  // Compute the direct Information Spatial Coverage for each sampled location
+  let spatial_coverage = computeInformationSpatialCoverage(aggregatedSamplesByLoc);
+
+  // Compute the Information Reward for each sampled location
+  let spatial_reward = computeInformationSpatialReward(aggregatedSamplesByLoc, spatial_coverage);
+  
+  // Compute the Information Variable Coverage at sampled location
+  let variable_coverage = computeInformationVariableCoverage(aggregatedSamplesByLoc);
+
+  // Compute the Information Reward for each moisture selection
+  let information_reward = computeInformationReward(variable_coverage); 
+  
+  // Compute the Moisture vs. Location Belief (not truncated)
+  let moisture_v_locationBelief = computeMoistureVsLocationBelief(aggregatedSamplesByLoc, globalState);
+
+  // Compute the distribution of variable space information reward at each location
+  let moisture_reward = computeVariableSpaceInformationReward(moisture_v_locationBelief, information_reward);
+
+  // Compute the potential discrepancy belief of sampled location using given hypothesis
+  let potential_discrepancy_belief = computePotentialDiscrepancyBelief(aggregatedSamplesByLoc, globalState);
+
+  console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward});
+
+  return robotSuggestion;
+}
+
+
+function buildAggregatedSamplesByLocation(actualStrategySamples: ActualStrategySample[]) {
+
+  let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = [];
+  
+  for (let i = 0; i < actualStrategySamples.length; i++) {
+    // Accumulate the total samples for each location
+    let locationExists = false;
+    for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
+      if (actualStrategySamples[i].index == aggregatedSamplesByLoc[j].location) {
+        locationExists = true;
+        aggregatedSamplesByLoc[j].measurements += aggregatedSamplesByLoc[0][i].measurements;
+        aggregatedSamplesByLoc[j].moisture.push(...actualStrategySamples[i].moisture);
+        aggregatedSamplesByLoc[j].shear.push(...actualStrategySamples[i].shear);
+      }
+    }
+
+    // Location doesn't yet exist in the copy of the transect samples
+    if (!locationExists) {
+      let temp = {
+        location: actualStrategySamples[i].index,
+        measurements: actualStrategySamples[i].measurements,
+        moisture: actualStrategySamples[i].moisture,
+        shear: actualStrategySamples[i].shear,
+      };
+      aggregatedSamplesByLoc.push(temp);
+    }
+  }
+
+  // Sort the transect samples by the location index in ascending order
+  aggregatedSamplesByLoc.sort((a, b) => (a.location > b.location) ? 1 : -1);
+
+  return aggregatedSamplesByLoc;
+}
+
+
+function computeMeasurementNoise(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[]) {
+  let std_loc = new Array(NUM_OF_LOCATIONS).fill(0);
+  for (let i = 0; i < aggregatedSamplesByLoc.length; i++) {
+    const n = aggregatedSamplesByLoc[i].shear.length;
+    const mean = aggregatedSamplesByLoc[i].shear.reduce((a, b) => a + b) / n;
+    const std = Math.sqrt(aggregatedSamplesByLoc[i].shear.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / (n - 1));
+    std_loc[aggregatedSamplesByLoc[i].location] = std;
+  }
+  return std_loc;
+}
+
+function computeInformationSpatialCoverage(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[]) {
+  let I_s = new Array(NUM_OF_LOCATIONS).fill(0);
+
+  for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
+    for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
+      let I_s_s = Math.exp(-1/Math.sqrt(aggregatedSamplesByLoc[j].measurements));
+      let gaussmf = Math.exp((-Math.pow((i - aggregatedSamplesByLoc[j].location), 2) / (2 * Math.pow(1.5, 2))));
+      I_s[i] += I_s_s * gaussmf;
+      I_s[i] = Math.min(I_s[i], 1); // set an upper bound of 1 for the information coverage
+    }
+  }
+  return I_s;
+}
+
+function computeInformationSpatialReward(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], spatial_coverage : number[]) {
+  let R_s_set = new Array(NUM_OF_LOCATIONS).fill(0);
+
+  for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
+
+    let I_s_s_increase = 0;
+
+    for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
+      if (aggregatedSamplesByLoc[j].location == i) {
+        I_s_s_increase = Math.exp(-1 / Math.sqrt(aggregatedSamplesByLoc[j].measurements + 3)) - Math.exp(-1 / Math.sqrt(aggregatedSamplesByLoc[j].measurements));
+        break;
+      }
+    }
+
+    if (I_s_s_increase == 0) {
+      I_s_s_increase = Math.exp(-1 / Math.sqrt(3))
+    }
+    
+    let I_s_s_increase_infer_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+    let Max_increase_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+    let R_s_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+
+    for (let k = 0; k < NUM_OF_LOCATIONS; k++) {
+      let gaussmf = Math.exp((-Math.pow((k - i), 2) / (2 * Math.pow(1.5, 2))));
+      I_s_s_increase_infer_matrix[k] = I_s_s_increase * gaussmf;
+      Max_increase_matrix[k] = 1 - spatial_coverage[k];
+      R_s_matrix[k] = Math.min(I_s_s_increase_infer_matrix[k], Max_increase_matrix[k]);
+    }
+
+    let R_s = R_s_matrix.reduce((a, b) => a + b, 0);
+    R_s_set[i] = R_s;
+  }
+  return R_s_set;
+}
+
+function histogram(data, bins) {
+  let min = Infinity;
+  let max = -Infinity;
+
+  for (const item of data) {
+      if (item < min) min = item;
+      else if (item > max) max = item;
+  }
+
+  const histogram = new Array(bins).fill(0);
+  const binWidth = (max - min) / (bins - 1);
+
+  // data points are treated as the bin centers
+  let bottom = min - (binWidth / 2);
+  for (const item of data) {
+      //histogram[Math.floor((item - bottom) / binWidth)]++;
+      histogram[Math.round(item) + 1]++;
+  }
+
+  return histogram;
+}
+
+function computeInformationVariableCoverage(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[]) {
+
+  let xx : number[] = [];
+  // let moist : number[] = [];
+  // for (let i = 0; i < moistureData.length; i++) {
+  //   moist.push(moistureData[i][0]);
+  // }
+
+  for (let i = 0; i < aggregatedSamplesByLoc.length; i++) {
+    for (let j = 0; j < aggregatedSamplesByLoc[i].measurements; j++) {
+      xx.push(aggregatedSamplesByLoc[i].moisture[0]);
+    }
+  }
+
+  let moistureBins = MOISTURE_BINS;
+  let countMoist : number[] = histogram(xx, moistureBins);
+  let I_v_s = countMoist.map((count) => {
+    //count /= moistureBins;
+    count = Math.exp(-1 / Math.sqrt(2 * count));
+    return count;
+  })
+
+  let I_v = new Array(I_v_s.length).fill(0);
+  for (let i = 0; i < I_v_s.length; i++) {
+    for (let j = 0; j < I_v_s.length; j++) {
+      let gaussmf = Math.exp((-Math.pow((j - i), 2) / (2 * Math.pow(1.5, 2))));
+      I_v[i] += I_v_s[j] * gaussmf;
+    }
+    I_v[i] = Math.min(I_v[i], 1); 
+  }
+
+  console.log({xx, countMoist, I_v_s, I_v});
+  return I_v; 
+}
+
+function computeInformationReward(variable_coverage : number[]) {
+  // let R_m_set = new Array(MOISTURE_BINS).fill(0);
+  // let I_m_m_increase_infer_matrix = new Array(MOISTURE_BINS).fill(0);
+  // let Max_increase_moisture_matrix = new Array(MOISTURE_BINS).fill(0);
+  // let R_m_matrix = new Array(MOISTURE_BINS).fill(0);
+
+  // for (let i = 0; i < MOISTURE_BINS; i++) {
+  //   for (let j = 0; j < MOISTURE_BINS; j++) {
+  //     let gaussmf = Math.exp((-Math.pow((j - i), 2) / (2 * Math.pow(1.5, 2))));
+  //     I_m_m_increase_infer_matrix[j] = (3 / MOISTURE_BINS) * gaussmf;
+  //   }
+  //   for (let k = 0; k < MOISTURE_BINS; k++) {
+  //     Max_increase_moisture_matrix[k] = 1 - variable_coverage[k];
+  //     R_m_matrix[k] = Math.min(I_m_m_increase_infer_matrix[k], Max_increase_moisture_matrix[k]);
+  //   }
+  //   //Max_increase_moisture_matrix[i] = 1 - variable_coverage[i];
+  //   //R_m_matrix[i] = Math.min(I_m_m_increase_infer_matrix[i], Max_increase_moisture_matrix[i]);
+  //   let R_m = R_m_matrix.reduce((a, b) => a + b, 0);
+  //   R_m_set[i] = R_m;
+  //   console.log({I_m_m_increase_infer_matrix, Max_increase_moisture_matrix, R_m_matrix, R_m});
+  // }
+  let R_m_set = variable_coverage;
+  return R_m_set;
+}
+
+function computeMoistureVsLocationBelief(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], globalState: IState) {
+
+  let mean_moisture_each = new Array(NUM_OF_LOCATIONS).fill(0);
+  let min_moisture_each = new Array(NUM_OF_LOCATIONS).fill(0);
+  let max_moisture_each = new Array(NUM_OF_LOCATIONS).fill(0);
+
+  const { moistureData } = globalState;
+  let moist : number[] = [];
+  for (let i = 0; i < moistureData.length; i++) {
+    moist.push(moistureData[i][0]);
+  }
+  console.log({moist});
+
+  for (let i = 0; i < aggregatedSamplesByLoc.length; i++) {
+
+    let moisture : number[] = [];
+    for (let j = 0; j < aggregatedSamplesByLoc[i].measurements; j++) {
+      moisture.push(moist[aggregatedSamplesByLoc[i].location]);
+    }
+    let moisture_mean = moisture.reduce((a, b) => a + b) / moisture.length;
+    let moisture_std = Math.sqrt(moisture.map(x => Math.pow(x - moisture_mean, 2)).reduce((a, b) => a + b) / moisture.length);
+
+    console.log({moisture, moisture_mean});
+
+    // check the first point a
+    if (i == 0) {
+      // find the next point b
+      let moisture_next : number[] = [];
+      for (let j = 0; j < aggregatedSamplesByLoc[i + 1].measurements; j++) {
+        moisture_next.push(moist[aggregatedSamplesByLoc[i + 1].location]);
+      }
+      let moisture_mean_next = moisture_next.reduce((a, b) => a + b) / moisture_next.length;
+      let moisture_std_next = Math.sqrt(moisture_next.map(x => Math.pow(x - moisture_mean_next, 2)).reduce((a, b) => a + b) / moisture_next.length);
+      // compute the slope of ab
+      let slope = (moisture_mean_next - moisture_mean) / (aggregatedSamplesByLoc[i + 1].location - aggregatedSamplesByLoc[i].location);
+      // compute mean, max, min arrays (all 1x22)
+      for (let j = 0; j < aggregatedSamplesByLoc[i].location; j++) {
+        mean_moisture_each[j] = moisture_mean - slope * (aggregatedSamplesByLoc[i].location - j);
+        min_moisture_each[j] = Math.min(moisture_mean - 2 * slope * (aggregatedSamplesByLoc[i].location - j), moisture_mean);
+        max_moisture_each[j] = Math.max(moisture_mean - 2 * slope * (aggregatedSamplesByLoc[i].location - j), moisture_mean);
+      }
+
+    // check the last point
+    } else if (i == aggregatedSamplesByLoc.length - 1) {
+      // find the previous point d
+      let moisture_prev : number[] = [];
+      for (let j = 0; j < aggregatedSamplesByLoc[i - 1].measurements; j++) {
+        moisture_prev.push(moist[aggregatedSamplesByLoc[i - 1].location]);
+      }
+      let moisture_mean_prev = moisture_prev.reduce((a, b) => a + b) / moisture_prev.length;
+      let moisture_std_prev = Math.sqrt(moisture_prev.map(x => Math.pow(x - moisture_mean_prev, 2)).reduce((a, b) => a + b) / moisture_prev.length);
+      // compute the slope of ab
+      let slope = (moisture_mean - moisture_mean_prev) / (aggregatedSamplesByLoc[i].location - aggregatedSamplesByLoc[i - 1].location);
+      // compute mean, max, min arrays (all 1x22)
+      for (let j = aggregatedSamplesByLoc[i].location; j < NUM_OF_LOCATIONS; j++) {
+        mean_moisture_each[j] = moisture_mean + slope * (j - aggregatedSamplesByLoc[i].location);
+        min_moisture_each[j] = Math.min(moisture_mean + 2 * slope * ((NUM_OF_LOCATIONS - 1) - aggregatedSamplesByLoc[i].location), moisture_mean);
+        max_moisture_each[j] = Math.max(moisture_mean + 2 * slope * ((NUM_OF_LOCATIONS - 1) - aggregatedSamplesByLoc[i].location), moisture_mean);
+      }
+      // also compute the previous part (ask Shipeng whether it should end before current location or at current location, there seems to be some overlap between lines 583 and 589)
+      for (let k = aggregatedSamplesByLoc[i - 1].location; k < aggregatedSamplesByLoc[i].location + 1; k++) {
+        mean_moisture_each[k] = moisture_mean + slope * (k - aggregatedSamplesByLoc[i].location);
+        min_moisture_each[k] = Math.min(moisture_mean_prev, moisture_mean);
+        max_moisture_each[k] = Math.max(moisture_mean_prev, moisture_mean);
+      }
+    
+    // check all the middle points
+    } else {
+      // find the previous point d
+      let moisture_prev : number[] = [];
+      for (let j = 0; j < aggregatedSamplesByLoc[i - 1].measurements; j++) {
+        moisture_prev.push(moist[aggregatedSamplesByLoc[i - 1].location]);
+      }
+      let moisture_mean_prev = moisture_prev.reduce((a, b) => a + b) / moisture_prev.length;
+      let moisture_std_prev = Math.sqrt(moisture_prev.map(x => Math.pow(x - moisture_mean_prev, 2)).reduce((a, b) => a + b) / moisture_prev.length);
+      let slope = (moisture_mean - moisture_mean_prev) / (aggregatedSamplesByLoc[i].location - aggregatedSamplesByLoc[i - 1].location);
+      for (let j = aggregatedSamplesByLoc[i - 1].location; j < aggregatedSamplesByLoc[i].location; j++) {
+        mean_moisture_each[j] = moisture_mean + slope * (j - aggregatedSamplesByLoc[i].location);
+        min_moisture_each[j] = Math.min(moisture_mean_prev, moisture_mean);
+        max_moisture_each[j] = Math.max(moisture_mean_prev, moisture_mean);
+      }
+    }
+  }
+
+  console.log({mean_moisture_each, min_moisture_each, max_moisture_each});
+  return {mean_moisture_each, min_moisture_each, max_moisture_each};
+
+}
+
+function computeVariableSpaceInformationReward(moisture_v_locationBelief, information_reward) {
+  const { mean_moisture_each, min_moisture_each, max_moisture_each } = moisture_v_locationBelief;
+  let R_v_set = new Array(NUM_OF_LOCATIONS).fill(0);
+
+  for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
+    let std = (max_moisture_each[i] - min_moisture_each[i]) / 3;
+    let moisture_possibility : number[] = [];
+    let curr = min_moisture_each[i];
+    while (curr < max_moisture_each[i]) {
+      moisture_possibility.push(curr);
+      curr += 0.5;
+    }
+
+    let probability = new Array(moisture_possibility.length).fill(0);
+    let actual_probability = new Array(moisture_possibility.length).fill(0);
+
+    for (let j = 0; j < moisture_possibility.length; j++) {
+      probability[j] = Math.exp((-Math.pow((moisture_possibility[j] - mean_moisture_each[i]), 2) / (2 * Math.pow(std, 2))));
+    }
+    let probability_sum = probability.reduce((a, b) => a + b);
+    for (let j = 0; j < moisture_possibility.length; j++) {
+      actual_probability[j] = probability[j] / probability_sum;
+    }
+
+    let R_m_l = 0;
+    for (let j = 0; j < moisture_possibility.length; j++) {
+      let moisture_index = 0;
+      if (Math.floor(moisture_possibility[j]) + 1 < 1) {
+        moisture_index = 0;
+      } else if (Math.floor(moisture_possibility[j]) + 1 > 17) {
+        moisture_index = 16;
+      } else {
+        moisture_index = Math.floor(moisture_possibility[j]);
+      }
+      R_m_l += information_reward[moisture_index] * actual_probability[j];
+    }
+    R_v_set[i] = R_m_l;
+
+    console.log({std, moisture_possibility, probability, actual_probability, R_m_l, R_v_set, information_reward});
+  }
+  return R_v_set;
+}
+
+function plusFun(x: number) {
+  return Math.max(x, 0);
+}
+
+function model(P: number[], x: number) {
+  return P[0] - P[1] * plusFun(P[2] - x);
+}
+
+function Pfit() {
+  
+}
+
+function linearRegression(xx: number[], yy: number[], moist: number[]) {
+
+  let P = new Array(8, 0.842, 9.5);
+  let lb = new Array(0, 0, 0);
+  let ub = new Array(20, 5, 20);
+  
+  //let plusFun = 
+
+  //return {loc, err, spread, xfit, xx_model};
+}
+
+function computePotentialDiscrepancyBelief(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], globalState: IState) {
+  let minCoverage = 0.06;
+  let xx : number[] = [];
+  let yy : number[] = [];
+  let RMSE : number[] = [];
+
+  const { moistureData, fullData } = globalState;
+  let moist : number[] = [];
+  for (let i = 0; i < moistureData.length; i++) {
+    moist.push(moistureData[i][0]);
+  }
+
+  for (let i = 0; i < aggregatedSamplesByLoc.length; i++) {
+    for (let j = 0; j < aggregatedSamplesByLoc[i].measurements; j++) {
+      xx.push(moist[aggregatedSamplesByLoc[i].location]);
+      yy.push(fullData[aggregatedSamplesByLoc[i].location][j]);
+    }
+  }
+
+  xx.sort((a, b) => (a > b) ? 1 : -1);
+  //yy.sort((a, b) => (a > b) ? 1 : -1); why not sort yy?
+
+  let moistureBins = MOISTURE_BINS;
+  let countMoist : number[] = histogram(xx, moistureBins);
+
+  let moistCoverage = countMoist.filter(element => element > 0).length / MOISTURE_BINS;
+  if (moistCoverage > minCoverage) {
+    // Linear regression = how do I do this?
+
+
+  }
+
+  console.log({xx, yy, RMSE, countMoist, moistCoverage});
+
+}
+
+
+
+
