@@ -1,5 +1,5 @@
 import { getMeasurements, getNOMTaken, mean, randomInt } from '../util';
-import { NORMALIZED_WIDTH, shearChartOption, moistChartOption, shearMoistChartOption, grainChartOption, SampleState, NORMALIZED_CREST_RANGE } from '../constants';
+import { NORMALIZED_WIDTH, shearChartOption, moistChartOption, shearMoistChartOption, SampleState, NORMALIZED_CREST_RANGE } from '../constants';
 import { IState, Action, Charts, ChartDisplayMode } from '../state';
 import * as Chart from 'chart.js';
 import { TransectType } from '../types';
@@ -7,7 +7,7 @@ import { TransectType } from '../types';
 export enum ChartLocation { Field, Transect }
 
 export const updateCharts = (globalState: IState, dispatch: any) => {
-  const { sampleState, chartSettings, fullData, moistureData, grainData, strategy } = globalState;
+  const { sampleState, chartSettings, fullData, moistureData, strategy } = globalState;
   const { curRowIdx, curTransectIdx, transectSamples, transectIndices } = strategy;
   const currentTransectID = curTransectIdx >= transectIndices.length ? -1 : transectIndices[curTransectIdx].number;
   let { chart } = globalState;
@@ -24,7 +24,6 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
   const shearDataPoints = [] as any[];
   const moistureDataPoints = [] as any[];
   const shearMoistureDataPoints = [] as any[];
-  const grainDataPoints = [] as any[];
 
   const maxTransectIndex = sampleState === SampleState.DEVIATED ? transectIndices.length - 1 : curTransectIdx;
 
@@ -44,26 +43,22 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     for (let rowIndex = 0; rowIndex <= maxRowIndex; rowIndex++) {
       const row = transectSamples[transectIndex][rowIndex];
       if (row.type === 'Discarded') continue;
-      if (!row.grain) continue;
 
       const { index, measurements } = row;
       const rows = transectSamples[curTransectIdx] || [];
       // Map x value from just the section of the slope to [0, 1]
       const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
-      const {shearValues, moistureValues, grainValues, shearMoistureValues} = getMeasurements(globalState, transectIndices[transectIndex].number, index, measurements);
+      const {shearValues, moistureValues, shearMoistureValues} = getMeasurements(globalState, transectIndices[transectIndex].number, index, measurements);
       const averageShearValue = mean(shearValues);
       const averageMoistureValue = mean(moistureValues);
-      const averageGrainValue = mean(grainValues);
 
       if (chartSettings.mode === ChartDisplayMode.RAW) {
         shearValues.forEach(value => pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), value, currentTransect, rowIndex, curRowIdx, id));
         moistureValues.forEach(value => pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), value, currentTransect, rowIndex, curRowIdx, id));
-        grainValues.forEach(value => pushChartArrayValue(grainDataPoints, Math.min(xVal, 1), value, currentTransect, rowIndex, curRowIdx, id));
         shearMoistureValues.forEach(value => pushChartArrayValue(shearMoistureDataPoints, value.moistureValue, value.shearValue, currentTransect, rowIndex, curRowIdx, id));
       } else if (chartSettings.mode === ChartDisplayMode.AVERAGE) {
         pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), averageShearValue, currentTransect, rowIndex, curRowIdx, id);
         pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), averageMoistureValue, currentTransect, rowIndex, curRowIdx, id);
-        pushChartArrayValue(grainDataPoints, Math.min(xVal, 1), averageGrainValue, currentTransect, rowIndex, curRowIdx, id);
         pushChartArrayValue(shearMoistureDataPoints, averageMoistureValue, averageShearValue, currentTransect, rowIndex, curRowIdx, id);
       }
     }
@@ -72,7 +67,6 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
   if (chart.shearChart) {
     chart.shearChart.data.datasets[0].data = shearDataPoints;
     chart.moistChart.data.datasets[0].data = moistureDataPoints;
-    chart.grainChart.data.datasets[0].data = grainDataPoints;
     chart.shearMoistChart.data.datasets[0].data = shearMoistureDataPoints;
   } else {
     //console.log("chart.shearChart undefined");
@@ -81,7 +75,6 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
   if (chart.shearChartMap) {
     chart.shearChartMap.data.datasets[0].data = shearDataPoints;
     chart.moistChartMap.data.datasets[0].data = moistureDataPoints;
-    chart.grainChartMap.data.datasets[0].data = grainDataPoints;
     chart.shearMoistChartMap.data.datasets[0].data = shearMoistureDataPoints;
   } else {
     //console.log("chart.shearChartMap undefined");
@@ -102,20 +95,16 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
   // Recursively apply function to array
   const apply = (f, v) => Array.isArray(v) ? f(...v.map(vi => apply(f, vi))) : v;
 
-  const { fullData, moistureData, grainData } = globalState;
+  const { fullData, moistureData } = globalState;
   const minShear = apply(Math.min, fullData) - 0.5;
   const maxShear = apply(Math.max, fullData) + 0.5;
   const minMoisture = apply(Math.min, moistureData) - 0.5;
   const maxMoisture = apply(Math.max, moistureData) + 0.5
-  const minGrain = apply(Math.min, grainData) - 0.1;
-  const maxGrain = apply(Math.max, grainData) + 0.1;
 
   shearChartOption.options.scales.xAxes[0].ticks = { min: -0.1, max: 1.1 };
   shearChartOption.options.scales.yAxes[0].ticks = { min: minShear, max: maxShear };
   moistChartOption.options.scales.xAxes[0].ticks = { min: -0.1, max: 1.1 };
   moistChartOption.options.scales.yAxes[0].ticks = { min: minMoisture, max: maxMoisture };
-  grainChartOption.options.scales.xAxes[0].ticks = { min: -0.1, max: 1.1 };
-  grainChartOption.options.scales.yAxes[0].ticks = { min: minGrain, max: maxGrain };
   shearMoistChartOption.options.scales.xAxes[0].ticks = { min: minMoisture, max: maxMoisture };
   shearMoistChartOption.options.scales.yAxes[0].ticks = { min: minShear, max: maxShear };
 
@@ -137,23 +126,20 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
   };
   // shearChartOption.options.onHover = onHoverFunc;
   // moistChartOption.options.onHover = onHoverFunc;
-  // grainChartOption.options.onHover = onHoverFunc;
 
-  let shearChart: any, moistChart: any, shearMoistChart: any, grainChart: any,
-      shearChartMap: any, moistChartMap: any, shearMoistChartMap: any, grainChartMap: any;
+  let shearChart: any, moistChart: any, shearMoistChart: any, 
+      shearChartMap: any, moistChartMap: any, shearMoistChartMap: any
 
   // Assume that if one chart is in DOM, the others also are.
   if (document.getElementById('shearChart')) {
     const shearCtx = (document.getElementById('shearChart') as HTMLCanvasElement).getContext('2d');
     const moistCtx = (document.getElementById('moistChart') as HTMLCanvasElement).getContext('2d');
     const shearMoistCtx = (document.getElementById('shearMoistChart') as HTMLCanvasElement).getContext('2d');
-    const grainCtx = (document.getElementById('grainChart') as HTMLCanvasElement).getContext('2d');
 
-    if (shearCtx && moistCtx && grainCtx && shearMoistCtx) {
+    if (shearCtx && moistCtx && shearMoistCtx) {
       shearChart = new Chart(shearCtx, shearChartOption as any);
       moistChart = new Chart(moistCtx, moistChartOption as any);
       shearMoistChart = new Chart(shearMoistCtx, shearMoistChartOption as any);
-      grainChart = new Chart(grainCtx, grainChartOption as any);
     }
   }
 
@@ -161,19 +147,16 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
     const shearMapCtx = (document.getElementById('shearChartMap') as HTMLCanvasElement).getContext('2d');
     const moistMapCtx = (document.getElementById('moistChartMap') as HTMLCanvasElement).getContext('2d');
     const shearMoistMapCtx = (document.getElementById('shearMoistChartMap') as HTMLCanvasElement).getContext('2d');
-    const grainMapCtx = (document.getElementById('grainChartMap') as HTMLCanvasElement).getContext('2d');
 
-    if (shearMapCtx && moistMapCtx && shearMoistMapCtx && grainMapCtx) {
+    if (shearMapCtx && moistMapCtx && shearMoistMapCtx) {
       shearChartMap = new Chart(shearMapCtx, shearChartOption as any);
       moistChartMap = new Chart(moistMapCtx, moistChartOption as any);
       shearMoistChartMap = new Chart(shearMoistMapCtx, shearMoistChartOption as any);
-      grainChartMap = new Chart(grainMapCtx, grainChartOption as any);
     }
   }
 
   const charts : Charts = {
-    shearChart, moistChart, shearMoistChart, grainChart,
-    shearChartMap, moistChartMap, shearMoistChartMap, grainChartMap
+    shearChart, moistChart, shearMoistChart, shearChartMap, moistChartMap, shearMoistChartMap
   };
   dispatch({
     type: Action.SET_CHART,
@@ -215,7 +198,6 @@ var resetCanvas = function(){
   document.getElementById('shearChart')?.remove();
   document.getElementById('moistChart')?.remove();
   document.getElementById('shearMoistChart')?.remove();
-  document.getElementById('grainChart')?.remove();
 
   let canvasShear = document.createElement('canvas');
   canvasShear.id = 'shearChart';
@@ -228,9 +210,5 @@ var resetCanvas = function(){
   let canvasShearMoist = document.createElement('canvas');
   canvasShearMoist.id = 'shearMoistChart';
   document.getElementById('shearMoistChartParent')?.appendChild(canvasShearMoist);
-
-  let canvasGrain = document.createElement('canvas');
-  canvasGrain.id = 'grainChart';
-  document.getElementById('grainChartParent')?.appendChild(canvasGrain);
 };
 

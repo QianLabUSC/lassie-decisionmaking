@@ -23,6 +23,7 @@ export const BATTERY_COST_PER_SAMPLE = 0.005;
 export const BATTERY_COST_PER_DISTANCE = 0.00005;
 export const BATTERY_COST_PER_TRANSECT_DISTANCE = 3;
 export const DOMINANT_WIND_DIRECTION = 50;
+export const MOISTURE_BINS = 19;
 // Milliseconds within which progress is automatically loaded on page load.
 export const AUTO_LOAD_MS = 1000;
 

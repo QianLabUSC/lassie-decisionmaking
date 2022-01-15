@@ -7,10 +7,16 @@ export const initialStrategyAlt = {
         {number: 0, windIndex: 0, type: TransectType.NORMAL, templateNumber: -1, templateIdx: -1},
     ],
     transectSamples: [
+        // [
+        //     { index: 0, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 229, normOffsetY: 70, isHovered: false },
+        //     { index: 10, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 629, normOffsetY: 160, isHovered: false },
+        //     { index: 21, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 1069, normOffsetY: 289, isHovered: false },
+        // ]
         [
-            { index: 0, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 229, normOffsetY: 70, isHovered: false },
+            { index: 1, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 269, normOffsetY: 72, isHovered: false },
             { index: 10, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 629, normOffsetY: 160, isHovered: false },
-            { index: 21, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 1069, normOffsetY: 289, isHovered: false },
+            { index: 14, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 789, normOffsetY: 247.5, isHovered: false },
+            { index: 19, measurements: NUM_MEASUREMENTS, type: RowType.NORMAL, normOffsetX: 989, normOffsetY: 289, isHovered: false },
         ]
     ]
 }

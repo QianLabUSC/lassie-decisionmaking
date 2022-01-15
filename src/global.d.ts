@@ -39,5 +39,4 @@ interface IRow {
   moisture?: number[],
   /** Shears at the sample */
   shear?: number[],
-  grain?: number[]
 }

@@ -3,7 +3,6 @@ import { createContext, useContext, useReducer } from 'react';
 import { SampleState, TransectState, BATTERY_COST_PER_SAMPLE, defaultHypothesisResponse, RowType } from './constants';
 import { Transect, DialogProps, InitialStrategyData, InitialStrategyTransect, InitialStrategySample, 
   ActualStrategyData, HypothesisResponse, DataVersion } from './types';
-import { getShearData, getMoistureData, getGrainData } from './util';
 
 interface IStrategy {
   curTransectIdx: number,
@@ -33,11 +32,9 @@ export type Charts = {
   shearChart : Chart | null,
   moistChart : Chart | null,
   shearMoistChart : Chart | null,
-  grainChart : Chart | null,
   shearChartMap : Chart | null,
   moistChartMap : Chart | null,
   shearMoistChartMap : Chart | null,
-  grainChartMap : Chart | null
 } | null;
 
 export interface IState {
@@ -51,13 +48,13 @@ export interface IState {
   chart: Charts,
   chartSettings: ChartSettings,
   imgClickEnabled: boolean, 
-  mainEntered: boolean, // used for determining when the shear, moisture, and grain data gets loaded
+  mainEntered: boolean,
   decisionEntered: boolean,
   showROC: boolean,
   isAlternativeHypo: boolean,
-  fullData: number[][][],
-  moistureData: number[][][],
-  grainData: number[][][],
+  fullData: number[][],
+  moistureData: number[][],
+  grainData: number[][],
   dataVersion: DataVersion,
   showBattery: boolean,
   initialHypos: string[],
