@@ -49,7 +49,7 @@ export default function Main() {
 
   const {
     sampleState, chart, imgClickEnabled, strategy, actualStrategyData, 
-    batteryLevel, batteryWarning, chartSettings,
+    batteryLevel, batteryWarning, chartSettings, moistureData
   } = globalState;
   const { curRowIdx, curTransectIdx, transectSamples, transectIndices } = strategy;
   const rows = transectSamples[curTransectIdx] || [];
@@ -491,9 +491,9 @@ export default function Main() {
       case UserFeedbackStep.OBJECTIVE: {
         if (objective !== 4) {
           setRobotSuggestion(sampleRobotSuggestion);
-          
+
           console.log(actualStrategyData.transects[0]);
-          calculateRobotSuggestions(actualStrategyData.transects[0].samples);
+          calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState);
 
           setShowRobotSuggestion(true);
           setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
