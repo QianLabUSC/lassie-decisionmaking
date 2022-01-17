@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { NORMALIZED_WIDTH, RowType, transectLines, BATTERY_COST_PER_SAMPLE,
-  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS } from './constants';
+  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, rejectReasonOptions } from './constants';
 import { measurements } from './mesurements';
 import { dataset } from './data/rhexDataset';
 import { Transect, TransectType, ActualStrategySample } from './types';
@@ -625,6 +625,7 @@ function computeMoistureVsLocationBelief(aggregatedSamplesByLoc : IAggregatedSam
 function computeVariableSpaceInformationReward(moisture_v_locationBelief, information_reward) {
   const { mean_moisture_each, min_moisture_each, max_moisture_each } = moisture_v_locationBelief;
   let R_v_set = new Array(NUM_OF_LOCATIONS).fill(0);
+  let moisture_reward = new Array(NUM_OF_LOCATIONS).fill(0);
 
   for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
     let std = (max_moisture_each[i] - min_moisture_each[i]) / 3;
@@ -649,49 +650,62 @@ function computeVariableSpaceInformationReward(moisture_v_locationBelief, inform
     let R_m_l = 0;
     for (let j = 0; j < moisture_possibility.length; j++) {
       let moisture_index = 0;
-      if (Math.floor(moisture_possibility[j]) + 1 < 1) {
+      if (Math.round(moisture_possibility[j]) + 2 < 1) {
         moisture_index = 0;
-      } else if (Math.floor(moisture_possibility[j]) + 1 > 17) {
+      } else if (Math.round(moisture_possibility[j]) + 2 > 17) {
         moisture_index = 16;
       } else {
-        moisture_index = Math.floor(moisture_possibility[j]);
+        moisture_index = Math.round(moisture_possibility[j]) + 1;
       }
       R_m_l += information_reward[moisture_index] * actual_probability[j];
     }
     R_v_set[i] = R_m_l;
+    moisture_reward[i] = 1 - R_v_set[i];
 
-    console.log({std, moisture_possibility, probability, actual_probability, R_m_l, R_v_set, information_reward});
+    //console.log({std, moisture_possibility, probability, actual_probability, R_m_l, R_v_set, information_reward});
   }
-  return R_v_set;
+  return moisture_reward;
 }
 
-function plusFun(x: number) {
-  return Math.max(x, 0);
-}
+function linearRegression(xx: number[], yy: number[], zz: number[], moist: number[]) {
 
-function model(P: number[], x: number) {
-  return P[0] - P[1] * plusFun(P[2] - x);
-}
+  let inputs = {
+    xx : xx,
+    yy: yy,
+    zz: zz,
+    moist: moist
+  }
+  let outputs : any;
 
-function Pfit() {
-  
-}
-
-function linearRegression(xx: number[], yy: number[], moist: number[]) {
-
-  let P = new Array(8, 0.842, 9.5);
-  let lb = new Array(0, 0, 0);
-  let ub = new Array(20, 5, 20);
-  
-  //let plusFun = 
-
+  return new Promise((resolve, reject) => {
+    fetch('http://127.0.0.1:5000/regression', {
+      method: 'POST',
+      cache: 'no-cache',
+      headers: {
+        'content_type': "application/json",
+      },
+      body: JSON.stringify(inputs), 
+    }).then(
+      res => res.json()
+    ).then(
+      data => {
+        console.log({data});
+        resolve(data);
+      }
+    ).catch((err) => {
+      reject(err);
+    });
+  });
+  //console.log({outputs});
+  //return outputs;
   //return {loc, err, spread, xfit, xx_model};
 }
 
-function computePotentialDiscrepancyBelief(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], globalState: IState) {
+async function computePotentialDiscrepancyBelief(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], globalState: IState) {
   let minCoverage = 0.06;
   let xx : number[] = [];
   let yy : number[] = [];
+  let zz : number[] = [];
   let RMSE : number[] = [];
 
   const { moistureData, fullData } = globalState;
@@ -704,23 +718,27 @@ function computePotentialDiscrepancyBelief(aggregatedSamplesByLoc : IAggregatedS
     for (let j = 0; j < aggregatedSamplesByLoc[i].measurements; j++) {
       xx.push(moist[aggregatedSamplesByLoc[i].location]);
       yy.push(fullData[aggregatedSamplesByLoc[i].location][j]);
+      zz.push(aggregatedSamplesByLoc[i].location);
     }
   }
 
   xx.sort((a, b) => (a > b) ? 1 : -1);
   //yy.sort((a, b) => (a > b) ? 1 : -1); why not sort yy?
+  //zz.sort((a, b) => (a > b) ? 1 : -1); why not sort zz?
 
   let moistureBins = MOISTURE_BINS;
   let countMoist : number[] = histogram(xx, moistureBins);
 
+  let outputs;
   let moistCoverage = countMoist.filter(element => element > 0).length / MOISTURE_BINS;
+
   if (moistCoverage > minCoverage) {
-    // Linear regression = how do I do this?
-
-
+    outputs = await linearRegression(xx, yy, zz, moist);
   }
 
-  console.log({xx, yy, RMSE, countMoist, moistCoverage});
+  console.log({outputs});
+
+  console.log({xx, yy, zz, RMSE, countMoist, moistCoverage});
 
 }
 
