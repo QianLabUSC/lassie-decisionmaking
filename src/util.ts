@@ -1,10 +1,11 @@
 import * as _ from 'lodash';
 import { NORMALIZED_WIDTH, RowType, transectLines, BATTERY_COST_PER_SAMPLE,
-  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS } from './constants';
+  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, rejectReasonOptions } from './constants';
 import { measurements } from './mesurements';
 import { dataset } from './data/rhexDataset';
 import { Transect, TransectType, ActualStrategySample } from './types';
 import { IState } from './state';
+import { floor } from 'lodash';
 
 export const isProduction = () => {
   return process.env.MODE === 'production';
@@ -319,9 +320,9 @@ interface IAggregatedSamplesByLoc {
 }
 
 // This function calculates the robot's suggested location
-export function calculateRobotSuggestions(actualStrategySamples: ActualStrategySample[], globalState: IState) {
+export async function calculateRobotSuggestions(actualStrategySamples: ActualStrategySample[], globalState: IState) {
 
-  let robotSuggestion : IRow[] = [];
+  let robotSuggestions : IRow[] = [];
 
   // Create an array which contains the aggregated sample data by location
   let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = buildAggregatedSamplesByLocation(actualStrategySamples);
@@ -348,11 +349,20 @@ export function calculateRobotSuggestions(actualStrategySamples: ActualStrategyS
   let moisture_reward = computeVariableSpaceInformationReward(moisture_v_locationBelief, information_reward);
 
   // Compute the potential discrepancy belief of sampled location using given hypothesis
-  let potential_discrepancy_belief = computePotentialDiscrepancyBelief(aggregatedSamplesByLoc, globalState);
+  let potential_discrepancy_belief = await computePotentialDiscrepancyBelief(aggregatedSamplesByLoc, globalState);
 
-  console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward});
+  // Compute the belief of shear strength vs moisture
+  let shearStrength_v_moisture = computeShearStrengthVsMoisture(potential_discrepancy_belief);
 
-  return robotSuggestion;
+  // Compute the potential discrepancy reward
+  let discrepancy_reward = computeDiscrepancyReward(moisture_v_locationBelief, shearStrength_v_moisture, potential_discrepancy_belief);
+
+  // Compute the robot suggestions based on each objective
+  let peaks = await computePeaks(spatial_reward, moisture_reward, discrepancy_reward); 
+
+  console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward, potential_discrepancy_belief, shearStrength_v_moisture, discrepancy_reward, peaks});
+
+  return robotSuggestions;
 }
 
 
@@ -417,38 +427,37 @@ function computeInformationSpatialCoverage(aggregatedSamplesByLoc : IAggregatedS
 }
 
 function computeInformationSpatialReward(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], spatial_coverage : number[]) {
-  let R_s_set = new Array(NUM_OF_LOCATIONS).fill(0);
+  // let R_s_set = new Array(NUM_OF_LOCATIONS).fill(0);
+  // for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
+  //   let I_s_s_increase = 0;
+  //   for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
+  //     if (aggregatedSamplesByLoc[j].location == i) {
+  //       I_s_s_increase = Math.exp(-1 / Math.sqrt(aggregatedSamplesByLoc[j].measurements + 3)) - Math.exp(-1 / Math.sqrt(aggregatedSamplesByLoc[j].measurements));
+  //       break;
+  //     }
+  //   }
+  //   if (I_s_s_increase == 0) {
+  //     I_s_s_increase = Math.exp(-1 / Math.sqrt(3))
+  //   }
+  //   let I_s_s_increase_infer_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+  //   let Max_increase_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+  //   let R_s_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
+  //   for (let k = 0; k < NUM_OF_LOCATIONS; k++) {
+  //     let gaussmf = Math.exp((-Math.pow((k - i), 2) / (2 * Math.pow(1.5, 2))));
+  //     I_s_s_increase_infer_matrix[k] = I_s_s_increase * gaussmf;
+  //     Max_increase_matrix[k] = 1 - spatial_coverage[k];
+  //     R_s_matrix[k] = Math.min(I_s_s_increase_infer_matrix[k], Max_increase_matrix[k]);
+  //   }
+  //   let R_s = R_s_matrix.reduce((a, b) => a + b, 0);
+  //   R_s_set[i] = R_s;
+  // }
+  //return R_s_set;
 
-  for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
-
-    let I_s_s_increase = 0;
-
-    for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
-      if (aggregatedSamplesByLoc[j].location == i) {
-        I_s_s_increase = Math.exp(-1 / Math.sqrt(aggregatedSamplesByLoc[j].measurements + 3)) - Math.exp(-1 / Math.sqrt(aggregatedSamplesByLoc[j].measurements));
-        break;
-      }
-    }
-
-    if (I_s_s_increase == 0) {
-      I_s_s_increase = Math.exp(-1 / Math.sqrt(3))
-    }
-    
-    let I_s_s_increase_infer_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
-    let Max_increase_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
-    let R_s_matrix = new Array(NUM_OF_LOCATIONS).fill(0);
-
-    for (let k = 0; k < NUM_OF_LOCATIONS; k++) {
-      let gaussmf = Math.exp((-Math.pow((k - i), 2) / (2 * Math.pow(1.5, 2))));
-      I_s_s_increase_infer_matrix[k] = I_s_s_increase * gaussmf;
-      Max_increase_matrix[k] = 1 - spatial_coverage[k];
-      R_s_matrix[k] = Math.min(I_s_s_increase_infer_matrix[k], Max_increase_matrix[k]);
-    }
-
-    let R_s = R_s_matrix.reduce((a, b) => a + b, 0);
-    R_s_set[i] = R_s;
+  let spatialReward = new Array(spatial_coverage.length).fill(0);
+  for (let i = 0; i < spatial_coverage.length; i++) {
+    spatialReward[i] = 1 - spatial_coverage[i];
   }
-  return R_s_set;
+  return spatialReward;
 }
 
 function histogram(data, bins) {
@@ -504,7 +513,7 @@ function computeInformationVariableCoverage(aggregatedSamplesByLoc : IAggregated
     I_v[i] = Math.min(I_v[i], 1); 
   }
 
-  console.log({xx, countMoist, I_v_s, I_v});
+  //console.log({xx, countMoist, I_v_s, I_v});
   return I_v; 
 }
 
@@ -544,7 +553,7 @@ function computeMoistureVsLocationBelief(aggregatedSamplesByLoc : IAggregatedSam
   for (let i = 0; i < moistureData.length; i++) {
     moist.push(moistureData[i][0]);
   }
-  console.log({moist});
+  //console.log({moist});
 
   for (let i = 0; i < aggregatedSamplesByLoc.length; i++) {
 
@@ -555,11 +564,9 @@ function computeMoistureVsLocationBelief(aggregatedSamplesByLoc : IAggregatedSam
     let moisture_mean = moisture.reduce((a, b) => a + b) / moisture.length;
     let moisture_std = Math.sqrt(moisture.map(x => Math.pow(x - moisture_mean, 2)).reduce((a, b) => a + b) / moisture.length);
 
-    console.log({moisture, moisture_mean});
-
-    // check the first point a
-    if (i == 0) {
-      // find the next point b
+    // check the first point
+    if (i === 0) {
+      // find the next point
       let moisture_next : number[] = [];
       for (let j = 0; j < aggregatedSamplesByLoc[i + 1].measurements; j++) {
         moisture_next.push(moist[aggregatedSamplesByLoc[i + 1].location]);
@@ -576,7 +583,7 @@ function computeMoistureVsLocationBelief(aggregatedSamplesByLoc : IAggregatedSam
       }
 
     // check the last point
-    } else if (i == aggregatedSamplesByLoc.length - 1) {
+    } else if (i === aggregatedSamplesByLoc.length - 1) {
       // find the previous point d
       let moisture_prev : number[] = [];
       for (let j = 0; j < aggregatedSamplesByLoc[i - 1].measurements; j++) {
@@ -617,7 +624,7 @@ function computeMoistureVsLocationBelief(aggregatedSamplesByLoc : IAggregatedSam
     }
   }
 
-  console.log({mean_moisture_each, min_moisture_each, max_moisture_each});
+  //console.log({mean_moisture_each, min_moisture_each, max_moisture_each});
   return {mean_moisture_each, min_moisture_each, max_moisture_each};
 
 }
@@ -625,12 +632,13 @@ function computeMoistureVsLocationBelief(aggregatedSamplesByLoc : IAggregatedSam
 function computeVariableSpaceInformationReward(moisture_v_locationBelief, information_reward) {
   const { mean_moisture_each, min_moisture_each, max_moisture_each } = moisture_v_locationBelief;
   let R_v_set = new Array(NUM_OF_LOCATIONS).fill(0);
+  let moisture_reward = new Array(NUM_OF_LOCATIONS).fill(0);
 
   for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
     let std = (max_moisture_each[i] - min_moisture_each[i]) / 3;
     let moisture_possibility : number[] = [];
     let curr = min_moisture_each[i];
-    while (curr < max_moisture_each[i]) {
+    while (curr <= max_moisture_each[i]) {
       moisture_possibility.push(curr);
       curr += 0.5;
     }
@@ -649,51 +657,59 @@ function computeVariableSpaceInformationReward(moisture_v_locationBelief, inform
     let R_m_l = 0;
     for (let j = 0; j < moisture_possibility.length; j++) {
       let moisture_index = 0;
-      if (Math.floor(moisture_possibility[j]) + 1 < 1) {
+      if (Math.round(moisture_possibility[j]) + 2 < 1) {
         moisture_index = 0;
-      } else if (Math.floor(moisture_possibility[j]) + 1 > 17) {
+      } else if (Math.round(moisture_possibility[j]) + 2 > 17) {
         moisture_index = 16;
       } else {
-        moisture_index = Math.floor(moisture_possibility[j]);
+        moisture_index = Math.round(moisture_possibility[j]) + 1;
       }
       R_m_l += information_reward[moisture_index] * actual_probability[j];
     }
     R_v_set[i] = R_m_l;
+    moisture_reward[i] = 1 - R_v_set[i];
 
-    console.log({std, moisture_possibility, probability, actual_probability, R_m_l, R_v_set, information_reward});
+    //console.log({std, moisture_possibility, probability, actual_probability, R_m_l, R_v_set, information_reward});
   }
-  return R_v_set;
+  return moisture_reward;
 }
 
-function plusFun(x: number) {
-  return Math.max(x, 0);
-}
+function linearRegression(xx: number[], yy: number[], zz: number[], moist: number[]) {
 
-function model(P: number[], x: number) {
-  return P[0] - P[1] * plusFun(P[2] - x);
-}
-
-function Pfit() {
+  let inputs = {
+    xx : xx,
+    yy: yy,
+    zz: zz,
+    moist: moist
+  }
   
+  return new Promise((resolve, reject) => {
+    fetch('http://127.0.0.1:5000/regression', {
+      method: 'POST',
+      cache: 'no-cache',
+      headers: {
+        'content_type': "application/json",
+      },
+      body: JSON.stringify(inputs), 
+    }).then(
+      res => res.json()
+    ).then(
+      data => {
+        //console.log({data});
+        resolve(data);
+      }
+    ).catch((err) => {
+      reject(err);
+    });
+  });
 }
 
-function linearRegression(xx: number[], yy: number[], moist: number[]) {
-
-  let P = new Array(8, 0.842, 9.5);
-  let lb = new Array(0, 0, 0);
-  let ub = new Array(20, 5, 20);
-  
-  //let plusFun = 
-
-  //return {loc, err, spread, xfit, xx_model};
-}
-
-function computePotentialDiscrepancyBelief(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], globalState: IState) {
-  let minCoverage = 0.06;
+async function computePotentialDiscrepancyBelief(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], globalState: IState) {
+  let temp_xx_yy_zz : any[] = [];
   let xx : number[] = [];
   let yy : number[] = [];
-  let RMSE : number[] = [];
-
+  let zz : number[] = [];
+  
   const { moistureData, fullData } = globalState;
   let moist : number[] = [];
   for (let i = 0; i < moistureData.length; i++) {
@@ -702,28 +718,256 @@ function computePotentialDiscrepancyBelief(aggregatedSamplesByLoc : IAggregatedS
 
   for (let i = 0; i < aggregatedSamplesByLoc.length; i++) {
     for (let j = 0; j < aggregatedSamplesByLoc[i].measurements; j++) {
-      xx.push(moist[aggregatedSamplesByLoc[i].location]);
-      yy.push(fullData[aggregatedSamplesByLoc[i].location][j]);
+      temp_xx_yy_zz.push({
+        moistData: moist[aggregatedSamplesByLoc[i].location],
+        shearData: fullData[aggregatedSamplesByLoc[i].location][j],
+        loc: aggregatedSamplesByLoc[i].location
+      });
     }
   }
 
-  xx.sort((a, b) => (a > b) ? 1 : -1);
-  //yy.sort((a, b) => (a > b) ? 1 : -1); why not sort yy?
+  // Create the three arrays (xx, yy, zz) sorted by the moisture data in xx
+  temp_xx_yy_zz.sort((a, b) => (a.moistData === b.moistData) ? 0 : (a.moistData > b.moistData) ? 1 : -1);
+  for (let i = 0; i < temp_xx_yy_zz.length; i++) {
+    xx.push(temp_xx_yy_zz[i].moistData);
+    yy.push(temp_xx_yy_zz[i].shearData);
+    zz.push(temp_xx_yy_zz[i].loc);
+  }
 
   let moistureBins = MOISTURE_BINS;
   let countMoist : number[] = histogram(xx, moistureBins);
 
-  let moistCoverage = countMoist.filter(element => element > 0).length / MOISTURE_BINS;
-  if (moistCoverage > minCoverage) {
-    // Linear regression = how do I do this?
+  let regressionResults;
+  //let moistCoverage = countMoist.filter(element => element > 0).length / MOISTURE_BINS;
 
+  // Run the piecewise linear regression which calls the regression function from the Flask Python backend server 
+  regressionResults = await linearRegression(xx, yy, zz, moist);
+  let loc = regressionResults.loc;
+  let RMSE_distribution = regressionResults.err;
+  let RMSE_spread = regressionResults.spread;
+  let xfit = regressionResults.xfit;
+  let xx_model = regressionResults.xx_model;
+  let RMSE = regressionResults['err'].reduce((a, b) => a + b) / regressionResults['err'].length;
 
+  //console.log({xx, yy, zz, temp_xx_yy_zz, RMSE, aggregatedSamplesByLoc, moist, countMoist, moistCoverage, regressionResults});
+
+  return {
+    xx,
+    yy,
+    zz,
+    loc,
+    RMSE_distribution,
+    RMSE_spread,
+    xfit,
+    xx_model,
+    RMSE
   }
-
-  console.log({xx, yy, RMSE, countMoist, moistCoverage});
-
 }
 
 
+function computeShearStrengthVsMoisture(potential_discrepancy_belief) {
+  
+  const { xx, yy, zz } = potential_discrepancy_belief;
+  
+  let xx_unique : number[] = Array.from(new Set(xx));
+  let xx_mean = new Array(xx_unique.length).fill(0);
+  let yy_mean = new Array(xx_unique.length).fill(0);
 
+  for (let i = 0; i < xx_unique.length; i++) {
+    let aa : number[] = [];
+    for (let j = 0; j < xx.length; j++) {
+      if (xx[j] === xx_unique[i]) {
+        aa.push(j);
+      }
+    }
+    let xx_finded = xx.filter((value, idx) => aa.includes(idx));
+    let yy_finded = yy.filter((value, idx) => aa.includes(idx));
+    xx_mean[i] = xx_finded.reduce((a, b) => a + b) / xx_finded.length;
+    yy_mean[i] = yy_finded.reduce((a, b) => a + b) / yy_finded.length;
+  }
 
+  //console.log({xx, yy, xx_mean, yy_mean});
+
+  let shearstrength_predict = new Array(MOISTURE_BINS).fill(0);
+  let shearstrength_min = new Array(MOISTURE_BINS).fill(0);
+  let shearstrength_max = new Array(MOISTURE_BINS).fill(0);
+
+  for (let i = 0; i < xx_mean.length; i++) {
+    
+    let moisture_mean = xx_mean[i];
+    let shearstrength_mean = yy_mean[i];
+
+    //console.log({moisture_mean, shearstrength_mean});
+
+    // check the first point
+    if (i === 0) {
+      // find the next point b
+      let moisture_mean_next = xx_mean[i + 1];
+      let shearstrength_mean_next = yy_mean[i + 1];
+      // compute the slope of ab
+      let slope = (shearstrength_mean_next - shearstrength_mean) / (moisture_mean_next - moisture_mean);
+      for (let j = 1; j <= Math.floor(xx_unique[i]) + 2; j++) {
+        shearstrength_predict[j - 1] = shearstrength_mean - slope * (moisture_mean + 2 - j);
+        shearstrength_min[j - 1] = Math.min(2 * shearstrength_predict[0] - shearstrength_mean, shearstrength_mean);
+        shearstrength_max[j - 1] = Math.max(2 * shearstrength_predict[0] - shearstrength_mean, shearstrength_mean);
+      }
+
+    // check the last point
+    } else if (i === xx_mean.length - 1) {
+      // find the next point b
+      let moisture_mean_prev = xx_mean[i - 1];
+      let shearstrength_mean_prev = yy_mean[i - 1];
+      // compute the slope of ab
+      let slope = (shearstrength_mean - shearstrength_mean_prev) / (moisture_mean - moisture_mean_prev);
+      for (let j = Math.ceil(xx_unique[i]) + 2; j <= 19; j++) {
+        shearstrength_predict[j - 1] = shearstrength_mean + slope * (j - moisture_mean - 2);
+        // find index of last non-zero number in shearstrength_predict array
+        let idx = shearstrength_predict.length - 1;
+        for (let k = shearstrength_predict.length - 1; k >= 0; k--) {
+          if (shearstrength_predict[k] != 0) {
+            idx = k;
+            break;
+          }
+        }
+        shearstrength_min[j - 1] = Math.min(2 * shearstrength_predict[idx] - shearstrength_mean, shearstrength_mean);
+        shearstrength_max[j - 1] = Math.max(2 * shearstrength_predict[idx] - shearstrength_mean, shearstrength_mean);
+      }
+      for (let j = Math.ceil(xx_unique[i - 1]) + 2; j <= Math.floor(xx_unique[i]) + 2; j++) {
+        shearstrength_predict[j - 1] = shearstrength_mean + slope * (j - moisture_mean - 2);
+        shearstrength_min[j - 1] = Math.min(yy_mean[i - 1], yy_mean[i]);
+        shearstrength_max[j - 1] = Math.max(yy_mean[i - 1], yy_mean[i]);
+      }
+
+    // check the middle points
+    } else {
+      // find the next point b
+      let moisture_mean_prev = xx_mean[i - 1];
+      let shearstrength_mean_prev = yy_mean[i - 1];
+      // compute the slope of ab
+      let slope = (shearstrength_mean - shearstrength_mean_prev) / (moisture_mean - moisture_mean_prev);
+      for (let j = Math.ceil(xx_unique[i - 1]) + 2; j <= Math.floor(xx_unique[i]) + 2; j++) {
+        shearstrength_predict[j - 1] = shearstrength_mean + slope * (j - moisture_mean - 2);
+        shearstrength_min[j - 1] = Math.min(yy_mean[i - 1], yy_mean[i]);
+        shearstrength_max[j - 1] = Math.max(yy_mean[i - 1], yy_mean[i]);
+      }
+    }
+  }
+
+  let shearstrength_range = new Array(shearstrength_min.length).fill(0);
+  for (let i = 0; i < shearstrength_range.length; i++) {
+    shearstrength_range[i] = shearstrength_max[i] - shearstrength_min[i];
+  }
+
+  //console.log({shearstrength_min, shearstrength_max, shearstrength_range, shearstrength_predict});
+  return {shearstrength_min, shearstrength_max, shearstrength_range, shearstrength_predict};
+}
+
+function computeDiscrepancyReward(moisture_v_locationBelief, shearStrength_v_moisture, potential_discrepancy_belief) {
+  
+  const { mean_moisture_each, min_moisture_each, max_moisture_each } = moisture_v_locationBelief;
+  const { shearstrength_min, shearstrength_max, shearstrength_range, shearstrength_predict } = shearStrength_v_moisture;
+  const { xx_model } = potential_discrepancy_belief;
+
+  let R_d_set = new Array(NUM_OF_LOCATIONS).fill(0);
+  for (let i = 0; i < NUM_OF_LOCATIONS; i++) {
+    let std_moist = (max_moisture_each[i] - min_moisture_each[i]) / 3;
+    let moisture_possibility : number[] = [];
+    let curr = min_moisture_each[i];
+    while (curr <= max_moisture_each[i]) {
+      moisture_possibility.push(curr);
+      curr += 1;
+    }
+
+    let moisture_probability = new Array(moisture_possibility.length).fill(0);
+    let moisture_actual_probability = new Array(moisture_possibility.length).fill(0);
+
+    for (let j = 0; j < moisture_possibility.length; j++) {
+      moisture_probability[j] = Math.exp((-Math.pow((moisture_possibility[j] - mean_moisture_each[i]), 2) / (2 * Math.pow(std_moist, 2))));
+    }
+    let moisture_probability_sum = moisture_probability.reduce((a, b) => a + b);
+    for (let j = 0; j < moisture_possibility.length; j++) {
+      moisture_actual_probability[j] = moisture_probability[j] / moisture_probability_sum;
+    }
+    
+    let R_d_m = 0;
+    // given the moisture possibility, we are going to compute the probability of getting certain discrepancy
+    for (let j = 0; j < moisture_possibility.length; j++) {
+      let moisture_index = 0;
+      if (Math.round(moisture_possibility[j]) + 2 < 1) {
+        moisture_index = 0;
+      } else if (Math.round(moisture_possibility[j]) + 2 > 17) {
+        moisture_index = 16;
+      } else {
+        moisture_index = Math.round(moisture_possibility[j]) + 1;
+      }
+
+      let shearstrength_std = (shearstrength_range[moisture_index]) / 3;
+      let shearstrength_possibility : number[] = [];
+      let curr = shearstrength_min[moisture_index];
+      while (curr <= shearstrength_max[moisture_index]) {
+        shearstrength_possibility.push(curr);
+        curr += 1;
+      }
+      let shearstrength_probability = new Array(shearstrength_possibility.length).fill(0);
+      let shearstrength_actual_probability = new Array(shearstrength_possibility.length).fill(0);
+      for (let k = 0; k < shearstrength_possibility.length; k++) {
+        shearstrength_probability[k] = Math.exp((-Math.pow((shearstrength_possibility[k] - shearstrength_predict[moisture_index]), 2) / (2 * Math.pow(shearstrength_std, 2))));
+      }
+      let shearstrength_probability_sum = shearstrength_probability.reduce((a, b) => a + b);
+      for (let k = 0; k < shearstrength_possibility.length; k++) {
+        shearstrength_actual_probability[k] = shearstrength_probability[k] / shearstrength_probability_sum;
+      }
+      let shearstrenth_hypo_value = xx_model[moisture_index];
+      let R_d_l = 0;
+      for (let k = 0; k < shearstrength_possibility.length; k++) {
+        R_d_l += shearstrength_actual_probability[k] * Math.abs(shearstrength_possibility[k] - shearstrenth_hypo_value);
+      }
+      R_d_m += R_d_l * moisture_actual_probability[j];
+
+      //console.log({shearstrength_possibility, shearstrength_probability, shearstrength_actual_probability, shearstrength_std, shearstrenth_hypo_value});
+
+    }
+
+    R_d_set[i] = R_d_m;
+
+    //console.log({moisture_possibility, std_moist, moisture_probability, moisture_actual_probability});
+    
+  }
+
+  let discrepancyReward = new Array(R_d_set.length).fill(0);
+  for (let i = 0; i < R_d_set.length; i++) {
+    discrepancyReward[i] = R_d_set[i] / 3;
+  }
+
+  //console.log({discrepancyReward});
+
+  return discrepancyReward;
+}
+
+function computePeaks(spatial_reward: number[], moisture_reward: number[], discrepancy_reward: number[]) {
+  let inputs = {
+    spatial_reward: spatial_reward,
+    moisture_reward: moisture_reward,
+    discrepancy_reward: discrepancy_reward
+  }
+
+  return new Promise((resolve, reject) => {
+    fetch('http://127.0.0.1:5000/findpeaks', {
+      method: 'POST',
+      cache: 'no-cache',
+      headers: {
+        'content_type': "application/json",
+      },
+      body: JSON.stringify(inputs),
+    }).then(
+      res => res.json()
+    ).then(
+      data => {
+        console.log({data});
+        resolve(data);
+      }
+    ).catch((err) => {
+      reject(err);
+    });
+  });
+}
