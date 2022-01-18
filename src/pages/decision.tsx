@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button'
@@ -94,7 +94,27 @@ export default function Main() {
       });
     };
   }, []);
-  
+
+
+  // const [data, setData] = useState(3);
+  // useEffect(() => {
+  //   fetch('http://127.0.0.1:5000/regression', {
+  //     method: 'POST',
+  //     cache: 'no-cache',
+  //     headers: {
+  //       'content_type': "application/json",
+  //     },
+  //     body: JSON.stringify(data), 
+  //   }).then(
+  //     res => res.json()
+  //   ).then(
+  //     data => {
+  //       //setData(data);
+  //       console.log(data);
+  //     }
+  //   )
+  // }, [data]);
+
 
   const addActualStrategySample = (type: 'planned' | 'deviated', row: any) => {
     const actualStrategySample: ActualStrategySample = {
