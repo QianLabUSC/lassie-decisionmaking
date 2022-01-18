@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from scipy.optimize import curve_fit
+from scipy import signal
 import numpy as np
 
 app = Flask(__name__)
@@ -60,6 +61,31 @@ def hypofit():
     }
 
     return jsonify(output)
+
+#Find peaks API Route
+@app.route('/findpeaks', methods=['POST'])
+@cross_origin()
+def findPeaks():
+    inputs = request.json
+    spatial_reward = np.array(inputs['spatial_reward'])
+    moisture_reward = np.array(inputs['moisture_reward'])
+    discrepancy_reward = np.array(inputs['discrepancy_reward'])
+
+    spatial_reward_peaks = signal.find_peaks_cwt(spatial_reward, np.arange(1, ))
+
+    output = {
+        'spatial_pks': spatial_pks.tolist(),
+        'spatial_locs': spatial_locs.tolist(),
+        'variable_pks': variable_pks.tolist(),
+        'variable_locs': variable_locs.tolist(),
+        'discrepancy_pks': discrepancy_pks.tolist(),
+        'discrepancy_locs': discrepancy_locs.tolist(),
+        'discrepancy_lows': discrepancy_lows.tolist(),
+        'discrepancy_lows_locs': discrepancy_lows_locs.tolist()
+    }
+
+    return jsonify(output)
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
