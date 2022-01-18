@@ -22,7 +22,7 @@ Steps to Deploy the Website
 2. In order to ssh into the server from off Penn's network, you will likely need the university VPN, which can be downloaded from https://www.isc.upenn.edu/how-to/university-vpn-getting-started-guide.
 3. Copy the files from your local computer to some folder in your Penn Eniac directory. For example, `scp -r ./dist/* skylerr@eniac.seas.upenn.edu:~/foraging` copies the files in `dist` into a folder `foraging` in my account.
 4. Ssh into your Eniac server. For example, `ssh skylerr@eniac.seas.upenn.edu`.
-5. Copy the files to the production server using the same method. The folder the files should be copied into is `foraging@eniac.seas.upenn.edu:/home1/f/foraging/html/field/alt/` or `foraging@eniac.seas.upenn.edu:/home1/f/foraging/html/field/dev/alt/`, depending on if you're uploading the production or dev version.
+5. Copy the files to the production server using the same method. The folder the files should be copied into is `foraging@eniac.seas.upenn.edu:/home1/f/foraging/html/field/dev/alt/`.
     
     5.1 If you do not have access to the `foraging` account, someone with access will need to add you. Once they ssh in, open `.k5login` and add the desired user's email to the list, using the format `username@UPENN.EDU`. Once you have been added, run `kinit` from your eniac terminal to register a Kerberos ticket to get access to the `foraging` account. You can use `klist` to check the current tickets to see if it was created properly. With those steps, you should be able to ssh into the account.
 6. When uploading files for the first time, there might be permission issues. Make sure the files have the correct permissions using something like `chmod a+rx` on whatever you uploaded.
