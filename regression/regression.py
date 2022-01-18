@@ -70,22 +70,30 @@ def findPeaks():
     spatial_reward = np.array(inputs['spatial_reward'])
     moisture_reward = np.array(inputs['moisture_reward'])
     discrepancy_reward = np.array(inputs['discrepancy_reward'])
+    disrepancy_reward_negative = np.array(inputs['discrepancy_reward']) * -1
 
-    spatial_reward_peaks = signal.find_peaks_cwt(spatial_reward, np.arange(1, ))
+    spatial_locs, spatial_properties = signal.find_peaks(spatial_reward, height=0.3, distance=2)
+    variable_locs, variable_properties = signal.find_peaks(moisture_reward, height=0.3, distance=2)
+    discrepancy_locs, discrepancy_properties = signal.find_peaks(discrepancy_reward, height=0.2, distance=2)
+    discrepancy_lows_locs, discrepancy_lows_properties = signal.find_peaks(disrepancy_reward_negative, height=-0.5, distance=2)
+
+    if len(spatial_locs) == 0:
+        spatial_locs = np.max(spatial_reward)
+    
+    if len(variable_locs) == 0:
+        variable_locs = np.max(moisture_reward)
+
+    if len(discrepancy_locs) == 0:
+        discrepancy_locs = np.max(discrepancy_reward)
 
     output = {
-        'spatial_pks': spatial_pks.tolist(),
         'spatial_locs': spatial_locs.tolist(),
-        'variable_pks': variable_pks.tolist(),
         'variable_locs': variable_locs.tolist(),
-        'discrepancy_pks': discrepancy_pks.tolist(),
         'discrepancy_locs': discrepancy_locs.tolist(),
-        'discrepancy_lows': discrepancy_lows.tolist(),
         'discrepancy_lows_locs': discrepancy_lows_locs.tolist()
     }
 
     return jsonify(output)
     
-
 if __name__ == '__main__':
     app.run(debug=True)
