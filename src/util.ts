@@ -674,36 +674,6 @@ function computeVariableSpaceInformationReward(moisture_v_locationBelief, inform
   return moisture_reward;
 }
 
-function linearRegression(xx: number[], yy: number[], zz: number[], moist: number[]) {
-
-  let inputs = {
-    xx : xx,
-    yy: yy,
-    zz: zz,
-    moist: moist
-  }
-  
-  return new Promise((resolve, reject) => {
-    fetch('http://127.0.0.1:5000/regression', {
-      method: 'POST',
-      cache: 'no-cache',
-      headers: {
-        'content_type': "application/json",
-      },
-      body: JSON.stringify(inputs), 
-    }).then(
-      res => res.json()
-    ).then(
-      data => {
-        //console.log({data});
-        resolve(data);
-      }
-    ).catch((err) => {
-      reject(err);
-    });
-  });
-}
-
 async function computePotentialDiscrepancyBelief(aggregatedSamplesByLoc : IAggregatedSamplesByLoc[], globalState: IState) {
   let temp_xx_yy_zz : any[] = [];
   let xx : number[] = [];
@@ -944,6 +914,36 @@ function computeDiscrepancyReward(moisture_v_locationBelief, shearStrength_v_moi
   return discrepancyReward;
 }
 
+function linearRegression(xx: number[], yy: number[], zz: number[], moist: number[]) {
+
+  let inputs = {
+    xx : xx,
+    yy: yy,
+    zz: zz,
+    moist: moist
+  }
+  
+  return new Promise((resolve, reject) => {
+    fetch('https://fling.seas.upenn.edu/~foraging/field/dev/alt/flask/regression/regression', {
+      method: 'POST',
+      cache: 'no-cache',
+      headers: {
+        'content_type': "application/json",
+      },
+      body: JSON.stringify(inputs), 
+    }).then(
+      res => res.json()
+    ).then(
+      data => {
+        //console.log({data});
+        resolve(data);
+      }
+    ).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
 function computePeaks(spatial_reward: number[], moisture_reward: number[], discrepancy_reward: number[]) {
   let inputs = {
     spatial_reward: spatial_reward,
@@ -952,7 +952,7 @@ function computePeaks(spatial_reward: number[], moisture_reward: number[], discr
   }
 
   return new Promise((resolve, reject) => {
-    fetch('http://127.0.0.1:5000/findpeaks', {
+    fetch('https://fling.seas.upenn.edu/~foraging/field/dev/alt/flask/regression/findpeaks', {
       method: 'POST',
       cache: 'no-cache',
       headers: {
