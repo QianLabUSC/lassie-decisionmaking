@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /~foraging/public_html/field/dev/alt/flask/regression/application.cgi/$1 [L]
