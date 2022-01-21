@@ -924,7 +924,7 @@ function linearRegression(xx: number[], yy: number[], zz: number[], moist: numbe
   }
   
   return new Promise((resolve, reject) => {
-    fetch('http://127.0.0.1:5000/regression', {
+    fetch('https://fling.seas.upenn.edu/~foraging/field/dev/alt/flask/regression/regression', {
       method: 'POST',
       cache: 'no-cache',
       headers: {
@@ -952,7 +952,7 @@ function computePeaks(spatial_reward: number[], moisture_reward: number[], discr
   }
 
   return new Promise((resolve, reject) => {
-    fetch('http://127.0.0.1:5000/findpeaks', {
+    fetch('https://fling.seas.upenn.edu/~foraging/field/dev/alt/flask/regression/findpeaks', {
       method: 'POST',
       cache: 'no-cache',
       headers: {
