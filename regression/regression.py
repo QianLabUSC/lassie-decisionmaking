@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python2.7/site-packages')
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from scipy.optimize import curve_fit
@@ -19,6 +23,10 @@ def model(x, P1, P2, P3):
     for i in range(len(x)):
         result[i] = P1 - P2 * max(P3 - x[i], 0)
     return result
+
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
 
 #Regression API Route
 @app.route('/regression', methods=['POST'])

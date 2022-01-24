@@ -924,11 +924,13 @@ function linearRegression(xx: number[], yy: number[], zz: number[], moist: numbe
   }
   
   return new Promise((resolve, reject) => {
-    fetch('https://fling.seas.upenn.edu/~foraging/field/dev/alt/flask/regression/regression', {
+    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/regression', {
       method: 'POST',
+      mode: 'cors',
       cache: 'no-cache',
       headers: {
-        'content_type': "application/json",
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': "application/json",
       },
       body: JSON.stringify(inputs), 
     }).then(
@@ -952,13 +954,15 @@ function computePeaks(spatial_reward: number[], moisture_reward: number[], discr
   }
 
   return new Promise((resolve, reject) => {
-    fetch('https://fling.seas.upenn.edu/~foraging/field/dev/alt/flask/regression/findpeaks', {
+    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/findpeaks', {
       method: 'POST',
+      mode: 'cors',
       cache: 'no-cache',
       headers: {
-        'content_type': "application/json",
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': "application/json",
       },
-      body: JSON.stringify(inputs),
+      body: JSON.stringify(inputs), 
     }).then(
       res => res.json()
     ).then(
