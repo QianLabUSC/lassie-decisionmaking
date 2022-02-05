@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import { NORMALIZED_WIDTH, RowType, transectLines, BATTERY_COST_PER_SAMPLE,
-  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, rejectReasonOptions } from './constants';
+  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, 
+  sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, NUM_MEASUREMENTS, rejectReasonOptions, objectiveOptions } from './constants';
 import { measurements } from './mesurements';
 import { dataset } from './data/rhexDataset';
 import { Transect, TransectType, ActualStrategySample } from './types';
@@ -320,9 +321,16 @@ interface IAggregatedSamplesByLoc {
 }
 
 // This function calculates the robot's suggested location
-export async function calculateRobotSuggestions(actualStrategySamples: ActualStrategySample[], globalState: IState) {
+export async function calculateRobotSuggestions(actualStrategySamples: ActualStrategySample[], 
+  globalState: IState, objectives: number[], objectivesRankings: number[]) {
 
-  let robotSuggestions : IRow[] = [];
+  // Consolidate the objectives and their rankings, ordered by ranking in ascending order
+  let objectivesRanked : any[] = [];
+  for (let i = 0; i < objectives.length; i++) {
+    objectivesRanked.push({objective: objectives[i], ranking: objectivesRankings[i]});
+  }
+  objectivesRanked.sort((a, b) => (a.ranking > b.location) ? 1 : -1);
+  console.log({objectivesRanked});
 
   // Create an array which contains the aggregated sample data by location
   let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = buildAggregatedSamplesByLocation(actualStrategySamples);
@@ -358,11 +366,53 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
   let discrepancy_reward = computeDiscrepancyReward(moisture_v_locationBelief, shearStrength_v_moisture, potential_discrepancy_belief);
 
   // Compute the robot suggestions based on each objective
-  let peaks = await computePeaks(spatial_reward, moisture_reward, discrepancy_reward); 
+  let peaks : any = await computePeaks(spatial_reward, moisture_reward, discrepancy_reward); 
 
   console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward, potential_discrepancy_belief, shearStrength_v_moisture, discrepancy_reward, peaks});
 
-  return robotSuggestions;
+  let locs;
+
+  //
+  if (objectivesRanked.length === 1) {
+    switch (objectivesRanked[0].objective) {
+      case 0: {
+        locs = peaks.spatial_locs;
+        break;
+      }
+      case 1: {
+        locs = peaks.variable_locs;
+        break;
+      }
+      case 2: {
+        locs = peaks.discrepancy_locs;
+        break;
+      }
+      case 3: {
+        locs = peaks.discrepancy_lows_locs;
+        break;
+      }
+    }
+  } else {
+
+  }
+
+  console.log({locs});
+
+  let robotSuggestion : IRow[] = locs.map((loc) => {
+    let suggestion : IRow = {
+      index: loc,
+      measurements: 3,
+      type: RowType.ROBOT_SUGGESTION,
+      normOffsetX: sampleLocations[loc][0],
+      normOffsetY: sampleLocations[loc][1],
+      isHovered: false
+    }
+    return suggestion;
+  });
+
+  console.log({robotSuggestion});
+
+  return robotSuggestion;
 }
 
 
@@ -967,7 +1017,7 @@ function computePeaks(spatial_reward: number[], moisture_reward: number[], discr
       res => res.json()
     ).then(
       data => {
-        console.log({data});
+        //console.log({data});
         resolve(data);
       }
     ).catch((err) => {
