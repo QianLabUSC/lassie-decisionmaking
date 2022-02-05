@@ -7,7 +7,7 @@ type RadioButtonGroupProps = {
     onChange: (i: number) => any
 };
 
-const Checkbox = props => (
+export const Checkbox = props => (
     <div className='checkbox' onClick={() => props.onChange(!props.checked)}>
         <div className={`filling ${!props.checked && 'empty'}`}></div>
     </div>

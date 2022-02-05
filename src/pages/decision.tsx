@@ -9,6 +9,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import HelpIcon from '@material-ui/icons/Help';
+import { FormControl, Select, MenuItem, CircularProgress } from '@material-ui/core';
 import Popbox from '../components/Popbox';
 import RowTable from '../components/RowTable';
 import ClickableImage from '../components/ClickableImage';
@@ -26,8 +27,10 @@ import { ActualStrategySample, HypothesisResponse } from '../types';
 import { initializeCharts } from '../handlers/ChartHandler';
 import Battery from '../components/Battery';
 import RadioButtonGroup from '../components/RadioButtonGroup';
+import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMultipleOptions';
 import { sampleRobotSuggestion } from '../strategyTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
+import { ContactsOutlined } from '@material-ui/icons';
 
 const mapConclusionImage = require('../../assets/map_conclusion.png');
 
@@ -134,7 +137,7 @@ export default function Main() {
   // Function to add next sample to the data plot
   const addDataToPlot = (transectIdx: number, row : IRow, doNotAddToRow?: boolean, saveToActualStrategy?: boolean) => {
     const { index, measurements } = row;
-    const {shearValues, moistureValues } = getMeasurements(globalState, transectIndices[transectIdx].number, index, measurements);
+    const { shearValues, moistureValues } = getMeasurements(globalState, transectIndices[transectIdx].number, index, measurements);
     const newRow = { ...row };
     newRow.moisture = moistureValues;
     newRow.shear = shearValues;
@@ -165,7 +168,7 @@ export default function Main() {
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
   }
 
-  // Add data from initial strategy to charts
+  // Automatically populate the charts with any remaining measurements from the transectSamples in the strategy
   if (curRowIdx < rows.length && numImgClicks === 0) {
     addDataToPlot(curTransectIdx, rows[curRowIdx]);
   }
@@ -290,172 +293,101 @@ export default function Main() {
     </Dialog>
   );
 
-  // // Right panel to display when sampleState === FINISH_TRANSECT
-  // const finishedRightPanel = (
-  //   <div className="rightDecisionPanelHypothesis">
-  //     { finishOptions }
-  //     <div>
-  //       <Grid container className="mapConclusionImageContainer">
-  //         <Grid item xs={6}>
-  //           <div className="confirmButtonContainer">
-  //             <Button color="primary" variant="contained" onClick={finishOptionsOnQuit}>
-  //               Confirm
-  //             </Button>
-  //           </div>
-  //         </Grid>
-  //         <Grid item xs={6}>
-  //           <div>
-  //             <img src={mapConclusionImage} className="mapConclusionImage"/>
-  //           </div>
-  //         </Grid>
-  //       </Grid>
-  //     </div>
-  //   </div>
-  // );
-
-  // const themeExecuteButton = createMuiTheme({
-  //   palette: {
-  //     primary: { main: '#339966' },
-  //   },
-  //   overrides: {
-  //     MuiButton: {
-  //       label: {
-  //         color: '#f1f1f1',
-  //       }
-  //     }
-  //   }
-  // });
-
-  
-  // //Set of action buttons on right-side panel
-  // const feedbackButtons = (
-  //   <>
-  //     <Grid container className="timer-button-wrapper">
-  //       <Grid item xs={12} md={4}>
-  //         {!robotVersion && 
-  //           <MuiThemeProvider theme={themeExecuteButton}>
-  //             <Button
-  //               className="nextStepButton"
-  //               variant="contained"
-  //               disabled={ curRowIdx >= rows.length }
-  //               color="primary" onClick={onContinueClick}>
-  //               EXECUTE NEXT STEP IN STRATEGY
-  //             </Button>
-  //           </MuiThemeProvider> }
-  //         {robotVersion &&
-  //           <div>
-  //             <div className="timer-wrapper">
-  //               <CountdownCircleTimer 
-  //                 key={robotVersion.toString()}
-  //                 isPlaying={!pause}
-  //                 duration={countdownDuration}
-  //                 colors={[["#004777", 0.33], ["#F7B801", 0.33], ["#A30000", 0.34]]}
-  //                 onComplete={() => [curRowIdx + 1 < rows.length, 1000]}
-  //                 size={100}
-  //               >
-  //                 {({ remainingTime }) => (
-  //                   <RenderTime remainingTime={remainingTime} />
-  //                 )}
-  //               </CountdownCircleTimer>
-  //             </div>
-  //             <div className="button-wrapper">
-  //               {curRowIdx < rows.length && <Button 
-  //                 variant="contained" 
-  //                 style={pause ? {backgroundColor: '#009900', color: '#FFFFFF'} : {backgroundColor: '#cc0000', color: '#FFFFFF'}} 
-  //                 onClick={() => setPause(!pause)}>{pause ? "Resume" : "Pause"}
-  //               </Button>}
-  //             </div>
-  //           </div>
-  //         }
-  //       </Grid>
-  //       <Grid item xs={12} md={8}>
-  //         <div className="buttonStack">
-  //           <Button className="deviateButton" variant="contained" color="secondary" onClick={onDeviateClick}>
-  //             Deviate From Strategy
-  //           </Button>
-  //           <Button className="quitButton" variant="contained" color="primary" onClick={onConcludeClick}>
-  //             End Collection At Transect
-  //           </Button>
-  //         </div>
-  //       </Grid>
-  //     </Grid>
-  //   </>
-  // );
-
-  // const deviatedButtons = (
-  //   <>
-  //     <Grid container className="timer-button-wrapper">
-  //       <Grid item xs={12} md={4}>
-  //         { !robotVersion && <Button className="nextStepButton" variant="contained" disabled color="primary">EXECUTE NEXT STEP IN STRATEGY</Button> }
-  //       </Grid>
-  //       <Grid item xs={12} md={8}>
-  //         <div className="buttonStack">
-  //           <Button className="moreMeasurementsButton" variant="contained" color="secondary"
-  //             disabled={imgClickEnabled}
-  //             onClick={onTakeMoreClick}>
-  //               TAKE MORE MEASUREMENTS
-  //           </Button>
-  //           <Button className="quitButton" variant="contained" color="secondary" onClick={onConcludeClick}>
-  //               End Collection At Transect
-  //           </Button>
-  //         </div>
-  //       </Grid>
-  //     </Grid>
-  //   </>
-  // );
-
-  // // Right panel to display when collecting data, sampleState != FINISH_TRANSECT
-  // const collectionRightPanel = (
-  //   <div className="collectionRightPanel">
-  //     <ImgAlert open={!!showImgAlert} />
-  //     <div className="clickableImageContainer">
-  //       <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx}/>  
-  //     </div>
-  //     <div className="middleRow">
-  //       <div className="batteryPanel"><Battery/></div>
-  //       <div className="buttonPanel">
-  //         { sampleState === SampleState.FEEDBACK && feedbackButtons }
-  //         { sampleState === SampleState.DEVIATED && deviatedButtons }
-  //       </div>
-  //     </div>
-  //     <div className="rowTableContainer">
-  //       <RowTable rows={rows} />
-  //     </div>
-  //   </div>
-  // );
-
   // Hooks for obtaining user feedback on what they think the objective should be at each data collection step
   const [userFeedbackStep, setUserFeedbackStep] = useState(0); // controls which set of questions are being asked to the user during each step
-  const [objective, setObjective] = useState(0); // stores objective for each data collection step
+  const [objectives, setObjectives] = useState<number[]>([]); // stores objective(s) for each data collection step
+  const [objectivesRankings, setObjectivesRankings] = useState<number[]>([]); // stores priority ranking for each objective
   const [objectiveFreeResponse, setObjectiveFreeResponse] = useState(""); // stores user's free response for the objective
   const [acceptOrReject, setAcceptOrReject] = useState(0); // stores whether the user accepts or rejects the robot's suggestion at each step
   const [acceptFollowUp, setAcceptFollowUp] = useState(0); // stores how effective the user believes the robot's suggestion is at achieving the objective
   const [rejectReason, setRejectReason] = useState(0); // stores why the user rejected the robot's suggestion at each step
   const [rejectReasonFreeResponse, setRejectReasonFreeResponse] = useState(""); // stores user's free response for the reason for rejecting the robot's suggestion
   const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
-  const [robotSuggestion, setRobotSuggestion] = useState<IRow>(); // stores robot's suggested sample location at each step
-  const [showRobotSuggestion, setShowRobotSuggestion] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
-  const [disableSubmitButton, setDisableSubmitButton] = useState(false);
+  const [robotSuggestions, setRobotSuggestions] = useState<IRow[]>([]); // stores robot's suggested sample locations at each step
+  const [loading, setLoading] = useState(false); // tracks whether the robot suggestions are currently being calculated
+  const [showRobotSuggestions, setShowRobotSuggestions] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
+  const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [numSubmitClicks, setNumSubmitClicks] = useState(0);
+
+  // Reset objectives rankings array and disable submit button if the user has selected no objectives during the OBJECTIVE step
+  useEffect(() => {
+    if (userFeedbackStep === UserFeedbackStep.OBJECTIVE) {
+      setObjectivesRankings(new Array(objectives.length).fill(0));
+      setDisableSubmitButton(objectives.length === 0);
+    }
+  }, [objectives]);
+
+  // Disable the submit button during the RANK_OBJECTIVES step until the user fills out a valid set of rankings for each selected objective
+  useEffect(() => {
+    if (userFeedbackStep === UserFeedbackStep.RANK_OBJECTIVES) {
+      setDisableSubmitButton(objectivesRankings.includes(0) || (new Set(objectivesRankings)).size !== objectivesRankings.length);
+    }
+  }, [objectivesRankings]);
 
   const objectiveQuestions = 
     <div className="objective-questions">
-      <p><strong>Based on the data collected so far, what do you think RHex's next objective should be?</strong></p>
-      <RadioButtonGroup options={objectiveOptions} selectedIndex={objective} onChange={i => setObjective(i)}/>
+      <p><strong>Based on the data collected so far, select which of the following beliefs you currently hold (you may select multiple).</strong></p>
+      <RadioButtonGroupMultipleOptions options={objectiveOptions} selectedIndices={objectives} onChange={i => {
+        let objectivesTemp = [...objectives];
+        if (objectivesTemp.includes(i)) {
+          objectivesTemp = objectivesTemp.filter(obj => obj !== i);
+        } else {
+          objectivesTemp.push(i);
+        }
+        setObjectives(objectivesTemp);
+      }}/>
     </div>
+
+  const objectivesToRank = 
+    <table className="dropDownMenuGroup" style={{marginBottom: '2vh'}}>
+      <tbody>
+          {
+            objectives.map((obj, i) => (
+                <tr key={objectiveOptions[obj]}>
+                  <td>
+                    <FormControl>
+                      <Select
+                        id="objectives-select"
+                        value={objectivesRankings[i]}
+                        onChange={(e) => {
+                          let objectivesRankingsTemp = [...objectivesRankings];
+                          if (typeof e.target.value === 'number') objectivesRankingsTemp[i] = e.target.value;
+                          setObjectivesRankings(objectivesRankingsTemp);
+                        }}
+                      >
+                        {Array.from({length: objectives.length}, (_, i) => i + 1).map((rank) => (
+                          <MenuItem key={objectiveOptions[obj] + rank} value={rank}>{rank}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </td>
+                  <td>
+                      { objectiveOptions[obj] }
+                  </td>
+                </tr>
+            ))
+          }
+      </tbody>
+    </table>
+    
+  const objectiveRankings =
+      <div className="objective-rankings">
+        <p><strong>Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement:</strong></p>
+        {objectivesToRank}
+      </div>
 
   const onObjectiveTextChange = e => {
     setObjectiveFreeResponse(e.target.value);
   }
   const objectiveFreeResponseQuestion = 
     <div className="objective-free-response-question" style={{marginBottom: '2vh'}}>
-      <p><strong>Please describe what you believe the objective should be:</strong></p>
+      <p><strong>Please describe your belief about the data collected so far:</strong></p>
       <textarea onChange={onObjectiveTextChange} rows={5} cols={85}/>
     </div>
   
   const acceptOrRejectQuestions = 
     <div className="accept-or-reject-questions">
-      <p><strong>Based on the objective you've selected, RHex suggests sampling next from the red location on the transect above! Do you accept or reject this suggestion?</strong></p>
+      <p><strong>Based on your belief rankings, RHex suggests sampling from one of the red locations marked on the dune cross-section above.</strong></p>
       <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => setAcceptOrReject(i)}/>
     </div>
 
@@ -495,6 +427,7 @@ export default function Main() {
   // Match the order of UserFeedbackSteps in 'constants.ts'
   const userFeedbackStepMap = [
     objectiveQuestions,
+    objectiveRankings,
     objectiveFreeResponseQuestion,
     acceptOrRejectQuestions,
     acceptFollowUpQuestions,
@@ -505,20 +438,27 @@ export default function Main() {
     transitionQuestions,
   ]
 
-  const onSubmit = () => {
+  useEffect(() => {
+    console.log({robotSuggestions});
+  }, [robotSuggestions]);
+
+  const onSubmit = async () => {
     setNumSubmitClicks(numSubmitClicks + 1);
     switch (userFeedbackStep) {
       case UserFeedbackStep.OBJECTIVE: {
-        if (objective !== 4) {
-          setRobotSuggestion(sampleRobotSuggestion);
-
-          console.log(actualStrategyData.transects[0]);
-          calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState);
-
-          setShowRobotSuggestion(true);
-          setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
-        } else {
+        if (objectives.includes(4)) {
           setUserFeedbackStep(UserFeedbackStep.OBJECTIVE_FREE_RESPONSE);
+        } else {
+          if (objectives.length === 1) {
+            setLoading(true);
+            setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
+            setShowRobotSuggestions(true);
+            setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
+            setLoading(false);
+          } else {
+            setDisableSubmitButton(true);
+            setUserFeedbackStep(UserFeedbackStep.RANK_OBJECTIVES);
+          } 
         }
         return;
       }
@@ -531,15 +471,18 @@ export default function Main() {
       }
       case UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION: {
         if (acceptOrReject === 0) {
-          if (robotSuggestion) {
-            let newRow = {...robotSuggestion, type: RowType.NORMAL};
-            addDataToPlot(curTransectIdx, newRow);
+          if (robotSuggestions) {
+            for (let i = 0; i < robotSuggestions.length; i++) {
+              let newRow = {...robotSuggestions[i], type: RowType.NORMAL}; // edit row type from "ROBOT_SUGGESTION" to "NORMAL"
+              dispatch({ type: Action.ADD_ROW, value: newRow }); // add the new row to the StateContext
+              //addDataToPlot(curTransectIdx, rows[rows.length - 1]); // add the new row to the plot
+            }
           }
           setUserFeedbackStep(UserFeedbackStep.ACCEPT_FOLLOW_UP);
         } else if (acceptOrReject === 1) {
           setUserFeedbackStep(UserFeedbackStep.REJECT_REASON);
         }
-        setShowRobotSuggestion(false);
+        setShowRobotSuggestions(false);
         return;
       }
       case UserFeedbackStep.ACCEPT_FOLLOW_UP: {
@@ -601,17 +544,23 @@ export default function Main() {
       <ImgAlert open={!!showImgAlert} />
       <Tooltip title={userFeedbackStep !== UserFeedbackStep.USER_LOCATION_SELECTION ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
-            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx} robotSuggestion={robotSuggestion} showRobotSuggestion={showRobotSuggestion} setDisableSubmitButton={setDisableSubmitButton} numImgClicks={numImgClicks} setNumImgClicks={setNumImgClicks}/>  
+            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx} robotSuggestions={robotSuggestions} showRobotSuggestions={showRobotSuggestions} setDisableSubmitButton={setDisableSubmitButton} numImgClicks={numImgClicks} setNumImgClicks={setNumImgClicks}/>  
           </div>
       </Tooltip>
-      <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
+      {!loading && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
         {userFeedbackStepMap[userFeedbackStep]}
         <div className="submit-user-feedback-button">
           <Button disabled={disableSubmitButton} variant="contained" color="secondary" onClick={onSubmit}>
             Submit
           </Button>
         </div>
-      </div>
+      </div>}
+      {loading && <div className="loading-screen">
+        <CircularProgress 
+          color="secondary"
+          size={100}
+        />
+      </div>}
       <div className="quit">
         <Button className="quitButton" variant="contained" color="primary" onClick={onConcludeClick}>
           End Collection At Transect
@@ -626,13 +575,13 @@ export default function Main() {
     <MultiStepDialog
       open={decisionHelpOpen}
       setOpen={setDecisionHelpOpen}
-      title={"Instructions"}
+      title={""}
       allowCancel={false}
       steps={[
-        ["A robot is testing a hypothesis about the relationship between soil strength and soil moisture. The robot has already collected some data, but needs your help to decide where to go next!",
-        "\u2022 Between each data sample collection, you will be asked a few short questions to determine where to collect the next sample.",
-        "\u2022 The charts on the left will display the shear strength and moisture results of the samples along the way. You can adjust the charts to display raw or averaged (if there are multiple samples taken at certain locations along the transect) values by clicking 'Update Chart Options.'",
-        "\u2022 If at any point you feel like you have collected enough data, you may click the button to end the data collection."
+        ["RHex will always take 3 measurements of moisture and strength at each location visited.",
+        "The dune cross-section on the right displays the locations where RHex has already sampled and the charts on the left display the corresponding data. Select \"Update Chart Options\" to adjust the charts to display raw or averaged values (if there are multiple samples taken from the same location along the transect).",
+        "You will be asked a few questions to determine where RHex should sample next.",
+        "If at any point you feel you have collected enough data to make a judgment about the hypothesis, select \"End Collection at Transect.\""
         ]
       ]}
     />;
