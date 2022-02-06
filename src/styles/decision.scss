@@ -185,6 +185,26 @@
                     margin-bottom: 15px;
                 }
             }
+            .loading-screen {
+                width: 90%;
+                height: 50vh;
+                max-height: 50vh;
+                padding-left: 2vh;
+                padding-right: 2vh;
+                padding-top: 1vh;
+                padding-bottom: 3vh;
+                background-color: white;
+                margin-top: 2vh;
+                margin-bottom: 2vh;
+                margin-left: auto;
+                margin-right: auto;
+                overflow-y: auto;
+                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
             .user-feedback {
                 width: 90%;
                 height: 50vh;
@@ -204,6 +224,34 @@
                 .submit-user-feedback-button {
                     display: flex;
                     justify-content: center;
+                }
+
+                .hypothesisBlock {
+                    text-align: left;
+                    clear: both;
+                    width: 100%;
+                    padding-top: 1vh;
+                    margin-bottom: 2vh;
+                    .hypothesisTitle {
+                        font-size: 2.5vh;
+                        color: #114B5F;
+                        font-family: Helvetic, sans-serif;
+                        margin-bottom: 2px;
+                    }
+                    .hypothesisText {
+                        font-size: 2vh;
+                        .hypothesisStatement {
+                            font-size: 1.7vh;
+                            display: block;
+                            margin-top: 1vh;
+                            margin-bottom: 1vh;
+                        }
+                    }
+                }
+
+                .slider-box {
+                    padding-left: 3%;
+                    max-width: 80%;
                 }
             }
             .user-feedback-flashing {

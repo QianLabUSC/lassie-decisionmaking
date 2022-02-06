@@ -627,6 +627,7 @@ export const countdownDuration = 10;
 
 export enum UserFeedbackStep {
   OBJECTIVE,
+  RANK_OBJECTIVES,
   OBJECTIVE_FREE_RESPONSE,
   ACCEPT_OR_REJECT_SUGGESTION,
   ACCEPT_FOLLOW_UP,
@@ -638,35 +639,25 @@ export enum UserFeedbackStep {
 };
 
 export const objectiveOptions = [
-  "Improve spatial resolution", 
-  "Improve capture of the dynamic range of the moisture variable",
-  "TBD - Maps onto hypo invalidating algorithm",
-  "TBD - Maps onto hypo validating algorithm",
-  "RHex should have a different objective not described here"
-]
-
-export const acceptOrRejectOptions = [
-  "Accept", 
-  "Reject",
+  "There are areas along the dune transect where data is needed", // Option 0 - spatial coverage algorithm
+  "There are portions of the dynamic range of the moisture variable where data is needed", // Option 1 - variable coverage algorithm
+  "There is a discrepancy between the data and the hypothesis that needs additional evaluation", // Option 2 - hypo invalidating algorithm
+  "The data seems to be supporting the hypothesis so far but additional evaluation is needed", // Option 3 - hypo validating algorithm
+  "I hold a different belief that is not described here" // Option 4 - free response
 ]
 
 export const acceptFollowUpOptions = [
-  "Definitely achieved the objective", 
-  "Moderately achieved the objective",
-  "Somewhat achieved the objective",
-  "Barely achieved the objective",
-  "Did not achieve the objective",
+  "Definitely addressed the belief", 
+  "Moderately addressed the belief",
+  "Somewhat addressed the belief",
+  "Barely addressed the belief",
+  "Did not address the belief",
   "I am unsure",
 ]
 
-export const rejectReasonOptions = [
-  "The suggested location did not achieve the selected objective", 
-  "I rejected the suggested location for a different reason",
-]
-
 export const transitionOptions = [
-  "See RHex’s suggestion for where to sample next to achieve the most recently selected objective", 
-  "Update RHex’s objective to receive a new suggestion of where to sample next",
-  "Ignore suggestions and tell RHex where to sample next” -- user is free to select any location",
+  "See RHex's suggestions for where to sample next based on your current belief rankings", 
+  "Update belief rankings to receive new suggestions from RHex of where to sample next",
+  "Ignore suggestions and select a location for RHex to sample next",
   "Stop data collection and make a conclusion about the hypothesis",
 ]

@@ -36,15 +36,15 @@ interface IProps {
   addDataFunc: (row: IRow) => void,
   setPopOver: (popoverContent : any) => void,
   transectIdx: number,
-  robotSuggestion?: IRow | undefined,
-  showRobotSuggestion: boolean,
+  robotSuggestions?: IRow[] | undefined,
+  showRobotSuggestions: boolean,
   setDisableSubmitButton: any,
   numImgClicks: number,
   setNumImgClicks: any,
   width?: number
 }
 
-export default function ClickableImage({ enabled, addDataFunc, setPopOver, transectIdx, robotSuggestion, showRobotSuggestion, 
+export default function ClickableImage({ enabled, addDataFunc, setPopOver, transectIdx, robotSuggestions, showRobotSuggestions, 
   setDisableSubmitButton, numImgClicks, setNumImgClicks, width } : IProps) {
   const [clickPosition, setClickPosition] = useState({
     left: 0,
@@ -113,7 +113,7 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     
     const index = getNearestIndex([normOffsetX, normOffsetY]);
 
-    //console.log({index, offsetX, offsetY, normOffsetX, normOffsetY, height, NORMALIZED_HEIGHT, width, NORMALIZED_WIDTH}); // for debugging
+    // console.log({index, offsetX, offsetY, normOffsetX, normOffsetY, height, NORMALIZED_HEIGHT, width, NORMALIZED_WIDTH}); // for debugging
 
     if (index == -1) {
       dispatch({
@@ -135,11 +135,9 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     //   value: true
     // });
 
-    console.log({rows});
-
     if (numImgClicks > 0) {
       dispatch({
-        type: Action.DELETE_ROW, // add the new row to the state
+        type: Action.DELETE_ROW, // delete the old row
         value: rows.length - 1
       });
     }
@@ -147,7 +145,7 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     setNumImgClicks(numImgClicks + 1);
 
     const newRow : IRow = {
-      index: clickIndex,
+      index: index,
       measurements: NUM_MEASUREMENTS,
       type: RowType.NORMAL,
       normOffsetX,
@@ -158,6 +156,7 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
       type: Action.ADD_ROW, // add the new row to the state
       value: newRow
     });
+    
     setDisableSubmitButton(false);
   }
 
@@ -190,14 +189,17 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
           top={(rows[rows.length - 1].normOffsetY - 50) * height / NORMALIZED_HEIGHT}
         />
       }
-      {showRobotSuggestion && robotSuggestion && 
-        <PositionIndicator
-          left={robotSuggestion.normOffsetX * height / NORMALIZED_HEIGHT}
-          top={robotSuggestion.normOffsetY * height / NORMALIZED_HEIGHT}
-          rowIndex={rows.length}
-          isHovered={robotSuggestion.isHovered}
-          type={robotSuggestion.type}
-        />
+      {showRobotSuggestions && robotSuggestions &&
+        robotSuggestions.map((suggestion, index) => (
+          <PositionIndicator
+            key={suggestion.index + suggestion.normOffsetX + suggestion.normOffsetY}
+            left={suggestion.normOffsetX * height / NORMALIZED_HEIGHT}
+            top={suggestion.normOffsetY * height / NORMALIZED_HEIGHT}
+            rowIndex={index}
+            isHovered={suggestion.isHovered}
+            type={suggestion.type}
+          />
+        )) 
       }
     </div>
   );
