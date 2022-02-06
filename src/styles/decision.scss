@@ -233,13 +233,19 @@
                     padding-top: 1vh;
                     margin-bottom: 2vh;
                     .hypothesisTitle {
-                        font-size: 2vh;
+                        font-size: 2.5vh;
                         color: #114B5F;
                         font-family: Helvetic, sans-serif;
                         margin-bottom: 2px;
                     }
                     .hypothesisText {
-                        font-size: 1.7vh;
+                        font-size: 2vh;
+                        .hypothesisStatement {
+                            font-size: 1.7vh;
+                            display: block;
+                            margin-top: 1vh;
+                            margin-bottom: 1vh;
+                        }
                     }
                 }
 

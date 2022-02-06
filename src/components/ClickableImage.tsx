@@ -113,7 +113,7 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     
     const index = getNearestIndex([normOffsetX, normOffsetY]);
 
-    console.log({index, offsetX, offsetY, normOffsetX, normOffsetY, height, NORMALIZED_HEIGHT, width, NORMALIZED_WIDTH}); // for debugging
+    // console.log({index, offsetX, offsetY, normOffsetX, normOffsetY, height, NORMALIZED_HEIGHT, width, NORMALIZED_WIDTH}); // for debugging
 
     if (index == -1) {
       dispatch({
@@ -158,8 +158,6 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     });
     
     setDisableSubmitButton(false);
-
-    console.log({rows});
   }
 
   return (
