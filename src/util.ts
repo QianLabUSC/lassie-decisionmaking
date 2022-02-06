@@ -330,7 +330,7 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
     objectivesRanked.push({objective: objectives[i], ranking: objectivesRankings[i]});
   }
   objectivesRanked.sort((a, b) => (a.ranking > b.location) ? 1 : -1);
-  console.log({objectivesRanked});
+  //console.log({objectivesRanked});
 
   // Create an array which contains the aggregated sample data by location
   let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = buildAggregatedSamplesByLocation(actualStrategySamples);
@@ -395,8 +395,6 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
   } else {
     locs = peaks.spatial_locs; // FILLER - NEEDS TO BE REVISED
   }
-
-  console.log({locs});
 
   let robotSuggestion : IRow[] = locs.map((loc) => {
     let suggestion : IRow = {

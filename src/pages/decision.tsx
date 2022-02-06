@@ -309,6 +309,7 @@ export default function Main() {
   const [showRobotSuggestions, setShowRobotSuggestions] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [numSubmitClicks, setNumSubmitClicks] = useState(0);
+  const [userFreeSelection, setUserFreeSelection] = useState(false);
 
   const [updatedHypoConfidence, setUpdatedHypoConfidence] = useState(0);
   const handleResponse = (value: any) => {
@@ -470,34 +471,15 @@ export default function Main() {
           </div>
         </div>
       ))}
-      
-      {/* <RadioButtonGroup options={acceptFollowUpOptions} selectedIndex={acceptFollowUp} onChange={i => setAcceptFollowUp(i)}/> */}
-
-      <div className="hypothesisBlock">
-          <div className="hypothesisTitle">Updated Hypothesis Confidence</div>
-          <div className="hypothesisText">
-            Provide a new ranking of your certainty that this hypothesis will be supported or refuted. If you have no preference, select "I am unsure":
-          </div>
-          <FormControl>
-              <Select
-                  style={{fontSize: '1.5vh'}}
-                  value={updatedHypoConfidence + 3}
-                  onChange={event => handleResponse(Number(event.target.value) - 3)}>
-                  {
-                      confidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
-                  }
-              </Select>
-          </FormControl>
-      </div>
-    </div>
+    </div>  
 
   useEffect(() => {
     let rejectReasonOptionsTemp = [
-      "The suggested location did not address the beliefs I selected: (", 
+      "The suggested location did not address the beliefs I selected (", 
       "I rejected the suggested location for a different reason",
     ]
     for (let i = 0; i < objectives.length - 1; i++) {
-      rejectReasonOptionsTemp[0] += objectiveOptions[objectives[i]] + ", ";
+      rejectReasonOptionsTemp[0] += objectiveOptions[objectives[i]] + " / ";
     }
     rejectReasonOptionsTemp[0] += (objectiveOptions[objectives[objectives.length - 1]] + ")");
     setRejectReasonOptions(rejectReasonOptionsTemp);
@@ -524,11 +506,42 @@ export default function Main() {
       <p><strong>Please select the next location you'd like to sample from by clicking anywhere along the transect surface in the dune cross-section above. When you have finalized your selection and are ready to collect data from that location, click "Submit."</strong></p>
     </div>
 
+  const updateHypothesisConfidence = 
+  <div className="update-hypothesis-confidence">
+    <div className="hypothesisBlock">
+        <div className="hypothesisTitle"><strong>Updated Hypothesis Confidence</strong></div>
+        <div className="hypothesisText">
+          <div>
+            Provide a new ranking of your certainty that this hypothesis will be supported or refuted. 
+            If you have no preference, select "I am unsure":
+          </div>
+          <div>
+            <i className="hypothesisStatement">
+              Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
+              crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
+              sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
+              as moisture continues to increase. 
+            </i>
+          </div>
+        </div>
+        <FormControl>
+            <Select
+                style={{fontSize: '1.5vh'}}
+                value={updatedHypoConfidence + 3}
+                onChange={event => handleResponse(Number(event.target.value) - 3)}>
+                {
+                    confidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
+                }
+            </Select>
+        </FormControl>
+    </div>
+  </div>
+
   const transitionQuestions = 
     <div className="reject-reason-questions">
       <p><strong>What would you like to do next?</strong></p>
       <RadioButtonGroup 
-        options={transitionOptions.slice(objectiveFreeResponse === "" ? 0 : 1)} 
+        options={transitionOptions.slice((!userFreeSelection) ? 0 : 1)} 
         selectedIndex={transition} 
         onChange={i => setTransition(i)}/>
     </div>
@@ -543,16 +556,15 @@ export default function Main() {
     rejectReasonQuestions,
     rejectReasonFreeResponseQuestion,
     userLocationSelectionQuestion,
-    transitionQuestions, // to be changed
+    updateHypothesisConfidence,
     transitionQuestions,
   ]
 
-  useEffect(() => {
-    console.log({robotSuggestions});
-  }, [robotSuggestions]);
+  // useEffect(() => {
+  //   console.log({robotSuggestions});
+  // }, [robotSuggestions]);
 
   const onSubmit = async () => {
-    console.log({globalState});
     setNumSubmitClicks(numSubmitClicks + 1);
     switch (userFeedbackStep) {
       case UserFeedbackStep.OBJECTIVE: {
@@ -574,12 +586,22 @@ export default function Main() {
         }
         return;
       }
+      case UserFeedbackStep.RANK_OBJECTIVES: { // THIS SECTION NEEDS TO BE REVISED TO ACCOUNT FOR RELATIVE RANKINGS OF OBJECTIVES
+        setLoading(true);
+        setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
+        setShowRobotSuggestions(true);
+        setAcceptOrReject(0);
+        setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
+        setLoading(false);
+        return;
+      }
       case UserFeedbackStep.OBJECTIVE_FREE_RESPONSE: {
-        // add a line to save the response
+        // ADD A LINE TO SAVE THE RESPONSE
         setDisableSubmitButton(true);
         setImgClickEnabled(true);
+        setUserFreeSelection(true);
         setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
-        setNumImgClicks(0);
+        setNumImgClicks(0); 
         return;
       }
       case UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION: {
@@ -594,15 +616,16 @@ export default function Main() {
         return;
       }
       case UserFeedbackStep.ACCEPT_FOLLOW_UP: {
-        setUserFeedbackStep(UserFeedbackStep.TRANSITION);
+        setUserFeedbackStep(UserFeedbackStep.HYPOTHESIS_CONFIDENCE);
         return;
       }
       case UserFeedbackStep.REJECT_REASON: {
         if (rejectReason === 0) {
           setDisableSubmitButton(true);
           setImgClickEnabled(true);
+          setUserFreeSelection(true);
           setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
-          setNumImgClicks(0);
+          setNumImgClicks(0); 
         } else if (rejectReason === 1) {
           setUserFeedbackStep(UserFeedbackStep.REJECT_REASON_FREE_RESPONSE);
         }
@@ -611,6 +634,7 @@ export default function Main() {
       case UserFeedbackStep.REJECT_REASON_FREE_RESPONSE: {
         setDisableSubmitButton(true);
         setImgClickEnabled(true);
+        setUserFreeSelection(true);
         setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
         setNumImgClicks(0);
         return;
@@ -618,24 +642,31 @@ export default function Main() {
       case UserFeedbackStep.USER_LOCATION_SELECTION: {
         //addDataToPlot(curTransectIdx, rows[rows.length - 1]);
         setImgClickEnabled(false);
-        setNumImgClicks(0);
+        setNumImgClicks(0); // load the next IROW into the charts and strategy 
+        setUserFeedbackStep(UserFeedbackStep.HYPOTHESIS_CONFIDENCE);
+        return;
+      }
+      case UserFeedbackStep.HYPOTHESIS_CONFIDENCE: {
         setUserFeedbackStep(UserFeedbackStep.TRANSITION);
         return;
       }
       case UserFeedbackStep.TRANSITION: {
-        let transitionAdj = objectiveFreeResponse === "" ? transition : transition + 1;
+        let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
         if (transitionAdj === 0) {
           setLoading(true);
           setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
           setShowRobotSuggestions(true);
           setAcceptOrReject(0);
+          setUserFreeSelection(false);
           setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
           setLoading(false);
         } else if (transitionAdj === 1) {
+          setUserFreeSelection(false);
           setUserFeedbackStep(UserFeedbackStep.OBJECTIVE);
         } else if (transitionAdj === 2) {
           setDisableSubmitButton(true);
           setImgClickEnabled(true);
+          setUserFreeSelection(true);
           setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
           setNumImgClicks(0);
         } else if (transitionAdj === 3) {
