@@ -9,6 +9,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import HelpIcon from '@material-ui/icons/Help';
+import { FormControl, Select, MenuItem, CircularProgress, Box, Slider } from '@material-ui/core';
 import Popbox from '../components/Popbox';
 import RowTable from '../components/RowTable';
 import ClickableImage from '../components/ClickableImage';
@@ -16,7 +17,7 @@ import { ConfirmDialog, MultiStepDialog } from '../components/Dialogs';
 import { getMeasurements, calculateRobotSuggestions } from '../util';
 import {
   SampleState, RowType, PopboxTypeEnum, DISABLE_ROC, confidenceTexts, NUM_OF_HYPOS,
-  UserFeedbackStep, objectiveOptions, acceptOrRejectOptions, acceptFollowUpOptions, rejectReasonOptions, transitionOptions
+  UserFeedbackStep, objectiveOptions, acceptFollowUpOptions, transitionOptions,
 } from '../constants';
 import { useStateValue, Action } from '../state';
 import HypothesisPanel from '../components/HypothesisPanel';
@@ -26,8 +27,10 @@ import { ActualStrategySample, HypothesisResponse } from '../types';
 import { initializeCharts } from '../handlers/ChartHandler';
 import Battery from '../components/Battery';
 import RadioButtonGroup from '../components/RadioButtonGroup';
+import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMultipleOptions';
 import { sampleRobotSuggestion } from '../strategyTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
+import { ContactsOutlined } from '@material-ui/icons';
 
 const mapConclusionImage = require('../../assets/map_conclusion.png');
 
@@ -53,8 +56,6 @@ export default function Main() {
   } = globalState;
   const { curRowIdx, curTransectIdx, transectSamples, transectIndices } = strategy;
   const rows = transectSamples[curTransectIdx] || [];
-
-  const [numImgClicks, setNumImgClicks] = useState(0);
 
   const [initialSampleState, setInitialSampleState] = useState(sampleState);
   // Stores state to show local, then global hypothesis response before leaving page.
@@ -134,7 +135,7 @@ export default function Main() {
   // Function to add next sample to the data plot
   const addDataToPlot = (transectIdx: number, row : IRow, doNotAddToRow?: boolean, saveToActualStrategy?: boolean) => {
     const { index, measurements } = row;
-    const {shearValues, moistureValues } = getMeasurements(globalState, transectIndices[transectIdx].number, index, measurements);
+    const { shearValues, moistureValues } = getMeasurements(globalState, transectIndices[transectIdx].number, index, measurements);
     const newRow = { ...row };
     newRow.moisture = moistureValues;
     newRow.shear = shearValues;
@@ -165,7 +166,8 @@ export default function Main() {
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
   }
 
-  // Add data from initial strategy to charts
+  // Automatically populate the charts with any remaining measurements from the transectSamples in the strategy (if the image hasn't been clicked)
+  const [numImgClicks, setNumImgClicks] = useState(0); // controls when the global state's "rows" get loaded into the actual strategy and populated in the charts
   if (curRowIdx < rows.length && numImgClicks === 0) {
     addDataToPlot(curTransectIdx, rows[curRowIdx]);
   }
@@ -290,158 +292,95 @@ export default function Main() {
     </Dialog>
   );
 
-  // // Right panel to display when sampleState === FINISH_TRANSECT
-  // const finishedRightPanel = (
-  //   <div className="rightDecisionPanelHypothesis">
-  //     { finishOptions }
-  //     <div>
-  //       <Grid container className="mapConclusionImageContainer">
-  //         <Grid item xs={6}>
-  //           <div className="confirmButtonContainer">
-  //             <Button color="primary" variant="contained" onClick={finishOptionsOnQuit}>
-  //               Confirm
-  //             </Button>
-  //           </div>
-  //         </Grid>
-  //         <Grid item xs={6}>
-  //           <div>
-  //             <img src={mapConclusionImage} className="mapConclusionImage"/>
-  //           </div>
-  //         </Grid>
-  //       </Grid>
-  //     </div>
-  //   </div>
-  // );
-
-  // const themeExecuteButton = createMuiTheme({
-  //   palette: {
-  //     primary: { main: '#339966' },
-  //   },
-  //   overrides: {
-  //     MuiButton: {
-  //       label: {
-  //         color: '#f1f1f1',
-  //       }
-  //     }
-  //   }
-  // });
-
-  
-  // //Set of action buttons on right-side panel
-  // const feedbackButtons = (
-  //   <>
-  //     <Grid container className="timer-button-wrapper">
-  //       <Grid item xs={12} md={4}>
-  //         {!robotVersion && 
-  //           <MuiThemeProvider theme={themeExecuteButton}>
-  //             <Button
-  //               className="nextStepButton"
-  //               variant="contained"
-  //               disabled={ curRowIdx >= rows.length }
-  //               color="primary" onClick={onContinueClick}>
-  //               EXECUTE NEXT STEP IN STRATEGY
-  //             </Button>
-  //           </MuiThemeProvider> }
-  //         {robotVersion &&
-  //           <div>
-  //             <div className="timer-wrapper">
-  //               <CountdownCircleTimer 
-  //                 key={robotVersion.toString()}
-  //                 isPlaying={!pause}
-  //                 duration={countdownDuration}
-  //                 colors={[["#004777", 0.33], ["#F7B801", 0.33], ["#A30000", 0.34]]}
-  //                 onComplete={() => [curRowIdx + 1 < rows.length, 1000]}
-  //                 size={100}
-  //               >
-  //                 {({ remainingTime }) => (
-  //                   <RenderTime remainingTime={remainingTime} />
-  //                 )}
-  //               </CountdownCircleTimer>
-  //             </div>
-  //             <div className="button-wrapper">
-  //               {curRowIdx < rows.length && <Button 
-  //                 variant="contained" 
-  //                 style={pause ? {backgroundColor: '#009900', color: '#FFFFFF'} : {backgroundColor: '#cc0000', color: '#FFFFFF'}} 
-  //                 onClick={() => setPause(!pause)}>{pause ? "Resume" : "Pause"}
-  //               </Button>}
-  //             </div>
-  //           </div>
-  //         }
-  //       </Grid>
-  //       <Grid item xs={12} md={8}>
-  //         <div className="buttonStack">
-  //           <Button className="deviateButton" variant="contained" color="secondary" onClick={onDeviateClick}>
-  //             Deviate From Strategy
-  //           </Button>
-  //           <Button className="quitButton" variant="contained" color="primary" onClick={onConcludeClick}>
-  //             End Collection At Transect
-  //           </Button>
-  //         </div>
-  //       </Grid>
-  //     </Grid>
-  //   </>
-  // );
-
-  // const deviatedButtons = (
-  //   <>
-  //     <Grid container className="timer-button-wrapper">
-  //       <Grid item xs={12} md={4}>
-  //         { !robotVersion && <Button className="nextStepButton" variant="contained" disabled color="primary">EXECUTE NEXT STEP IN STRATEGY</Button> }
-  //       </Grid>
-  //       <Grid item xs={12} md={8}>
-  //         <div className="buttonStack">
-  //           <Button className="moreMeasurementsButton" variant="contained" color="secondary"
-  //             disabled={imgClickEnabled}
-  //             onClick={onTakeMoreClick}>
-  //               TAKE MORE MEASUREMENTS
-  //           </Button>
-  //           <Button className="quitButton" variant="contained" color="secondary" onClick={onConcludeClick}>
-  //               End Collection At Transect
-  //           </Button>
-  //         </div>
-  //       </Grid>
-  //     </Grid>
-  //   </>
-  // );
-
-  // // Right panel to display when collecting data, sampleState != FINISH_TRANSECT
-  // const collectionRightPanel = (
-  //   <div className="collectionRightPanel">
-  //     <ImgAlert open={!!showImgAlert} />
-  //     <div className="clickableImageContainer">
-  //       <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx}/>  
-  //     </div>
-  //     <div className="middleRow">
-  //       <div className="batteryPanel"><Battery/></div>
-  //       <div className="buttonPanel">
-  //         { sampleState === SampleState.FEEDBACK && feedbackButtons }
-  //         { sampleState === SampleState.DEVIATED && deviatedButtons }
-  //       </div>
-  //     </div>
-  //     <div className="rowTableContainer">
-  //       <RowTable rows={rows} />
-  //     </div>
-  //   </div>
-  // );
-
   // Hooks for obtaining user feedback on what they think the objective should be at each data collection step
   const [userFeedbackStep, setUserFeedbackStep] = useState(0); // controls which set of questions are being asked to the user during each step
-  const [objective, setObjective] = useState(0); // stores objective for each data collection step
+  const [objectives, setObjectives] = useState<number[]>([]); // stores objective(s) for each data collection step
+  const [objectivesRankings, setObjectivesRankings] = useState<number[]>([]); // stores priority ranking for each objective
   const [objectiveFreeResponse, setObjectiveFreeResponse] = useState(""); // stores user's free response for the objective
   const [acceptOrReject, setAcceptOrReject] = useState(0); // stores whether the user accepts or rejects the robot's suggestion at each step
+  const [acceptOrRejectOptions, setAcceptOrRejectOptions] = useState<string[]>([]);
   const [acceptFollowUp, setAcceptFollowUp] = useState(0); // stores how effective the user believes the robot's suggestion is at achieving the objective
+  const [rejectReasonOptions, setRejectReasonOptions] = useState<string[]>([]);
   const [rejectReason, setRejectReason] = useState(0); // stores why the user rejected the robot's suggestion at each step
   const [rejectReasonFreeResponse, setRejectReasonFreeResponse] = useState(""); // stores user's free response for the reason for rejecting the robot's suggestion
   const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
-  const [robotSuggestion, setRobotSuggestion] = useState<IRow>(); // stores robot's suggested sample location at each step
-  const [showRobotSuggestion, setShowRobotSuggestion] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
-  const [disableSubmitButton, setDisableSubmitButton] = useState(false);
+  const [robotSuggestions, setRobotSuggestions] = useState<IRow[]>([]); // stores robot's suggested sample locations at each step
+  const [loading, setLoading] = useState(false); // tracks whether the robot suggestions are currently being calculated
+  const [showRobotSuggestions, setShowRobotSuggestions] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
+  const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [numSubmitClicks, setNumSubmitClicks] = useState(0);
+  const [userFreeSelection, setUserFreeSelection] = useState(false);
+
+  const [updatedHypoConfidence, setUpdatedHypoConfidence] = useState(0);
+  const handleResponse = (value: any) => {
+      setUpdatedHypoConfidence(value);
+  }
+
+  // Reset objectives rankings array and disable submit button if the user has selected no objectives during the OBJECTIVE step
+  useEffect(() => {
+    if (userFeedbackStep === UserFeedbackStep.OBJECTIVE) {
+      setObjectivesRankings(new Array(objectives.length).fill(0));
+      setDisableSubmitButton(objectives.length === 0);
+    }
+  }, [objectives]);
+
+  // Disable the submit button during the RANK_OBJECTIVES step until the user fills out a valid set of rankings for each selected objective
+  useEffect(() => {
+    if (userFeedbackStep === UserFeedbackStep.RANK_OBJECTIVES) {
+      setDisableSubmitButton(objectivesRankings.includes(0) || (new Set(objectivesRankings)).size !== objectivesRankings.length);
+    }
+  }, [objectivesRankings]);
 
   const objectiveQuestions = 
     <div className="objective-questions">
-      <p><strong>Based on the data collected so far, what do you think RHex's next objective should be?</strong></p>
-      <RadioButtonGroup options={objectiveOptions} selectedIndex={objective} onChange={i => setObjective(i)}/>
+      <p><strong>Based on the data collected so far, select which of the following beliefs you currently hold (you may select multiple).</strong></p>
+      <RadioButtonGroupMultipleOptions options={objectiveOptions} selectedIndices={objectives} onChange={i => {
+        let objectivesTemp = [...objectives];
+        if (objectivesTemp.includes(i)) {
+          objectivesTemp = objectivesTemp.filter(obj => obj !== i);
+        } else {
+          objectivesTemp.push(i);
+        }
+        setObjectives(objectivesTemp);
+      }}/>
+    </div>
+
+  const objectivesToRank = 
+    <table className="dropDownMenuGroup" style={{marginBottom: '2vh'}}>
+      <tbody>
+          {
+            objectives.map((obj, i) => (
+                <tr key={objectiveOptions[obj]}>
+                  <td>
+                    <FormControl>
+                      <Select
+                        id="objectives-select"
+                        value={objectivesRankings[i]}
+                        onChange={(e) => {
+                          let objectivesRankingsTemp = [...objectivesRankings];
+                          if (typeof e.target.value === 'number') objectivesRankingsTemp[i] = e.target.value;
+                          setObjectivesRankings(objectivesRankingsTemp);
+                        }}
+                      >
+                        {Array.from({length: objectives.length}, (_, i) => i + 1).map((rank) => (
+                          <MenuItem key={objectiveOptions[obj] + rank} value={rank}>{rank}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </td>
+                  <td>
+                      { objectiveOptions[obj] }
+                  </td>
+                </tr>
+            ))
+          }
+      </tbody>
+    </table>
+    
+  const objectiveRankings =
+    <div className="objective-rankings">
+      <p><strong>Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement:</strong></p>
+      {objectivesToRank}
     </div>
 
   const onObjectiveTextChange = e => {
@@ -449,25 +388,106 @@ export default function Main() {
   }
   const objectiveFreeResponseQuestion = 
     <div className="objective-free-response-question" style={{marginBottom: '2vh'}}>
-      <p><strong>Please describe what you believe the objective should be:</strong></p>
+      <p><strong>Please describe your belief about the data collected so far:</strong></p>
       <textarea onChange={onObjectiveTextChange} rows={5} cols={85}/>
     </div>
+
+  useEffect(() => {
+    let acceptOrRejectTemp : string[] = robotSuggestions.map((suggestion, index) => "Accept suggested location " + (index + 1));
+    acceptOrRejectTemp.push("Reject suggestions");
+    setAcceptOrRejectOptions(acceptOrRejectTemp);
+  }, [robotSuggestions]);
   
   const acceptOrRejectQuestions = 
     <div className="accept-or-reject-questions">
-      <p><strong>Based on the objective you've selected, RHex suggests sampling next from the red location on the transect above! Do you accept or reject this suggestion?</strong></p>
+      <p><strong>Based on your belief rankings, RHex suggests sampling from one of the red locations marked on the dune cross-section above.</strong></p>
       <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => setAcceptOrReject(i)}/>
     </div>
 
+
+  const [objectiveAddressedRating, setObjectiveAddressedRating] = useState<number[]>([]);
+  const handleSliderChange = (event, newValue, index) => {
+    if (typeof newValue === 'number') {
+      let objectiveAddressedRatingTemp = [...objectiveAddressedRating];
+      objectiveAddressedRatingTemp[index] = newValue;
+      setObjectiveAddressedRating(objectiveAddressedRatingTemp);
+    }
+  }
+
+  useEffect(() => {
+    setObjectiveAddressedRating(new Array(objectives.length).fill(0));
+  }, [objectives]);
+  
+  const marks = [
+    {
+      value: 0,
+      label: '1',
+    },
+    {
+      value: 20,
+      label: '2',
+    },
+    {
+      value: 40,
+      label: '3',
+    },
+    {
+      value: 60,
+      label: '4',
+    },
+    {
+      value: 80,
+      label: '5',
+    },
+    {
+      value: 100,
+      label: '6',
+    },
+  ];
+
+  function valueLabelFormat(value) {
+    return marks.findIndex((mark) => mark.value === value) + 1;
+  }
+
   const acceptFollowUpQuestions = 
     <div className="accept-follow-up-questions">
-      <p><strong>Did going to RHex's suggested location achieve your intended objective?</strong></p>
-      <RadioButtonGroup options={acceptFollowUpOptions} selectedIndex={acceptFollowUp} onChange={i => setAcceptFollowUp(i)}/>
-    </div>
+      <p><strong>Rate the extent to which going to this location addressed each of the following beliefs (1 - Definitely addressed, 
+        2 - Moderately addressed, 3 - Somewhat addressed, 4 - Barely addressed, 5 - Did not address, 6 - Unsure):</strong></p>
+      { objectives.map((obj, index) => (
+        <div key={objectiveOptions[obj].slice(0, 10) + index}>
+          <p>{objectiveOptions[obj]}</p>
+          <div className="slider-box">
+            <Box>
+              <Slider
+                aria-label="Restricted values"
+                value={objectiveAddressedRating[index]}
+                valueLabelFormat={valueLabelFormat}
+                valueLabelDisplay="auto"
+                step={20}
+                marks={marks}
+                onChange={(event, value) => handleSliderChange(event, value, index)}
+              />
+            </Box>
+          </div>
+        </div>
+      ))}
+    </div>  
+
+  useEffect(() => {
+    let rejectReasonOptionsTemp = [
+      "The suggested location did not address the beliefs I selected (", 
+      "I rejected the suggested location for a different reason",
+    ]
+    for (let i = 0; i < objectives.length - 1; i++) {
+      rejectReasonOptionsTemp[0] += objectiveOptions[objectives[i]] + " / ";
+    }
+    rejectReasonOptionsTemp[0] += (objectiveOptions[objectives[objectives.length - 1]] + ")");
+    setRejectReasonOptions(rejectReasonOptionsTemp);
+  }, [objectives]);
 
   const rejectReasonQuestions = 
     <div className="reject-reason-questions">
-      <p><strong>Why did you reject RHex's suggested location?</strong></p>
+      <p><strong>Why did you reject RHex's suggested locations?</strong></p>
       <RadioButtonGroup options={rejectReasonOptions} selectedIndex={rejectReason} onChange={i => setRejectReason(i)}/>
     </div>
   
@@ -483,75 +503,129 @@ export default function Main() {
 
   const userLocationSelectionQuestion = 
     <div className="user-location_selection-question">
-      <p><strong>Please select the next location you'd like to sample from by clicking anywhere along the transect surface in the image above. When you have finalized your selection and are ready to collect data from that location, click "Submit."</strong></p>
+      <p><strong>Please select the next location you'd like to sample from by clicking anywhere along the transect surface in the dune cross-section above. When you have finalized your selection and are ready to collect data from that location, click "Submit."</strong></p>
     </div>
+
+  const updateHypothesisConfidence = 
+  <div className="update-hypothesis-confidence">
+    <div className="hypothesisBlock">
+        <div className="hypothesisTitle"><strong>Updated Hypothesis Confidence</strong></div>
+        <div className="hypothesisText">
+          <div>
+            Provide a new ranking of your certainty that this hypothesis will be supported or refuted. 
+            If you have no preference, select "I am unsure":
+          </div>
+          <div>
+            <i className="hypothesisStatement">
+              Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
+              crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
+              sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
+              as moisture continues to increase. 
+            </i>
+          </div>
+        </div>
+        <FormControl>
+            <Select
+                style={{fontSize: '1.5vh'}}
+                value={updatedHypoConfidence + 3}
+                onChange={event => handleResponse(Number(event.target.value) - 3)}>
+                {
+                    confidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
+                }
+            </Select>
+        </FormControl>
+    </div>
+  </div>
 
   const transitionQuestions = 
     <div className="reject-reason-questions">
       <p><strong>What would you like to do next?</strong></p>
-      <RadioButtonGroup options={transitionOptions} selectedIndex={transition} onChange={i => setTransition(i)}/>
+      <RadioButtonGroup 
+        options={transitionOptions.slice((!userFreeSelection) ? 0 : 1)} 
+        selectedIndex={transition} 
+        onChange={i => setTransition(i)}/>
     </div>
 
   // Match the order of UserFeedbackSteps in 'constants.ts'
   const userFeedbackStepMap = [
     objectiveQuestions,
+    objectiveRankings,
     objectiveFreeResponseQuestion,
     acceptOrRejectQuestions,
     acceptFollowUpQuestions,
     rejectReasonQuestions,
     rejectReasonFreeResponseQuestion,
     userLocationSelectionQuestion,
-    transitionQuestions, // to be changed
+    updateHypothesisConfidence,
     transitionQuestions,
   ]
 
-  const onSubmit = () => {
+  // useEffect(() => {
+  //   console.log({robotSuggestions});
+  // }, [robotSuggestions]);
+
+  const onSubmit = async () => {
     setNumSubmitClicks(numSubmitClicks + 1);
     switch (userFeedbackStep) {
       case UserFeedbackStep.OBJECTIVE: {
-        if (objective !== 4) {
-          setRobotSuggestion(sampleRobotSuggestion);
-
-          console.log(actualStrategyData.transects[0]);
-          calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState);
-
-          setShowRobotSuggestion(true);
-          setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
-        } else {
+        if (objectives.includes(4)) { // need to adjust this so that you only go to free response if option is ranked highest
+          setObjectiveFreeResponse("");
           setUserFeedbackStep(UserFeedbackStep.OBJECTIVE_FREE_RESPONSE);
+        } else {
+          if (objectives.length === 1) {
+            setLoading(true);
+            setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
+            setShowRobotSuggestions(true);
+            setAcceptOrReject(0);
+            setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
+            setLoading(false);
+          } else {
+            setDisableSubmitButton(true);
+            setUserFeedbackStep(UserFeedbackStep.RANK_OBJECTIVES); // STILL NEED TO ADD THIS SECTION
+          } 
         }
+        return;
+      }
+      case UserFeedbackStep.RANK_OBJECTIVES: { // THIS SECTION NEEDS TO BE REVISED TO ACCOUNT FOR RELATIVE RANKINGS OF OBJECTIVES
+        setLoading(true);
+        setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
+        setShowRobotSuggestions(true);
+        setAcceptOrReject(0);
+        setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
+        setLoading(false);
         return;
       }
       case UserFeedbackStep.OBJECTIVE_FREE_RESPONSE: {
+        // ADD A LINE TO SAVE THE RESPONSE
         setDisableSubmitButton(true);
         setImgClickEnabled(true);
+        setUserFreeSelection(true);
         setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
-        setNumImgClicks(0);
+        setNumImgClicks(0); 
         return;
       }
       case UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION: {
-        if (acceptOrReject === 0) {
-          if (robotSuggestion) {
-            let newRow = {...robotSuggestion, type: RowType.NORMAL};
-            addDataToPlot(curTransectIdx, newRow);
-          }
+        if (acceptOrReject !== acceptOrRejectOptions.length - 1) {
+          let newRow = {...robotSuggestions[acceptOrReject], type: RowType.NORMAL}; // edit row type from "ROBOT_SUGGESTION" to "NORMAL"
+          dispatch({ type: Action.ADD_ROW, value: newRow }); // add the new row to the StateContext
           setUserFeedbackStep(UserFeedbackStep.ACCEPT_FOLLOW_UP);
-        } else if (acceptOrReject === 1) {
+        } else {
           setUserFeedbackStep(UserFeedbackStep.REJECT_REASON);
         }
-        setShowRobotSuggestion(false);
+        setShowRobotSuggestions(false);
         return;
       }
       case UserFeedbackStep.ACCEPT_FOLLOW_UP: {
-        setUserFeedbackStep(UserFeedbackStep.TRANSITION);
+        setUserFeedbackStep(UserFeedbackStep.HYPOTHESIS_CONFIDENCE);
         return;
       }
       case UserFeedbackStep.REJECT_REASON: {
         if (rejectReason === 0) {
           setDisableSubmitButton(true);
           setImgClickEnabled(true);
+          setUserFreeSelection(true);
           setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
-          setNumImgClicks(0);
+          setNumImgClicks(0); 
         } else if (rejectReason === 1) {
           setUserFeedbackStep(UserFeedbackStep.REJECT_REASON_FREE_RESPONSE);
         }
@@ -560,27 +634,42 @@ export default function Main() {
       case UserFeedbackStep.REJECT_REASON_FREE_RESPONSE: {
         setDisableSubmitButton(true);
         setImgClickEnabled(true);
+        setUserFreeSelection(true);
         setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
         setNumImgClicks(0);
         return;
       }
       case UserFeedbackStep.USER_LOCATION_SELECTION: {
-        addDataToPlot(curTransectIdx, rows[rows.length - 1]);
+        //addDataToPlot(curTransectIdx, rows[rows.length - 1]);
         setImgClickEnabled(false);
+        setNumImgClicks(0); // load the next IROW into the charts and strategy 
+        setUserFeedbackStep(UserFeedbackStep.HYPOTHESIS_CONFIDENCE);
+        return;
+      }
+      case UserFeedbackStep.HYPOTHESIS_CONFIDENCE: {
         setUserFeedbackStep(UserFeedbackStep.TRANSITION);
         return;
       }
       case UserFeedbackStep.TRANSITION: {
-        if (transition === 0) {
+        let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
+        if (transitionAdj === 0) {
+          setLoading(true);
+          setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
+          setShowRobotSuggestions(true);
+          setAcceptOrReject(0);
+          setUserFreeSelection(false);
           setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
-        } else if (transition === 1) {
+          setLoading(false);
+        } else if (transitionAdj === 1) {
+          setUserFreeSelection(false);
           setUserFeedbackStep(UserFeedbackStep.OBJECTIVE);
-        } else if (transition === 2) {
+        } else if (transitionAdj === 2) {
           setDisableSubmitButton(true);
           setImgClickEnabled(true);
+          setUserFreeSelection(true);
           setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
           setNumImgClicks(0);
-        } else if (transition === 3) {
+        } else if (transitionAdj === 3) {
           onConcludeClick();
         }
         return;
@@ -601,17 +690,23 @@ export default function Main() {
       <ImgAlert open={!!showImgAlert} />
       <Tooltip title={userFeedbackStep !== UserFeedbackStep.USER_LOCATION_SELECTION ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
-            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx} robotSuggestion={robotSuggestion} showRobotSuggestion={showRobotSuggestion} setDisableSubmitButton={setDisableSubmitButton} numImgClicks={numImgClicks} setNumImgClicks={setNumImgClicks}/>  
+            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx} robotSuggestions={robotSuggestions} showRobotSuggestions={showRobotSuggestions} setDisableSubmitButton={setDisableSubmitButton} numImgClicks={numImgClicks} setNumImgClicks={setNumImgClicks}/>  
           </div>
       </Tooltip>
-      <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
+      {!loading && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
         {userFeedbackStepMap[userFeedbackStep]}
         <div className="submit-user-feedback-button">
           <Button disabled={disableSubmitButton} variant="contained" color="secondary" onClick={onSubmit}>
             Submit
           </Button>
         </div>
-      </div>
+      </div>}
+      {loading && <div className="loading-screen">
+        <CircularProgress 
+          color="secondary"
+          size={100}
+        />
+      </div>}
       <div className="quit">
         <Button className="quitButton" variant="contained" color="primary" onClick={onConcludeClick}>
           End Collection At Transect
@@ -626,13 +721,13 @@ export default function Main() {
     <MultiStepDialog
       open={decisionHelpOpen}
       setOpen={setDecisionHelpOpen}
-      title={"Instructions"}
+      title={""}
       allowCancel={false}
       steps={[
-        ["A robot is testing a hypothesis about the relationship between soil strength and soil moisture. The robot has already collected some data, but needs your help to decide where to go next!",
-        "\u2022 Between each data sample collection, you will be asked a few short questions to determine where to collect the next sample.",
-        "\u2022 The charts on the left will display the shear strength and moisture results of the samples along the way. You can adjust the charts to display raw or averaged (if there are multiple samples taken at certain locations along the transect) values by clicking 'Update Chart Options.'",
-        "\u2022 If at any point you feel like you have collected enough data, you may click the button to end the data collection."
+        ["RHex will always take 3 measurements of moisture and strength at each location visited.",
+        "The dune cross-section on the right displays the locations where RHex has already sampled and the charts on the left display the corresponding data. Select \"Update Chart Options\" to adjust the charts to display raw or averaged values (if there are multiple samples taken from the same location along the transect).",
+        "You will be asked a few questions to determine where RHex should sample next.",
+        "If at any point you feel you have collected enough data to make a judgment about the hypothesis, select \"End Collection at Transect.\""
         ]
       ]}
     />;
