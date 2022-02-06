@@ -225,6 +225,28 @@
                     display: flex;
                     justify-content: center;
                 }
+
+                .hypothesisBlock {
+                    text-align: left;
+                    clear: both;
+                    width: 100%;
+                    padding-top: 1vh;
+                    margin-bottom: 2vh;
+                    .hypothesisTitle {
+                        font-size: 2vh;
+                        color: #114B5F;
+                        font-family: Helvetic, sans-serif;
+                        margin-bottom: 2px;
+                    }
+                    .hypothesisText {
+                        font-size: 1.7vh;
+                    }
+                }
+
+                .slider-box {
+                    padding-left: 3%;
+                    max-width: 80%;
+                }
             }
             .user-feedback-flashing {
                 width: 90%;

@@ -646,28 +646,18 @@ export const objectiveOptions = [
   "I hold a different belief that is not described here" // Option 4 - free response
 ]
 
-export const acceptOrRejectOptions = [
-  "Accept", 
-  "Reject",
-]
-
 export const acceptFollowUpOptions = [
-  "Definitely achieved the objective", 
-  "Moderately achieved the objective",
-  "Somewhat achieved the objective",
-  "Barely achieved the objective",
-  "Did not achieve the objective",
+  "Definitely addressed the belief", 
+  "Moderately addressed the belief",
+  "Somewhat addressed the belief",
+  "Barely addressed the belief",
+  "Did not address the belief",
   "I am unsure",
 ]
 
-export const rejectReasonOptions = [
-  "The suggested location did not achieve the selected objective", 
-  "I rejected the suggested location for a different reason",
-]
-
 export const transitionOptions = [
-  "See RHex’s suggestion for where to sample next to achieve the most recently selected objective", 
-  "Update RHex’s objective to receive a new suggestion of where to sample next",
-  "Ignore suggestions and tell RHex where to sample next” -- user is free to select any location",
+  "See RHex's suggestions for where to sample next based on your current belief rankings", 
+  "Update belief rankings to receive new suggestions from RHex of where to sample next",
+  "Ignore suggestions and select a location for RHex to sample next",
   "Stop data collection and make a conclusion about the hypothesis",
 ]
