@@ -33,10 +33,6 @@
             // align-items: center;
         }
 
-        .contentContainer {
-            // height: min-content;
-        }
-
         .dataConfiguration {
             cursor: pointer;
             color: #114B5F;
@@ -47,16 +43,7 @@
         }
 
         // Pages
-
         .page1 {
-            font-size: 20;
-            width: 70%;
-            min-width: 300;
-            margin: auto;
-            position: relative;
-        }
-
-        .page2 {
 
             .contentContainer {
                 height: 100%;
@@ -80,107 +67,25 @@
                     margin-top: 0;
                 }
             }
-        }
 
-        .page3 {
-            .localHypoImage {
-                height: 20vh;
-                max-height: 290px;;
-                margin: auto;
-                display: block;
-                margin-bottom: 20;
-            }
-            .text {
+            .hypothesisBlock {
+                text-align: left;
+                clear: both;
                 width: 80%;
-                margin: auto;
-                margin-top: 20px;
-            }
-            .table {
-                border-collapse: separate;
-                border-spacing: 0 20px;
-                margin: auto;
-                margin-top: 20px;
-                width: 80%;
-
-                .tableCell {
-                    border-bottom: solid 2px #cecece;
-                    padding-bottom: 20;
+                padding-top: 3vh;
+                margin-bottom: 5vh;
+                .hypothesisTitle {
+                    font-size: 2.5vh;
+                    color: #114B5F;
+                    font-family: Helvetic, sans-serif;
+                    margin-bottom: 2px;
                 }
-                .titleCol {
-                    vertical-align: top;
-                    width: 30%;
+                .hypothesisText {
+                    font-size: 2vh;
                 }
             }
-        }
+            .hypothesisBlock:last-child { margin: 0; }
 
-        .page4 {
-            .localHypoImage {
-                width: 100%;
-                margin: auto;
-                display: block;
-                margin-bottom: 20;
-            }
-            .text {
-                width: 80%;
-                margin: auto;
-                margin-top: 30px;
-            }
-        }
-
-        .page5 {
-
-            p:nth-child(1) {
-                margin-top: 0;
-            }
-
-            .globalHypoImage {
-                height: 20vh;
-                margin: auto;
-                display: block;
-                margin-bottom: 20;
-            }
-            .table {
-                border-collapse: separate;
-                border-spacing: 0 20px;
-                margin: auto;
-                margin-top: 20px;
-                width: 80%;
-
-                td {
-                    vertical-align: top;
-                }
-
-                .tableCell {
-                    border-bottom: solid 2px #cecece;
-                    padding-bottom: 20;
-                }
-                .titleCol {
-                    vertical-align: top;
-                    width: 35%;
-                    padding-right: 20px;
-                }
-            }
-        }
-
-        .page6 {
-            height: 90vh;
-            width: 90%;
-            margin: auto;
-
-            .introHypotheses {
-                margin-top: 3vh;
-
-                .localHypotheses {
-                    vertical-align: top;
-                    padding-right: 5%;
-                }
-    
-                .globalHypotheses {
-                    vertical-align: top;
-                    padding-left: 5%;
-                }
-
-            }
         }
 
         .buttonRow {

@@ -113,7 +113,7 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     
     const index = getNearestIndex([normOffsetX, normOffsetY]);
 
-    //console.log({index, offsetX, offsetY, normOffsetX, normOffsetY, height, NORMALIZED_HEIGHT, width, NORMALIZED_WIDTH}); // for debugging
+    console.log({index, offsetX, offsetY, normOffsetX, normOffsetY, height, NORMALIZED_HEIGHT, width, NORMALIZED_WIDTH}); // for debugging
 
     if (index == -1) {
       dispatch({
@@ -135,8 +135,6 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     //   value: true
     // });
 
-    console.log({rows});
-
     if (numImgClicks > 0) {
       dispatch({
         type: Action.DELETE_ROW, // delete the old row
@@ -147,7 +145,7 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     setNumImgClicks(numImgClicks + 1);
 
     const newRow : IRow = {
-      index: clickIndex,
+      index: index,
       measurements: NUM_MEASUREMENTS,
       type: RowType.NORMAL,
       normOffsetX,
@@ -158,7 +156,10 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
       type: Action.ADD_ROW, // add the new row to the state
       value: newRow
     });
+    
     setDisableSubmitButton(false);
+
+    console.log({rows});
   }
 
   return (
@@ -196,7 +197,7 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
             key={suggestion.index + suggestion.normOffsetX + suggestion.normOffsetY}
             left={suggestion.normOffsetX * height / NORMALIZED_HEIGHT}
             top={suggestion.normOffsetY * height / NORMALIZED_HEIGHT}
-            rowIndex={rows.length + index}
+            rowIndex={index}
             isHovered={suggestion.isHovered}
             type={suggestion.type}
           />

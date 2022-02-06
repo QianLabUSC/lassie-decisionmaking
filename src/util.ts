@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { NORMALIZED_WIDTH, RowType, transectLines, BATTERY_COST_PER_SAMPLE,
   BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, 
-  sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, NUM_MEASUREMENTS, rejectReasonOptions, objectiveOptions } from './constants';
+  sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, NUM_MEASUREMENTS, objectiveOptions } from './constants';
 import { measurements } from './mesurements';
 import { dataset } from './data/rhexDataset';
 import { Transect, TransectType, ActualStrategySample } from './types';
@@ -393,7 +393,7 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
       }
     }
   } else {
-
+    locs = peaks.spatial_locs; // FILLER - NEEDS TO BE REVISED
   }
 
   console.log({locs});
