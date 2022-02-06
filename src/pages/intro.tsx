@@ -100,7 +100,7 @@ export default function Intro(props) {
                         { /* Insert modified transect hypothesis figure*/ }
 
                         <div className="hypothesisBlock">
-                            <div className="hypothesisTitle">Initial Hypothesis Confidence</div>
+                            <div className="hypothesisTitle"><strong>Initial Hypothesis Confidence</strong></div>
                             <div className="hypothesisText">
                                 Provide a ranking of your initial certainty that this hypothesis will be supported or refuted. If you have no initial preference, simply select "I am unsure":
                             </div>
