@@ -86,13 +86,16 @@ def findPeaks():
     discrepancy_lows_locs, discrepancy_lows_properties = signal.find_peaks(disrepancy_reward_negative, height=-0.5, distance=2)
 
     if len(spatial_locs) == 0:
-        spatial_locs = np.max(spatial_reward)
+        spatial_locs = np.array([np.argmax(spatial_reward)])
     
     if len(variable_locs) == 0:
-        variable_locs = np.max(moisture_reward)
+        variable_locs = np.array([np.argmax(moisture_reward)])
 
     if len(discrepancy_locs) == 0:
-        discrepancy_locs = np.max(discrepancy_reward)
+        discrepancy_locs = np.array([np.argmax(discrepancy_reward)])
+        
+    if len(discrepancy_lows_locs) == 0:
+        discrepancy_lows_locs = np.array([np.argmax(disrepancy_reward_negative)])
 
     output = {
         'spatial_locs': spatial_locs.tolist(),

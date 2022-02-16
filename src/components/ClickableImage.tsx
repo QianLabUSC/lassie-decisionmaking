@@ -167,19 +167,22 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
         showNOMInput && <AddSamplePopup clickPosition={clickPosition} clickIndex={clickIndex} onAddData={addDataFunc} setDisableSubmitButton={setDisableSubmitButton}/>
       }
       {
-        rows.map((row, index) => {
+        rows.map((row, rowIndex) => {
           if (!imgEl) {
             return null;
           }
-          const { type, normOffsetX, normOffsetY, isHovered } = row;
+
+          const { index, type, normOffsetX, normOffsetY, isHovered } = row;
           
           return <PositionIndicator
-            key={index}
+            key={rowIndex}
             left={normOffsetX * height / NORMALIZED_HEIGHT}
             top={normOffsetY * height / NORMALIZED_HEIGHT}
-            rowIndex={index}
+            rowIndex={rowIndex}
             isHovered={isHovered}
             type={type}
+            locationIndex={index}
+            robot={false}
           />;
         })
       }
@@ -190,14 +193,16 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
         />
       }
       {showRobotSuggestions && robotSuggestions &&
-        robotSuggestions.map((suggestion, index) => (
+        robotSuggestions.map((suggestion, rowIndex) => (
           <PositionIndicator
             key={suggestion.index + suggestion.normOffsetX + suggestion.normOffsetY}
             left={suggestion.normOffsetX * height / NORMALIZED_HEIGHT}
             top={suggestion.normOffsetY * height / NORMALIZED_HEIGHT}
-            rowIndex={index}
+            rowIndex={rowIndex}
             isHovered={suggestion.isHovered}
             type={suggestion.type}
+            locationIndex={suggestion.index}
+            robot={true}
           />
         )) 
       }
