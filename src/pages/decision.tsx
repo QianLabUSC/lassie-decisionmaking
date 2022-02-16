@@ -379,7 +379,7 @@ export default function Main() {
     
   const objectiveRankings =
     <div className="objective-rankings">
-      <p><strong>Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement:</strong></p>
+      <p><strong>Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement. You may only assign one number per belief:</strong></p>
       {objectivesToRank}
     </div>
 
@@ -393,14 +393,14 @@ export default function Main() {
     </div>
 
   useEffect(() => {
-    let acceptOrRejectTemp : string[] = robotSuggestions.map((suggestion, index) => "Accept suggested location " + (index + 1));
+    let acceptOrRejectTemp : string[] = robotSuggestions.map((suggestion, index) => "Accept suggested location " + String.fromCharCode(index + 65));
     acceptOrRejectTemp.push("Reject suggestions");
     setAcceptOrRejectOptions(acceptOrRejectTemp);
   }, [robotSuggestions]);
   
   const acceptOrRejectQuestions = 
     <div className="accept-or-reject-questions">
-      <p><strong>Based on your belief rankings, RHex suggests sampling from one of the red locations marked on the dune cross-section above.</strong></p>
+      <p><strong>Based on your belief rankings, RHex suggests sampling from one of the lettered locations marked on the dune cross-section above.</strong></p>
       <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => setAcceptOrReject(i)}/>
     </div>
 
@@ -517,10 +517,9 @@ export default function Main() {
           </div>
           <div>
             <i className="hypothesisStatement">
-              Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
-              crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
-              sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
-              as moisture continues to increase. 
+              Sand will be weakest and most dry at the dune crest. Strength will increase as moisture increases 
+              (moving towards the interdune) until sand is saturated (somewhere along the stoss slope), at which 
+              point strength will be constant as moisture continues to increase.
             </i>
           </div>
         </div>
@@ -682,8 +681,6 @@ export default function Main() {
       fontSize: '12px'
   }
 
-
-
   // Right panel to display when collecting data, sampleState != FINISH_TRANSECT
   const collectionRightPanel = (
     <div className="collectionRightPanel">
@@ -702,10 +699,17 @@ export default function Main() {
         </div>
       </div>}
       {loading && <div className="loading-screen">
-        <CircularProgress 
-          color="secondary"
-          size={100}
-        />
+        <div className="loading-section">
+          <i>
+            RHex is determining where to sample from next. This should take at most 5-10 seconds...
+          </i>
+        </div>
+        <div className="loading-section">
+          <CircularProgress 
+            color="secondary"
+            size={100}
+          />
+        </div>
       </div>}
       <div className="quit">
         <Button className="quitButton" variant="contained" color="primary" onClick={onConcludeClick}>

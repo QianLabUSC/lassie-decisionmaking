@@ -365,6 +365,11 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
   // Compute the potential discrepancy reward
   let discrepancy_reward = computeDiscrepancyReward(moisture_v_locationBelief, shearStrength_v_moisture, potential_discrepancy_belief);
 
+  // Round all the reward values to 4 decimal places (to align with Matlab examples)
+  spatial_reward = spatial_reward.map(item => Number(item.toFixed(4)));
+  moisture_reward = moisture_reward.map(item => Number(item.toFixed(4)));
+  discrepancy_reward = discrepancy_reward.map(item => Number(item.toFixed(4)));
+
   // Compute the robot suggestions based on each objective
   let peaks : any = await computePeaks(spatial_reward, moisture_reward, discrepancy_reward); 
 
@@ -424,7 +429,7 @@ function buildAggregatedSamplesByLocation(actualStrategySamples: ActualStrategyS
     for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
       if (actualStrategySamples[i].index == aggregatedSamplesByLoc[j].location) {
         locationExists = true;
-        aggregatedSamplesByLoc[j].measurements += aggregatedSamplesByLoc[0][i].measurements;
+        aggregatedSamplesByLoc[j].measurements += actualStrategySamples[i].measurements;
         aggregatedSamplesByLoc[j].moisture.push(...actualStrategySamples[i].moisture);
         aggregatedSamplesByLoc[j].shear.push(...actualStrategySamples[i].shear);
       }
@@ -713,6 +718,7 @@ function computeVariableSpaceInformationReward(moisture_v_locationBelief, inform
         moisture_index = Math.round(moisture_possibility[j]) + 1;
       }
       R_m_l += information_reward[moisture_index] * actual_probability[j];
+      //console.log({R_m_l});
     }
     R_v_set[i] = R_m_l;
     moisture_reward[i] = 1 - R_v_set[i];
@@ -972,7 +978,8 @@ function linearRegression(xx: number[], yy: number[], zz: number[], moist: numbe
   }
   
   return new Promise((resolve, reject) => {
-    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/regression', {
+    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/regression', { //production URL
+    //fetch('http://127.0.0.1:5000/regression', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -1001,8 +1008,11 @@ function computePeaks(spatial_reward: number[], moisture_reward: number[], discr
     discrepancy_reward: discrepancy_reward
   }
 
+  console.log({inputs});
+
   return new Promise((resolve, reject) => {
-    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/findpeaks', {
+    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/findpeaks', { //production URL
+    //fetch('http://127.0.0.1:5000/findpeaks', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',

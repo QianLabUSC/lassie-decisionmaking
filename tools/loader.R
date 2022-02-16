@@ -15,11 +15,11 @@ setPrecision <- function(data, precision) {
   if (is.list(data)) {
     return (lapply(data, function(i) { setPrecision(i, precision) }));
   } else {
-    return(as.numeric(formatC(data, digits = 2, format = "f")))
+    return(as.numeric(formatC(data, digits = 4, format = "f")))
   }
 }
 
-precision <- 2
+precision <- 4
 
 moistureData <- data["mm"][1]
 moistureData <- lapply(moistureData, function(v) { apply(v, 2, as.list) })
