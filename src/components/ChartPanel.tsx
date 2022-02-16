@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { transectColors, SampleState } from '../constants';
 import ChartOptionsSummary from '../components/ChartOptionsSummary';
-import { Transect, TransectType } from '../types';
 import { useStateValue, Action, ChartDisplayMode} from '../state';
 import { initializeCharts, updateCharts } from '../handlers/ChartHandler';
 import "../styles/chartPanel.scss";

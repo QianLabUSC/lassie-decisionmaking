@@ -114,7 +114,7 @@ export const windPositionIndices = [] as number[];
 for (let i = 0; i < 24; i++) windPositionIndices.push(Math.floor(Math.random() * 10));
 
 const chartTransparency = 1.0;
-const transectBaseColors = [
+const locationBaseColors = [
 	[194, 19, 19], //transects 1-3: red
 	[240, 97, 97],
 	[245, 157, 157],          
@@ -140,7 +140,7 @@ const transectBaseColors = [
 	[238, 20, 250],
 	[249, 137, 255],
 ];
-export const transectColors = transectBaseColors.map(c =>
+export const locationColors = locationBaseColors.map(c =>
   `rgb(${RGBAtoRGB([...c, chartTransparency], [255, 255, 255]).join(", ")})`
 );
 
@@ -281,7 +281,7 @@ export const shearChartOption = {
           backgroundColor(context) {
             const { dataIndex, dataset } = context;
             const point = dataset.data[dataIndex];
-            return transectColors[point.id];
+            return locationColors[point.index];
           }
         }
       },
@@ -363,7 +363,7 @@ export const moistChartOption = {
           backgroundColor(context) {
             const { dataIndex, dataset } = context;
             const point = dataset.data[dataIndex];
-            return transectColors[point.id];
+            return locationColors[point.index];
           }
         }
       },
@@ -445,7 +445,7 @@ export const shearMoistChartOption = {
           backgroundColor(context) {
             const { dataIndex, dataset } = context;
             const point = dataset.data[dataIndex];
-            return transectColors[point.id];
+            return locationColors[point.index];
           }
         }
       },
@@ -528,7 +528,7 @@ export const grainChartOption = {
           backgroundColor(context) {
             const { dataIndex, dataset } = context;
             const point = dataset.data[dataIndex];
-            return transectColors[point.id];
+            return locationColors[point.index];
           }
         }
       },

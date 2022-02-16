@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useStateValue, Action } from '../state';
-import { RowType } from '../constants';
+import { RowType, locationColors } from '../constants';
 
 const useStyles = makeStyles(theme => ({
   indicator: {
@@ -10,11 +10,11 @@ const useStyles = makeStyles(theme => ({
     cursor: 'default',
     fontSize: '1.2rem',
     fontWeight: 700,
-    color: theme.palette.secondary.main,
+    //color: theme.palette.secondary.main,
     '& .dot': {
       content: '""',
       display: 'inline-block',
-      backgroundColor: theme.palette.secondary.main,
+      //backgroundColor: theme.palette.secondary.main,
       width: 10,
       height: 10,
       borderRadius: 5,
@@ -66,7 +66,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function PositionIndicator({ left, top, type, rowIndex, isHovered }) {
+export default function PositionIndicator({ left, top, type, rowIndex, isHovered, locationIndex, robot }) {
   const classes = useStyles();
   const [globalState, dispatch] = useStateValue();
   const { strategy } = globalState;
@@ -87,10 +87,10 @@ export default function PositionIndicator({ left, top, type, rowIndex, isHovered
       className={`${classes.indicator} ${classes[type]}
                   ${rowIndex === curRowIdx - 1 && type !== RowType.DISCARDED ? classes.current : ''} 
                   ${isHovered && type !== RowType.DISCARDED ? classes.hover : ''}`}
-      style={{ left, top }}
+      style={{ color: locationColors[locationIndex], left, top }}
     >
-      <span className="dot"></span>
-      <span className="content">{rowIndex + 1}</span>
+      <span className="dot" style={{ backgroundColor: locationColors[locationIndex] }}></span>
+      <span className="content">{robot ? String.fromCharCode(rowIndex + 65) : rowIndex + 1}</span>
     </span>
   );
 }
