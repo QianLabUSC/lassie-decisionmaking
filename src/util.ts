@@ -329,7 +329,7 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
   for (let i = 0; i < objectives.length; i++) {
     objectivesRanked.push({objective: objectives[i], ranking: objectivesRankings[i]});
   }
-  objectivesRanked.sort((a, b) => (a.ranking > b.location) ? 1 : -1);
+  objectivesRanked.sort((a, b) => (a.ranking > b.ranking) ? 1 : -1);
   //console.log({objectivesRanked});
 
   // Create an array which contains the aggregated sample data by location
@@ -370,35 +370,59 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
   moisture_reward = moisture_reward.map(item => Number(item.toFixed(4)));
   discrepancy_reward = discrepancy_reward.map(item => Number(item.toFixed(4)));
 
-  // Compute the robot suggestions based on each objective
-  let peaks : any = await computePeaks(spatial_reward, moisture_reward, discrepancy_reward); 
+  // Compute the robot suggestions based on each objective (limit to 3 suggestions)
+  let peaks : any = await computePeaks(spatial_reward, moisture_reward, discrepancy_reward);
 
-  console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward, potential_discrepancy_belief, shearStrength_v_moisture, discrepancy_reward, peaks});
+  let peaksRankedSpatial : any[] = [];
+  let peaksRankedVariable : any[] = [];
+  let peaksRankedDiscrepancy : any[] = [];
+  let peaksRankedDiscrepancyLows: any[] = [];
 
+  for (let i = 0; i < peaks.spatial_locs.length; i++) {
+    peaksRankedSpatial.push({loc: peaks.spatial_locs[i], spatialReward: spatial_reward[peaks.spatial_locs[i]]});
+  }
+  peaksRankedSpatial.sort((a, b) => (a.spatialReward < b.spatialReward) ? 1 : -1);
+
+  for (let i = 0; i < peaks.variable_locs.length; i++) {
+    peaksRankedVariable.push({loc: peaks.variable_locs[i], moistureReward: moisture_reward[peaks.variable_locs[i]]});
+  }
+  peaksRankedVariable.sort((a, b) => (a.moistureReward < b.moistureReward) ? 1 : -1);
+
+  for (let i = 0; i < peaks.discrepancy_locs.length; i++) {
+    peaksRankedDiscrepancy.push({loc: peaks.discrepancy_locs[i], discrepancyReward: discrepancy_reward[peaks.discrepancy_locs[i]]});
+  }
+  peaksRankedDiscrepancy.sort((a, b) => (a.discrepancyReward < b.discrepancyReward) ? 1 : -1);
+  
+  for (let i = 0; i < peaks.discrepancy_lows_locs.length; i++) {
+    peaksRankedDiscrepancyLows.push({loc: peaks.discrepancy_lows_locs[i], discrepancyReward: discrepancy_reward[peaks.discrepancy_lows_locs[i]]});
+  }
+  peaksRankedDiscrepancyLows.sort((a, b) => (a.discrepancyReward > b.discrepancyReward) ? 1 : -1);
+
+  console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward, potential_discrepancy_belief, shearStrength_v_moisture, discrepancy_reward, peaks, peaksRankedSpatial, peaksRankedVariable, peaksRankedDiscrepancy, peaksRankedDiscrepancyLows});
+  
   let locs;
 
-  //
-  if (objectivesRanked.length === 1) {
-    switch (objectivesRanked[0].objective) {
-      case 0: {
-        locs = peaks.spatial_locs;
-        break;
-      }
-      case 1: {
-        locs = peaks.variable_locs;
-        break;
-      }
-      case 2: {
-        locs = peaks.discrepancy_locs;
-        break;
-      }
-      case 3: {
-        locs = peaks.discrepancy_lows_locs;
-        break;
-      }
+  switch (objectivesRanked[0].objective) {
+    case 0: {
+      let peaksRankedSpatialTrimmed = peaksRankedSpatial.slice(0, 3);
+      locs = peaksRankedSpatialTrimmed.map(suggestion => suggestion.loc);
+      break;
     }
-  } else {
-    locs = peaks.spatial_locs; // FILLER - NEEDS TO BE REVISED
+    case 1: {
+      let peaksRankedVariableTrimmed = peaksRankedVariable.slice(0, 3);
+      locs = peaksRankedVariableTrimmed.map(suggestion => suggestion.loc);
+      break;
+    }
+    case 2: {
+      let peaksRankedDiscrepancyTrimmed = peaksRankedDiscrepancy.slice(0, 3);
+      locs = peaksRankedDiscrepancyTrimmed.map(suggestion => suggestion.loc);
+      break;
+    }
+    case 3: {
+      let peaksRankedDiscrepancyLowsTrimmed = peaksRankedDiscrepancyLows.slice(0, 3);
+      locs = peaksRankedDiscrepancyLowsTrimmed.map(suggestion => suggestion.loc);
+      break;
+    }
   }
 
   let robotSuggestion : IRow[] = locs.map((loc) => {
@@ -978,8 +1002,8 @@ function linearRegression(xx: number[], yy: number[], zz: number[], moist: numbe
   }
   
   return new Promise((resolve, reject) => {
-    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/regression', { //production URL
-    //fetch('http://127.0.0.1:5000/regression', { //local development URL
+    //fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/regression', { //production URL
+    fetch('http://127.0.0.1:5000/regression', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -1011,8 +1035,8 @@ function computePeaks(spatial_reward: number[], moisture_reward: number[], discr
   console.log({inputs});
 
   return new Promise((resolve, reject) => {
-    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/findpeaks', { //production URL
-    //fetch('http://127.0.0.1:5000/findpeaks', { //local development URL
+    //fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/findpeaks', { //production URL
+    fetch('http://127.0.0.1:5000/findpeaks', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
