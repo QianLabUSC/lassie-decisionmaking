@@ -115,28 +115,26 @@ for (let i = 0; i < 24; i++) windPositionIndices.push(Math.floor(Math.random() *
 
 const chartTransparency = 1.0;
 const locationBaseColors = [
-	[194, 19, 19], //transects 1-3: red
+	[194, 19, 19], //locations 1-3: red
 	[240, 97, 97],
 	[245, 157, 157],          
-	[228, 124, 21], //transects 4-6: orange
+	[228, 124, 21], //locations 4-6: orange
 	[238, 165, 92],
 	[241, 196, 151],
-	[202, 202, 31], //transects 7-9: yellow
+	[202, 202, 31], //locations 7-8: yellow
 	[220, 220, 96],
-	[243, 243, 82],
-	[60, 173, 60], //transects 10-12: green
+	[60, 173, 60], //locations 9-11: green
 	[77, 228, 77],
 	[168, 249, 168],
-	[21, 203, 203], //transects 13-15: cyan
+	[21, 203, 203], //locations 12-13: cyan
 	[50, 234, 234],
-	[158, 255, 255],
-	[39, 83, 179], //transects 16-18: blue
+	[39, 83, 179], //locations 14-16: blue
 	[55, 115, 245],
 	[142, 176, 249],
-	[135, 39, 179], //transects 19-21: purple
+	[135, 39, 179], //locations 17-19: purple
 	[204, 96, 255],
 	[231, 192, 251],
-	[190, 9, 200], //transects 22-24: pink
+	[190, 9, 200], //locations 20-22: pink
 	[238, 20, 250],
 	[249, 137, 255],
 ];
@@ -326,7 +324,7 @@ export const shearChartOption = {
               const { datasetIndex, index } = tooltipItem;
               const rawData = data.datasets[datasetIndex].data[index];
               const { x, y, rowIndex } = rawData;
-              return `Sample ${rowIndex + 1}: (${x.toFixed(2)}, ${y.toFixed(2)})`;
+              return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
             }
         }
     }
@@ -408,7 +406,7 @@ export const moistChartOption = {
               const { datasetIndex, index } = tooltipItem;
               const rawData = data.datasets[datasetIndex].data[index];
               const { x, y, rowIndex } = rawData;
-              return `Sample ${rowIndex + 1}: (${x.toFixed(2)}, ${y.toFixed(2)})`;
+              return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
             }
         }
     }
@@ -490,7 +488,7 @@ export const shearMoistChartOption = {
               const { datasetIndex, index } = tooltipItem;
               const rawData = data.datasets[datasetIndex].data[index];
               const { x, y, rowIndex } = rawData;
-              return `Sample ${rowIndex + 1}: (${x.toFixed(2)}, ${y.toFixed(2)})`;
+              return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
             }
         }
     }
@@ -573,7 +571,7 @@ export const grainChartOption = {
               const { datasetIndex, index } = tooltipItem;
               const rawData = data.datasets[datasetIndex].data[index];
               const { x, y, rowIndex } = rawData;
-              return `Sample ${rowIndex + 1}: (${x.toFixed(2)}, ${y.toFixed(2)})`;
+              return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
             }
         }
     }
