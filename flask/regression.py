@@ -85,23 +85,36 @@ def findPeaks():
     discrepancy_locs, discrepancy_properties = signal.find_peaks(discrepancy_reward, height=0.2, distance=2)
     discrepancy_lows_locs, discrepancy_lows_properties = signal.find_peaks(disrepancy_reward_negative, height=-0.5, distance=2)
 
+    max_used_spatial = False
+    max_used_variable = False
+    max_used_discrepancy = False
+    max_used_discrepancy_lows = False
+
     if len(spatial_locs) == 0:
         spatial_locs = np.array([np.argmax(spatial_reward)])
+        max_used_spatial = True
     
     if len(variable_locs) == 0:
         variable_locs = np.array([np.argmax(moisture_reward)])
+        max_used_variable = True
 
     if len(discrepancy_locs) == 0:
         discrepancy_locs = np.array([np.argmax(discrepancy_reward)])
+        max_used_discrepancy = True
         
     if len(discrepancy_lows_locs) == 0:
         discrepancy_lows_locs = np.array([np.argmax(disrepancy_reward_negative)])
+        max_used_discrepancy_lows = True
 
     output = {
         'spatial_locs': spatial_locs.tolist(),
         'variable_locs': variable_locs.tolist(),
         'discrepancy_locs': discrepancy_locs.tolist(),
-        'discrepancy_lows_locs': discrepancy_lows_locs.tolist()
+        'discrepancy_lows_locs': discrepancy_lows_locs.tolist(),
+        'max_used_spatial': max_used_spatial,
+        'max_used_variable': max_used_variable,
+        'max_used_discrepancy': max_used_discrepancy,
+        'max_used_discrepancy_lows': max_used_discrepancy_lows
     }
 
     return jsonify(output)

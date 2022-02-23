@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { useStateValue, Action } from '../state';
 import { RowType, locationColors } from '../constants';
 
@@ -10,13 +10,13 @@ const useStyles = makeStyles(theme => ({
     cursor: 'default',
     fontSize: '1.2rem',
     fontWeight: 700,
-    //color: theme.palette.secondary.main,
+    color: theme.palette.secondary.main,
     '& .dot': {
       content: '""',
       display: 'inline-block',
       //backgroundColor: theme.palette.secondary.main,
-      width: 10,
-      height: 10,
+      width: 12,
+      height: 12,
       borderRadius: 5,
       position: 'absolute'
     },
@@ -26,7 +26,8 @@ const useStyles = makeStyles(theme => ({
       width: '1.4rem',
       display: 'inline-block',
       marginLeft: 12,
-      textAlign: 'center'
+      textAlign: 'center',
+      transform: 'translate(-70%, 50%)'
     }
   },
   current: {
@@ -68,6 +69,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function PositionIndicator({ left, top, type, rowIndex, isHovered, locationIndex, robot }) {
   const classes = useStyles();
+  const theme = useTheme();
   const [globalState, dispatch] = useStateValue();
   const { strategy } = globalState;
   const { curRowIdx } = strategy;
@@ -87,10 +89,12 @@ export default function PositionIndicator({ left, top, type, rowIndex, isHovered
       className={`${classes.indicator} ${classes[type]}
                   ${rowIndex === curRowIdx - 1 && type !== RowType.DISCARDED ? classes.current : ''} 
                   ${isHovered && type !== RowType.DISCARDED ? classes.hover : ''}`}
-      style={{ color: locationColors[locationIndex], left, top }}
+      //style={{ color: locationColors[locationIndex], left, top }}
+      style={{ left, top }}
     >
       <span className="dot" style={{ backgroundColor: locationColors[locationIndex] }}></span>
-      <span className="content">{robot ? String.fromCharCode(rowIndex + 65) : rowIndex + 1}</span>
+      {robot && <span className="content" style={{ color: theme.palette.secondary.main, fontSize: '2.5vh' }}>{String.fromCharCode(rowIndex + 65)}</span>}
+      {/*<span className="content">{robot ? String.fromCharCode(rowIndex + 65) : rowIndex + 1}</span>*/}
     </span>
   );
 }
