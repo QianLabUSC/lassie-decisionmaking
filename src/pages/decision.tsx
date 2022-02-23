@@ -567,31 +567,36 @@ export default function Main() {
     setNumSubmitClicks(numSubmitClicks + 1);
     switch (userFeedbackStep) {
       case UserFeedbackStep.OBJECTIVE: {
-        if (objectives.includes(4)) { // need to adjust this so that you only go to free response if option is ranked highest
-          setObjectiveFreeResponse("");
-          setUserFeedbackStep(UserFeedbackStep.OBJECTIVE_FREE_RESPONSE);
-        } else {
-          if (objectives.length === 1) {
+        if (objectives.length === 1) {
+          if (objectives[0] === 4) {
+            setObjectiveFreeResponse("");
+            setUserFeedbackStep(UserFeedbackStep.OBJECTIVE_FREE_RESPONSE);
+          } else {
             setLoading(true);
             setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
             setShowRobotSuggestions(true);
             setAcceptOrReject(0);
             setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
             setLoading(false);
-          } else {
-            setDisableSubmitButton(true);
-            setUserFeedbackStep(UserFeedbackStep.RANK_OBJECTIVES); // STILL NEED TO ADD THIS SECTION
-          } 
-        }
+          }
+        } else {
+          setDisableSubmitButton(true);
+          setUserFeedbackStep(UserFeedbackStep.RANK_OBJECTIVES);
+        } 
         return;
       }
-      case UserFeedbackStep.RANK_OBJECTIVES: { // THIS SECTION NEEDS TO BE REVISED TO ACCOUNT FOR RELATIVE RANKINGS OF OBJECTIVES
-        setLoading(true);
-        setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
-        setShowRobotSuggestions(true);
-        setAcceptOrReject(0);
-        setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
-        setLoading(false);
+      case UserFeedbackStep.RANK_OBJECTIVES: {
+        if (objectives.includes(4) && objectivesRankings[objectives.indexOf(4)] === 1) {
+          setObjectiveFreeResponse("");
+          setUserFeedbackStep(UserFeedbackStep.OBJECTIVE_FREE_RESPONSE);
+        } else {
+          setLoading(true);
+          setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
+          setShowRobotSuggestions(true);
+          setAcceptOrReject(0);
+          setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
+          setLoading(false);
+        }
         return;
       }
       case UserFeedbackStep.OBJECTIVE_FREE_RESPONSE: {
