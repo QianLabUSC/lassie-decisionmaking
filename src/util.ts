@@ -8,10 +8,6 @@ import { Transect, TransectType, ActualStrategySample } from './types';
 import { IState } from './state';
 import { floor } from 'lodash';
 
-export const isProduction = () => {
-  return process.env.MODE === 'production';
-};
-
 export function getDistanceSquare(x1: number, y1: number, x2: number, y2: number) {
   return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
 }
@@ -378,6 +374,7 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
   let peaksRankedDiscrepancy : any[] = [];
   let peaksRankedDiscrepancyLows: any[] = [];
 
+  // Rank the suggestions based on the amount of reward (so that we can pick the top 3)
   for (let i = 0; i < peaks.spatial_locs.length; i++) {
     peaksRankedSpatial.push({loc: peaks.spatial_locs[i], spatialReward: spatial_reward[peaks.spatial_locs[i]]});
   }
@@ -400,27 +397,33 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
 
   console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward, potential_discrepancy_belief, shearStrength_v_moisture, discrepancy_reward, peaks, peaksRankedSpatial, peaksRankedVariable, peaksRankedDiscrepancy, peaksRankedDiscrepancyLows});
   
+  // Return the top 3 suggested locations unordered
   let locs;
+  let orderedLocs;
 
   switch (objectivesRanked[0].objective) {
     case 0: {
       let peaksRankedSpatialTrimmed = peaksRankedSpatial.slice(0, 3);
-      locs = peaksRankedSpatialTrimmed.map(suggestion => suggestion.loc);
+      orderedLocs = peaksRankedSpatialTrimmed.map(suggestion => suggestion.loc);
+      locs = peaks.spatial_locs.filter(loc => orderedLocs.includes(loc));
       break;
     }
     case 1: {
       let peaksRankedVariableTrimmed = peaksRankedVariable.slice(0, 3);
-      locs = peaksRankedVariableTrimmed.map(suggestion => suggestion.loc);
+      orderedLocs = peaksRankedVariableTrimmed.map(suggestion => suggestion.loc);
+      locs = peaks.variable_locs.filter(loc => orderedLocs.includes(loc));
       break;
     }
     case 2: {
       let peaksRankedDiscrepancyTrimmed = peaksRankedDiscrepancy.slice(0, 3);
-      locs = peaksRankedDiscrepancyTrimmed.map(suggestion => suggestion.loc);
+      orderedLocs = peaksRankedDiscrepancyTrimmed.map(suggestion => suggestion.loc);
+      locs = peaks.discrepancy_locs.filter(loc => orderedLocs.includes(loc));
       break;
     }
     case 3: {
       let peaksRankedDiscrepancyLowsTrimmed = peaksRankedDiscrepancyLows.slice(0, 3);
-      locs = peaksRankedDiscrepancyLowsTrimmed.map(suggestion => suggestion.loc);
+      orderedLocs = peaksRankedDiscrepancyLowsTrimmed.map(suggestion => suggestion.loc);
+      locs = peaks.discrepancy_lows_locs.filter(loc => orderedLocs.includes(loc));
       break;
     }
   }

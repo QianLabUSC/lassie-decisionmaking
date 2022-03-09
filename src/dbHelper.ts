@@ -1,13 +1,15 @@
 import * as DynamoDB from 'aws-sdk/clients/dynamodb';
 import { AWSError } from 'aws-sdk/lib/error';
 
-import { isProduction } from './util';
+const isProduction = () => {
+  return process.env.MODE === 'production';
+};
 
 // There are 2 tables in DynamoDB:
-//     - 'geo-decision-making-dev' table populates when the survey is completed on a local run     
-//     - 'geo-decision-making' table populates when the survey on the hosted version of the website is completed
+//     - 'geo-decision-making-alt-dev' table populates when the survey is completed on a local run     
+//     - 'geo-decision-making-alt' table populates when the survey on the hosted version of the website is completed
 //       because webpack sets the env mode to 'production' (see 'webpack.prod.js' file)
-export const kTableName = isProduction() ? 'geo-decision-making' : 'geo-decision-making-dev';
+export const kTableName = isProduction() ? 'geo-decision-making-alt' : 'geo-decision-making-alt-dev';
 export const kType = 'jsonResult';
 
 const DBInstance = new DynamoDB({

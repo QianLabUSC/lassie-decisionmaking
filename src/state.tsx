@@ -38,10 +38,49 @@ export type Charts = {
 } | null;
 
 export interface IState {
+  // // Current state in sample level
+  // //sampleState: SampleState,
+  // // Current state in transect level
+  // //transectState: TransectState,
+  // dataVersion: DataVersion,
+  // fullData: number[][],
+  // moistureData: number[][],
+  // grainData: number[][],
+  // showNOMInput: boolean,
+  // //roc: string[],
+  // concludeQuestions: any,
+  // chart: Charts,
+  // chartSettings: ChartSettings,
+  // imgClickEnabled: boolean, 
+  // //mainEntered: boolean,
+  // //decisionEntered: boolean,
+  // //showROC: boolean,
+  // //isAlternativeHypo: boolean,
+  // //showBattery: boolean,
+  // initialHypos: string[],
+  // //initialGlobalHypos: string[],
+  // hypoConfidence: string[][],
+  // //dialogProps: DialogProps | null,
+  // strategy: IStrategy,
+  // robotVersion: boolean, // if true, new version of website with robot suggested strategies will be used
+  // initialStrategyData: InitialStrategyData,
+  // actualStrategyData: ActualStrategyData,
+  // batteryLevel: number,
+  // //lastActualBatteryLevel: number,
+  // //batteryWarning: boolean,
+  // finalLocalHypothesis: HypothesisResponse,
+  // finalGlobalHypothesis: HypothesisResponse,
+  // introCompleted: boolean,
+  // submitted: boolean
+
   // Current state in sample level
   sampleState: SampleState,
-  // Current state in trasect level
+  // Current state in transect level
   transectState: TransectState,
+  dataVersion: DataVersion,
+  fullData: number[][],
+  moistureData: number[][],
+  grainData: number[][],
   showNOMInput: boolean,
   roc: string[],
   concludeQuestions: any,
@@ -52,10 +91,6 @@ export interface IState {
   decisionEntered: boolean,
   showROC: boolean,
   isAlternativeHypo: boolean,
-  fullData: number[][],
-  moistureData: number[][],
-  grainData: number[][],
-  dataVersion: DataVersion,
   showBattery: boolean,
   initialHypos: string[],
   initialGlobalHypos: string[],
