@@ -98,7 +98,7 @@ export function ResultTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row, idx) => (
+            {rows.filter(row => row.deleteTime === -1).map((row, idx) => (
               <TableRow key={row.createTime}>
                 <TableCell component="th" scope="row">{toTimeString(row.createTime)}</TableCell>
                 <TableCell align="right">{toTimeString(row.lastAccessTime)}</TableCell>
