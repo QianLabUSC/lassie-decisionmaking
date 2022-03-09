@@ -379,7 +379,7 @@ export default function Main() {
     
   const objectiveRankings =
     <div className="objective-rankings">
-      <p><strong>Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement. You may only assign one number per belief:</strong></p>
+      <p><strong>Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement. You must assign a unique number to each belief:</strong></p>
       {objectivesToRank}
     </div>
 
