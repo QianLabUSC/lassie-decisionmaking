@@ -5,25 +5,14 @@ import { useStateValue, Action, ChartDisplayMode} from '../state';
 import { initializeCharts, updateCharts } from '../handlers/ChartHandler';
 import "../styles/chartPanel.scss";
 
-type ChartPanelMode = "TransectView" | "GlobalHypothesisView" | "FieldView" | "ConclusionView";
+type ChartPanelMode = "TransectView" | "ConclusionView";
 
 const chartTabMap: {[key in ChartPanelMode]: string[]} = {
     "TransectView": ["Shear vs. Moisture", "Shear Strength", "Moisture"],
-    "GlobalHypothesisView": ["Grain Size"],
-    "FieldView": ["Shear vs. Moisture", "Shear Strength", "Moisture"],
     "ConclusionView": ["Shear vs. Moisture", "Shear Strength", "Moisture"]
 };
 const chartClassMap: {[key in ChartPanelMode]: string[][]} = {
     "TransectView": [
-        ["chartFull", "chartHidden", "chartHidden", "chartHidden"],
-        ["chartHidden", "chartFull", "chartHidden", "chartHidden"],
-        ["chartHidden", "chartHidden", "chartFull", "chartHidden"],
-        ["chartHidden", "chartHidden", "chartHidden", "chartFull"]
-    ],
-    "GlobalHypothesisView": [
-        ["chartHidden", "chartHidden", "chartHidden", "chartFull"]
-    ],
-    "FieldView": [
         ["chartFull", "chartHidden", "chartHidden", "chartHidden"],
         ["chartHidden", "chartFull", "chartHidden", "chartHidden"],
         ["chartHidden", "chartHidden", "chartFull", "chartHidden"],
@@ -44,8 +33,7 @@ interface ChartPanelProps {
 
 export default function ChartPanel(props: ChartPanelProps) {
     const [globalState, dispatch] = useStateValue();
-    const { strategy, chartSettings, sampleState } = globalState;
-    const { curTransectIdx, transectIndices } = strategy;
+    const { chartSettings } = globalState;
     const [currentTab, setCurrentTab] = useState(0);
     const [showOptions, setShowOptions] = useState(false);
     const [displayOption, setDisplayOption] = useState(chartSettings.mode);
@@ -98,7 +86,7 @@ export default function ChartPanel(props: ChartPanelProps) {
         </div>
     );
 
-    const chartIDSuffix = props.mode === "FieldView" ? "" : "";
+    const chartIDSuffix = "";
 
     let tab = currentTab;
     if (tab >= chartClassMap[props.mode].length || tab < 0) {
@@ -107,7 +95,7 @@ export default function ChartPanel(props: ChartPanelProps) {
     }
 
     return (
-        <div className={`chartPanelContainer ${props.mode === "FieldView" && "chartPanelContainerFullHeight"}`}>
+        <div className={`chartPanelContainer`}>
             <div className={`chartPanel ${props.fullSize ? "chartPanelFullSize" : ""}`}>
                 { showOptions && optionsPanel }
                 <div style={{height: "100%", display: showOptions ? "none" : "block"}}>
@@ -119,8 +107,6 @@ export default function ChartPanel(props: ChartPanelProps) {
                         }
                     </div>
                     <ChartOptionsSummary 
-                        curTransectIdx={curTransectIdx}
-                        transectIndices={transectIndices}
                         displayOption={displayOption}
                         onOptionsClick={() => setShowOptions(true)}/>
                     <div className="chartsArea">

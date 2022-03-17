@@ -1,12 +1,10 @@
 import * as _ from 'lodash';
-import { NORMALIZED_WIDTH, RowType, transectLines, BATTERY_COST_PER_SAMPLE,
-  BATTERY_COST_PER_DISTANCE, BATTERY_COST_PER_TRANSECT_DISTANCE, MAX_NUM_OF_MEASUREMENTS, 
-  sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, NUM_MEASUREMENTS, objectiveOptions } from './constants';
-import { measurements } from './mesurements';
+import { NORMALIZED_WIDTH, RowType, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, NUM_MEASUREMENTS } from './constants';
+import { measurements } from './measurements';
 import { dataset } from './data/rhexDataset';
-import { Transect, TransectType, ActualStrategySample } from './types';
+import { Sample, SampleTemplate } from './types';
 import { IState } from './state';
-import { floor } from 'lodash';
+
 
 export function getDistanceSquare(x1: number, y1: number, x2: number, y2: number) {
   return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
@@ -64,52 +62,6 @@ export function getNearestIndex(normOffsetXY : number[]) : number {
   return dist1 < dist2 ? mid : mid + 1;
 }
 
-function getTransectCost(ta: Transect, tb: Transect) : number {
-  const la = transectLines[ta.number], lb = transectLines[tb.number];
-  const midA = [(la.from[0] + la.to[0]) / 2, (la.from[1] + la.to[1]) / 2];
-  const midB = [(lb.from[0] + lb.to[0]) / 2, (lb.from[1] + lb.to[1]) / 2];
-  return getDistance(midA[0], midA[1], midB[0], midB[1]) * BATTERY_COST_PER_TRANSECT_DISTANCE;
-}
-
-function getRowCost(ra: IRow, rb: IRow) : number {
-  return getDistance(ra.normOffsetX, ra.normOffsetY, rb.normOffsetX, rb.normOffsetY) * BATTERY_COST_PER_DISTANCE;
-}
-
-export function getBatteryCost(transectIndices: Transect[], transectSamples: IRow[][],
-                 curTransectIdx?: number, curRowIdx?: number) : number
-{
-  let cost = 0;
-  let lastNonDiscardTransect = -1;
-  const transectMax = curTransectIdx === undefined ? transectIndices.length : curTransectIdx + 1;
-  
-  for (let i = 0; i < transectMax; i++) {
-    const transect = transectIndices[i];
-    if (transect.type === TransectType.DISCARDED) {
-      continue;
-    }
-    if (lastNonDiscardTransect > -1) {
-      cost += getTransectCost(transectIndices[lastNonDiscardTransect], transectIndices[i]);
-    }
-    const samples = transectSamples[i];
-    const sampleMax =
-      (curRowIdx !== undefined && i === curTransectIdx && transect.type !== TransectType.DEVIATED) ?
-      curRowIdx : samples.length;
-    let lastNonDiscardRow = -1;
-    for (let j = 0; j < sampleMax; j++) {
-      if (samples[j].type === RowType.DISCARDED) {
-        continue;
-      }
-      cost += samples[j].measurements * BATTERY_COST_PER_SAMPLE;
-      if (lastNonDiscardRow > -1) {
-        cost += getRowCost(samples[lastNonDiscardRow], samples[j]);
-      }
-      lastNonDiscardRow = j;
-    }
-    lastNonDiscardTransect = i;
-  }
-  return cost;
-}
-
 // Function to load moisture data
 export function getMoistureData() {
   return dataset.moisture;
@@ -149,70 +101,6 @@ export function getNOMTaken(rows: IRow[], index, untilIndex = rows.length) {
     }
   }
   return sum;
-}
-
-export function cloneRow(row: IRow) : IRow {
-  const clone: IRow = {
-    index: row.index,
-    measurements: row.measurements,
-    type: row.type,
-    normOffsetX: row.normOffsetX,
-    normOffsetY: row.normOffsetY,
-    isHovered: row.isHovered,
-    moisture: row.moisture,
-    shear: row.shear
-  };
-  return clone;
-}
-
-/**
- * Used in the scenario where you deviate and attempt to take more measurements
- * that would surpass 100% battery usage if your planned strategy was still
- * completed. Works from the last measurement to the first, removing samples
- * until the deviated measurements and the planned strategy fit within the 
- * battery constraint. Returns the array of samples for each transect.
- * 
- * Parameter batteryCost is the total battery usage, presumably over 100%.
- * 
- */
-export function trimSamplesByBatteryUsage(batteryCost: number, transectSamples: IRow[][]) : IRow[][] {
-  let extraCost = batteryCost - 1;
-  const newSamples: IRow[][] = [];
-  for (let i = 0; i < transectSamples.length; i++) {
-    newSamples.push(new Array<IRow>());
-  }
-
-  for (let transectIndex = transectSamples.length - 1; transectIndex >= 0; transectIndex--) {
-    for (let location = transectSamples[transectIndex].length - 1; location >= 0; location--) {
-      const measurements = transectSamples[transectIndex][location].measurements;
-      const cost = measurements * BATTERY_COST_PER_SAMPLE;
-
-      if (extraCost <= 0) {
-        // For all rows before the ones that need to be reduced, copy them over in full.
-        newSamples[transectIndex].unshift(cloneRow(transectSamples[transectIndex][location]));
-      } else if (extraCost - cost > 0) {
-        // Remove all of these measurements
-        const newRow: IRow = cloneRow(transectSamples[transectIndex][location]);
-        extraCost -= newRow.measurements * BATTERY_COST_PER_SAMPLE;
-        newRow.measurements = 0;
-        // 
-        // newSamples[transectIndex].unshift(newRow);
-      } else {
-        // Remove a portion of these measurements
-        const measurementsToRemove = Math.ceil(extraCost / BATTERY_COST_PER_SAMPLE);
-        const newRow: IRow = cloneRow(transectSamples[transectIndex][location]);
-        newRow.measurements = newRow.measurements - measurementsToRemove;
-        newSamples[transectIndex].unshift(newRow);
-        extraCost -= measurementsToRemove * BATTERY_COST_PER_SAMPLE;
-      }
-    }
-  }
-
-  while (newSamples[newSamples.length - 1].length === 0) {
-    newSamples.pop();
-  }
-
-  return newSamples;
 }
 
 export function RGBAtoRGB(color: number[], backgroundColor: number[]) : number[] {
@@ -317,7 +205,7 @@ interface IAggregatedSamplesByLoc {
 }
 
 // This function calculates the robot's suggested location
-export async function calculateRobotSuggestions(actualStrategySamples: ActualStrategySample[], 
+export async function calculateRobotSuggestions(samples: Sample[], 
   globalState: IState, objectives: number[], objectivesRankings: number[]) {
 
   // Consolidate the objectives and their rankings, ordered by ranking in ascending order
@@ -329,7 +217,7 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
   //console.log({objectivesRanked});
 
   // Create an array which contains the aggregated sample data by location
-  let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = buildAggregatedSamplesByLocation(actualStrategySamples);
+  let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = buildAggregatedSamplesByLocation(samples);
   
   // Compute the Measurement Noise (standard deviation of shear strength at each location that has been sampled)
   let std_loc = computeMeasurementNoise(aggregatedSamplesByLoc);
@@ -428,11 +316,11 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
     }
   }
 
-  let robotSuggestion : IRow[] = locs.map((loc) => {
-    let suggestion : IRow = {
+  let robotSuggestion : SampleTemplate[] = locs.map((loc) => {
+    let suggestion : SampleTemplate = {
       index: loc,
-      measurements: 3,
-      type: RowType.ROBOT_SUGGESTION,
+      type: 'robot',
+      measurements: NUM_MEASUREMENTS,
       normOffsetX: sampleLocations[loc][0],
       normOffsetY: sampleLocations[loc][1],
       isHovered: false
@@ -446,29 +334,29 @@ export async function calculateRobotSuggestions(actualStrategySamples: ActualStr
 }
 
 
-function buildAggregatedSamplesByLocation(actualStrategySamples: ActualStrategySample[]) {
+function buildAggregatedSamplesByLocation(samples: Sample[]) {
 
   let aggregatedSamplesByLoc : IAggregatedSamplesByLoc[] = [];
   
-  for (let i = 0; i < actualStrategySamples.length; i++) {
+  for (let i = 0; i < samples.length; i++) {
     // Accumulate the total samples for each location
     let locationExists = false;
     for (let j = 0; j < aggregatedSamplesByLoc.length; j++) {
-      if (actualStrategySamples[i].index == aggregatedSamplesByLoc[j].location) {
+      if (samples[i].index == aggregatedSamplesByLoc[j].location) {
         locationExists = true;
-        aggregatedSamplesByLoc[j].measurements += actualStrategySamples[i].measurements;
-        aggregatedSamplesByLoc[j].moisture.push(...actualStrategySamples[i].moisture);
-        aggregatedSamplesByLoc[j].shear.push(...actualStrategySamples[i].shear);
+        aggregatedSamplesByLoc[j].measurements += samples[i].measurements;
+        aggregatedSamplesByLoc[j].moisture.push(...samples[i].moisture);
+        aggregatedSamplesByLoc[j].shear.push(...samples[i].shear);
       }
     }
 
     // Location doesn't yet exist in the copy of the transect samples
     if (!locationExists) {
       let temp = {
-        location: actualStrategySamples[i].index,
-        measurements: actualStrategySamples[i].measurements,
-        moisture: actualStrategySamples[i].moisture,
-        shear: actualStrategySamples[i].shear,
+        location: samples[i].index,
+        measurements: samples[i].measurements,
+        moisture: samples[i].moisture,
+        shear: samples[i].shear,
       };
       aggregatedSamplesByLoc.push(temp);
     }

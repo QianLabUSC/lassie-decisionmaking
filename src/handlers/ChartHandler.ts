@@ -1,15 +1,12 @@
-import { getMeasurements, getNOMTaken, mean, randomInt } from '../util';
-import { NORMALIZED_WIDTH, shearChartOption, moistChartOption, shearMoistChartOption, SampleState, NORMALIZED_CREST_RANGE } from '../constants';
+import { getMeasurements, mean } from '../util';
+import { shearChartOption, moistChartOption, shearMoistChartOption, NORMALIZED_CREST_RANGE } from '../constants';
 import { IState, Action, Charts, ChartDisplayMode } from '../state';
 import * as Chart from 'chart.js';
-import { TransectType } from '../types';
 
 export enum ChartLocation { Field, Transect }
 
 export const updateCharts = (globalState: IState, dispatch: any) => {
-  const { sampleState, chartSettings, fullData, moistureData, strategy } = globalState;
-  const { curRowIdx, curTransectIdx, transectSamples, transectIndices } = strategy;
-  const currentTransectID = curTransectIdx >= transectIndices.length ? -1 : transectIndices[curTransectIdx].number;
+  const { chartSettings, currSampleIdx, samples } = globalState;
   let { chart } = globalState;
 
   if (!chart) return;
@@ -25,44 +22,26 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
   const moistureDataPoints = [] as any[];
   const shearMoistureDataPoints = [] as any[];
 
-  const maxTransectIndex = sampleState === SampleState.DEVIATED ? transectIndices.length - 1 : curTransectIdx;
+  for (let rowIndex = 0; rowIndex < samples.length; rowIndex++) {
+    const row = samples[rowIndex];
+    const { index, measurements } = row;
+    // Map x value from just the section of the slope to [0, 1]
+    const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
+    const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, 0, index, measurements);
+    const averageShearValue = mean(shearValues);
+    const averageMoistureValue = mean(moistureValues);
 
-  for (let transectIndex = 0; transectIndex <= maxTransectIndex; transectIndex++) {
-    const maxRowIndex =
-      sampleState === SampleState.FINISH_TRANSECT ? transectSamples[transectIndex].length - 1 :
-      (sampleState !== SampleState.DEVIATED && transectIndex === curTransectIdx) ? (curRowIdx - 1) :
-      transectSamples[transectIndex].length - 1;
-
-    const id = transectIndices[transectIndex].number;
-    if (sampleState < 3 && id !== currentTransectID && !chartSettings.includedTransects.includes(id)) continue;
-    if (sampleState >= 3 && !chartSettings.includedTransects.includes(id)) continue;
-    if (transectIndices[transectIndex].type === TransectType.DISCARDED) continue;
-    const fromPreviousTransect = transectIndex !== curTransectIdx;
-    const currentTransect = (sampleState < 2) && (transectIndex === curTransectIdx);
-    
-    for (let rowIndex = 0; rowIndex <= maxRowIndex; rowIndex++) {
-      const row = transectSamples[transectIndex][rowIndex];
-      if (row.type === 'Discarded') continue;
-
-      const { index, measurements } = row;
-      const rows = transectSamples[curTransectIdx] || [];
-      // Map x value from just the section of the slope to [0, 1]
-      const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
-      const {shearValues, moistureValues, shearMoistureValues} = getMeasurements(globalState, transectIndices[transectIndex].number, index, measurements);
-      const averageShearValue = mean(shearValues);
-      const averageMoistureValue = mean(moistureValues);
-
-      if (chartSettings.mode === ChartDisplayMode.RAW) {
-        shearValues.forEach(value => pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), value, currentTransect, rowIndex, curRowIdx, id, index));
-        moistureValues.forEach(value => pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), value, currentTransect, rowIndex, curRowIdx, id, index));
-        shearMoistureValues.forEach(value => pushChartArrayValue(shearMoistureDataPoints, value.moistureValue, value.shearValue, currentTransect, rowIndex, curRowIdx, id, index));
-      } else if (chartSettings.mode === ChartDisplayMode.AVERAGE) {
-        pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), averageShearValue, currentTransect, rowIndex, curRowIdx, id, index);
-        pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), averageMoistureValue, currentTransect, rowIndex, curRowIdx, id, index);
-        pushChartArrayValue(shearMoistureDataPoints, averageMoistureValue, averageShearValue, currentTransect, rowIndex, curRowIdx, id, index);
-      }
+    if (chartSettings.mode === ChartDisplayMode.RAW) {
+      shearValues.forEach(value => pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), value, rowIndex, currSampleIdx, index));
+      moistureValues.forEach(value => pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), value, rowIndex, currSampleIdx, index));
+      shearMoistureValues.forEach(value => pushChartArrayValue(shearMoistureDataPoints, value.moistureValue, value.shearValue, rowIndex, currSampleIdx, index));
+    } else if (chartSettings.mode === ChartDisplayMode.AVERAGE) {
+      pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), averageShearValue, rowIndex, currSampleIdx,index);
+      pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), averageMoistureValue, rowIndex, currSampleIdx, index);
+      pushChartArrayValue(shearMoistureDataPoints, averageMoistureValue, averageShearValue, rowIndex, currSampleIdx, index);
     }
   }
+  
 
   if (chart.shearChart) {
     chart.shearChart.data.datasets[0].data = shearDataPoints;
@@ -111,7 +90,7 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
   const onHoverFunc = (ev, activeElements) => {
     if (activeElements.length === 0) {
       dispatch({
-        type: Action.HOVER_DATA,
+        type: Action.SET_HOVER,
         value: { isHovered: false }
       });
       return;
@@ -120,7 +99,7 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
     if (_datasetIndex === undefined || _index === undefined ) { return; }
     const rowIndex = _chart.data.datasets[_datasetIndex].data[_index].rowIndex;
     dispatch({
-      type: Action.HOVER_DATA,
+      type: Action.SET_HOVER,
       value: { index: rowIndex, isHovered: true }
     });
   };
@@ -174,7 +153,7 @@ export const clearCharts = (chart) => {
   });
 }
 
-const pushChartArrayValue = (array: any[], x, y, current, rowIndex, curRowIdx, id, index) => {
+const pushChartArrayValue = (array: any[], x, y, rowIndex, curRowIdx, index) => {
   if ((!x && isNaN(x)) || (!y && isNaN(y))) {
     console.log(`ChartHandler: not adding point (${x}, ${y})`);
     return;
@@ -185,9 +164,6 @@ const pushChartArrayValue = (array: any[], x, y, current, rowIndex, curRowIdx, i
     rowIndex,
     curRowIdx,
     hover: false,
-    current,
-    fromPreviousTransect: false,
-    id,
     index
   });
 }

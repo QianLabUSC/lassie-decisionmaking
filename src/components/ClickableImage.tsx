@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { useState, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NORMALIZED_CREST_RANGE, SampleState, NUM_MEASUREMENTS, RowType } from '../constants';
+import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NORMALIZED_CREST_RANGE, NUM_MEASUREMENTS, RowType } from '../constants';
 import { getNearestIndex } from '../util';
 import { useStateValue, Action } from '../state';
 import AddSamplePopup from './AddSamplePopup';
 import PositionIndicator from './PositionIndicator';
 import PositionIndicatorRhex from './PositionIndicatorRhex';
-import { propertyOf } from 'lodash';
 
 const diagram = require('../../assets/diagram_scalebar.png');
 

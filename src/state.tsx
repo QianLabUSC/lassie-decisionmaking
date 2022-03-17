@@ -1,25 +1,20 @@
 import * as React from 'react';
 import { createContext, useContext, useReducer } from 'react';
-import { SampleState, TransectState, BATTERY_COST_PER_SAMPLE, defaultHypothesisResponse, RowType } from './constants';
-import { Transect, DialogProps, InitialStrategyData, InitialStrategyTransect, InitialStrategySample, 
-  ActualStrategyData, HypothesisResponse, DataVersion } from './types';
+import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample } from './types';
 
-interface IStrategy {
-  curTransectIdx: number,
-  // In execution phase, the row that is going to be executed
-  curRowIdx: number,
-  lastHoverRowIdx: number,
-  transectIndices: Transect[],
-  // Each transect corresponds to an array of samples
-  transectSamples: IRow[][],
-}
+// interface IStrategy {
+//   // In execution phase, the row that is going to be executed
+//   curRowIdx: number,
+//   lastHoverRowIdx: number,
+//   // Each transect corresponds to an array of samples
+//   transectSamples: IRow[][],
+// }
 
 export type ChartSettings = {
   mode: number,
-  includedTransects: number[],
-  excludedTransects: number[],
   updateRequired: boolean
 };
+
 export const ChartDisplayMode = {
   RAW: 0,
   AVERAGE: 1
@@ -38,375 +33,165 @@ export type Charts = {
 } | null;
 
 export interface IState {
-  // // Current state in sample level
-  // //sampleState: SampleState,
-  // // Current state in transect level
-  // //transectState: TransectState,
-  // dataVersion: DataVersion,
-  // fullData: number[][],
-  // moistureData: number[][],
-  // grainData: number[][],
-  // showNOMInput: boolean,
-  // //roc: string[],
-  // concludeQuestions: any,
-  // chart: Charts,
-  // chartSettings: ChartSettings,
-  // imgClickEnabled: boolean, 
-  // //mainEntered: boolean,
-  // //decisionEntered: boolean,
-  // //showROC: boolean,
-  // //isAlternativeHypo: boolean,
-  // //showBattery: boolean,
-  // initialHypos: string[],
-  // //initialGlobalHypos: string[],
-  // hypoConfidence: string[][],
-  // //dialogProps: DialogProps | null,
-  // strategy: IStrategy,
-  // robotVersion: boolean, // if true, new version of website with robot suggested strategies will be used
-  // initialStrategyData: InitialStrategyData,
-  // actualStrategyData: ActualStrategyData,
-  // batteryLevel: number,
-  // //lastActualBatteryLevel: number,
-  // //batteryWarning: boolean,
-  // finalLocalHypothesis: HypothesisResponse,
-  // finalGlobalHypothesis: HypothesisResponse,
-  // introCompleted: boolean,
-  // submitted: boolean
-
-  // Current state in sample level
-  sampleState: SampleState,
-  // Current state in transect level
-  transectState: TransectState,
-  dataVersion: DataVersion,
+  // Data fields
+  dataVersion: DataVersion, // will be in final output after survey is completed
   fullData: number[][],
   moistureData: number[][],
-  grainData: number[][],
-  showNOMInput: boolean,
-  roc: string[],
-  concludeQuestions: any,
+  // Step fields
+  currSampleIdx: number,
+  samples: Sample[] // will be in final output after survey is completed
+  currUserStepIdx: number,
+  currUserStep: CurrUserStepData,
+  userSteps: UserStepsData[], // will be in final output after survey is completed
+  // Hypothesis fields
+  initialHypo: number, // will be in final output after survey is completed
+  // Chart fields
   chart: Charts,
   chartSettings: ChartSettings,
-  imgClickEnabled: boolean, 
-  mainEntered: boolean,
-  decisionEntered: boolean,
-  showROC: boolean,
-  isAlternativeHypo: boolean,
-  showBattery: boolean,
-  initialHypos: string[],
-  initialGlobalHypos: string[],
-  hypoConfidence: string[][],
+  // Miscellaneous fields
+  lastHoverIdx: number,
   dialogProps: DialogProps | null,
-  strategy: IStrategy,
-  robotVersion: boolean, // if true, new version of website with robot suggested strategies will be used
-  initialStrategyData: InitialStrategyData,
-  actualStrategyData: ActualStrategyData,
-  batteryLevel: number,
-  lastActualBatteryLevel: number,
-  batteryWarning: boolean,
-  finalLocalHypothesis: HypothesisResponse,
-  finalGlobalHypothesis: HypothesisResponse,
+  imgClickEnabled: boolean, 
+  showNOMInput: boolean,
   introCompleted: boolean,
   submitted: boolean
 }
 
 // Default initial state
 export const initialState : IState = {
-  sampleState: SampleState.COLLECT_DATA,
-  transectState: TransectState.INITIAL_STRATEGY,
-  concludeQuestions: null,
-  showNOMInput: false,
-  isAlternativeHypo: false,
-  imgClickEnabled: true,
-  mainEntered: false,
-  decisionEntered: false,
-  showROC: false,
-  showBattery: false,
-  fullData: [],
-  moistureData: [],
-  grainData: [],
   dataVersion: {
     local: Math.round(Math.random()) + 1, // load alternative hypothesis 1 or 2 randomly for shear data
     global: 2 // load alternative hypothesis 2 for grain data
   },
+  fullData: [],
+  moistureData: [],
+  currSampleIdx: 0,
+  samples: [],
+  currUserStepIdx: 0,
+  currUserStep: {
+    step: 0,
+    userFeedbackState: 0,
+    objectives: [],
+    objectivesRankings: [],
+    objectiveFreeResponse: "",
+    sampleType: 'robot',
+    loadingRobotSuggestions: false,
+    showRobotSuggestions: false,
+    robotSuggestions: [],
+    acceptOrRejectOptions: [],
+    acceptOrReject: -1,
+    rejectReasonOptions: [],
+    rejectReason: -1,
+    rejectReasonFreeResponse: "",
+    userFreeSelection: false,
+    userSample: null,
+    hypoConfidence: 0,
+    transition: 0,
+    disableSubmitButton: true,
+    numSubmitClicks: 0,
+  },
+  userSteps: [],
+  initialHypo: 0,
   chart: null,
   chartSettings: {
     mode: 0,
-    includedTransects: [],
-    excludedTransects: [],
     updateRequired: false
   },
-  initialHypos: [],
-  initialGlobalHypos: [],
-  hypoConfidence: [],
-  roc: [],
+  lastHoverIdx: -1,
   dialogProps: null,
-  strategy: {
-    curTransectIdx: 0,
-    curRowIdx: 0,
-    lastHoverRowIdx: -1,
-    transectIndices: [], 
-    transectSamples: [], // Same length as transectIndices
-  },
-  robotVersion: false,
-  initialStrategyData: {
-    transects: [],
-    samples: [],
-    localHypothesis: {...defaultHypothesisResponse},
-    globalHypothesis: {...defaultHypothesisResponse},
-  },
-  actualStrategyData: {
-    transects: []
-  },
-  batteryLevel: 0,
-  lastActualBatteryLevel: 0,
-  batteryWarning: false,
-  finalLocalHypothesis: {...defaultHypothesisResponse},
-  finalGlobalHypothesis: {...defaultHypothesisResponse},
+  imgClickEnabled: true,
+  showNOMInput: false,
   introCompleted: false,
   submitted: false
 };
 
+export type IAction = { type:  any, value?: any }
 export enum Action {
-  // For loading previous runs; sets the entire state object.
-  SET_STATE,
-
-  CHANGE_SAMPLE_STATE,
-  CHANGE_TRANSECT_STATE,
-  SHOW_NOM_INPUT, // NOM = "number of measurements"
-  /** Row operations */
-  ADD_ROW,
-  DELETE_ROW, // Delete row from plan
-  EDIT_ROW,
-  DUPLICATE_ROW,
-  UPDATE_ROW_TYPE,
-  // To discard a specific row in a specific transect.
-  // Value should be {transectIndex, rowIndex}.
-  DISCARD_ROW,
-  // When deviating and taking more measurements than the plan would allow,
-  // remove samples from the end of the plan to make room.
-  TRIM_SAMPLES_FROM_END, 
-
-  SET_CUR_ROW_IDX,
-  SET_CUR_TRANSECT_IDX,
-  SET_LAST_HOVER_ROW_IDX,
-
-  ADD_ROC,
-  SET_CONCLUDE_QUESTIONS,
-  SET_IS_ALTERNATIVE_HYPO,
-
-  HOVER_DATA, // A table row/figure pos/plot data is hovered
+  SET_STATE, // For loading previous runs; sets the entire state object.  
+  SET_DATA_VERSION,
+  SET_FULL_DATA,
+  SET_MOISTURE_DATA,
+  SET_CURR_SAMPLE_IDX,
+  ADD_SAMPLE, 
+  DELETE_SAMPLE, 
+  SET_CURR_USER_STEP_IDX,
+  ADD_USER_STEP, 
+  /** START - Actions to update the current user step data */
+  SET_USER_STEP_IDX,
+  SET_USER_FEEDBACK_STATE,
+  SET_OBJECTIVES,
+  SET_OBJECTIVES_RANKINGS,
+  SET_OBJECTIVES_FREE_RESPONSE,
+  SET_SAMPLE_TYPE,
+  SET_LOADING_ROBOT_SUGGESTIONS,
+  SET_SHOW_ROBOT_SUGGESTIONS,
+  SET_ROBOT_SUGGESTIONS,
+  SET_ACCEPT_OR_REJECT_OPTIONS,
+  SET_ACCEPT_OR_REJECT,
+  SET_REJECT_REASON_OPTIONS,
+  SET_REJECT_REASON,
+  SET_REJECT_REASON_FREE_RESPONSE,
+  SET_USER_FREE_SELECTION,
+  SET_USER_SAMPLE,
+  SET_HYPO_CONFIDENCE,
+  SET_TRANSITION,
+  SET_DISABLE_SUBMIT_BUTTON,
+  SET_NUM_SUBMIT_CLICKS,
+  /** FINISH */
+  SET_INIT_HYPO_CONFIDENCE,
   SET_CHART,
   SET_CHART_SETTINGS,
   CLEAR_CHART_CURRENT,
-  IMG_CLICK_ENABLED,
-  SET_MAIN_ENTERED,
-  SET_DECISION_ENTERED,
-  SET_SHOW_ROC,
-  /** Transect opearations*/
-  CHOOSE_TRANSECT,
-  UPDATE_TRANSECT,
-  DELETE_TRANSECT,
-
-  SET_FULL_DATA,
-  SET_MOISTURE_DATA,
-  SET_GRAIN_DATA,
-  SET_DATA_VERSION,
-  SET_SHOW_BATTERY,
-  SET_HYPO_CONFIDENCE, // Set confidence level for each hypothesis after each dune is visited
-  SET_GLOBAL_HYPO_CONFIDENCE, // Set global confidence level for each hypothesis after each dune is visited
-  SET_INITIAL_HYPOS, // Initial hypothesis local
-  SET_INITIAL_GLOBAL_HYPOS, // Initial hypothesis global
   SET_DIALOG_PROPS, // Set content for global dialog
-
-  // Actions for saving data
-  SET_INITIAL_STRATEGY_TRANSECTS, // Expected value is the array transectIndices
-  SET_INITIAL_STRATEGY_SAMPLES, // Expected value is the array transectSamples
-  SET_ROBOT_VERSION,
-  ADD_ACTUAL_STRATEGY_TRANSECT,
-  ADD_ACTUAL_STRATEGY_SAMPLE, // Adds a sample object to the most recent transect
-  SET_STRATEGY_TRANSECTS,
-  SET_STRATEGY_SAMPLES,
-
-  // Battery actions
-  SET_BATTERY_LEVEL,
-  SET_LAST_ACTUAL_BATTERY_LEVEL,
-  SET_BATTERY_WARNING,
-
-  // Hypothesis actions
-  SET_INITIAL_LOCAL_HYPOTHESIS,
-  SET_INITIAL_GLOBAL_HYPOTHESIS,
-  ADD_LOCAL_HYPOTHESIS,
-  ADD_GLOBAL_HYPOTHESIS,
-  SET_FINAL_LOCAL_HYPOTHESIS,
-  SET_FINAL_GLOBAL_HYPOTHESIS,
-
-  // Executed when user completes the introduction agreements
-  SET_INTRO_STATUS,
-
-  // Executed when user submits final responses
-  SET_SUBMITTED_STATUS,
-};
-
-/**
- * For the actions not in TypedActions, type of IAction would be the first one in IAction
- * Otherwise the type will be explicitly defined.
- * This helps to secure the types in reducer functions as well as other parts of the code.
- */
-type TypedActions =
-  | Action.SET_HYPO_CONFIDENCE
-  | Action.SET_GLOBAL_HYPO_CONFIDENCE;
-
-export type IAction = 
-  | { type: Exclude<Action, TypedActions>, value?: any } // Default action
-  | { type: Action.SET_HYPO_CONFIDENCE, value: { index: number, hypoConfidence: string[] } }
-  | { type: Action.SET_GLOBAL_HYPO_CONFIDENCE, value: { index: number, globalHypoConfidence: string[] } };
-
-type ActionKeyMap = {
-  [key in keyof typeof Action]?: keyof IState
+  SET_IMG_CLICK_ENABLED,
+  SET_HOVER, // A table row/figure pos/plot data is hovered
+  SET_SHOW_NOM_INPUT,
+  SET_INTRO_STATUS, // Executed when user completes the introduction agreements
+  SET_SUBMITTED_STATUS // Executed when user submits final responses
 };
 
 // For actions that simply replace the corresponding key in state,
 // we register the action with the key here to simplify the code
+type ActionKeyMap = {
+  [key in keyof typeof Action]?: keyof IState
+};
 const actionKeyMap : ActionKeyMap = {
-  [Action.CHANGE_SAMPLE_STATE]: 'sampleState',
-  [Action.CHANGE_TRANSECT_STATE]: 'transectState',
-  [Action.SHOW_NOM_INPUT]: 'showNOMInput',
-  [Action.SET_SHOW_ROC]: 'showROC',
-  [Action.SET_MAIN_ENTERED]: 'mainEntered',
-  [Action.SET_DECISION_ENTERED]: 'decisionEntered',
-  [Action.IMG_CLICK_ENABLED]: 'imgClickEnabled',
-  [Action.SET_CONCLUDE_QUESTIONS]: 'concludeQuestions',
-  [Action.SET_IS_ALTERNATIVE_HYPO]: 'isAlternativeHypo',
+  [Action.SET_DATA_VERSION]: 'dataVersion',
   [Action.SET_FULL_DATA]: 'fullData',
   [Action.SET_MOISTURE_DATA]: 'moistureData',
-  [Action.SET_GRAIN_DATA]: 'grainData',
-  [Action.SET_DATA_VERSION]: 'dataVersion',
-  [Action.SET_SHOW_BATTERY]: 'showBattery',
-  [Action.SET_INITIAL_HYPOS]: 'initialHypos',
-  [Action.SET_INITIAL_GLOBAL_HYPOS]: 'initialGlobalHypos',
-  [Action.SET_DIALOG_PROPS]: 'dialogProps',
-  [Action.SET_BATTERY_LEVEL]: 'batteryLevel',
-  [Action.SET_LAST_ACTUAL_BATTERY_LEVEL]: 'lastActualBatteryLevel',
-  [Action.SET_BATTERY_WARNING]: 'batteryWarning',
-  [Action.SET_FINAL_LOCAL_HYPOTHESIS]: 'finalLocalHypothesis',
-  [Action.SET_FINAL_GLOBAL_HYPOTHESIS]: 'finalGlobalHypothesis',
+  [Action.SET_CURR_SAMPLE_IDX]: 'currSampleIdx',
+  [Action.SET_CURR_USER_STEP_IDX]: 'currUserStepIdx',
+  [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
+  [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
-  [Action.SET_ROBOT_VERSION]: 'robotVersion',
+  [Action.SET_DIALOG_PROPS]: 'dialogProps',
+  [Action.SET_IMG_CLICK_ENABLED]: 'imgClickEnabled',
+  [Action.SET_SHOW_NOM_INPUT]: 'showNOMInput',
   [Action.SET_INTRO_STATUS]: 'introCompleted',
   [Action.SET_SUBMITTED_STATUS]: 'submitted',
 };
 
 type SubReducer<T> = (subState: T, state: Readonly<IState>, action: IAction) => T;
 
-const transectReducer : SubReducer<Transect[]> = (transectIndices, state, action) => {
+const sampleReducer : SubReducer<Sample[]> = (samples, state, action) => {
   switch(action.type) {
-    case Action.SET_HYPO_CONFIDENCE: {
-      const { index, hypoConfidence } = action.value;
-      const newTransect : Transect = { ...transectIndices[index], hypoConfidence }
-      return transectIndices.map((t, idx) => (idx === index ? newTransect : t));
-    }
-    case Action.SET_GLOBAL_HYPO_CONFIDENCE:
-    {
-      const { index, globalHypoConfidence } = action.value;
-      const newTransect : Transect = { ...transectIndices[index], globalHypoConfidence }
-      return transectIndices.map((t, idx) => (idx === index ? newTransect : t));
-    }
-    case Action.CHOOSE_TRANSECT: {
-      return transectIndices.concat(action.value);
-    }
-    case Action.DELETE_TRANSECT: {
-      const transects = [...transectIndices];
-      for (const t of transects) {
-        if (t.templateIdx === action.value) {
-          t.templateIdx = -1;
-        }
-      }
-      transects.splice(action.value, 1);
-      return transects;
-    }
-    case Action.UPDATE_TRANSECT: {
-      const transects = [...transectIndices];
-      const { index, transect } = action.value;
-      transects[index] = transect;
-      return transects; 
-    }
-    case Action.TRIM_SAMPLES_FROM_END: {
-      const { newSamples } = action.value;
-      return transectIndices.slice(0, newSamples.length);
-    }
-    default: {
-      return transectIndices;
-    }
-  }
-};
-
-const transectSampleReducer : SubReducer<IRow[][]> = (transectSamples, state, action) => {
-  // Special treatment
-  if (action.type === Action.DUPLICATE_ROW) {
-    const { source, dest } = action.value;
-    return transectSamples.map((row, idx) => {
-      if (idx === dest) {
-        const res : IRow[] = [];
-        // Shallow copy
-        for (const row of transectSamples[source]) {
-          res.push(row);
-        }
-        return res;
-      }
-      return row;
-    });
-  }
-  if (action.type === Action.CHOOSE_TRANSECT) {
-    // Be careful when using arr.concat([])!
-    const allSamples = [...transectSamples];
-    allSamples.push([]);
-    return allSamples;
-  }
-  if (action.type === Action.DELETE_TRANSECT) {
-    const allSamples = [...transectSamples];
-    allSamples.splice(action.value, 1);
-    return allSamples;
-  }
-  if (action.type === Action.TRIM_SAMPLES_FROM_END) {
-    const { newSamples } = action.value;
-    return newSamples;
-  }
-  if (action.type === Action.DISCARD_ROW) {
-    const {transectIndex, rowIndex} = action.value;
-    const samples = [...transectSamples];
-    samples[transectIndex][rowIndex].type = RowType.DISCARDED;
-    return samples;
-  }
-  const curTransectIdx = state.strategy.curTransectIdx;
-  let currentTransectSamples = transectSamples.length === 0 ? [] : [...transectSamples[curTransectIdx]];
-  switch(action.type) {
-    case Action.ADD_ROW: {
-      currentTransectSamples.push(action.value);
+    case Action.ADD_SAMPLE: {
+      samples.push(action.value);
       break;
     }
-    case Action.EDIT_ROW: {
-      const { index, row } = action.value;
-      currentTransectSamples[index] = row;
+    case Action.DELETE_SAMPLE: {
+      samples.splice(action.value, 1);
       break;
     }
-    case Action.UPDATE_ROW_TYPE: {
-      const { index, type } = action.value;
-      currentTransectSamples[index].type = type;
-      break;
-    }
-    case Action.DELETE_ROW: {
-      currentTransectSamples.splice(action.value, 1);
-      break;
-    }
-    case Action.HOVER_DATA: {
+    case Action.SET_HOVER: {
+      const { lastHoverIdx } = state;
       const { isHovered } = action.value;
-      const { lastHoverRowIdx } = state.strategy;
-      if (lastHoverRowIdx >= 0 &&  lastHoverRowIdx < currentTransectSamples.length) {
-        currentTransectSamples[lastHoverRowIdx].isHovered = false;
+      if (lastHoverIdx >= 0 &&  lastHoverIdx < samples.length) {
+        samples[lastHoverIdx].isHovered = false;
       }
       const index = action.value.index;
-      if (isHovered && index < currentTransectSamples.length) {
-        currentTransectSamples[index].isHovered = true;
+      if (isHovered && index < samples.length) {
+        samples[index].isHovered = true;
       }
       break;
     }
@@ -414,39 +199,52 @@ const transectSampleReducer : SubReducer<IRow[][]> = (transectSamples, state, ac
       break;
     }
   };
-  return transectSamples.map((samples, idx) => {
-    if (idx === curTransectIdx) {
-      return currentTransectSamples;
-    }
-    return samples;
-  });
+  return samples;
 };
 
-const lastHoverRowIdxReducer : SubReducer<number> = (lastHoverRowIdx, state, action) => {
-  if (action.type === Action.SET_LAST_HOVER_ROW_IDX) {
-    return action.value;
-  }
-  if (action.type === Action.HOVER_DATA) {
-    const { isHovered } = action.value;
-    return isHovered ? action.value.index : -1;
-  }
-};  
+// For actions that simply replace the corresponding key in state.currUserStep,
+// we register the action with the key here to simplify the code
+type ActionKeyMapCurrUserStep = {
+  [key in keyof typeof Action]?: keyof CurrUserStepData;
+};
+const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
+  [Action.SET_USER_STEP_IDX]: 'step',
+  [Action.SET_USER_FEEDBACK_STATE]: 'userFeedbackState',
+  [Action.SET_OBJECTIVES]: 'objectives',
+  [Action.SET_OBJECTIVES_RANKINGS]: 'objectivesRankings',
+  [Action.SET_OBJECTIVES_FREE_RESPONSE]: 'objectiveFreeResponse',
+  [Action.SET_SAMPLE_TYPE]: 'sampleType',
+  [Action.SET_LOADING_ROBOT_SUGGESTIONS]: 'loadingRobotSuggestions',
+  [Action.SET_SHOW_ROBOT_SUGGESTIONS]: 'showRobotSuggestions',
+  [Action.SET_ROBOT_SUGGESTIONS]: 'robotSuggestions',
+  [Action.SET_ACCEPT_OR_REJECT_OPTIONS]: 'acceptOrRejectOptions',
+  [Action.SET_ACCEPT_OR_REJECT]: 'acceptOrReject',
+  [Action.SET_REJECT_REASON_OPTIONS]: 'rejectReasonOptions',
+  [Action.SET_REJECT_REASON]: 'rejectReason',
+  [Action.SET_REJECT_REASON_FREE_RESPONSE]: 'rejectReasonFreeResponse',
+  [Action.SET_USER_FREE_SELECTION]: 'userFreeSelection',
+  [Action.SET_USER_SAMPLE]: 'userSample',
+  [Action.SET_HYPO_CONFIDENCE]: 'hypoConfidence',
+  [Action.SET_TRANSITION]: 'transition',
+  [Action.SET_DISABLE_SUBMIT_BUTTON]: 'disableSubmitButton',
+  [Action.SET_NUM_SUBMIT_CLICKS]: 'numSubmitClicks',
+};
 
-const strategyReducer : SubReducer<IStrategy> = (strategy, state, action) => {
-  switch(action.type) {
-    case Action.SET_CUR_ROW_IDX: {
-      return { ...strategy, curRowIdx: action.value };
-    }
-    case Action.SET_CUR_TRANSECT_IDX: {
-      return { ...strategy, curTransectIdx: action.value };
+const currUserStepReducer : SubReducer<CurrUserStepData> = (currUserStep, state, action) => {
+  if (action.type in actionKeyMapCurrUserStep) {
+    return { ...currUserStep, [actionKeyMapCurrUserStep[action.type] as string]: action.value };
+  }
+  return currUserStep;
+};
+
+const userStepReducer : SubReducer<UserStepsData[]> = (userSteps, state, action) => {
+  switch (action.type) {
+    case Action.ADD_USER_STEP: {
+      userSteps.push(action.value);
+      break;
     }
   }
-  return {
-    ...strategy,
-    lastHoverRowIdx: lastHoverRowIdxReducer(strategy.lastHoverRowIdx, state, action),
-    transectIndices: transectReducer(strategy.transectIndices, state, action), 
-    transectSamples: transectSampleReducer(strategy.transectSamples, state, action)
-  };
+  return userSteps;
 };
 
 const chartReducer : SubReducer<Charts> = (chart, state, action) => {
@@ -464,13 +262,13 @@ const chartReducer : SubReducer<Charts> = (chart, state, action) => {
       })
       return chart;
     }
-    case Action.HOVER_DATA: {
+    case Action.SET_HOVER: {
       if (!chart) return chart;
       const { isHovered, index } = action.value;
-      const { lastHoverRowIdx } = state.strategy;
+      const { lastHoverIdx } = state;
       const traversalFunc = dataset => {
         dataset.data.forEach(data => {
-          if (data.rowIndex === lastHoverRowIdx) {
+          if (data.rowIndex === lastHoverIdx) {
             data.hover = false;
           }
           if (isHovered) {
@@ -490,101 +288,18 @@ const chartReducer : SubReducer<Charts> = (chart, state, action) => {
   return chart;
 };
 
-const initialStrategyReducer: SubReducer<InitialStrategyData> = (data, state, action) => {
-  switch (action.type) {
-    case Action.SET_INITIAL_STRATEGY_TRANSECTS:
-      const transects = action.value.map((t: Transect) => {
-        return {
-          number: t.number,
-          templateNumber: t.templateNumber,
-          templateIdx: t.templateIdx
-        } as InitialStrategyTransect;
-      });
-      return {
-        samples: data.samples,
-        transects,
-        localHypothesis: data.localHypothesis,
-        globalHypothesis: data.globalHypothesis
-      };
-    case Action.SET_INITIAL_STRATEGY_SAMPLES:
-      const samples = action.value.map((t: IRow[]) => {
-        const rowSamples = t.map((s: IRow) => {
-          return {
-            index: s.index,
-            measurements: s.measurements,
-            type: s.type,
-            normOffsetX: s.normOffsetX,
-            normOffsetY: s.normOffsetY
-          } as InitialStrategySample;
-        });
-        return rowSamples;
-      });
-      return {
-        samples,
-        transects: data.transects,
-        localHypothesis: data.localHypothesis,
-        globalHypothesis: data.globalHypothesis
-      };
-    case Action.SET_INITIAL_LOCAL_HYPOTHESIS:
-      return {...data, localHypothesis: action.value};
-    case Action.SET_INITIAL_GLOBAL_HYPOTHESIS:
-      return {...data, globalHypothesis: action.value};
-    default:
-      return data;
-  }
-}
-
-const actualStrategyReducer: SubReducer<ActualStrategyData> = (data, state, action) => {
-  switch(action.type) {
-    case Action.ADD_ACTUAL_STRATEGY_TRANSECT:
-      return {transects: [...data.transects, action.value]};
-    case Action.ADD_ACTUAL_STRATEGY_SAMPLE: {
-      const t = data.transects;
-      if (t.length === 0) {
-        console.error(`ADD_ACTUAL_STRATEGY_SAMPLE data.transects was empty.`);
-      } else {
-        t[t.length - 1].samples = t[t.length - 1].samples.concat(action.value);
-      }
-      return {transects: t};
-    }
-    case Action.ADD_LOCAL_HYPOTHESIS: {
-      const t = data.transects;
-      t[t.length - 1].localHypotheses = action.value;
-      return {transects: t};
-    }
-    case Action.ADD_GLOBAL_HYPOTHESIS: {
-      const t = data.transects;
-      t[t.length - 1].globalHypotheses = action.value;
-      return {transects: t};
-    }
-    default: return data;
-  }
-}
-
 export const reducer = (state: IState, action: IAction) : IState => {
   if (action.type === Action.SET_STATE) {
     return action.value as IState;
-  } else if (action.type === Action.SET_STRATEGY_TRANSECTS) {
-    return { ...state, strategy: { ...state.strategy, transectIndices: action.value } }
-  } else if (action.type === Action.SET_STRATEGY_SAMPLES) {
-    return { ...state, strategy: { ...state.strategy, transectSamples: action.value } }
   } else if (action.type in actionKeyMap) {
     return { ...state, [actionKeyMap[action.type] as string]: action.value };
   }
-  switch (action.type) {
-    case Action.ADD_ROC: {
-      return {
-        ...state,
-        roc: state.roc.concat(action.value)
-      };
-    }
-  }
   return {
     ...state,
+    currUserStep: currUserStepReducer(state.currUserStep, state, action),
+    userSteps: userStepReducer(state.userSteps, state, action),
+    samples: sampleReducer(state.samples, state, action),
     chart: chartReducer(state.chart, state, action),
-    strategy: strategyReducer(state.strategy, state, action),
-    initialStrategyData: initialStrategyReducer(state.initialStrategyData, state, action),
-    actualStrategyData: actualStrategyReducer(state.actualStrategyData, state, action)
   }
 };
 
