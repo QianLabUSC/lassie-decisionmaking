@@ -1,6 +1,5 @@
 import * as Chart from 'chart.js';
 import { RGBAtoRGB } from './util';
-import { HypothesisResponse } from './types';
 
 // These should match the canvas dimensions used in "transectDiagramPoints.html"
 export const NORMALIZED_WIDTH = 1100;
@@ -220,20 +219,6 @@ export const hypothesesTexts = {
       "Grain size decreases gradually and systematically downwind.",
       "Grain size oscillates downwind, due to the presence of more than one sediment source."
   ]
-};
-
-export enum TransectState {
-  INITIAL_STRATEGY,
-  FEEDBACK,
-  DEVIATED,
-  CONCLUDE
-};
-
-export enum SampleState {
-  COLLECT_DATA,
-  FEEDBACK,
-  DEVIATED,
-  FINISH_TRANSECT,
 };
 
 
@@ -595,11 +580,6 @@ Chart.pluginService.register({
   }
 });
 
-export const defaultHypothesisResponse: HypothesisResponse = {
-  nullHypothesis: 0,
-  alternativeHypothesis1: 0,
-  alternativeHypothesis2: 0,
-};
 
 // Map view initial state
 export const initialViewState = {

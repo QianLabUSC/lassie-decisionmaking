@@ -1,12 +1,3 @@
-
-export enum DataLayer {
-  NONE = 'None',
-  MOIST = 'Moisture',
-  SHEAR = 'Shear',
-  SAMPLE = 'Sample',
-  GRAIN = "Grain"
-};
-
 /** Type of traces */
 export enum TraceType {
   /** Set type of the visualization */
@@ -25,31 +16,7 @@ export interface Trace {
   timestamp: number
 }
 
-export enum TransectType {
-  NORMAL = 'Normal',
-  DEVIATED = 'Deviated',
-  DISCARDED = 'Discarded'
-}
-
-export interface Transect {
-  /**
-   * 'Index' of the transect,
-   * The coordinates of the transects can be found in {@link startPoints} and {@link endPoints}
-   */
-  number: number,
-  windIndex: number,
-  templateNumber: number, // 'Index' of the template transect
-  templateIdx: number, // Template index w.r.t other transects
-  type: TransectType, // Type of the transect
-  hypoConfidence?: string[] // Confidence levels for local hypotheses at the transects after the sampling
-  globalHypoConfidence?: string[] // Confidence levels for global hypotheses at the transects after the sampling
-}
-
 export type ResultRow = Omit<IRow, 'isHovered'>;
-
-export interface ResultTransect extends Transect {
-  samples: ResultRow[]
-}
 
 export enum DialogType {
   SIMPLE
@@ -78,66 +45,72 @@ export interface Record {
   traces: Trace[],
   /** Post survey */
   form: any,
-  /** All the transects being sampled */
-  transects: ResultTransect[]
 }
 
-// Types for saving the initial strategy
-export interface InitialStrategyTransect {
-  number: number,
-  templateNumber: number,
-  templateIdx: number
-}
-export interface InitialStrategySample {
-    index: number, // In range [0, 21]
-    measurements: number,
-    type: string,
-    normOffsetX: number,
-    normOffsetY: number
-}
-export interface InitialStrategyData {
-  transects: InitialStrategyTransect[],
-  samples: InitialStrategySample[][],
-  localHypothesis: HypothesisResponse,
-  globalHypothesis: HypothesisResponse
-}
-
-// Types for saving the actual strategy
-export interface ActualStrategySample {
-  type: 'planned' | 'deviated',
-  index: number, // In range [0, 21]
-  measurements: number,
-  normOffsetX: number,
-  normOffsetY: number,
-  moisture: number[],
-  shear: number[],
-  batteryLevelBefore: number,
-  batteryWarningShown: boolean
-}
-export interface ActualStrategyTransect {
-  type: 'planned' | 'deviated',
-  number: number, // id of the transect being used
-  samples: ActualStrategySample[],
-  localHypotheses: HypothesisResponse,
-  globalHypotheses: HypothesisResponse
-}
-export interface ActualStrategyData {
-  transects: ActualStrategyTransect[]
-}
-
-// Types for saving hypothesis data
-export interface HypothesisResponse {
-  nullHypothesis: number,
-  alternativeHypothesis1: number,
-  alternativeHypothesis2: number
-}
-
-export interface InitialHypothesisData {
-  localHypothesis: HypothesisResponse,
-  globalHypothesis: HypothesisResponse
-}
-
+/** Interface for local and global data versions */
 export interface DataVersion {
   local: number,
   global: number
+}
+
+/** Interface for current user step */
+export interface CurrUserStepData {
+  step: number, 
+  userFeedbackState: number, // controls which set of questions are being asked to the user during each step
+  objectives: number[], // stores objective(s) for each data collection step
+  objectivesRankings: number[], // stores priority ranking for each objective
+  objectiveFreeResponse: string, // stores user's free response for the objective
+  sampleType: 'robot' | 'user',
+  loadingRobotSuggestions: boolean,
+  showRobotSuggestions: boolean,
+  robotSuggestions : Sample[], // stores robot's suggested sample locations at each step
+  acceptOrRejectOptions: string[],
+  acceptOrReject: number, // stores which robot suggestion the user accepts (or if the user rejects) at each step
+  rejectReasonOptions: string[],
+  rejectReason: number,  // stores why the user rejected the robot's suggestion at each step
+  rejectReasonFreeResponse: string, // stores user's free response for the reason for rejecting the robot's suggestion
+  userFreeSelection: boolean
+  userSample: Sample | null,
+  hypoConfidence : number // stores user's updated hypothesis confidence
+  transition : number, // stores user's choice for the next data collection step
+  disableSubmitButton: boolean,
+  numSubmitClicks: number,
+}
+
+/** Interface for the finalized user step details */
+export interface UserStepsData {
+  step: number, 
+  objectives: number[], 
+  objectivesRankings: number[], 
+  objectiveFreeResponse: string | null, 
+  sampleType: 'robot' | 'user',
+  robotSuggestions : Sample[], 
+  acceptOrReject: number | null, 
+  rejectReason: number | null, 
+  rejectReasonFreeResponse: string | null, 
+  userFreeSample: Sample,
+  hypoConfidence : number 
+  transition : number
+}
+
+/** Interface for the samples collected */
+export interface Sample {
+  index: number, // In range [0, 21]
+  type: 'initial' | 'robot' | 'user',
+  measurements: number,
+  normOffsetX: number,
+  normOffsetY: number,
+  isHovered: boolean,
+  moisture: number[],
+  shear: number[],
+}
+
+/** Interface for the samples collected */
+export interface SampleTemplate {
+  index: number, // In range [0, 21]
+  type: 'initial' | 'robot' | 'user',
+  measurements: number,
+  normOffsetX: number,
+  normOffsetY: number,
+  isHovered: boolean,
 }

@@ -2,23 +2,17 @@ import * as React from "react";
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
 import ConsentPanel from '../components/ConsentPanel';
-import HypothesisPanel from '../components/HypothesisPanel';
 import ProgressBar from '../components/ProgressBar';
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { useStateValue, Action } from '../state';
-import { defaultHypothesisResponse, hypothesisTitles, initialConfidenceTexts } from '../constants';
+import { initialConfidenceTexts } from '../constants';
 import "../styles/intro.scss";
-import { HypothesisResponse } from "../types";
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
-const localHypoImage = require('../../assets/LocalHypo_flipped.png');
-const globalHypoImage = require('../../assets/globalHypo.png');
-const globalMoistureImage = require('../../assets/GlobalMoisture.png');
 
 export default function Intro(props) {
     const history = useHistory();
@@ -26,8 +20,6 @@ export default function Intro(props) {
     const [currentPage, setCurrentPage] = useState(0);
     //const [currentPage, setCurrentPage] = useState(6);
     const [animationDirection, setAnimationDirection] = useState("Right");
-    const [localHypos, setLocalHypos] = useState<HypothesisResponse>(defaultHypothesisResponse);
-    const [globalHypos, setGlobalHypos] = useState<HypothesisResponse>(defaultHypothesisResponse);
     const pageCount = 2;
 
     const onBackClick = () => {
@@ -40,8 +32,6 @@ export default function Intro(props) {
     const onNextClick = () => {
         if (currentPage + 1 >= pageCount) {
             
-            dispatch({ type: Action.SET_CUR_TRANSECT_IDX, value: 0 });
-
             // When the user completes the intro section, set the "introCompleted" state property to true
             // so that the user will not be redirected to the intro section when revisiting the website
             dispatch({type: Action.SET_INTRO_STATUS, value: true});
@@ -97,7 +87,7 @@ export default function Intro(props) {
                             as moisture continues to increase.
                         </p>
                    
-                        { /* Insert modified transect hypothesis figure*/ }
+                        { /* Insert modified transect hypothesis figure here*/ }
 
                         <div className="hypothesisBlock">
                             <div className="hypothesisTitle"><strong>Initial Hypothesis Confidence</strong></div>

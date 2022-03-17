@@ -96,27 +96,6 @@ export default function Main() {
     };
   }, []);
 
-
-  // const [data, setData] = useState(3);
-  // useEffect(() => {
-  //   fetch('http://127.0.0.1:5000/regression', {
-  //     method: 'POST',
-  //     cache: 'no-cache',
-  //     headers: {
-  //       'content_type': "application/json",
-  //     },
-  //     body: JSON.stringify(data), 
-  //   }).then(
-  //     res => res.json()
-  //   ).then(
-  //     data => {
-  //       //setData(data);
-  //       console.log(data);
-  //     }
-  //   )
-  // }, [data]);
-
-
   const addActualStrategySample = (type: 'planned' | 'deviated', row: any) => {
     const actualStrategySample: ActualStrategySample = {
       type: type,
@@ -294,23 +273,22 @@ export default function Main() {
 
   // Hooks for obtaining user feedback on what they think the objective should be at each data collection step
   const [userFeedbackStep, setUserFeedbackStep] = useState(0); // controls which set of questions are being asked to the user during each step
-  const [objectives, setObjectives] = useState<number[]>([]); // stores objective(s) for each data collection step
-  const [objectivesRankings, setObjectivesRankings] = useState<number[]>([]); // stores priority ranking for each objective
-  const [objectiveFreeResponse, setObjectiveFreeResponse] = useState(""); // stores user's free response for the objective
-  const [acceptOrReject, setAcceptOrReject] = useState(0); // stores whether the user accepts or rejects the robot's suggestion at each step
   const [acceptOrRejectOptions, setAcceptOrRejectOptions] = useState<string[]>([]);
-  const [acceptFollowUp, setAcceptFollowUp] = useState(0); // stores how effective the user believes the robot's suggestion is at achieving the objective
   const [rejectReasonOptions, setRejectReasonOptions] = useState<string[]>([]);
-  const [rejectReason, setRejectReason] = useState(0); // stores why the user rejected the robot's suggestion at each step
-  const [rejectReasonFreeResponse, setRejectReasonFreeResponse] = useState(""); // stores user's free response for the reason for rejecting the robot's suggestion
-  const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
-  const [robotSuggestions, setRobotSuggestions] = useState<IRow[]>([]); // stores robot's suggested sample locations at each step
   const [loading, setLoading] = useState(false); // tracks whether the robot suggestions are currently being calculated
   const [showRobotSuggestions, setShowRobotSuggestions] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [numSubmitClicks, setNumSubmitClicks] = useState(0);
   const [userFreeSelection, setUserFreeSelection] = useState(false);
 
+  const [objectives, setObjectives] = useState<number[]>([]); // stores objective(s) for each data collection step
+  const [objectivesRankings, setObjectivesRankings] = useState<number[]>([]); // stores priority ranking for each objective
+  const [objectiveFreeResponse, setObjectiveFreeResponse] = useState(""); // stores user's free response for the objective
+  const [acceptOrReject, setAcceptOrReject] = useState(0); // stores whether the user accepts or rejects the robot's suggestion at each step
+  const [rejectReason, setRejectReason] = useState(0); // stores why the user rejected the robot's suggestion at each step
+  const [rejectReasonFreeResponse, setRejectReasonFreeResponse] = useState(""); // stores user's free response for the reason for rejecting the robot's suggestion
+  const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
+  const [robotSuggestions, setRobotSuggestions] = useState<IRow[]>([]); // stores robot's suggested sample locations at each step
   const [updatedHypoConfidence, setUpdatedHypoConfidence] = useState(0);
   const handleResponse = (value: any) => {
       setUpdatedHypoConfidence(value);
@@ -419,30 +397,12 @@ export default function Main() {
   }, [objectives]);
   
   const marks = [
-    {
-      value: 0,
-      label: '1',
-    },
-    {
-      value: 20,
-      label: '2',
-    },
-    {
-      value: 40,
-      label: '3',
-    },
-    {
-      value: 60,
-      label: '4',
-    },
-    {
-      value: 80,
-      label: '5',
-    },
-    {
-      value: 100,
-      label: '6',
-    },
+    { value: 0, label: '1' },
+    { value: 20, label: '2' },
+    { value: 40, label: '3' },
+    { value: 60, label: '4' },
+    { value: 80, label: '5' },
+    { value: 100, label: '6' },
   ];
 
   function valueLabelFormat(value) {

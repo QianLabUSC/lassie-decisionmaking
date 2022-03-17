@@ -71,12 +71,11 @@ export default function PositionIndicator({ left, top, type, rowIndex, isHovered
   const classes = useStyles();
   const theme = useTheme();
   const [globalState, dispatch] = useStateValue();
-  const { strategy } = globalState;
-  const { curRowIdx } = strategy;
+  const { currSampleIdx } = globalState;
 
   const onHover = enterOrLeave => {
     dispatch({
-      type: Action.HOVER_DATA,
+      type: Action.SET_HOVER,
       value: {
         index: rowIndex,
         isHovered: enterOrLeave
@@ -87,8 +86,8 @@ export default function PositionIndicator({ left, top, type, rowIndex, isHovered
   return (
     <span onMouseEnter={() => onHover(true)} onMouseLeave={() => onHover(false)}
       className={`${classes.indicator} ${classes[type]}
-                  ${rowIndex === curRowIdx - 1 && type !== RowType.DISCARDED ? classes.current : ''} 
-                  ${isHovered && type !== RowType.DISCARDED ? classes.hover : ''}`}
+                  ${rowIndex === currSampleIdx - 1 && type !== RowType.DISCARDED ? classes.current : ''} 
+                  ${isHovered ? classes.hover : ''}`}
       //style={{ color: locationColors[locationIndex], left, top }}
       style={{ left, top }}
     >

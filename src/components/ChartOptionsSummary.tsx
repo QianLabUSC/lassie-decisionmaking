@@ -1,11 +1,8 @@
 import * as React from 'react';
 import "../styles/chartOptionsSummary.scss";
 import Tooltip from '@material-ui/core/Tooltip';
-import { Transect, TransectType } from '../types';
 
 interface ChartOptionsSummaryProps {
-    curTransectIdx: number,
-    transectIndices: Transect[],
     displayOption: number,
     onOptionsClick: () => any
 }
