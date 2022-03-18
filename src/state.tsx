@@ -1,14 +1,6 @@
 import * as React from 'react';
 import { createContext, useContext, useReducer } from 'react';
-import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample } from './types';
-
-// interface IStrategy {
-//   // In execution phase, the row that is going to be executed
-//   curRowIdx: number,
-//   lastHoverRowIdx: number,
-//   // Each transect corresponds to an array of samples
-//   transectSamples: IRow[][],
-// }
+import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample, PreSample } from './types';
 
 export type ChartSettings = {
   mode: number,
@@ -49,9 +41,11 @@ export interface IState {
   chart: Charts,
   chartSettings: ChartSettings,
   // Miscellaneous fields
+  transectIdx: number, // single transect version (setting transect index to 0 by default)
   lastHoverIdx: number,
   dialogProps: DialogProps | null,
   imgClickEnabled: boolean, 
+  numImgClicks: number, // controls when the global state's "rows" get loaded into the actual strategy and populated in the charts
   showNOMInput: boolean,
   introCompleted: boolean,
   submitted: boolean
@@ -85,6 +79,7 @@ export const initialState : IState = {
     rejectReasonFreeResponse: "",
     userFreeSelection: false,
     userSample: null,
+    objectiveAddressedRating: 0,
     hypoConfidence: 0,
     transition: 0,
     disableSubmitButton: true,
@@ -97,15 +92,17 @@ export const initialState : IState = {
     mode: 0,
     updateRequired: false
   },
+  transectIdx: 0, 
   lastHoverIdx: -1,
   dialogProps: null,
   imgClickEnabled: true,
+  numImgClicks: 0,
   showNOMInput: false,
   introCompleted: false,
   submitted: false
 };
 
-export type IAction = { type:  any, value?: any }
+export type IAction = { type: any, value?: any }
 export enum Action {
   SET_STATE, // For loading previous runs; sets the entire state object.  
   SET_DATA_VERSION,
@@ -133,6 +130,7 @@ export enum Action {
   SET_REJECT_REASON_FREE_RESPONSE,
   SET_USER_FREE_SELECTION,
   SET_USER_SAMPLE,
+  SET_OBJECTIVE_ADDRESSED_RATING,
   SET_HYPO_CONFIDENCE,
   SET_TRANSITION,
   SET_DISABLE_SUBMIT_BUTTON,
@@ -144,6 +142,7 @@ export enum Action {
   CLEAR_CHART_CURRENT,
   SET_DIALOG_PROPS, // Set content for global dialog
   SET_IMG_CLICK_ENABLED,
+  SET_NUM_IMG_CLICKS,
   SET_HOVER, // A table row/figure pos/plot data is hovered
   SET_SHOW_NOM_INPUT,
   SET_INTRO_STATUS, // Executed when user completes the introduction agreements
@@ -166,6 +165,7 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
   [Action.SET_DIALOG_PROPS]: 'dialogProps',
   [Action.SET_IMG_CLICK_ENABLED]: 'imgClickEnabled',
+  [Action.SET_NUM_IMG_CLICKS]: 'numImgClicks',
   [Action.SET_SHOW_NOM_INPUT]: 'showNOMInput',
   [Action.SET_INTRO_STATUS]: 'introCompleted',
   [Action.SET_SUBMITTED_STATUS]: 'submitted',
@@ -224,6 +224,7 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_REJECT_REASON_FREE_RESPONSE]: 'rejectReasonFreeResponse',
   [Action.SET_USER_FREE_SELECTION]: 'userFreeSelection',
   [Action.SET_USER_SAMPLE]: 'userSample',
+  [Action.SET_OBJECTIVE_ADDRESSED_RATING]: 'objectiveAddressedRating',
   [Action.SET_HYPO_CONFIDENCE]: 'hypoConfidence',
   [Action.SET_TRANSITION]: 'transition',
   [Action.SET_DISABLE_SUBMIT_BUTTON]: 'disableSubmitButton',

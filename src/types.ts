@@ -71,6 +71,7 @@ export interface CurrUserStepData {
   rejectReasonFreeResponse: string, // stores user's free response for the reason for rejecting the robot's suggestion
   userFreeSelection: boolean
   userSample: Sample | null,
+  objectiveAddressedRating: number, // stores user's rating for how well the latest sample addresses the current objective
   hypoConfidence : number // stores user's updated hypothesis confidence
   transition : number, // stores user's choice for the next data collection step
   disableSubmitButton: boolean,
@@ -84,7 +85,7 @@ export interface UserStepsData {
   objectivesRankings: number[], 
   objectiveFreeResponse: string | null, 
   sampleType: 'robot' | 'user',
-  robotSuggestions : Sample[], 
+  robotSuggestions : PreSample[], 
   acceptOrReject: number | null, 
   rejectReason: number | null, 
   rejectReasonFreeResponse: string | null, 
@@ -106,7 +107,7 @@ export interface Sample {
 }
 
 /** Interface for the samples collected */
-export interface SampleTemplate {
+export interface PreSample {
   index: number, // In range [0, 21]
   type: 'initial' | 'robot' | 'user',
   measurements: number,
