@@ -33,7 +33,7 @@ const useStyles = makeStyles({
 
 interface IProps {
   enabled: boolean,
-  addDataFunc: (row: IRow) => void,
+  addDataFunc: (sample: Sample) => void,
   setPopOver: (popoverContent : any) => void,
   width?: number
 }
@@ -129,7 +129,10 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
     // });
 
     if (numImgClicks > 0) {
-      dispatch({ type: Action.DELETE_SAMPLE, value: samples.length - 1 }); // delete the old row
+      dispatch({ 
+        type: Action.DELETE_SAMPLE, 
+        value: samples.length - 1 
+      }); // delete the old row
     }
 
     dispatch({ 

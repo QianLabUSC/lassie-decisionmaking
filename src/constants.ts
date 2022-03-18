@@ -1,5 +1,5 @@
 import * as Chart from 'chart.js';
-import { RGBAtoRGB } from './util';
+//import { RGBAtoRGB } from './util';
 
 // These should match the canvas dimensions used in "transectDiagramPoints.html"
 export const NORMALIZED_WIDTH = 1100;
@@ -137,6 +137,15 @@ const locationBaseColors = [
 	[238, 20, 250],
 	[249, 137, 255],
 ];
+function RGBAtoRGB(color: number[], backgroundColor: number[]) : number[] {
+  if (color.length < 4) return color;
+  const a = color[3];
+  return [
+    (1 - a) * backgroundColor[0] + a * color[0],
+    (1 - a) * backgroundColor[1] + a * color[1],
+    (1 - a) * backgroundColor[2] + a * color[2]
+  ];
+}
 export const locationColors = locationBaseColors.map(c =>
   `rgb(${RGBAtoRGB([...c, chartTransparency], [255, 255, 255]).join(", ")})`
 );

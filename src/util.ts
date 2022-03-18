@@ -103,15 +103,15 @@ export function getNOMTaken(samples: Sample[], index, untilIndex = samples.lengt
   return sum;
 }
 
-export function RGBAtoRGB(color: number[], backgroundColor: number[]) : number[] {
-  if (color.length < 4) return color;
-  const a = color[3];
-  return [
-    (1 - a) * backgroundColor[0] + a * color[0],
-    (1 - a) * backgroundColor[1] + a * color[1],
-    (1 - a) * backgroundColor[2] + a * color[2]
-  ];
-}
+// export function RGBAtoRGB(color: number[], backgroundColor: number[]) : number[] {
+//   if (color.length < 4) return color;
+//   const a = color[3];
+//   return [
+//     (1 - a) * backgroundColor[0] + a * color[0],
+//     (1 - a) * backgroundColor[1] + a * color[1],
+//     (1 - a) * backgroundColor[2] + a * color[2]
+//   ];
+// }
 
 export function randomInt(max: number) : number {
   return Math.floor(Math.random() * Math.floor(max));

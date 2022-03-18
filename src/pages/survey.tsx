@@ -7,7 +7,6 @@ import RadioButtonGroup from '../components/RadioButtonGroup';
 import RankedScale from '../components/RankedScale';
 import { QuestionType, SurveyQuestion, surveyQuestions as rawSurveyQuestions, TextAreaType } from '../data/surveyQuestions';
 import '../styles/survey.scss';
-import { TransectType } from '../types';
 
 const tileIndentation = 40;
 type SurveyAnswers = {[key: string] : string}
@@ -105,7 +104,7 @@ const rankedComponent = (question: SurveyQuestion, setAnswer, answers: SurveyAns
     );
 }
 
-const textComponent = (question: SurveyQuestion, answers, setAnswer, depth: number, unanswered: boolean, transectString: String) => {
+const textComponent = (question: SurveyQuestion, answers, setAnswer, depth: number, unanswered: boolean) => {
     const id: string = question.id || "-1";
     let inputAreaClass = "inputAreaLarge";
     let rows = 3;
@@ -127,7 +126,7 @@ const textComponent = (question: SurveyQuestion, answers, setAnswer, depth: numb
 
     return (
         <div className={`section ${unanswered && "highlighted"}`} style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
-            <p>{ question.text + transectString }</p>
+            <p>{ question.text }</p>
             <div className={inputAreaClass}>
                 {
                     inputMode === "numeric" ?
@@ -155,34 +154,16 @@ const surveyMap = (
     </div>
 );
 
-const buildQuestionComponents = (questionList: SurveyQuestion[], answers: SurveyAnswers, setAnswer, firstUnansweredId, transectIndices, depth = 0) => {
+const buildQuestionComponents = (questionList: SurveyQuestion[], answers: SurveyAnswers, setAnswer, firstUnansweredId, depth = 0) => {
     let components = [] as JSX.Element[];
 
     questionList.forEach(question => {
-        
-        // For the question below, add the user's selected transects and show the map image:
-        // Why did you select the particular dune transects (within the field area) that you did?
-        let transectString = "";
-        if (question.id === "1-1") {
-            components.push(surveyMap);
-            transectString += " (Transects: ";
-            let transectList = transectIndices.filter(transect => transect.type !== TransectType.DISCARDED);
-            transectList.forEach(transect => {
-                if (transectString === " (Transects: ") {
-                    transectString += (transect.number + 1).toString();
-                } else {
-                    transectString += ", " + (transect.number + 1).toString();
-                }
-            });
-            transectString += ")";
-        }
-
         const showAsUnanswered = firstUnansweredId === question.id;
         const component =
             question.type === QuestionType.Instruction ? instructionComponent(question, depth) :
             question.type === QuestionType.MultipleChoice ? multipleChoiceComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.Ranked ? rankedComponent(question, setAnswer, answers, depth, showAsUnanswered) :
-            question.type === QuestionType.Text ? textComponent(question, answers, setAnswer, depth, showAsUnanswered, transectString) :
+            question.type === QuestionType.Text ? textComponent(question, answers, setAnswer, depth, showAsUnanswered) :
             <></>; // Should never reach here
         components.push(component || <></>);
 
@@ -190,7 +171,7 @@ const buildQuestionComponents = (questionList: SurveyQuestion[], answers: Survey
             question.followUps.forEach((followUp, i) => {
                 if (followUp && question.id && answers[question.id] === i.toString()) {
                     components = components.concat(...buildQuestionComponents(Array.isArray(followUp) ? followUp : 
-                        [followUp], answers, setAnswer, firstUnansweredId, transectIndices, depth + 1));
+                        [followUp], answers, setAnswer, firstUnansweredId, depth + 1));
                 }
             });
         }
@@ -221,8 +202,7 @@ const idOfFirstUnansweredQuestion = (questionList: SurveyQuestion[], answers: Su
 
 export default function Survey() {
     const [globalState, dispatch] = useStateValue();
-    const { robotVersion, strategy } = globalState;
-    const { transectIndices } = strategy;
+    const { dataVersion, initialHypo, samples, userSteps } = globalState;
     const [page, setPage] = useState(0);
     const [answers, setAnswers] = useState({} as SurveyAnswers);
     const setAnswer = (id: string, answer: string) => {
@@ -231,34 +211,17 @@ export default function Survey() {
         setAnswers({...answers, ...newAnswer});
     };
     const firstUnansweredId = idOfFirstUnansweredQuestion(surveyQuestions[page], answers);
-    let questionComponents = buildQuestionComponents(surveyQuestions[page], answers, setAnswer, firstUnansweredId, transectIndices);
+    let questionComponents = buildQuestionComponents(surveyQuestions[page], answers, setAnswer, firstUnansweredId);
 
     const saveLogs = surveyOutput => {
 
-        // Increment the initial strategy and actual strategy transect numbers by 1 to align
-        // with the transect numbers on the map view
-        let initialStrategyTemp = globalState.initialStrategyData;
-        initialStrategyTemp.transects.map(transect => {
-            transect.number = transect.number + 1;
-            return transect;
-        });
-        let actualStrategyTemp = globalState.actualStrategyData;
-        actualStrategyTemp.transects.map(transect => {
-            transect.number = transect.number + 1;
-            return transect;
-        });
-
         const log = {
-            dataVersion: globalState.dataVersion,
-            initialStrategy: initialStrategyTemp,
-            actualStrategy: actualStrategyTemp,
-            finalHypotheses: {
-                localHypothesis: globalState.finalLocalHypothesis,
-                globalHypothesis: globalState.finalGlobalHypothesis
-            },
+            dataVersion: dataVersion,
+            initialHypo: initialHypo,
+            samples: samples,
+            userSteps: userSteps,
             surveyResponses: surveyOutput
         };
-        //putItem(JSON.stringify(log), function(error, data) {});
         putItem(JSON.stringify(log), function(err, data) {
             if (err) {
                 console.log('Err', err);
@@ -272,12 +235,13 @@ export default function Survey() {
             if (page + 1 === surveyQuestions.length - 1) {
                 const output = generateSurveyOutput(answers, surveyQuestions);
                 // Outputs the user's responses to the database
-                if (!robotVersion) { // TEMPORARILY NOT OUTPUTTING RESULTS TO DATABASE WHEN TEMPLATE IS USED FOR INITIAL STRATEGY SELECTION
-                    saveLogs(output);
-                }
+                saveLogs(output);
                 // Set the "submitted" state property to true so that if the user revisits the website,
                 // the user will start from the begining and will not be shown a continue progress screen
-                dispatch({type: Action.SET_SUBMITTED_STATUS, value: true});
+                dispatch({type: 
+                    Action.SET_SUBMITTED_STATUS, 
+                    value: true
+                });
             }
             setPage(page + 1);
         }
