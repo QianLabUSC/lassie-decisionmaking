@@ -603,7 +603,7 @@ export const countdownDuration = 10;
 /* User feedback options for the robot during each data collection step */
 /********************************************************************** */
 
-export enum UserFeedbackStep {
+export enum UserFeedbackState {
   OBJECTIVE,
   RANK_OBJECTIVES,
   OBJECTIVE_FREE_RESPONSE,

@@ -6,7 +6,7 @@ import * as Chart from 'chart.js';
 export enum ChartLocation { Field, Transect }
 
 export const updateCharts = (globalState: IState, dispatch: any) => {
-  const { chartSettings, currSampleIdx, samples } = globalState;
+  const { chartSettings, currSampleIdx, samples, transectIdx } = globalState;
   let { chart } = globalState;
 
   if (!chart) return;
@@ -27,7 +27,7 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     const { index, measurements } = row;
     // Map x value from just the section of the slope to [0, 1]
     const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
-    const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, 0, index, measurements);
+    const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
     const averageShearValue = mean(shearValues);
     const averageMoistureValue = mean(moistureValues);
 

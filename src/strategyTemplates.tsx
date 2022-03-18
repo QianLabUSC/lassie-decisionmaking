@@ -1,8 +1,8 @@
 import { NUM_MEASUREMENTS } from './constants';
-import { SampleTemplate } from './types';
+import { PreSample } from './types';
 
 // Initial strategy for alternate version of website
-export const initialSamples : SampleTemplate[] = [
+export const initialSamples : PreSample[] = [
     { index: 1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 269, normOffsetY: 72, isHovered: false },
     { index: 10, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 629, normOffsetY: 160, isHovered: false },
     { index: 14, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 789, normOffsetY: 247.5, isHovered: false },

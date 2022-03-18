@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import { NORMALIZED_WIDTH, RowType, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, NUM_MEASUREMENTS } from './constants';
 import { measurements } from './measurements';
 import { dataset } from './data/rhexDataset';
-import { Sample, SampleTemplate } from './types';
+import { Sample, PreSample } from './types';
 import { IState } from './state';
 
 
@@ -93,11 +93,11 @@ export function getBasename() {
 }
 
 // Get the number of measurements for a index until untilIndex
-export function getNOMTaken(rows: IRow[], index, untilIndex = rows.length) {
+export function getNOMTaken(samples: Sample[], index, untilIndex = samples.length) {
   let sum = 0;
   for (let i = 0; i < untilIndex; i++) {
-    if (rows[i].index === index && rows[i].type !== RowType.DISCARDED) {
-      sum += rows[i].measurements;
+    if (samples[i].index === index) {
+      sum += samples[i].measurements;
     }
   }
   return sum;
@@ -164,13 +164,7 @@ export function getMeasurements(globalState: IState, transectIndex: number, loca
   const shearValues: number[] = [];
   const moistureValues: number[] = [];
   const shearMoistureValues: {shearValue: number, moistureValue: number}[] = [];
-
   for (let i = 0; i < measurements; i++) {
-    // const j = Math.floor(rng() * MAX_NUM_OF_MEASUREMENTS);
-    // //console.log({transectIndex, locationIndex, measurements, j}); // for debugging
-    // shearValues.push(fullData[locationIndex][j]);
-    // moistureValues.push(moistureData[locationIndex][j]);
-    // shearMoistureValues.push({shearValue: fullData[locationIndex][j], moistureValue: moistureData[locationIndex][j]});
     shearValues.push(fullData[locationIndex][i]);
     moistureValues.push(moistureData[locationIndex][i]);
     shearMoistureValues.push({shearValue: fullData[locationIndex][i], moistureValue: moistureData[locationIndex][i]});
@@ -316,8 +310,8 @@ export async function calculateRobotSuggestions(samples: Sample[],
     }
   }
 
-  let robotSuggestion : SampleTemplate[] = locs.map((loc) => {
-    let suggestion : SampleTemplate = {
+  let robotSuggestion : PreSample[] = locs.map((loc) => {
+    let suggestion : PreSample = {
       index: loc,
       type: 'robot',
       measurements: NUM_MEASUREMENTS,

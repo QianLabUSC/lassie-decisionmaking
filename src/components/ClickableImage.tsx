@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useState, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NORMALIZED_CREST_RANGE, NUM_MEASUREMENTS, RowType } from '../constants';
-import { getNearestIndex } from '../util';
+import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NUM_MEASUREMENTS } from '../constants';
+import { Sample } from '../types';
+import { getNearestIndex, getMeasurements } from '../util';
 import { useStateValue, Action } from '../state';
 import AddSamplePopup from './AddSamplePopup';
 import PositionIndicator from './PositionIndicator';
@@ -34,17 +35,10 @@ interface IProps {
   enabled: boolean,
   addDataFunc: (row: IRow) => void,
   setPopOver: (popoverContent : any) => void,
-  transectIdx: number,
-  robotSuggestions?: IRow[] | undefined,
-  showRobotSuggestions: boolean,
-  setDisableSubmitButton: any,
-  numImgClicks: number,
-  setNumImgClicks: any,
   width?: number
 }
 
-export default function ClickableImage({ enabled, addDataFunc, setPopOver, transectIdx, robotSuggestions, showRobotSuggestions, 
-  setDisableSubmitButton, numImgClicks, setNumImgClicks, width } : IProps) {
+export default function ClickableImage({ enabled, addDataFunc, setPopOver, width } : IProps) {
   const [clickPosition, setClickPosition] = useState({
     left: 0,
     top: 0,
@@ -64,9 +58,9 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
   }, []);
   const [globalState, dispatch] = useStateValue();
   const classes = useStyles();
-  const { showNOMInput, strategy, robotVersion, sampleState } = globalState;
-  const { transectSamples } = strategy;
-  const rows = (transectIdx >= 0 && transectIdx < transectSamples.length) ? transectSamples[transectIdx] : [];
+
+  const { samples, currUserStep, numImgClicks, transectIdx, showNOMInput } = globalState;
+  const { showRobotSuggestions, robotSuggestions } = currUserStep;
 
   // Use a setTimeout method to get the height because the imgEl.getBoundingClientRect() function may return 0 for the 
   // height if it is run immediately, which would cause all the PositionIndicator labels to initially show up at the top 
@@ -90,7 +84,7 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
 
   
   const onImageClick = ev => {
-    if (!enabled || (robotVersion && sampleState === 0)) {
+    if (!enabled) {
       return;
     }
     
@@ -115,9 +109,9 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     // console.log({index, offsetX, offsetY, normOffsetX, normOffsetY, height, NORMALIZED_HEIGHT, width, NORMALIZED_WIDTH}); // for debugging
 
     if (index == -1) {
-      dispatch({
-        type: Action.SHOW_NOM_INPUT,
-        value: false
+      dispatch({ 
+        type: Action.SET_SHOW_NOM_INPUT, 
+        value: false 
       });
       setPopOver({
         content: 'Please click near the surface of stoss slope!',
@@ -135,49 +129,55 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
     // });
 
     if (numImgClicks > 0) {
-      dispatch({
-        type: Action.DELETE_ROW, // delete the old row
-        value: rows.length - 1
-      });
+      dispatch({ type: Action.DELETE_SAMPLE, value: samples.length - 1 }); // delete the old row
     }
 
-    setNumImgClicks(numImgClicks + 1);
-
-    const newRow : IRow = {
-      index: index,
-      measurements: NUM_MEASUREMENTS,
-      type: RowType.NORMAL,
-      normOffsetX,
-      normOffsetY,
-      isHovered: false
-    };
-    dispatch({
-      type: Action.ADD_ROW, // add the new row to the state
-      value: newRow
+    dispatch({ 
+      type: Action.SET_NUM_IMG_CLICKS, 
+      value: numImgClicks + 1 
     });
+
+    const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, index, NUM_MEASUREMENTS);
+    const newSample : Sample = {
+      index: index,
+      type: 'user',
+      measurements: NUM_MEASUREMENTS,
+      normOffsetX: normOffsetX,
+      normOffsetY: normOffsetY,
+      isHovered: false,
+      moisture: moistureValues,
+      shear: shearValues
+    };
+    dispatch({ 
+      type: Action.ADD_SAMPLE, 
+      value: newSample 
+    }); // add the new sample to the state
     
-    setDisableSubmitButton(false);
+    dispatch({ 
+      type: Action.SET_DISABLE_SUBMIT_BUTTON, 
+      value: false 
+    });
   }
 
   return (
     <div id="clickable-image" style={{ position: 'relative' }} >
-      <img ref={imgHeightRef} className={sampleState > SampleState.COLLECT_DATA ? `${classes.imageDecision} ${enabled ? classes.cross : ''}` : `${classes.image} ${enabled ? classes.cross : ''}` } id="pos-picker" src={diagram} onClick={onImageClick}/>
+      <img ref={imgHeightRef} className={`${classes.imageDecision} ${enabled ? classes.cross : ''}`} id="pos-picker" src={diagram} onClick={onImageClick}/>
       {
-        showNOMInput && <AddSamplePopup clickPosition={clickPosition} clickIndex={clickIndex} onAddData={addDataFunc} setDisableSubmitButton={setDisableSubmitButton}/>
+        showNOMInput && <AddSamplePopup clickPosition={clickPosition} clickIndex={clickIndex} onAddData={addDataFunc} />
       }
       {
-        rows.map((row, rowIndex) => {
+        samples.map((sample, sampleIdx) => {
           if (!imgEl) {
             return null;
           }
 
-          const { index, type, normOffsetX, normOffsetY, isHovered } = row;
+          const { index, type, normOffsetX, normOffsetY, isHovered } = sample;
           
           return <PositionIndicator
-            key={rowIndex}
+            key={sampleIdx}
             left={normOffsetX * height / NORMALIZED_HEIGHT}
             top={normOffsetY * height / NORMALIZED_HEIGHT}
-            rowIndex={rowIndex}
+            rowIndex={sampleIdx}
             isHovered={isHovered}
             type={type}
             locationIndex={index}
@@ -187,8 +187,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, trans
       }
       {
         <PositionIndicatorRhex
-          left={(rows[rows.length - 1].normOffsetX - 7) * height / NORMALIZED_HEIGHT}
-          top={(rows[rows.length - 1].normOffsetY - 50) * height / NORMALIZED_HEIGHT}
+          left={(samples[samples.length - 1].normOffsetX - 7) * height / NORMALIZED_HEIGHT}
+          top={(samples[samples.length - 1].normOffsetY - 50) * height / NORMALIZED_HEIGHT}
         />
       }
       {showRobotSuggestions && robotSuggestions &&

@@ -11,28 +11,22 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import HelpIcon from '@material-ui/icons/Help';
 import { FormControl, Select, MenuItem, CircularProgress, Box, Slider } from '@material-ui/core';
 import Popbox from '../components/Popbox';
-import RowTable from '../components/RowTable';
 import ClickableImage from '../components/ClickableImage';
 import { ConfirmDialog, MultiStepDialog } from '../components/Dialogs';
 import { getMeasurements, calculateRobotSuggestions } from '../util';
 import {
-  SampleState, RowType, PopboxTypeEnum, DISABLE_ROC, confidenceTexts, NUM_OF_HYPOS,
-  UserFeedbackStep, objectiveOptions, acceptFollowUpOptions, transitionOptions,
+  RowType, PopboxTypeEnum, confidenceTexts, NUM_OF_HYPOS,
+  UserFeedbackState, objectiveOptions, transitionOptions,
 } from '../constants';
 import { useStateValue, Action } from '../state';
-import HypothesisPanel from '../components/HypothesisPanel';
 import ChartPanel from '../components/ChartPanel';
 import "../styles/decision.scss";
-import { ActualStrategySample, HypothesisResponse } from '../types';
+import { CurrUserStepData, UserStepsData, Sample, PreSample } from '../types';
 import { initializeCharts } from '../handlers/ChartHandler';
-import Battery from '../components/Battery';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMultipleOptions';
 import { sampleRobotSuggestion } from '../strategyTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
-import { ContactsOutlined } from '@material-ui/icons';
-
-const mapConclusionImage = require('../../assets/map_conclusion.png');
 
 function ImgAlert({ open }) {
   return (
@@ -50,141 +44,66 @@ export default function Main() {
   const [showImgAlert, setImgAlert] = useState(false);
   const [globalState, dispatch] = useStateValue();
 
-  const {
-    sampleState, chart, imgClickEnabled, strategy, actualStrategyData, 
-    batteryLevel, batteryWarning, chartSettings, moistureData
-  } = globalState;
-  const { curRowIdx, curTransectIdx, transectSamples, transectIndices } = strategy;
-  const rows = transectSamples[curTransectIdx] || [];
+  const { currSampleIdx, samples, currUserStep, userSteps, chart,
+    chartSettings, imgClickEnabled, numImgClicks, transectIdx } = globalState;
 
-  const [initialSampleState, setInitialSampleState] = useState(sampleState);
-  // Stores state to show local, then global hypothesis response before leaving page.
-
-  const setShowROC = (value: boolean) => {
-    dispatch({ type: Action.SET_SHOW_ROC, value });
-  };
-
-  const setImgClickEnabled = (value: boolean) => {
-    dispatch({ type: Action.IMG_CLICK_ENABLED, value });
-  };
+  const { step, userFeedbackState, objectives, objectivesRankings, objectiveFreeResponse, sampleType,
+    loadingRobotSuggestions, showRobotSuggestions, robotSuggestions, acceptOrRejectOptions, acceptOrReject, 
+    rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, userSample, 
+    objectiveAddressedRating, hypoConfidence, transition, disableSubmitButton, numSubmitClicks } = currUserStep;
 
   const history = useHistory();
 
   // Initial page set up
   useEffect(() => {
     console.log({globalState}); // for debugging
-    
-    setImgClickEnabled(false);
-
+    dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
     // Make sure charts are ready for decision page
     initializeCharts(globalState, dispatch);
-
     // Make the charts update on first render
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
-
-    // for (let i = 0; i < actualStrategyData.transects[0].samples.length; i++) {
-    //   console.log(actualStrategyData.transects[0].samples[i].index);
-    // }
-    //console.log(actualStrategyData.transects[0]);
-    //calculateRobotSuggestions(actualStrategyData.transects[0].samples);
-
-    return () => {
-      dispatch({
-        type: Action.SET_DECISION_ENTERED,
-        value: true
-      });
-    };
   }, []);
 
-  const addActualStrategySample = (type: 'planned' | 'deviated', row: any) => {
-    const actualStrategySample: ActualStrategySample = {
-      type: type,
-      index: row.index, // In range [0, 21]
-      measurements: row.measurements,
-      normOffsetX: row.normOffsetX,
-      normOffsetY: row.normOffsetY,
-      moisture: row.moisture,
-      shear: row.shear,
-      batteryLevelBefore: batteryLevel,
-      batteryWarningShown: batteryWarning
-    };
-    dispatch({ type: Action.ADD_ACTUAL_STRATEGY_SAMPLE, value: actualStrategySample });
-  }
+  // const addSample = (sample: any) => {
+  //   const newSample: Sample = {
+  //     index: sample.index, // In range [0, 21]
+  //     type: sample.type,
+  //     measurements: sample.measurements,
+  //     normOffsetX: sample.normOffsetX,
+  //     normOffsetY: sample.normOffsetY,
+  //     isHovered: sample.isHovered,
+  //     moisture: sample.moisture,
+  //     shear: sample.shear,
+  //   };
+  //   dispatch({ type: Action.ADD_SAMPLE, value: newSample });
+  // }
 
   // Function to add next sample to the data plot
-  const addDataToPlot = (transectIdx: number, row : IRow, doNotAddToRow?: boolean, saveToActualStrategy?: boolean) => {
-    const { index, measurements } = row;
-    const { shearValues, moistureValues } = getMeasurements(globalState, transectIndices[transectIdx].number, index, measurements);
-    const newRow = { ...row };
-    newRow.moisture = moistureValues;
-    newRow.shear = shearValues;
-
-    if (!doNotAddToRow) {
-      // Add measurement values to row
-      dispatch({ type: Action.EDIT_ROW, value: { index: curRowIdx, row: newRow }});
-      dispatch({ type: Action.SET_CUR_ROW_IDX, value: curRowIdx + 1 });
-      addActualStrategySample(
-        sampleState === SampleState.DEVIATED ? 'deviated' : 'planned',
-        newRow
-      );
-    } else if (saveToActualStrategy) {
-      addActualStrategySample(
-        sampleState === SampleState.DEVIATED ? 'deviated' : 'planned',
-        newRow
-      );
-    }
-    if (!DISABLE_ROC) {
-      // Show rate of confidence after adding data
-      setShowROC(true);
-    }
-    // Disable Click Image
-    if (sampleState === SampleState.DEVIATED) { 
-      setImgClickEnabled(false);
-    }
-
+  const addDataToPlot = () => {
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
   }
 
+  // const addDataToPlot = (transectIdx: number, row : IRow, doNotAddToRow?: boolean, saveToActualStrategy?: boolean) => {
+  //   // const { index, measurements } = row;
+  //   // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
+  //   // const newRow = { ...row };
+  //   // newRow.moisture = moistureValues;
+  //   // newRow.shear = shearValues;
+  //   // if (saveToActualStrategy) {
+  //   //   addActualStrategySample(
+  //   //     sampleState === SampleState.DEVIATED ? 'deviated' : 'planned',
+  //   //     newRow
+  //   //   );
+  //   // }
+  //   dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
+  // }
+
   // Automatically populate the charts with any remaining measurements from the transectSamples in the strategy (if the image hasn't been clicked)
-  const [numImgClicks, setNumImgClicks] = useState(0); // controls when the global state's "rows" get loaded into the actual strategy and populated in the charts
-  if (curRowIdx < rows.length && numImgClicks === 0) {
-    addDataToPlot(curTransectIdx, rows[curRowIdx]);
+  if (currSampleIdx < samples.length && numImgClicks === 0) {
+    addDataToPlot();
   }
 
-  const onContinueClick = () => {
-    addDataToPlot(curTransectIdx, rows[curRowIdx]);
-  };
-
-  const [deviateAlertOpen, setDeviateAlertOpen] = useState(false);
-
-  const changeToDeviate = () => {
-    dispatch({
-      type: Action.CHANGE_SAMPLE_STATE,
-      value: SampleState.DEVIATED
-    });
-    // Discard all rows after current index
-    for (let i = curRowIdx; i < rows.length; i++) {
-      dispatch({
-        type: Action.UPDATE_ROW_TYPE,
-        value: { index: i, type: RowType.DISCARDED }
-      });
-    }
-    dispatch({
-      type: Action.SET_CUR_ROW_IDX,
-      value: rows.length
-    });
-  };
-
-  const onDeviateClick = () => {
-    if (curRowIdx === transectSamples[curTransectIdx].length) {
-      changeToDeviate();
-    } else {
-      setDeviateAlertOpen(true);
-    }
-  };
-
   const [confirmConcludeOpen, setConfirmConcludeOpen] = useState(false);
-  const [concludeInstructionsOpen, setConcludeInstructionsOpen] = useState(false);
   const [helperOpen, setHelperOpen] = useState(true);
 
   const onConcludeClick = () => {
@@ -207,105 +126,44 @@ export default function Main() {
     console.log({globalState});
   };
   
-  const finishOptionsOnQuit = () => {
-    onQuit();
-  }
-  const finishOptions = 
-    <>
-      <div className="hypothesisContainer">
-        <HypothesisPanel hypothesis={'soil'} default={actualStrategyData.transects.length > 1 ? actualStrategyData.transects[actualStrategyData.transects.length - 2].localHypotheses : undefined}
-          updateHypotheses={((hypotheses: HypothesisResponse) => {
-            dispatch({ type: Action.ADD_LOCAL_HYPOTHESIS, value: hypotheses });
-          })}
-        />
-        <HypothesisPanel hypothesis={'grain'} default={actualStrategyData.transects.length > 1 ? actualStrategyData.transects[actualStrategyData.transects.length - 2].globalHypotheses : undefined}
-          updateHypotheses={((hypotheses: HypothesisResponse) => {
-            dispatch({ type: Action.ADD_GLOBAL_HYPOTHESIS, value: hypotheses });
-          })}
-        />
-      </div>
-    </>
-  const onTakeMoreClick = () => {
-    setImgClickEnabled(true);    
-  }
-
-  const deviateSteps = [
-    "Once you deviate, all remaining steps in your initial strategy at this transect will disappear. Are you sure you want to deviate?",
-    "To collect additional data, use the diagram of the dune image to select a new location and number of measurements. The data from this location will be plotted immediately"
-  ];
-
-  const [deviateIdx, setDeviateIdx] = useState(0);
-  const closeDeviateAlert = () => {
-    setDeviateIdx(0);
-    setDeviateAlertOpen(false);
-  };
   
-  const deviateDialog = (
-    <Dialog
-      open={deviateAlertOpen}
-      onClose={closeDeviateAlert}
-    >
-      <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          {deviateSteps[deviateIdx]}
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        {
-          deviateIdx === 0 && 
-          <Button
-            onClick={closeDeviateAlert}
-            color="primary">
-              {"Return to Initial Strategy"}
-          </Button>
-        }
-        <Button onClick={() => {
-          if (deviateIdx === 0) {
-            changeToDeviate();
-            setDeviateIdx(deviateIdx + 1);
-          } else {
-            closeDeviateAlert();
-          }
-        }} color="primary">{deviateIdx === 0 ? "Deviate" : "OK"}</Button>
-      </DialogActions>
-    </Dialog>
-  );
+  // // Hooks for obtaining user feedback on what they think the objective should be at each data collection step
+  // const [userFeedbackStep, setUserFeedbackStep] = useState(0); // controls which set of questions are being asked to the user during each step
+  // const [acceptOrRejectOptions, setAcceptOrRejectOptions] = useState<string[]>([]);
+  // const [rejectReasonOptions, setRejectReasonOptions] = useState<string[]>([]);
+  // const [loading, setLoading] = useState(false); // tracks whether the robot suggestions are currently being calculated
+  // const [showRobotSuggestions, setShowRobotSuggestions] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
+  // const [disableSubmitButton, setDisableSubmitButton] = useState(true);
+  // const [numSubmitClicks, setNumSubmitClicks] = useState(0);
+  // const [userFreeSelection, setUserFreeSelection] = useState(false);
 
-  // Hooks for obtaining user feedback on what they think the objective should be at each data collection step
-  const [userFeedbackStep, setUserFeedbackStep] = useState(0); // controls which set of questions are being asked to the user during each step
-  const [acceptOrRejectOptions, setAcceptOrRejectOptions] = useState<string[]>([]);
-  const [rejectReasonOptions, setRejectReasonOptions] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false); // tracks whether the robot suggestions are currently being calculated
-  const [showRobotSuggestions, setShowRobotSuggestions] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
-  const [disableSubmitButton, setDisableSubmitButton] = useState(true);
-  const [numSubmitClicks, setNumSubmitClicks] = useState(0);
-  const [userFreeSelection, setUserFreeSelection] = useState(false);
+  // const [objectives, setObjectives] = useState<number[]>([]); // stores objective(s) for each data collection step
+  // const [objectivesRankings, setObjectivesRankings] = useState<number[]>([]); // stores priority ranking for each objective
+  // const [objectiveFreeResponse, setObjectiveFreeResponse] = useState(""); // stores user's free response for the objective
+  // const [acceptOrReject, setAcceptOrReject] = useState(0); // stores whether the user accepts or rejects the robot's suggestion at each step
+  // const [rejectReason, setRejectReason] = useState(0); // stores why the user rejected the robot's suggestion at each step
+  // const [rejectReasonFreeResponse, setRejectReasonFreeResponse] = useState(""); // stores user's free response for the reason for rejecting the robot's suggestion
+  // const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
+  // const [robotSuggestions, setRobotSuggestions] = useState<IRow[]>([]); // stores robot's suggested sample locations at each step
+  // const [updatedHypoConfidence, setUpdatedHypoConfidence] = useState(0);
 
-  const [objectives, setObjectives] = useState<number[]>([]); // stores objective(s) for each data collection step
-  const [objectivesRankings, setObjectivesRankings] = useState<number[]>([]); // stores priority ranking for each objective
-  const [objectiveFreeResponse, setObjectiveFreeResponse] = useState(""); // stores user's free response for the objective
-  const [acceptOrReject, setAcceptOrReject] = useState(0); // stores whether the user accepts or rejects the robot's suggestion at each step
-  const [rejectReason, setRejectReason] = useState(0); // stores why the user rejected the robot's suggestion at each step
-  const [rejectReasonFreeResponse, setRejectReasonFreeResponse] = useState(""); // stores user's free response for the reason for rejecting the robot's suggestion
-  const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
-  const [robotSuggestions, setRobotSuggestions] = useState<IRow[]>([]); // stores robot's suggested sample locations at each step
-  const [updatedHypoConfidence, setUpdatedHypoConfidence] = useState(0);
-  const handleResponse = (value: any) => {
-      setUpdatedHypoConfidence(value);
+
+  const handleHypoResponse = (value: any) => {
+    dispatch({ type: Action.SET_HYPO_CONFIDENCE, value: value });
   }
 
   // Reset objectives rankings array and disable submit button if the user has selected no objectives during the OBJECTIVE step
   useEffect(() => {
-    if (userFeedbackStep === UserFeedbackStep.OBJECTIVE) {
-      setObjectivesRankings(new Array(objectives.length).fill(0));
-      setDisableSubmitButton(objectives.length === 0);
+    if (userFeedbackState === UserFeedbackState.OBJECTIVE) {
+      dispatch({ type: Action.SET_OBJECTIVES_RANKINGS, value: new Array(objectives.length).fill(0) });
+      dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: objectives.length === 0 });
     }
   }, [objectives]);
 
   // Disable the submit button during the RANK_OBJECTIVES step until the user fills out a valid set of rankings for each selected objective
   useEffect(() => {
-    if (userFeedbackStep === UserFeedbackStep.RANK_OBJECTIVES) {
-      setDisableSubmitButton(objectivesRankings.includes(0) || (new Set(objectivesRankings)).size !== objectivesRankings.length);
+    if (userFeedbackState === UserFeedbackState.RANK_OBJECTIVES) {
+      dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: objectivesRankings.includes(0) || (new Set(objectivesRankings)).size !== objectivesRankings.length });
     }
   }, [objectivesRankings]);
 
@@ -319,7 +177,7 @@ export default function Main() {
         } else {
           objectivesTemp.push(i);
         }
-        setObjectives(objectivesTemp);
+        dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
       }}/>
     </div>
 
@@ -337,7 +195,7 @@ export default function Main() {
                         onChange={(e) => {
                           let objectivesRankingsTemp = [...objectivesRankings];
                           if (typeof e.target.value === 'number') objectivesRankingsTemp[i] = e.target.value;
-                          setObjectivesRankings(objectivesRankingsTemp);
+                          dispatch({ type: Action.SET_OBJECTIVES_RANKINGS, value: objectivesRankingsTemp });
                         }}
                       >
                         {Array.from({length: objectives.length}, (_, i) => i + 1).map((rank) => (
@@ -362,7 +220,7 @@ export default function Main() {
     </div>
 
   const onObjectiveTextChange = e => {
-    setObjectiveFreeResponse(e.target.value);
+    dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: e.target.value });
   }
   const objectiveFreeResponseQuestion = 
     <div className="objective-free-response-question" style={{marginBottom: '2vh'}}>
@@ -373,27 +231,25 @@ export default function Main() {
   useEffect(() => {
     let acceptOrRejectTemp : string[] = robotSuggestions.map((suggestion, index) => "Accept suggested location " + String.fromCharCode(index + 65));
     acceptOrRejectTemp.push("Reject suggestions");
-    setAcceptOrRejectOptions(acceptOrRejectTemp);
+    dispatch({ type: Action.SET_ACCEPT_OR_REJECT_OPTIONS, value: acceptOrRejectTemp });
   }, [robotSuggestions]);
   
   const acceptOrRejectQuestions = 
     <div className="accept-or-reject-questions">
       <p><strong>Based on your belief rankings, RHex suggests sampling from one of the lettered locations marked on the dune cross-section above.</strong></p>
-      <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => setAcceptOrReject(i)}/>
+      <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: i })} />
     </div>
 
-
-  const [objectiveAddressedRating, setObjectiveAddressedRating] = useState<number[]>([]);
+  // Handler for setting the user's rating for how well the latest sample addressed the current objective
   const handleSliderChange = (event, newValue, index) => {
     if (typeof newValue === 'number') {
-      let objectiveAddressedRatingTemp = [...objectiveAddressedRating];
-      objectiveAddressedRatingTemp[index] = newValue;
-      setObjectiveAddressedRating(objectiveAddressedRatingTemp);
+      dispatch({ type: Action.SET_OBJECTIVE_ADDRESSED_RATING, value: newValue });
     }
   }
 
+  // Reset the objectiveAddressedRating back to 0 whenever the objectives are changed
   useEffect(() => {
-    setObjectiveAddressedRating(new Array(objectives.length).fill(0));
+    dispatch({ type: Action.SET_OBJECTIVE_ADDRESSED_RATING, value: 0 });
   }, [objectives]);
   
   const marks = [
@@ -442,17 +298,17 @@ export default function Main() {
       rejectReasonOptionsTemp[0] += objectiveOptions[objectives[i]] + " / ";
     }
     rejectReasonOptionsTemp[0] += (objectiveOptions[objectives[objectives.length - 1]] + ")");
-    setRejectReasonOptions(rejectReasonOptionsTemp);
+    dispatch({ type: Action.SET_REJECT_REASON_OPTIONS, value: rejectReasonOptionsTemp });
   }, [objectives]);
 
   const rejectReasonQuestions = 
     <div className="reject-reason-questions">
       <p><strong>Why did you reject RHex's suggested locations?</strong></p>
-      <RadioButtonGroup options={rejectReasonOptions} selectedIndex={rejectReason} onChange={i => setRejectReason(i)}/>
+      <RadioButtonGroup options={rejectReasonOptions} selectedIndex={rejectReason} onChange={i => dispatch({ type: Action.SET_REJECT_REASON_OPTIONS, value: i })} />
     </div>
   
   const onRejectReasonTextChange = e => {
-    setRejectReasonFreeResponse(e.target.value);
+    dispatch({ type: Action.SET_REJECT_REASON_FREE_RESPONSE, value: e.target.value });
   }
 
   const rejectReasonFreeResponseQuestion = 
@@ -486,8 +342,8 @@ export default function Main() {
         <FormControl>
             <Select
                 style={{fontSize: '1.5vh'}}
-                value={updatedHypoConfidence + 3}
-                onChange={event => handleResponse(Number(event.target.value) - 3)}>
+                value={hypoConfidence + 3}
+                onChange={event => handleHypoResponse(Number(event.target.value) - 3)}>
                 {
                     confidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
                 }
@@ -502,11 +358,11 @@ export default function Main() {
       <RadioButtonGroup 
         options={transitionOptions.slice((!userFreeSelection) ? 0 : 1)} 
         selectedIndex={transition} 
-        onChange={i => setTransition(i)}/>
+        onChange={i => dispatch({ type: Action.SET_TRANSITION, value: i })}/>
     </div>
 
-  // Match the order of UserFeedbackSteps in 'constants.ts'
-  const userFeedbackStepMap = [
+  // Match the order of UserFeedbackStates in 'constants.ts'
+  const userFeedbackStateMap = [
     objectiveQuestions,
     objectiveRankings,
     objectiveFreeResponseQuestion,
@@ -524,115 +380,127 @@ export default function Main() {
   // }, [robotSuggestions]);
 
   const onSubmit = async () => {
-    setNumSubmitClicks(numSubmitClicks + 1);
-    switch (userFeedbackStep) {
-      case UserFeedbackStep.OBJECTIVE: {
+    dispatch({ type: Action.SET_NUM_SUBMIT_CLICKS, value: numSubmitClicks + 1 });
+    switch (userFeedbackState) {
+      case UserFeedbackState.OBJECTIVE: {
         if (objectives.length === 1) {
           if (objectives[0] === 4) {
-            setObjectiveFreeResponse("");
-            setUserFeedbackStep(UserFeedbackStep.OBJECTIVE_FREE_RESPONSE);
+            dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: "" });
+            dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE });
           } else {
-            setLoading(true);
-            setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
-            setShowRobotSuggestions(true);
-            setAcceptOrReject(0);
-            setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
-            setLoading(false);
+            dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
+            dispatch({ 
+              type: Action.SET_ROBOT_SUGGESTIONS, 
+              value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
+            });
+            dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
+            dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
+            dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
+            dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
           }
         } else {
-          setDisableSubmitButton(true);
-          setUserFeedbackStep(UserFeedbackStep.RANK_OBJECTIVES);
+          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.RANK_OBJECTIVES });
         } 
         return;
       }
-      case UserFeedbackStep.RANK_OBJECTIVES: {
+      case UserFeedbackState.RANK_OBJECTIVES: {
         if (objectives.includes(4) && objectivesRankings[objectives.indexOf(4)] === 1) {
-          setObjectiveFreeResponse("");
-          setUserFeedbackStep(UserFeedbackStep.OBJECTIVE_FREE_RESPONSE);
+          dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: "" });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE });
         } else {
-          setLoading(true);
-          setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
-          setShowRobotSuggestions(true);
-          setAcceptOrReject(0);
-          setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
-          setLoading(false);
+          dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
+          dispatch({ 
+            type: Action.SET_ROBOT_SUGGESTIONS, 
+            value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
+          });
+          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
+          dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
+          dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
         }
         return;
       }
-      case UserFeedbackStep.OBJECTIVE_FREE_RESPONSE: {
+      case UserFeedbackState.OBJECTIVE_FREE_RESPONSE: {
         // ADD A LINE TO SAVE THE RESPONSE
-        setDisableSubmitButton(true);
-        setImgClickEnabled(true);
-        setUserFreeSelection(true);
-        setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
-        setNumImgClicks(0); 
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+        dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
+        dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         return;
       }
-      case UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION: {
+      case UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION: {
         if (acceptOrReject !== acceptOrRejectOptions.length - 1) {
-          let newRow = {...robotSuggestions[acceptOrReject], type: RowType.NORMAL}; // edit row type from "ROBOT_SUGGESTION" to "NORMAL"
-          dispatch({ type: Action.ADD_ROW, value: newRow }); // add the new row to the StateContext
-          setUserFeedbackStep(UserFeedbackStep.ACCEPT_FOLLOW_UP);
+          let newSample = robotSuggestions[acceptOrReject]; 
+          const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, newSample.index, newSample.measurements);
+          newSample.shear = shearValues;
+          newSample.moisture = moistureValues;
+          dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_FOLLOW_UP });
         } else {
-          setUserFeedbackStep(UserFeedbackStep.REJECT_REASON);
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON });
         }
-        setShowRobotSuggestions(false);
+        dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
         return;
       }
-      case UserFeedbackStep.ACCEPT_FOLLOW_UP: {
-        setUserFeedbackStep(UserFeedbackStep.HYPOTHESIS_CONFIDENCE);
+      case UserFeedbackState.ACCEPT_FOLLOW_UP: {
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
         return;
       }
-      case UserFeedbackStep.REJECT_REASON: {
+      case UserFeedbackState.REJECT_REASON: {
         if (rejectReason === 0) {
-          setDisableSubmitButton(true);
-          setImgClickEnabled(true);
-          setUserFreeSelection(true);
-          setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
-          setNumImgClicks(0); 
+          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+          dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
+          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+          dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         } else if (rejectReason === 1) {
-          setUserFeedbackStep(UserFeedbackStep.REJECT_REASON_FREE_RESPONSE);
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON_FREE_RESPONSE });
         }
         return;
       }
-      case UserFeedbackStep.REJECT_REASON_FREE_RESPONSE: {
-        setDisableSubmitButton(true);
-        setImgClickEnabled(true);
-        setUserFreeSelection(true);
-        setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
-        setNumImgClicks(0);
+      case UserFeedbackState.REJECT_REASON_FREE_RESPONSE: {
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+        dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
+        dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         return;
       }
-      case UserFeedbackStep.USER_LOCATION_SELECTION: {
-        //addDataToPlot(curTransectIdx, rows[rows.length - 1]);
-        setImgClickEnabled(false);
-        setNumImgClicks(0); // load the next IROW into the charts and strategy 
-        setUserFeedbackStep(UserFeedbackStep.HYPOTHESIS_CONFIDENCE);
+      case UserFeedbackState.USER_LOCATION_SELECTION: {
+        dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
+        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 }); // load the next IROW into the charts and strategy 
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
         return;
       }
-      case UserFeedbackStep.HYPOTHESIS_CONFIDENCE: {
-        setUserFeedbackStep(UserFeedbackStep.TRANSITION);
+      case UserFeedbackState.HYPOTHESIS_CONFIDENCE: {
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TRANSITION });
         return;
       }
-      case UserFeedbackStep.TRANSITION: {
+      case UserFeedbackState.TRANSITION: {
         let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
         if (transitionAdj === 0) {
-          setLoading(true);
-          setRobotSuggestions(await calculateRobotSuggestions(actualStrategyData.transects[0].samples, globalState, objectives, objectivesRankings));
-          setShowRobotSuggestions(true);
-          setAcceptOrReject(0);
-          setUserFreeSelection(false);
-          setUserFeedbackStep(UserFeedbackStep.ACCEPT_OR_REJECT_SUGGESTION);
-          setLoading(false);
+          dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
+          dispatch({ 
+            type: Action.SET_ROBOT_SUGGESTIONS, 
+            value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
+          });
+          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
+          dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
+          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
+          dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
         } else if (transitionAdj === 1) {
-          setUserFreeSelection(false);
-          setUserFeedbackStep(UserFeedbackStep.OBJECTIVE);
+          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE });
         } else if (transitionAdj === 2) {
-          setDisableSubmitButton(true);
-          setImgClickEnabled(true);
-          setUserFreeSelection(true);
-          setUserFeedbackStep(UserFeedbackStep.USER_LOCATION_SELECTION);
-          setNumImgClicks(0);
+
+          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+          dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
+          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+          dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         } else if (transitionAdj === 3) {
           onConcludeClick();
         }
@@ -650,20 +518,20 @@ export default function Main() {
   const collectionRightPanel = (
     <div className="collectionRightPanel">
       <ImgAlert open={!!showImgAlert} />
-      <Tooltip title={userFeedbackStep !== UserFeedbackStep.USER_LOCATION_SELECTION ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
+      <Tooltip title={userFeedbackState !== UserFeedbackState.USER_LOCATION_SELECTION ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
-            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(row) => addDataToPlot(curTransectIdx, row)} setPopOver={setImgAlert} transectIdx={curTransectIdx} robotSuggestions={robotSuggestions} showRobotSuggestions={showRobotSuggestions} setDisableSubmitButton={setDisableSubmitButton} numImgClicks={numImgClicks} setNumImgClicks={setNumImgClicks}/>  
+            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={addDataToPlot} setPopOver={setImgAlert} />  
           </div>
       </Tooltip>
-      {!loading && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
-        {userFeedbackStepMap[userFeedbackStep]}
+      {!loadingRobotSuggestions && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
+        {userFeedbackStateMap[userFeedbackState]}
         <div className="submit-user-feedback-button">
           <Button disabled={disableSubmitButton} variant="contained" color="secondary" onClick={onSubmit}>
             Submit
           </Button>
         </div>
       </div>}
-      {loading && <div className="loading-screen">
+      {loadingRobotSuggestions && <div className="loading-screen">
         <div className="loading-section">
           <i>
             RHex is determining where to sample from next. This should take at most 5-10 seconds...
@@ -685,7 +553,7 @@ export default function Main() {
   );
 
   // Popup for displaying instructions on the decision page
-  const [decisionHelpOpen, setDecisionHelpOpen] = useState(curTransectIdx === 0);
+  const [decisionHelpOpen, setDecisionHelpOpen] = useState(true);
   const decisionHelpDialog =
     <MultiStepDialog
       open={decisionHelpOpen}
@@ -726,7 +594,6 @@ export default function Main() {
     <div id="app" className="decisionPage">
       { helperOpen && <Helper /> }
       { decisionHelpDialog }
-      { deviateDialog }
 
       <ConfirmDialog
         open={confirmConcludeOpen}
