@@ -6,21 +6,17 @@ import { createMuiTheme } from '@material-ui/core/styles';
 import { StateProvider, useStateValue, Action } from './state';
 import Intro from './pages/intro';
 import Decision from './pages/decision';
-import Strategy from './pages/strategy';
 import Conclusion from './pages/conclusion';
-import Hypo from './pages/hypo';
 import Survey from './pages/survey';
-import { Geo } from './pages/geo';
-import { Annotation } from './pages/annotation';
 import { SavedProgress } from './pages/savedProgress';
 import { GlobalDialog } from './components/GlobalDialog';
 import { logTrace } from './logger';
-import { TraceType, ActualStrategyTransect } from './types';
+import { TraceType, Sample } from './types';
 import ThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import { storeState, stateExists, removeStoredState, getStoredState } from './handlers/LocalStorageHandler';
-import { AUTO_LOAD_MS, SampleState, defaultHypothesisResponse } from './constants';
-import { getMoistureData, getShearData } from './util';
-import { initialStrategyAlt } from './strategyTemplates';
+import { AUTO_LOAD_MS } from './constants';
+import { getMoistureData, getShearData, getMeasurements } from './util';
+import { initialSamples } from './sampleTemplates';
 
 const theme = createMuiTheme({
   palette: {
@@ -42,20 +38,9 @@ let currentPathname = '', currentSearch = '';
 // A wrapper in order to access the state value
 function RouteWrapper() {
   const [globalState, dispatch] = useStateValue();
-  const { dataVersion } = globalState;
+  const { dataVersion, transectIdx } = globalState;
   const history = useHistory();
   const location = useLocation();
-
-  const addActualStrategyTransect = (type: 'planned' | 'deviated', id: number) => {
-    const actualStrategyTransect: ActualStrategyTransect = {
-      type: type,
-      number: id,
-      samples: [],
-      localHypotheses: {...defaultHypothesisResponse},
-      globalHypotheses: {...defaultHypothesisResponse}
-    };
-    dispatch({ type: Action.ADD_ACTUAL_STRATEGY_TRANSECT, value: actualStrategyTransect });
-  }
 
   useEffect(() => {
     history.listen((newLocation, action) => {
@@ -83,17 +68,17 @@ function RouteWrapper() {
     });
   }, [history]);
 
-// Load initial strategy and shear, moisture, and grain datasets
+// Load initial samples
   useEffect(() => {
-    const shearData = getShearData();
-    const moistureData = getMoistureData();  
-    dispatch({ type: Action.SET_MOISTURE_DATA, value: moistureData });
-    dispatch({ type: Action.SET_FULL_DATA, value: shearData });
-    dispatch({ type: Action.SET_STRATEGY_TRANSECTS, value: initialStrategyAlt.transectIndices })
-    dispatch({ type: Action.SET_STRATEGY_SAMPLES, value: initialStrategyAlt.transectSamples })
-    dispatch({ type: Action.SET_CUR_ROW_IDX, value: 0 });
-    dispatch({ type: Action.CHANGE_SAMPLE_STATE, value: SampleState.FEEDBACK });
-    addActualStrategyTransect('planned', initialStrategyAlt.transectIndices[0].number);
+    let initSamplesToAdd : Sample[] = [];
+    for (let i = 0; i < initialSamples.length; i++) {
+      let tempSample = initialSamples[i]; 
+      const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, tempSample.index, tempSample.measurements);
+      let newSample : Sample = {...tempSample, shear: shearValues, moisture: moistureValues};
+      initSamplesToAdd.push(newSample);
+    }
+    dispatch({ type: Action.SET_SAMPLES, value: initSamplesToAdd })
+    dispatch({ type: Action.SET_CURR_SAMPLE_IDX, value: 0 });
   }, []);
 
   // When user closes the tab, save the user's progress
@@ -154,7 +139,6 @@ function RouteWrapper() {
         const { robotVersion } = data.state;
         removeStoredState();
         history.push("/");
-        dispatch({type: Action.SET_ROBOT_VERSION, value: robotVersion});
       }}
       onContinue={() => {
         const {path, state} = data;
@@ -169,18 +153,10 @@ function RouteWrapper() {
     <div>
       <Switch>
         <Route exact path="/" component={Intro}/>
-        {/* <Route path="/strategy" render={props => (
-          globalState.introCompleted ? <Strategy/> : <Redirect to={{ pathname: '/'}}/> )} /> */}
         <Route path="/decision" render={props => (
           globalState.introCompleted ? <Decision/> : <Redirect to={{ pathname: '/'}}/> )} />
         <Route path="/conclusion" render={props => (
           globalState.introCompleted ? <Conclusion/> : <Redirect to={{ pathname: '/'}}/> )} />
-        {/* <Route path="/hypo" render={props => (
-          globalState.introCompleted ? <Hypo/> : <Redirect to={{ pathname: '/'}}/> )} /> */}
-        {/* <Route path="/geo" render={props => (
-          globalState.introCompleted ? <Geo/> : <Redirect to={{ pathname: '/'}}/> )} /> */}
-        <Route path="/annotation" render={props => (
-          globalState.introCompleted ? <Annotation/> : <Redirect to={{ pathname: '/'}}/> )} />
         <Route path="/survey" render={props => (
           globalState.introCompleted ? <Survey/> : <Redirect to={{ pathname: '/'}}/> )} />
       </Switch>

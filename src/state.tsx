@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { createContext, useContext, useReducer } from 'react';
 import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample, PreSample } from './types';
+import { getShearData, getMoistureData } from './util';
 
 export type ChartSettings = {
   mode: number,
@@ -32,7 +33,6 @@ export interface IState {
   // Step fields
   currSampleIdx: number,
   samples: Sample[] // will be in final output after survey is completed
-  currUserStepIdx: number,
   currUserStep: CurrUserStepData,
   userSteps: UserStepsData[], // will be in final output after survey is completed
   // Hypothesis fields
@@ -44,6 +44,7 @@ export interface IState {
   transectIdx: number, // single transect version (setting transect index to 0 by default)
   lastHoverIdx: number,
   dialogProps: DialogProps | null,
+  numSubmitClicks: number,
   imgClickEnabled: boolean, 
   numImgClicks: number, // controls when the global state's "rows" get loaded into the actual strategy and populated in the charts
   showNOMInput: boolean,
@@ -51,40 +52,41 @@ export interface IState {
   submitted: boolean
 }
 
+// Startin template for each currUserStep round
+export const currUserStepTemplate : CurrUserStepData = {
+  step: 0,
+  userFeedbackState: 0,
+  objectives: [],
+  objectivesRankings: [],
+  objectiveFreeResponse: "",
+  sampleType: null,
+  loadingRobotSuggestions: false,
+  showRobotSuggestions: false,
+  robotSuggestions: [],
+  acceptOrRejectOptions: [],
+  acceptOrReject: -1,
+  rejectReasonOptions: [],
+  rejectReason: -1,
+  rejectReasonFreeResponse: "",
+  userFreeSelection: false,
+  userSample: null,
+  objectiveAddressedRating: 0,
+  hypoConfidence: 0,
+  transition: 0,
+  disableSubmitButton: true
+};
+
 // Default initial state
 export const initialState : IState = {
   dataVersion: {
     local: Math.round(Math.random()) + 1, // load alternative hypothesis 1 or 2 randomly for shear data
     global: 2 // load alternative hypothesis 2 for grain data
   },
-  fullData: [],
-  moistureData: [],
+  fullData: getShearData(),
+  moistureData: getMoistureData(),
   currSampleIdx: 0,
   samples: [],
-  currUserStepIdx: 0,
-  currUserStep: {
-    step: 0,
-    userFeedbackState: 0,
-    objectives: [],
-    objectivesRankings: [],
-    objectiveFreeResponse: "",
-    sampleType: 'robot',
-    loadingRobotSuggestions: false,
-    showRobotSuggestions: false,
-    robotSuggestions: [],
-    acceptOrRejectOptions: [],
-    acceptOrReject: -1,
-    rejectReasonOptions: [],
-    rejectReason: -1,
-    rejectReasonFreeResponse: "",
-    userFreeSelection: false,
-    userSample: null,
-    objectiveAddressedRating: 0,
-    hypoConfidence: 0,
-    transition: 0,
-    disableSubmitButton: true,
-    numSubmitClicks: 0,
-  },
+  currUserStep: currUserStepTemplate,
   userSteps: [],
   initialHypo: 0,
   chart: null,
@@ -95,6 +97,7 @@ export const initialState : IState = {
   transectIdx: 0, 
   lastHoverIdx: -1,
   dialogProps: null,
+  numSubmitClicks: 0,
   imgClickEnabled: true,
   numImgClicks: 0,
   showNOMInput: false,
@@ -109,9 +112,11 @@ export enum Action {
   SET_FULL_DATA,
   SET_MOISTURE_DATA,
   SET_CURR_SAMPLE_IDX,
+  SET_SAMPLES,
   ADD_SAMPLE, 
   DELETE_SAMPLE, 
-  SET_CURR_USER_STEP_IDX,
+  SET_CURR_USER_STEP,
+  SET_USER_STEPS,
   ADD_USER_STEP, 
   /** START - Actions to update the current user step data */
   SET_USER_STEP_IDX,
@@ -159,11 +164,14 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_FULL_DATA]: 'fullData',
   [Action.SET_MOISTURE_DATA]: 'moistureData',
   [Action.SET_CURR_SAMPLE_IDX]: 'currSampleIdx',
-  [Action.SET_CURR_USER_STEP_IDX]: 'currUserStepIdx',
+  [Action.SET_SAMPLES]: 'samples',
+  [Action.SET_CURR_USER_STEP]: 'currUserStep',
+  [Action.SET_USER_STEPS]: 'userSteps',
   [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
   [Action.SET_DIALOG_PROPS]: 'dialogProps',
+  [Action.SET_NUM_SUBMIT_CLICKS]: 'numSubmitClicks',
   [Action.SET_IMG_CLICK_ENABLED]: 'imgClickEnabled',
   [Action.SET_NUM_IMG_CLICKS]: 'numImgClicks',
   [Action.SET_SHOW_NOM_INPUT]: 'showNOMInput',
@@ -227,8 +235,7 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_OBJECTIVE_ADDRESSED_RATING]: 'objectiveAddressedRating',
   [Action.SET_HYPO_CONFIDENCE]: 'hypoConfidence',
   [Action.SET_TRANSITION]: 'transition',
-  [Action.SET_DISABLE_SUBMIT_BUTTON]: 'disableSubmitButton',
-  [Action.SET_NUM_SUBMIT_CLICKS]: 'numSubmitClicks',
+  [Action.SET_DISABLE_SUBMIT_BUTTON]: 'disableSubmitButton'
 };
 
 const currUserStepReducer : SubReducer<CurrUserStepData> = (currUserStep, state, action) => {

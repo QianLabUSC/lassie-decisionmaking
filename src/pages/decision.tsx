@@ -1,13 +1,9 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
+
 import HelpIcon from '@material-ui/icons/Help';
 import { FormControl, Select, MenuItem, CircularProgress, Box, Slider } from '@material-ui/core';
 import Popbox from '../components/Popbox';
@@ -15,17 +11,17 @@ import ClickableImage from '../components/ClickableImage';
 import { ConfirmDialog, MultiStepDialog } from '../components/Dialogs';
 import { getMeasurements, calculateRobotSuggestions } from '../util';
 import {
-  RowType, PopboxTypeEnum, confidenceTexts, NUM_OF_HYPOS,
+  PopboxTypeEnum, confidenceTexts, NUM_OF_HYPOS,
   UserFeedbackState, objectiveOptions, transitionOptions,
 } from '../constants';
-import { useStateValue, Action } from '../state';
+import { useStateValue, Action, currUserStepTemplate } from '../state';
 import ChartPanel from '../components/ChartPanel';
 import "../styles/decision.scss";
 import { CurrUserStepData, UserStepsData, Sample, PreSample } from '../types';
 import { initializeCharts } from '../handlers/ChartHandler';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMultipleOptions';
-import { sampleRobotSuggestion } from '../strategyTemplates';
+import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
 
 function ImgAlert({ open }) {
@@ -44,13 +40,13 @@ export default function Main() {
   const [showImgAlert, setImgAlert] = useState(false);
   const [globalState, dispatch] = useStateValue();
 
-  const { currSampleIdx, samples, currUserStep, userSteps, chart,
-    chartSettings, imgClickEnabled, numImgClicks, transectIdx } = globalState;
+  const { currSampleIdx, samples, currUserStep, userSteps, chart, chartSettings,
+    numSubmitClicks, imgClickEnabled, numImgClicks, transectIdx } = globalState;
 
   const { step, userFeedbackState, objectives, objectivesRankings, objectiveFreeResponse, sampleType,
     loadingRobotSuggestions, showRobotSuggestions, robotSuggestions, acceptOrRejectOptions, acceptOrReject, 
     rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, userSample, 
-    objectiveAddressedRating, hypoConfidence, transition, disableSubmitButton, numSubmitClicks } = currUserStep;
+    objectiveAddressedRating, hypoConfidence, transition, disableSubmitButton } = currUserStep;
 
   const history = useHistory();
 
@@ -64,43 +60,53 @@ export default function Main() {
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
   }, []);
 
-  // const addSample = (sample: any) => {
-  //   const newSample: Sample = {
-  //     index: sample.index, // In range [0, 21]
-  //     type: sample.type,
-  //     measurements: sample.measurements,
-  //     normOffsetX: sample.normOffsetX,
-  //     normOffsetY: sample.normOffsetY,
-  //     isHovered: sample.isHovered,
-  //     moisture: sample.moisture,
-  //     shear: sample.shear,
-  //   };
-  //   dispatch({ type: Action.ADD_SAMPLE, value: newSample });
-  // }
-
   // Function to add next sample to the data plot
-  const addDataToPlot = () => {
+  const addDataToPlot = (sample: Sample) => {
+    dispatch({ type: Action.SET_CURR_SAMPLE_IDX, value: currSampleIdx + 1 });
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
   }
 
-  // const addDataToPlot = (transectIdx: number, row : IRow, doNotAddToRow?: boolean, saveToActualStrategy?: boolean) => {
-  //   // const { index, measurements } = row;
-  //   // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
-  //   // const newRow = { ...row };
-  //   // newRow.moisture = moistureValues;
-  //   // newRow.shear = shearValues;
-  //   // if (saveToActualStrategy) {
-  //   //   addActualStrategySample(
-  //   //     sampleState === SampleState.DEVIATED ? 'deviated' : 'planned',
-  //   //     newRow
-  //   //   );
-  //   // }
-  //   dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
-  // }
-
   // Automatically populate the charts with any remaining measurements from the transectSamples in the strategy (if the image hasn't been clicked)
   if (currSampleIdx < samples.length && numImgClicks === 0) {
-    addDataToPlot();
+    addDataToPlot(samples[currSampleIdx]);
+  }
+
+  // Function to add the latest user step data to the finalized set of userSteps 
+  // and reset the currUserStep (with the current step incremented by 1, and the 
+  // last userFeedbackState & hypothesis confidence saved) 
+  const updateUserSteps = () => {
+    let objectivesAsText : string[] = objectives.map((objective) => {
+      return objectiveOptions[objective];
+    })
+    let newUserStep : UserStepsData = {
+      step: step, 
+      objectives: objectivesAsText, 
+      objectivesRankings: objectivesRankings, 
+      objectiveFreeResponse: objectiveFreeResponse, 
+      sampleType: sampleType,
+      robotSuggestions: robotSuggestions, 
+      acceptOrReject: acceptOrRejectOptions[acceptOrReject], 
+      rejectReason: rejectReasonOptions[rejectReason], 
+      rejectReasonFreeResponse: rejectReasonFreeResponse, 
+      userFreeSample: userSample,
+      hypoConfidence: confidenceTexts[hypoConfidence + 3],
+      transition: transitionOptions[transition]
+    }
+
+    console.log({userFeedbackState, hypoConfidence});
+
+    let lastUserFeedbackState = userFeedbackState;
+    let lastHypo = hypoConfidence;
+
+    console.log({lastUserFeedbackState, lastHypo});
+
+    let currUserStepUpdated : CurrUserStepData = currUserStepTemplate;
+    currUserStepUpdated.step = step + 1;
+    currUserStepUpdated.userFeedbackState = lastUserFeedbackState;
+    currUserStepUpdated.hypoConfidence = lastHypo;
+
+    dispatch({ type: Action.ADD_USER_STEP, value: newUserStep }); 
+    //dispatch({ type: Action.SET_CURR_USER_STEP, value: currUserStepUpdated }); 
   }
 
   const [confirmConcludeOpen, setConfirmConcludeOpen] = useState(false);
@@ -110,10 +116,8 @@ export default function Main() {
       setConfirmConcludeOpen(true);
   };
 
-  const confidenceArr = new Array(NUM_OF_HYPOS);
-  confidenceArr.fill(confidenceTexts[3]);
-
   const onQuit = () => {
+    updateUserSteps(); // Update userSteps and reset the currUserStep    
     if (chart) {
       Object.values(chart).forEach(c => {
         if (!c) return;
@@ -146,7 +150,6 @@ export default function Main() {
   // const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
   // const [robotSuggestions, setRobotSuggestions] = useState<IRow[]>([]); // stores robot's suggested sample locations at each step
   // const [updatedHypoConfidence, setUpdatedHypoConfidence] = useState(0);
-
 
   const handleHypoResponse = (value: any) => {
     dispatch({ type: Action.SET_HYPO_CONFIDENCE, value: value });
@@ -243,7 +246,7 @@ export default function Main() {
   // Handler for setting the user's rating for how well the latest sample addressed the current objective
   const handleSliderChange = (event, newValue, index) => {
     if (typeof newValue === 'number') {
-      dispatch({ type: Action.SET_OBJECTIVE_ADDRESSED_RATING, value: newValue });
+      dispatch({ type: Action.SET_OBJECTIVE_ADDRESSED_RATING, value: (newValue / 20 + 1) });
     }
   }
 
@@ -380,6 +383,7 @@ export default function Main() {
   // }, [robotSuggestions]);
 
   const onSubmit = async () => {
+    console.log({globalState}); // for debugging
     dispatch({ type: Action.SET_NUM_SUBMIT_CLICKS, value: numSubmitClicks + 1 });
     switch (userFeedbackState) {
       case UserFeedbackState.OBJECTIVE: {
@@ -422,7 +426,6 @@ export default function Main() {
         return;
       }
       case UserFeedbackState.OBJECTIVE_FREE_RESPONSE: {
-        // ADD A LINE TO SAVE THE RESPONSE
         dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
         dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
         dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
@@ -432,10 +435,9 @@ export default function Main() {
       }
       case UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION: {
         if (acceptOrReject !== acceptOrRejectOptions.length - 1) {
-          let newSample = robotSuggestions[acceptOrReject]; 
-          const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, newSample.index, newSample.measurements);
-          newSample.shear = shearValues;
-          newSample.moisture = moistureValues;
+          let robotSample = robotSuggestions[acceptOrReject]; 
+          const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSample.index, robotSample.measurements);
+          let newSample : Sample = {...robotSample, shear: shearValues, moisture: moistureValues};
           dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_FOLLOW_UP });
         } else {
@@ -470,7 +472,7 @@ export default function Main() {
       }
       case UserFeedbackState.USER_LOCATION_SELECTION: {
         dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
-        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 }); // load the next IROW into the charts and strategy 
+        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 }); // load the next Sample into the charts and strategy 
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
         return;
       }
@@ -478,9 +480,13 @@ export default function Main() {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TRANSITION });
         return;
       }
+      // FIX UP THE TRANSITION AND RESETTING OF THE CURRENT USER STEP
       case UserFeedbackState.TRANSITION: {
         let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
+        let newUserFeedbackState;
+        console.log({transitionAdj});
         if (transitionAdj === 0) {
+          console.log("Reached 0");
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
           dispatch({ 
             type: Action.SET_ROBOT_SUGGESTIONS, 
@@ -489,20 +495,29 @@ export default function Main() {
           dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
           dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
+          //dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
+          newUserFeedbackState = UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION;
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
         } else if (transitionAdj === 1) {
+          console.log("Reached 1");
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE });
+          //dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE });
+          newUserFeedbackState = UserFeedbackState.OBJECTIVE;
         } else if (transitionAdj === 2) {
-
+          console.log("Reached 2");
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
           dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+          //dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+          newUserFeedbackState = UserFeedbackState.USER_LOCATION_SELECTION;
           dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         } else if (transitionAdj === 3) {
+          console.log("Reached 3");
           onConcludeClick();
+        }
+
+        if (transitionAdj !== 3) {
+          updateUserSteps(); // Update userSteps and reset the currUserStep
         }
         return;
       }
@@ -520,7 +535,7 @@ export default function Main() {
       <ImgAlert open={!!showImgAlert} />
       <Tooltip title={userFeedbackState !== UserFeedbackState.USER_LOCATION_SELECTION ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
-            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={addDataToPlot} setPopOver={setImgAlert} />  
+            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(sample) => addDataToPlot(sample)} setPopOver={setImgAlert} />  
           </div>
       </Tooltip>
       {!loadingRobotSuggestions && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
