@@ -61,8 +61,6 @@ export interface CurrUserStepData {
   objectivesRankings: number[], // stores priority ranking for each objective
   objectiveFreeResponse: string, // stores user's free response for the objective
   sampleType: 'robot' | 'user' | null,
-  loadingRobotSuggestions: boolean,
-  showRobotSuggestions: boolean,
   robotSuggestions : Sample[], // stores robot's suggested sample locations at each step
   acceptOrRejectOptions: string[],
   acceptOrReject: number, // stores which robot suggestion the user accepts (or if the user rejects) at each step
@@ -74,7 +72,6 @@ export interface CurrUserStepData {
   objectiveAddressedRating: number, // stores user's rating for how well the latest sample addresses the current objective
   hypoConfidence : number // stores user's updated hypothesis confidence
   transition : number, // stores user's choice for the next data collection step
-  disableSubmitButton: boolean,
 }
 
 /** Interface for the finalized user step details */

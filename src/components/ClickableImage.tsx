@@ -59,8 +59,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
   const [globalState, dispatch] = useStateValue();
   const classes = useStyles();
 
-  const { samples, currUserStep, numImgClicks, transectIdx, showNOMInput } = globalState;
-  const { showRobotSuggestions, robotSuggestions } = currUserStep;
+  const { samples, currUserStep, numImgClicks, transectIdx, showRobotSuggestions, showNOMInput } = globalState;
+  const { robotSuggestions } = currUserStep;
 
   // Use a setTimeout method to get the height because the imgEl.getBoundingClientRect() function may return 0 for the 
   // height if it is run immediately, which would cause all the PositionIndicator labels to initially show up at the top 
@@ -151,10 +151,15 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
       moisture: moistureValues,
       shear: shearValues
     };
+    // Add the new sample to the state
     dispatch({ 
       type: Action.ADD_SAMPLE, 
       value: newSample 
-    }); // add the new sample to the state
+    }); 
+    dispatch({
+      type: Action.SET_USER_SAMPLE,
+      value: newSample
+    });
     
     dispatch({ 
       type: Action.SET_DISABLE_SUBMIT_BUTTON, 
