@@ -47,7 +47,7 @@ export default function Main() {
   const { step, userFeedbackState, objectives, objectivesRankings, objectiveFreeResponse, sampleType,
     robotSuggestions, acceptOrRejectOptions, acceptOrReject, 
     rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, userSample, 
-    objectiveAddressedRating, hypoConfidence, transition } = currUserStep;
+    objectivesAddressedRating, hypoConfidence, transition } = currUserStep;
 
   const history = useHistory();
 
@@ -74,23 +74,31 @@ export default function Main() {
 
   // Function to add the latest user step data to the finalized set of userSteps 
   const updateUserSteps = () => {
-    // Add the new user step data
     let objectivesAsText : string[] = objectives.map((objective) => {
       return objectiveOptions[objective];
     })
+    let acceptedRobotSuggestion;
+    if (acceptOrReject !== -1 && acceptOrReject !== acceptOrRejectOptions.length - 1) {
+      let robotSuggestionFinal = robotSuggestions[acceptOrReject]; 
+      const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSuggestionFinal.index, robotSuggestionFinal.measurements);
+      acceptedRobotSuggestion = {...robotSuggestionFinal, shear: shearValues, moisture: moistureValues};
+    }
+    let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
     let newUserStep : UserStepsData = {
       step: step, 
       objectives: objectivesAsText, 
       objectivesRankings: objectivesRankings, 
       objectiveFreeResponse: objectiveFreeResponse, 
       sampleType: sampleType,
-      robotSuggestions: robotSuggestions, 
-      acceptOrReject: acceptOrReject === -1 ? "null" : acceptOrRejectOptions[acceptOrReject], 
-      rejectReason: rejectReason === -1 ? "null" : rejectReasonOptions[rejectReason], 
+      robotSuggestions: robotSuggestions,
+      acceptOrReject: acceptOrReject === -1 ? null : acceptOrRejectOptions[acceptOrReject], 
+      acceptedRobotSuggestion: (acceptOrReject !== -1 && acceptOrReject !== acceptOrRejectOptions.length - 1) ? acceptedRobotSuggestion : null,
+      rejectReason: rejectReason === -1 ? null : rejectReasonOptions[rejectReason], 
       rejectReasonFreeResponse: rejectReasonFreeResponse, 
       userFreeSample: userSample,
+      objectivesAddressedRating: objectivesAddressedRating.map(rating => rating / 20 + 1),
       hypoConfidence: confidenceTexts[hypoConfidence + 3],
-      transition: transitionOptions[transition]
+      transition: transitionOptions[transitionAdj]
     }
     dispatch({ type: Action.ADD_USER_STEP, value: newUserStep }); 
   }
@@ -115,27 +123,6 @@ export default function Main() {
     history.push('/conclusion');
     console.log({globalState});
   };
-  
-  
-  // // Hooks for obtaining user feedback on what they think the objective should be at each data collection step
-  // const [userFeedbackStep, setUserFeedbackStep] = useState(0); // controls which set of questions are being asked to the user during each step
-  // const [acceptOrRejectOptions, setAcceptOrRejectOptions] = useState<string[]>([]);
-  // const [rejectReasonOptions, setRejectReasonOptions] = useState<string[]>([]);
-  // const [loading, setLoading] = useState(false); // tracks whether the robot suggestions are currently being calculated
-  // const [showRobotSuggestions, setShowRobotSuggestions] = useState(false); // determines whether the robot's suggestion should be displayed on the transect image
-  // const [disableSubmitButton, setDisableSubmitButton] = useState(true);
-  // const [numSubmitClicks, setNumSubmitClicks] = useState(0);
-  // const [userFreeSelection, setUserFreeSelection] = useState(false);
-
-  // const [objectives, setObjectives] = useState<number[]>([]); // stores objective(s) for each data collection step
-  // const [objectivesRankings, setObjectivesRankings] = useState<number[]>([]); // stores priority ranking for each objective
-  // const [objectiveFreeResponse, setObjectiveFreeResponse] = useState(""); // stores user's free response for the objective
-  // const [acceptOrReject, setAcceptOrReject] = useState(0); // stores whether the user accepts or rejects the robot's suggestion at each step
-  // const [rejectReason, setRejectReason] = useState(0); // stores why the user rejected the robot's suggestion at each step
-  // const [rejectReasonFreeResponse, setRejectReasonFreeResponse] = useState(""); // stores user's free response for the reason for rejecting the robot's suggestion
-  // const [transition, setTransition] = useState(0); // stores user's choice for the next data collection step
-  // const [robotSuggestions, setRobotSuggestions] = useState<IRow[]>([]); // stores robot's suggested sample locations at each step
-  // const [updatedHypoConfidence, setUpdatedHypoConfidence] = useState(0);
 
   const handleHypoResponse = (value: any) => {
     dispatch({ type: Action.SET_HYPO_CONFIDENCE, value: value });
@@ -232,13 +219,15 @@ export default function Main() {
   // Handler for setting the user's rating for how well the latest sample addressed the current objective
   const handleSliderChange = (event, newValue, index) => {
     if (typeof newValue === 'number') {
-      dispatch({ type: Action.SET_OBJECTIVE_ADDRESSED_RATING, value: (newValue / 20 + 1) });
+      let objectivesAddressedRatingTemp = [...objectivesAddressedRating];
+      objectivesAddressedRatingTemp[index] = newValue;
+      dispatch({ type: Action.SET_OBJECTIVES_ADDRESSED_RATING, value: objectivesAddressedRatingTemp });
     }
   }
 
-  // Reset the objectiveAddressedRating back to 0 whenever the objectives are changed
+  // Reset the objectiveAddressedRating back to an array of 0's whenever the objectives are changed
   useEffect(() => {
-    dispatch({ type: Action.SET_OBJECTIVE_ADDRESSED_RATING, value: 0 });
+    dispatch({ type: Action.SET_OBJECTIVES_ADDRESSED_RATING, value: new Array(objectives.length).fill(0) });
   }, [objectives]);
   
   const marks = [
@@ -265,7 +254,7 @@ export default function Main() {
             <Box>
               <Slider
                 aria-label="Restricted values"
-                value={objectiveAddressedRating[index]}
+                value={objectivesAddressedRating[index]}
                 valueLabelFormat={valueLabelFormat}
                 valueLabelDisplay="auto"
                 step={20}
@@ -293,7 +282,7 @@ export default function Main() {
   const rejectReasonQuestions = 
     <div className="reject-reason-questions">
       <p><strong>Why did you reject RHex's suggested locations?</strong></p>
-      <RadioButtonGroup options={rejectReasonOptions} selectedIndex={rejectReason} onChange={i => dispatch({ type: Action.SET_REJECT_REASON_OPTIONS, value: i })} />
+      <RadioButtonGroup options={rejectReasonOptions} selectedIndex={rejectReason} onChange={i => dispatch({ type: Action.SET_REJECT_REASON, value: i })} />
     </div>
   
   const onRejectReasonTextChange = e => {
@@ -369,7 +358,6 @@ export default function Main() {
   // }, [robotSuggestions]);
 
   const onSubmit = async () => {
-    console.log({globalState}); // for debugging
     dispatch({ type: Action.SET_NUM_SUBMIT_CLICKS, value: numSubmitClicks + 1 });
     switch (userFeedbackState) {
       case UserFeedbackState.OBJECTIVE: {
@@ -392,6 +380,7 @@ export default function Main() {
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.RANK_OBJECTIVES });
         } 
+        console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.RANK_OBJECTIVES: {
@@ -409,6 +398,7 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
         }
+        console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.OBJECTIVE_FREE_RESPONSE: {
@@ -417,6 +407,7 @@ export default function Main() {
         dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
         dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
+        console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION: {
@@ -426,10 +417,12 @@ export default function Main() {
           let newSample : Sample = {...robotSample, shear: shearValues, moisture: moistureValues};
           dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_FOLLOW_UP });
+          dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
         } else {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON });
         }
         dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
+        console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.ACCEPT_FOLLOW_UP: {
@@ -446,6 +439,7 @@ export default function Main() {
         } else if (rejectReason === 1) {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON_FREE_RESPONSE });
         }
+        console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.REJECT_REASON_FREE_RESPONSE: {
@@ -454,16 +448,20 @@ export default function Main() {
         dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
         dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
+        console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.USER_LOCATION_SELECTION: {
         dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
         dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 }); // load the next Sample into the charts and strategy 
+        dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
+        console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.HYPOTHESIS_CONFIDENCE: {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TRANSITION });
+        console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.TRANSITION: {
@@ -473,7 +471,6 @@ export default function Main() {
         // Move to the next round with the same objectives as the previous round and automatically run
         // the robot calculation 
         if (transitionAdj === 0) {
-          console.log({globalState, transitionAdj, objectives});
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
           dispatch({ 
             type: Action.SET_ROBOT_SUGGESTIONS, 
@@ -483,7 +480,6 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
-          dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
           
         // Move to the next round with the objectives reset and ask the user to reselect the objectives
         } else if (transitionAdj === 1) {
@@ -520,10 +516,11 @@ export default function Main() {
           dispatch({ type: Action.SET_REJECT_REASON, value: -1 });
           dispatch({ type: Action.SET_REJECT_REASON_FREE_RESPONSE, value: ""});
           dispatch({ type: Action.SET_USER_SAMPLE, value: null });
-          dispatch({ type: Action.SET_OBJECTIVE_ADDRESSED_RATING, value: 0 });
+          dispatch({ type: Action.SET_OBJECTIVES_ADDRESSED_RATING, value: new Array(objectives.length).fill(0) });
           dispatch({ type: Action.SET_TRANSITION, value: 0 });
           updateUserSteps();
         }
+        console.log({globalState}); // for debugging
         return;
       }
     }

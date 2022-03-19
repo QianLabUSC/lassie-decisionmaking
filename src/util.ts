@@ -277,8 +277,6 @@ export async function calculateRobotSuggestions(samples: Sample[],
   }
   peaksRankedDiscrepancyLows.sort((a, b) => (a.discrepancyReward > b.discrepancyReward) ? 1 : -1);
 
-  console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward, potential_discrepancy_belief, shearStrength_v_moisture, discrepancy_reward, peaks, peaksRankedSpatial, peaksRankedVariable, peaksRankedDiscrepancy, peaksRankedDiscrepancyLows});
-  
   // Return the top 3 suggested locations unordered
   let locs;
   let orderedLocs;
@@ -322,8 +320,8 @@ export async function calculateRobotSuggestions(samples: Sample[],
     return suggestion;
   });
 
-  console.log({robotSuggestion});
-
+  console.log({aggregatedSamplesByLoc, std_loc, spatial_coverage, spatial_reward, variable_coverage, information_reward, moisture_v_locationBelief, moisture_reward, potential_discrepancy_belief, shearStrength_v_moisture, discrepancy_reward, peaks, peaksRankedSpatial, peaksRankedVariable, peaksRankedDiscrepancy, peaksRankedDiscrepancyLows, robotSuggestion});
+  
   return robotSuggestion;
 }
 
@@ -917,7 +915,7 @@ function computePeaks(spatial_reward: number[], moisture_reward: number[], discr
     discrepancy_reward: discrepancy_reward
   }
 
-  console.log({inputs});
+  //console.log({inputs});
 
   return new Promise((resolve, reject) => {
     //fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/findpeaks', { //production URL
