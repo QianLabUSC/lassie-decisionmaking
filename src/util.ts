@@ -885,8 +885,8 @@ function linearRegression(xx: number[], yy: number[], zz: number[], moist: numbe
   }
   
   return new Promise((resolve, reject) => {
-    //fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/regression', { //production URL
-    fetch('http://127.0.0.1:5000/regression', { //local development URL
+    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/regression', { //production URL
+    //fetch('http://127.0.0.1:5000/regression', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -918,8 +918,8 @@ function computePeaks(spatial_reward: number[], moisture_reward: number[], discr
   //console.log({inputs});
 
   return new Promise((resolve, reject) => {
-    //fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/findpeaks', { //production URL
-    fetch('http://127.0.0.1:5000/findpeaks', { //local development URL
+    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/findpeaks', { //production URL
+    //fetch('http://127.0.0.1:5000/findpeaks', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
