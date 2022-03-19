@@ -14,7 +14,7 @@ import {
   PopboxTypeEnum, confidenceTexts, NUM_OF_HYPOS,
   UserFeedbackState, objectiveOptions, transitionOptions,
 } from '../constants';
-import { useStateValue, Action, currUserStepTemplate } from '../state';
+import { useStateValue, Action } from '../state';
 import ChartPanel from '../components/ChartPanel';
 import "../styles/decision.scss";
 import { CurrUserStepData, UserStepsData, Sample, PreSample } from '../types';
@@ -40,13 +40,14 @@ export default function Main() {
   const [showImgAlert, setImgAlert] = useState(false);
   const [globalState, dispatch] = useStateValue();
 
-  const { currSampleIdx, samples, currUserStep, userSteps, chart, chartSettings,
-    numSubmitClicks, imgClickEnabled, numImgClicks, transectIdx } = globalState;
+  const { currSampleIdx, samples, currUserStep, userSteps, chart, chartSettings, 
+    loadingRobotSuggestions, showRobotSuggestions, disableSubmitButton, numSubmitClicks, 
+    imgClickEnabled, numImgClicks, transectIdx, } = globalState;
 
   const { step, userFeedbackState, objectives, objectivesRankings, objectiveFreeResponse, sampleType,
-    loadingRobotSuggestions, showRobotSuggestions, robotSuggestions, acceptOrRejectOptions, acceptOrReject, 
+    robotSuggestions, acceptOrRejectOptions, acceptOrReject, 
     rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, userSample, 
-    objectiveAddressedRating, hypoConfidence, transition, disableSubmitButton } = currUserStep;
+    objectiveAddressedRating, hypoConfidence, transition } = currUserStep;
 
   const history = useHistory();
 
@@ -72,9 +73,8 @@ export default function Main() {
   }
 
   // Function to add the latest user step data to the finalized set of userSteps 
-  // and reset the currUserStep (with the current step incremented by 1, and the 
-  // last userFeedbackState & hypothesis confidence saved) 
   const updateUserSteps = () => {
+    // Add the new user step data
     let objectivesAsText : string[] = objectives.map((objective) => {
       return objectiveOptions[objective];
     })
@@ -85,28 +85,14 @@ export default function Main() {
       objectiveFreeResponse: objectiveFreeResponse, 
       sampleType: sampleType,
       robotSuggestions: robotSuggestions, 
-      acceptOrReject: acceptOrRejectOptions[acceptOrReject], 
-      rejectReason: rejectReasonOptions[rejectReason], 
+      acceptOrReject: acceptOrReject === -1 ? "null" : acceptOrRejectOptions[acceptOrReject], 
+      rejectReason: rejectReason === -1 ? "null" : rejectReasonOptions[rejectReason], 
       rejectReasonFreeResponse: rejectReasonFreeResponse, 
       userFreeSample: userSample,
       hypoConfidence: confidenceTexts[hypoConfidence + 3],
       transition: transitionOptions[transition]
     }
-
-    console.log({userFeedbackState, hypoConfidence});
-
-    let lastUserFeedbackState = userFeedbackState;
-    let lastHypo = hypoConfidence;
-
-    console.log({lastUserFeedbackState, lastHypo});
-
-    let currUserStepUpdated : CurrUserStepData = currUserStepTemplate;
-    currUserStepUpdated.step = step + 1;
-    currUserStepUpdated.userFeedbackState = lastUserFeedbackState;
-    currUserStepUpdated.hypoConfidence = lastHypo;
-
     dispatch({ type: Action.ADD_USER_STEP, value: newUserStep }); 
-    //dispatch({ type: Action.SET_CURR_USER_STEP, value: currUserStepUpdated }); 
   }
 
   const [confirmConcludeOpen, setConfirmConcludeOpen] = useState(false);
@@ -117,7 +103,7 @@ export default function Main() {
   };
 
   const onQuit = () => {
-    updateUserSteps(); // Update userSteps and reset the currUserStep    
+    updateUserSteps(); // Update userSteps 
     if (chart) {
       Object.values(chart).forEach(c => {
         if (!c) return;
@@ -480,44 +466,63 @@ export default function Main() {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TRANSITION });
         return;
       }
-      // FIX UP THE TRANSITION AND RESETTING OF THE CURRENT USER STEP
       case UserFeedbackState.TRANSITION: {
         let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
-        let newUserFeedbackState;
-        console.log({transitionAdj});
+        //console.log({globalState, transitionAdj});
+
+        // Move to the next round with the same objectives as the previous round and automatically run
+        // the robot calculation 
         if (transitionAdj === 0) {
-          console.log("Reached 0");
+          console.log({globalState, transitionAdj, objectives});
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
           dispatch({ 
             type: Action.SET_ROBOT_SUGGESTIONS, 
             value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
           });
           dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
-          dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
-          //dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
-          newUserFeedbackState = UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION;
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
+          dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
+          
+        // Move to the next round with the objectives reset and ask the user to reselect the objectives
         } else if (transitionAdj === 1) {
-          console.log("Reached 1");
+          dispatch({ type: Action.SET_OBJECTIVES, value: [] });
+          dispatch({ type: Action.SET_OBJECTIVES_RANKINGS, value: [] });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
-          //dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE });
-          newUserFeedbackState = UserFeedbackState.OBJECTIVE;
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE });
+          dispatch({ type: Action.SET_SAMPLE_TYPE, value: null});
+          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: [] });
+
+        // Move to the next round enabling the user to freely select the next sample location
         } else if (transitionAdj === 2) {
-          console.log("Reached 2");
+          dispatch({ type: Action.SET_OBJECTIVES, value: [] });
+          dispatch({ type: Action.SET_OBJECTIVES_RANKINGS, value: [] });
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
           dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
-          //dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
-          newUserFeedbackState = UserFeedbackState.USER_LOCATION_SELECTION;
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
           dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
+          dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
+          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: [] });
+
+        // Bring up the quit screen
         } else if (transitionAdj === 3) {
-          console.log("Reached 3");
           onConcludeClick();
         }
 
+        // If the user selects any option besides the quit screen, then automatically add the data
+        // from the current step to the finalized userSteps and reset some of the currUserStep data
         if (transitionAdj !== 3) {
-          updateUserSteps(); // Update userSteps and reset the currUserStep
+          dispatch({ type: Action.SET_USER_STEP_IDX, value: step + 1});
+          dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: ""});
+          dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: -1 });
+          dispatch({ type: Action.SET_REJECT_REASON, value: -1 });
+          dispatch({ type: Action.SET_REJECT_REASON_FREE_RESPONSE, value: ""});
+          dispatch({ type: Action.SET_USER_SAMPLE, value: null });
+          dispatch({ type: Action.SET_OBJECTIVE_ADDRESSED_RATING, value: 0 });
+          dispatch({ type: Action.SET_TRANSITION, value: 0 });
+          updateUserSteps();
         }
         return;
       }
