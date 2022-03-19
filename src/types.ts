@@ -69,7 +69,7 @@ export interface CurrUserStepData {
   rejectReasonFreeResponse: string, // stores user's free response for the reason for rejecting the robot's suggestion
   userFreeSelection: boolean
   userSample: Sample | null,
-  objectiveAddressedRating: number, // stores user's rating for how well the latest sample addresses the current objective
+  objectivesAddressedRating: number[], // stores user's rating for how well the latest sample addresses the current objective
   hypoConfidence : number // stores user's updated hypothesis confidence
   transition : number, // stores user's choice for the next data collection step
 }
@@ -81,11 +81,13 @@ export interface UserStepsData {
   objectivesRankings: number[], 
   objectiveFreeResponse: string | null, 
   sampleType: 'robot' | 'user' | null,
-  robotSuggestions : PreSample[], 
+  robotSuggestions: PreSample[] | null, 
   acceptOrReject: string | null, 
+  acceptedRobotSuggestion: Sample | null,
   rejectReason: string | null, 
   rejectReasonFreeResponse: string | null, 
   userFreeSample: Sample | null,
+  objectivesAddressedRating: number[] | null,
   hypoConfidence : string 
   transition : string
 }
