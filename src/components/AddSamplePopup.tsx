@@ -8,9 +8,9 @@ import { TextField, Paper, IconButton } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import { useStateValue, Action } from '../state';
-import { SampleState, RowType, MAX_NUM_OF_MEASUREMENTS } from '../constants';
-import { getNOMTaken, getBatteryCost, trimSamplesByBatteryUsage } from '../util';
-import { DialogProps, DialogType } from '../types';
+import { MAX_NUM_OF_MEASUREMENTS, NUM_MEASUREMENTS } from '../constants';
+import { Sample } from '../types';
+import { getNOMTaken, getMeasurements } from '../util';
 
 const useStyles = makeStyles(() => ({
   box: {
@@ -37,12 +37,11 @@ export default function Popup(props) {
   const [error, setError] = React.useState(false);
   const [helperText, setHelperText] = React.useState('');
   const [globalState, dispatch] = useStateValue();
-  const { sampleState, strategy } = globalState;
-  const { transectSamples, transectIndices, curTransectIdx, curRowIdx } = strategy;
-  const rows = transectSamples[curTransectIdx];
+
+  const { samples, currUserStep, transectIdx } = globalState;
   const classes = useStyles();
 
-  const NOMTaken = getNOMTaken(rows, clickIndex);
+  const NOMTaken = getNOMTaken(samples, clickIndex);
   const allowedNOM = MAX_NUM_OF_MEASUREMENTS - NOMTaken;
 
   let left = clickPosition.left, top = clickPosition.top - POPUP_HEIGHT;
@@ -86,7 +85,7 @@ export default function Popup(props) {
   const close = () => {
     setValue(0);
     dispatch({
-      type: Action.SHOW_NOM_INPUT,
+      type: Action.SET_SHOW_NOM_INPUT,
       value: false
     });
   }
@@ -96,24 +95,31 @@ export default function Popup(props) {
     if (!checkVal(value)) {
       return;
     }
-    const newRow : IRow = {
+    const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, clickIndex, NUM_MEASUREMENTS);
+    const newSample : Sample = {
       index: clickIndex,
-      measurements: parseInt(value as any, 10),
-      type: sampleState === SampleState.DEVIATED ? RowType.DEVIATE : RowType.NORMAL,
-      normOffsetX,
-      normOffsetY,
-      isHovered: false
+      type: 'user',
+      measurements: NUM_MEASUREMENTS,
+      normOffsetX: normOffsetX,
+      normOffsetY: normOffsetY,
+      isHovered: false,
+      moisture: moistureValues,
+      shear: shearValues
     };
-    dispatch({
-      type: Action.ADD_ROW, // add the new row to the state
-      value: newRow
-    });
-    if (sampleState === SampleState.DEVIATED) {
-      onAddData(newRow);
-    }  
+    dispatch({ 
+      type: Action.ADD_SAMPLE, 
+      value: newSample 
+    }); // add the new sample to the state
+
     close();
-    dispatch({ type: Action.IMG_CLICK_ENABLED, value: false });
-    props.setDisableSubmitButton(false);
+    dispatch({ 
+      type: Action.SET_IMG_CLICK_ENABLED, 
+      value: false 
+    });
+    dispatch({ 
+      type: Action.SET_DISABLE_SUBMIT_BUTTON, 
+      value: false 
+    });
   };
 
   const onCancelClick = () => {
