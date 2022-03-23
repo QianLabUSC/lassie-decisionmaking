@@ -98,6 +98,7 @@ export default function Main() {
       userFreeSample: userSample,
       objectivesAddressedRating: objectivesAddressedRating.map(rating => rating / 20 + 1),
       hypoConfidence: confidenceTexts[hypoConfidence + 3],
+      samples: samples,
       transition: transitionOptions[transitionAdj]
     }
     dispatch({ type: Action.ADD_USER_STEP, value: newUserStep }); 
@@ -213,7 +214,10 @@ export default function Main() {
   const acceptOrRejectQuestions = 
     <div className="accept-or-reject-questions">
       <p><strong>Based on your belief rankings, RHex suggests sampling from one of the lettered locations marked on the dune cross-section above.</strong></p>
-      <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: i })} />
+      <RadioButtonGroup options={acceptOrRejectOptions} selectedIndex={acceptOrReject} onChange={i => {
+        dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: i });
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
+      }}/>
     </div>
 
   // Handler for setting the user's rating for how well the latest sample addressed the current objective
@@ -480,6 +484,7 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
+          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
           
         // Move to the next round with the objectives reset and ask the user to reselect the objectives
         } else if (transitionAdj === 1) {

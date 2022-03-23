@@ -89,6 +89,7 @@ export interface UserStepsData {
   userFreeSample: Sample | null,
   objectivesAddressedRating: number[] | null,
   hypoConfidence : string 
+  samples: Sample[],
   transition : string
 }
 
