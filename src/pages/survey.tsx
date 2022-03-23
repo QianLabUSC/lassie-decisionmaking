@@ -218,7 +218,6 @@ export default function Survey() {
         const log = {
             dataVersion: dataVersion,
             initialHypo: initialHypo,
-            samples: samples,
             userSteps: userSteps,
             surveyResponses: surveyOutput
         };
