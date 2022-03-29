@@ -37,10 +37,10 @@ def hello_world():
 @cross_origin()
 def process():
     inputs = request.json
-    location = np.array(inputs['location'])
-    sample = np.array(inputs['sample'])
-    mm = np.array(inputs['moist'])
-    erodi = np.array(inputs['erodi'])
+    location = np.array(inputs['locations'])
+    sample = np.array(inputs['measurements'])
+    mm = np.array(inputs['moistureValues'])
+    erodi = np.array(inputs['shearValues'])
     Traveler_DM = DecisionMaking()
     Traveler_DM.update_current_state(location, sample, mm, erodi)
     Traveler_DM.handle_spatial_information_coverage()
