@@ -8,7 +8,7 @@ from unittest import result
 from scipy.optimize import curve_fit
 from scipy import signal
 import numpy as np
-from env_wrapper import *
+# from env_wrapper import *
 import matplotlib.pyplot as plt
 import random
 
@@ -84,7 +84,6 @@ def hypofit(xx, yy, zz):
 
     return loc, RMSE_average, RMSE_spread, xfit, xx_model, Pfit
 
-#Find peaks API Route
 '''the hypothesis model function
 Args:
     spatial_reward: reward matrix considering spatial factor 
@@ -94,7 +93,7 @@ Returns:
     suggested location which has maximum 
     spatial reward/moisture reward/discrepancy reward.
 '''
-def findPeaks(spatial_reward, moisture_reward, discrepancy_reward):
+def findbestlocation(spatial_reward, moisture_reward, discrepancy_reward):
 
     disrepancy_reward_negative = np.array(discrepancy_reward) * -1
 
@@ -113,20 +112,60 @@ def findPeaks(spatial_reward, moisture_reward, discrepancy_reward):
     max_used_discrepancy_lows = False
 
     if len(spatial_locs) == 0:
-        spatial_locs = np.array([np.argmax(spatial_reward)])
+        spatial_locs = spatial_reward.argsort()[-3:][::-1]
         max_used_spatial = True
-    
+    elif len(spatial_locs) == 1:
+        np.append(spatial_locs, spatial_reward.argsort()[-2:][::-1])
+        max_used_spatial = True
+    elif len(spatial_locs) == 2:
+        np.append(spatial_locs, spatial_reward.argsort()[-1:][::-1])
+        max_used_spatial = True
+    elif len(spatial_locs) >= 3:
+        reward_list = spatial_reward[spatial_locs]
+        max_index = reward_list.argsort()[-3:][::-1]
+        spatial_locs = spatial_locs[max_index]
+
     if len(variable_locs) == 0:
-        variable_locs = np.array([np.argmax(moisture_reward)])
+        variable_locs = moisture_reward.argsort()[-3:][::-1]
         max_used_variable = True
+    elif len(variable_locs) == 1:
+        np.append(variable_locs, moisture_reward.argsort()[-2:][::-1])
+        max_used_variable = True
+    elif len(variable_locs) == 2:
+        np.append(variable_locs, moisture_reward.argsort()[-1:][::-1])
+        max_used_variable = True
+    elif len(variable_locs) >= 3:
+        reward_list = moisture_reward[variable_locs]
+        max_index = reward_list.argsort()[-3:][::-1]
+        variable_locs = variable_locs[max_index]
 
     if len(discrepancy_locs) == 0:
-        discrepancy_locs = np.array([np.argmax(discrepancy_reward)])
+        discrepancy_locs = discrepancy_reward.argsort()[-3:][::-1]
         max_used_discrepancy = True
-        
+    elif len(discrepancy_locs) == 1:
+        np.append(discrepancy_locs, discrepancy_reward.argsort()[-2:][::-1])
+        max_used_discrepancy = True
+    elif len(discrepancy_locs) == 2:
+        np.append(discrepancy_locs, discrepancy_reward.argsort()[-1:][::-1])
+        max_used_discrepancy = True
+    elif len(discrepancy_locs) >= 3:
+        reward_list = discrepancy_reward[discrepancy_locs]
+        max_index = reward_list.argsort()[-3:][::-1]
+        discrepancy_locs = discrepancy_locs[max_index]
+
     if len(discrepancy_lows_locs) == 0:
-        discrepancy_lows_locs = np.array([np.argmax(disrepancy_reward_negative)])
+        discrepancy_lows_locs = disrepancy_reward_negative.argsort()[-3:][::-1]
         max_used_discrepancy_lows = True
+    elif len(discrepancy_lows_locs) == 1:
+        np.append(discrepancy_lows_locs, disrepancy_reward_negative.argsort()[-2:][::-1])
+        max_used_discrepancy_lows = True
+    elif len(discrepancy_lows_locs) == 2:
+        np.append(discrepancy_lows_locs, disrepancy_reward_negative.argsort()[-1:][::-1])
+        max_used_discrepancy_lows = True
+    elif len(discrepancy_lows_locs) >= 3:
+        reward_list = disrepancy_reward_negative[discrepancy_lows_locs]
+        max_index = reward_list.argsort()[-3:][::-1]
+        discrepancy_lows_locs = discrepancy_lows_locs[max_index]
 
     output = {
         'spatial_locs': spatial_locs.tolist(),
@@ -188,11 +227,19 @@ class DecisionMaking:
         sample = np.array(sample)
         moisture = np.array(moisture)
         shear_strengh = np.array(shear_strenth)
-        sorted_index = np.argsort(location)
-        self.current_state_location = location[sorted_index]
-        self.current_state_sample = sample[sorted_index]
-        self.current_state_moisture = moisture[sorted_index]
-        self.current_state_shear_strength = shear_strengh[sorted_index]
+        unique_location, full_indices  = np.unique(location, return_inverse=True)
+        integrated_sample = np.zeros(len(unique_location))
+        integrated_moisture = []
+        integrated_shearstrength = []
+        for i in range(len(unique_location)):
+            indexes = np.where(full_indices==i)
+            integrated_sample[i] = np.sum(sample[indexes])
+            integrated_moisture.append(moisture[indexes].flatten())
+            integrated_shearstrength.append(shear_strengh[indexes].flatten())
+        self.current_state_location = unique_location
+        self.current_state_sample = integrated_sample
+        self.current_state_moisture = integrated_moisture
+        self.current_state_shear_strength = integrated_shearstrength
 
     '''
     compute the spatial reward coverage 
@@ -204,7 +251,7 @@ class DecisionMaking:
 
         for jj in range(len(location)):
             I_s_s = np.exp(-1/np.sqrt(sample[jj]))
-            I_s += gauss(location[jj], I_s_s, np.linspace(1,22,22), 1.5)
+            I_s += gauss(location[jj], I_s_s, np.linspace(1,22,22), 0.8)
             I_s[I_s > 1] = 1
 
         self.spatial_information_coverage = I_s
@@ -218,13 +265,13 @@ class DecisionMaking:
         location = self.current_state_location
         moisture_bins = np.linspace(-1,17,19)
         moisture_range = np.linspace(-1,18,20) - 0.5
-        xx = self.current_state_moisture.flatten()
+        xx = np.array([item for sublist in self.current_state_moisture for item in sublist])
         countMoist, bins = np.histogram(xx, moisture_range)
         I_v_s = np.exp(-1/np.sqrt(2*countMoist))
-        # print(I_v_s)
+        print(I_v_s)
         I_v = np.zeros(len(I_v_s))
         for jj in range(len(I_v_s)):
-            I_v += gauss(jj - 1, I_v_s[jj], moisture_bins, 1.5)
+            I_v += gauss(jj - 1, I_v_s[jj], moisture_bins, 0.8)
             # print(I_v)
             I_v[I_v > 1] = 1
         self.variable_information_coverage = I_v
@@ -322,13 +369,13 @@ class DecisionMaking:
         MinCoverage = 0.06
         moisture_bins = np.linspace(-1,17,19)
         moisture_range = np.linspace(-1,18,20) - 0.5
-        xx = self.current_state_moisture.flatten()
-        yy = self.current_state_shear_strength.flatten()
-        zz = []
+        xx = np.array([item for sublist in self.current_state_moisture for item in sublist])
+        yy = np.array([item for sublist in self.current_state_shear_strength for item in sublist])
+        zz_unflattend = []
         for jj in range(len(self.current_state_location)):
-            zz.append(self.current_state_location[jj] * np.ones((1, 
-                                                self.current_state_sample[jj])))
-        zz = np.array(zz).flatten()
+            zz_unflattend.append(self.current_state_location[jj] * np.ones((1, 
+                                        int(self.current_state_sample[jj])))[0])
+        zz = np.array([item for sublist in zz_unflattend for item in sublist])
         RMSE = []
         location = self.current_state_location
         sort_index = np.argsort(xx)
@@ -379,7 +426,7 @@ class DecisionMaking:
             elif(i == len(xx_mean)-1):
                 moisture_mean = xx_mean[i]
                 shearstrength_mean = yy_mean[i]
-                print(shearstrength_mean)
+                # print(shearstrength_mean)
                 moisture_mean_prev = xx_mean[i-1]
                 shearstrength_mean_prev = yy_mean[i-1]
                 slope = (shearstrength_mean - shearstrength_mean_prev)/(
@@ -433,7 +480,7 @@ class DecisionMaking:
                     moisture_index = np.round(moisture_possibility[kk]) + 1
                 shearstrength_std = max(0.4, 
                                     shearstrength_range[int(moisture_index)]/3)
-                print(shearstrength_std)
+                # print(shearstrength_std)
                 shearstrength_possibility = np.linspace(
                                         shearstrength_min[int(moisture_index)],
                                         shearstrength_max[int(moisture_index)],
@@ -457,11 +504,11 @@ class DecisionMaking:
     # give the final suggested location choice and then pass it to user
     # user interface 
     def calculate_suggested_location(self):
-        output = findPeaks(self.spatial_reward, self.variable_reward, 
+        output = findbestlocation(self.spatial_reward, self.variable_reward, 
                                             self.discrepancy_reward)
         return output
         
-def plot(Traveler_DM, location, sample, erodi, results):
+def plot(Traveler_DM, Traveler_ENV, location, sample, erodi, results):
     ### plot the state transition graph 
     fig, axs = plt.subplots(5,1, sharex=True, figsize=(7,7))
     x = np.linspace(1,22,22)
@@ -554,43 +601,44 @@ def plot(Traveler_DM, location, sample, erodi, results):
     axs[4].set_ylim((0,10))
     axs[4].legend()
     # plt.show()
-    plt.savefig('./figs_keep_selecting_discrepancy/'
+    plt.savefig('../../figs_final_test/'
                                  + "num" + str(len(location)) + str(location))
 
 
 if __name__ == '__main__':
-    Traveler_DM = DecisionMaking()
-    Traveler_ENV = ENV()
-    location_list = list(np.linspace(1,22,22, dtype=int))
-    sample_list = list(3 * np.ones(22, dtype=int))
+    pass
+    # Traveler_DM = DecisionMaking()
+    # Traveler_ENV = ENV()
+    # location_list = list(np.linspace(1,22,22, dtype=int))
+    # sample_list = list(3 * np.ones(22, dtype=int))
 
 
-    # for num in range(3,19):
-    #     print(num,"-----------------------------------------")
-    #     for i in range(10):
-    #         location = random.sample(location_list, num)
-    #         sample = random.sample(sample_list, num)
-    #         mm, erodi = Traveler_ENV.get_data_state([location,sample])
-    #         Traveler_DM.update_current_state(location, sample, mm, erodi)
-    #         Traveler_DM.handle_spatial_information_coverage()
-    #         Traveler_DM.handle_variable_information_coverage()
-    #         Traveler_DM.handle_discrepancy_coverage()
-    #         results = Traveler_DM.calculate_suggested_location()
-    #         plot(Traveler_DM, location, sample, erodi, results)
+    # # for num in range(3,19):
+    # #     print(num,"-----------------------------------------")
+    # #     for i in range(10):
+    # #         location = random.sample(location_list, num)
+    # #         sample = random.sample(sample_list, num)
+    # #         mm, erodi = Traveler_ENV.get_data_state([location,sample])
+    # #         Traveler_DM.update_current_state(location, sample, mm, erodi)
+    # #         Traveler_DM.handle_spatial_information_coverage()
+    # #         Traveler_DM.handle_variable_information_coverage()
+    # #         Traveler_DM.handle_discrepancy_coverage()
+    # #         results = Traveler_DM.calculate_suggested_location()
+    # #         plot(Traveler_DM, location, sample, erodi, results)
 
-    location = [2,10,14,18]
-    sample = [3,3,3,3]
-    for i in range(10):
-        mm, erodi = Traveler_ENV.get_data_state([location,sample])
-        Traveler_DM.update_current_state(location, sample, mm, erodi)
-        Traveler_DM.handle_spatial_information_coverage()
-        Traveler_DM.handle_variable_information_coverage()
-        Traveler_DM.handle_discrepancy_coverage()
-        results = Traveler_DM.calculate_suggested_location()
-        plot(Traveler_DM, location, sample, erodi, results)
-        spatial_selection = np.array(results['discrepancy_locs']) + 1
-        location.append(spatial_selection[0])
-        sample.append(3)
+    # location = [2,10,14,18]
+    # sample = [3,3,3,3]
+    # for i in range(10):
+    #     mm, erodi = Traveler_ENV.get_data_state([location,sample])
+    #     Traveler_DM.update_current_state(location, sample, mm, erodi)
+    #     Traveler_DM.handle_spatial_information_coverage()
+    #     Traveler_DM.handle_variable_information_coverage()
+    #     Traveler_DM.handle_discrepancy_coverage()
+    #     results = Traveler_DM.calculate_suggested_location()
+    #     plot(Traveler_DM, location, sample, erodi, results)
+    #     spatial_selection = np.array(results['discrepancy_locs']) + 1
+    #     location.append(spatial_selection[0])
+    #     sample.append(3)
 
         
 

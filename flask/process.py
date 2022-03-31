@@ -23,7 +23,7 @@ def model(x, P1, P2, P3):
         result[i] = P1 - P2 * max(P3 - x[i], 0)
     return result
 
-@app.route("/")
+@app.route("/abc")
 def hello_world():
     return "<p>Hello, World!</p>"
 
@@ -33,25 +33,33 @@ def hello_world():
 #                 different rows represents different locations
 # a matrix erodi: a row is the sampled erodis in one location,
 #                 different rows represents different locations
-@app.route('/regression', methods=['POST'])
+@app.route('/process', methods=['POST', 'GET'])
 @cross_origin()
 def process():
     inputs = request.json
-    location = np.array(inputs['locations'])
+    location = np.array(inputs['locations'])+1
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
     erodi = np.array(inputs['shearValues'])
+    print('location', location)
+    print('sample', sample)
     Traveler_DM = DecisionMaking()
     Traveler_DM.update_current_state(location, sample, mm, erodi)
     Traveler_DM.handle_spatial_information_coverage()
     Traveler_DM.handle_variable_information_coverage()
     Traveler_DM.handle_discrepancy_coverage()
     results = Traveler_DM.calculate_suggested_location()
-    spatial_selection = np.array(results['spatial_locs']) + 1
-    variable_selection = np.array(results['variable_locs']) + 1
-    discrepancy_selection = np.array(results['discrepancy_locs']) + 1
-    discrepancy_low_selection = np.array(results['discrepancy_lows_locs']) + 1
-
+    spatial_selection = np.array(results['spatial_locs'])
+    print('spatial_selection', spatial_selection)
+    variable_selection = np.array(results['variable_locs'])
+    print('variable_selection', variable_selection)
+    discrepancy_selection = np.array(results['discrepancy_locs'])
+    print('discrepancy_selection', discrepancy_selection)
+    discrepancy_low_selection = np.array(results['discrepancy_lows_locs'])
+    print('discrepancy_low_selection', discrepancy_low_selection)
+    print('spatial_reward', Traveler_DM.spatial_reward)
+    print('variable_reward', Traveler_DM.variable_reward)
+    print('discrepancy_reward', Traveler_DM.discrepancy_reward)
     output = {
         'spatial_selection': spatial_selection.tolist(), 
         'variable_selection': variable_selection.tolist(), 
@@ -63,6 +71,7 @@ def process():
     }
 
     return jsonify(output)
+
     
 if __name__ == '__main__':
     app.run(debug=True)
