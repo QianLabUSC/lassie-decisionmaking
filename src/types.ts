@@ -50,7 +50,6 @@ export interface Record {
 /** Interface for local and global data versions */
 export interface DataVersion {
   local: number,
-  global: number
 }
 
 /** Interface for current user step */
@@ -62,6 +61,9 @@ export interface CurrUserStepData {
   objectiveFreeResponse: string, // stores user's free response for the objective
   sampleType: 'robot' | 'user' | null,
   robotSuggestions : Sample[], // stores robot's suggested sample locations at each step
+  spatialReward: number[],
+  variableReward: number[],
+  discrepancyReward: number[],
   acceptOrRejectOptions: string[],
   acceptOrReject: number, // stores which robot suggestion the user accepts (or if the user rejects) at each step
   rejectReasonOptions: string[],
@@ -90,7 +92,10 @@ export interface UserStepsData {
   objectivesAddressedRating: number[] | null,
   hypoConfidence : string 
   samples: Sample[],
-  transition : string
+  transition : string,
+  spatialReward: number[],
+  variableReward: number[],
+  discrepancyReward: number[]
 }
 
 /** Interface for the samples collected */

@@ -59,7 +59,6 @@ export interface IState {
 export const initialState : IState = {
   dataVersion: {
     local: Math.round(Math.random()) + 1, // load alternative hypothesis 1 or 2 randomly for shear data
-    global: 2 // load alternative hypothesis 2 for grain data
   },
   fullData: getShearData(),
   moistureData: getMoistureData(),
@@ -73,6 +72,9 @@ export const initialState : IState = {
     objectiveFreeResponse: "",
     sampleType: null,
     robotSuggestions: [],
+    spatialReward: [],
+    variableReward: [],
+    discrepancyReward: [],
     acceptOrRejectOptions: [],
     acceptOrReject: -1,
     rejectReasonOptions: [],
@@ -128,6 +130,9 @@ export enum Action {
   SET_LOADING_ROBOT_SUGGESTIONS,
   SET_SHOW_ROBOT_SUGGESTIONS,
   SET_ROBOT_SUGGESTIONS,
+  SET_SPATIAL_REWARD,
+  SET_VARIABLE_REWARD,
+  SET_DISCREPANCY_REWARD,
   SET_ACCEPT_OR_REJECT_OPTIONS,
   SET_ACCEPT_OR_REJECT,
   SET_REJECT_REASON_OPTIONS,
@@ -166,7 +171,6 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_CURR_SAMPLE_IDX]: 'currSampleIdx',
   [Action.SET_SAMPLES]: 'samples',
   [Action.SET_CURR_USER_STEP]: 'currUserStep',
-  [Action.SET_USER_STEPS]: 'userSteps',
   [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
@@ -226,6 +230,9 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_OBJECTIVES_FREE_RESPONSE]: 'objectiveFreeResponse',
   [Action.SET_SAMPLE_TYPE]: 'sampleType',
   [Action.SET_ROBOT_SUGGESTIONS]: 'robotSuggestions',
+  [Action.SET_SPATIAL_REWARD]:'spatialReward' ,
+  [Action.SET_VARIABLE_REWARD]: 'variableReward',
+  [Action.SET_DISCREPANCY_REWARD]: 'discrepancyReward',
   [Action.SET_ACCEPT_OR_REJECT_OPTIONS]: 'acceptOrRejectOptions',
   [Action.SET_ACCEPT_OR_REJECT]: 'acceptOrReject',
   [Action.SET_REJECT_REASON_OPTIONS]: 'rejectReasonOptions',

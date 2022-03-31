@@ -6,6 +6,7 @@ import { useStateValue, Action } from '../state';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import RankedScale from '../components/RankedScale';
 import { QuestionType, SurveyQuestion, surveyQuestions as rawSurveyQuestions, TextAreaType } from '../data/surveyQuestions';
+import { confidenceTexts } from '../constants';
 import '../styles/survey.scss';
 
 const tileIndentation = 40;
@@ -217,7 +218,7 @@ export default function Survey() {
 
         const log = {
             dataVersion: dataVersion,
-            initialHypo: initialHypo,
+            initialHypo: confidenceTexts[initialHypo + 3],
             userSteps: userSteps,
             surveyResponses: surveyOutput
         };
