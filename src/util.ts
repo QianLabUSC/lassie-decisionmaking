@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
-import { NORMALIZED_WIDTH, RowType, sampleLocations, NUM_OF_LOCATIONS, MOISTURE_BINS, NUM_MEASUREMENTS } from './constants';
+import { NORMALIZED_WIDTH, RowType, sampleLocations, NUM_OF_LOCATIONS, 
+  MOISTURE_BINS, NUM_MEASUREMENTS, MAX_NUM_OF_MEASUREMENTS } from './constants';
 import { measurements } from './measurements';
 import { dataset } from './data/rhexDataset';
 import { Sample, PreSample } from './types';
@@ -165,9 +166,10 @@ export function getMeasurements(globalState: IState, transectIndex: number, loca
   const moistureValues: number[] = [];
   const shearMoistureValues: {shearValue: number, moistureValue: number}[] = [];
   for (let i = 0; i < measurements; i++) {
-    shearValues.push(fullData[locationIndex][i]);
-    moistureValues.push(moistureData[locationIndex][i]);
-    shearMoistureValues.push({shearValue: fullData[locationIndex][i], moistureValue: moistureData[locationIndex][i]});
+    const j = Math.floor(Math.random() * MAX_NUM_OF_MEASUREMENTS);
+    shearValues.push(fullData[locationIndex][j]);
+    moistureValues.push(moistureData[locationIndex][j]);
+    shearMoistureValues.push({shearValue: fullData[locationIndex][j], moistureValue: moistureData[locationIndex][j]});
   }
   //console.log({shearValues, moistureValues, grainValues, shearMoistureValues}); // for debugging
   return {shearValues, moistureValues, shearMoistureValues};
@@ -263,7 +265,12 @@ export async function calculateRobotSuggestions(samples: Sample[],
 
   console.log({locations, measurements, moistureValues, shearValues, robotSuggestions, results});
   
-  return results;
+  return {
+    results: results,
+    spatialReward: spatial_reward,
+    variableReward: variable_reward,
+    discrepancyReward: discrepancy_reward
+  };
 }
 
 function flaskCalculations(locations: number[], measurements: number[], moistureValues: number[], shearValues: number[]) {

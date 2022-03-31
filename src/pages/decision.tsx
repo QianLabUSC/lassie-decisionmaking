@@ -45,7 +45,7 @@ export default function Main() {
     imgClickEnabled, numImgClicks, transectIdx, } = globalState;
 
   const { step, userFeedbackState, objectives, objectivesRankings, objectiveFreeResponse, sampleType,
-    robotSuggestions, acceptOrRejectOptions, acceptOrReject, 
+    robotSuggestions, spatialReward, variableReward, discrepancyReward, acceptOrRejectOptions, acceptOrReject, 
     rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, userSample, 
     objectivesAddressedRating, hypoConfidence, transition } = currUserStep;
 
@@ -98,8 +98,11 @@ export default function Main() {
       userFreeSample: userSample,
       objectivesAddressedRating: objectivesAddressedRating.map(rating => rating / 20 + 1),
       hypoConfidence: confidenceTexts[hypoConfidence + 3],
-      samples: samples,
-      transition: transitionOptions[transitionAdj]
+      samples: JSON.parse(JSON.stringify(samples)),
+      transition: transitionOptions[transitionAdj],
+      spatialReward: spatialReward, 
+      variableReward: variableReward, 
+      discrepancyReward: discrepancyReward,
     }
     dispatch({ type: Action.ADD_USER_STEP, value: newUserStep }); 
   }
@@ -371,10 +374,14 @@ export default function Main() {
             dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE });
           } else {
             dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
-            dispatch({ 
-              type: Action.SET_ROBOT_SUGGESTIONS, 
-              value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
-            });
+
+            let robotResults = await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings);
+            const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
+            dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
+            dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
+            dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
+            dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
+
             dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
             dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
             dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
@@ -393,10 +400,14 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE });
         } else {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
-          dispatch({ 
-            type: Action.SET_ROBOT_SUGGESTIONS, 
-            value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
-          });
+
+          let robotResults = await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings);
+          const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
+          dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
+          dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
+          dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
+          dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
+
           dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
           dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
@@ -470,16 +481,20 @@ export default function Main() {
       }
       case UserFeedbackState.TRANSITION: {
         let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
-        //console.log({globalState, transitionAdj});
+        console.log({globalState, transitionAdj});
 
         // Move to the next round with the same objectives as the previous round and automatically run
         // the robot calculation 
         if (transitionAdj === 0) {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
-          dispatch({ 
-            type: Action.SET_ROBOT_SUGGESTIONS, 
-            value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
-          });
+
+          let robotResults = await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings);
+          const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
+          dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
+          dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
+          dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
+          dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
+
           dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
@@ -493,7 +508,10 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE });
           dispatch({ type: Action.SET_SAMPLE_TYPE, value: null});
-          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: [] });
+          dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: [] });
+          dispatch({ type: Action.SET_SPATIAL_REWARD, value: [] });
+          dispatch({ type: Action.SET_VARIABLE_REWARD, value: [] });
+          dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: [] });
 
         // Move to the next round enabling the user to freely select the next sample location
         } else if (transitionAdj === 2) {
@@ -505,7 +523,10 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
           dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
           dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
-          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: [] });
+          dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: [] });
+          dispatch({ type: Action.SET_SPATIAL_REWARD, value: [] });
+          dispatch({ type: Action.SET_VARIABLE_REWARD, value: [] });
+          dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: [] });
 
         // Bring up the quit screen
         } else if (transitionAdj === 3) {
