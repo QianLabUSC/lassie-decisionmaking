@@ -167,6 +167,13 @@ def findbestlocation(spatial_reward, moisture_reward, discrepancy_reward):
         max_index = reward_list.argsort()[-3:][::-1]
         discrepancy_lows_locs = discrepancy_lows_locs[max_index]
 
+
+    ## reorder the selected locations
+    spatial_locs = np.sort(spatial_locs)
+    variable_locs = np.sort(variable_locs)
+    discrepancy_locs = np.sort(discrepancy_locs)
+    discrepancy_lows_locs = np.sort(discrepancy_lows_locs)
+          
     output = {
         'spatial_locs': spatial_locs.tolist(),
         'variable_locs': variable_locs.tolist(),
