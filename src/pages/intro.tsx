@@ -13,6 +13,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
+const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
 
 export default function Intro(props) {
     const history = useHistory();
@@ -85,31 +86,34 @@ export default function Intro(props) {
                             by mechanical resistance to shear (dragging) during robot leg-soil interactions and moisture 
                             was measured using a probe attached to the robot.
                         </p>
+                    </div>
+
+                    <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/> 
+
+                    <div className="text">
                         <p>
                             Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
                             crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
                             sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
                             as moisture continues to increase.
                         </p>
-                   
-                        { /* Insert modified transect hypothesis figure here*/ }
+                    </div>
 
-                        <div className="hypothesisBlock">
-                            <div className="hypothesisTitle"><strong>Initial Hypothesis Confidence</strong></div>
-                            <div className="hypothesisText">
-                                Provide a ranking of your initial certainty that this hypothesis will be supported or refuted. If you have no initial preference, simply select "I am unsure":
-                            </div>
-                            <FormControl>
-                                <Select
-                                    style={{fontSize: '1.5vh'}}
-                                    value={initialHypo + 3}
-                                    onChange={event => handleResponse(Number(event.target.value) - 3)}>
-                                    {
-                                        initialConfidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
-                                    }
-                                </Select>
-                            </FormControl>
+                    <div className="hypothesisBlock">
+                        <div className="hypothesisTitle"><strong>Initial Hypothesis Confidence</strong></div>
+                        <div className="hypothesisText">
+                            Provide a ranking of your initial certainty that this hypothesis will be supported or refuted. If you have no initial preference, simply select "I am unsure":
                         </div>
+                        <FormControl>
+                            <Select
+                                style={{fontSize: '1.5vh'}}
+                                value={initialHypo + 3}
+                                onChange={event => handleResponse(Number(event.target.value) - 3)}>
+                                {
+                                    initialConfidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
+                                }
+                            </Select>
+                        </FormControl>
                     </div>
                 </div>
             </div>
