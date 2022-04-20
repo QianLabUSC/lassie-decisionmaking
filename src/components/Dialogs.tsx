@@ -18,6 +18,11 @@ const useStyle = makeStyles(() => ({
     transform: 'translate(-50%, 0%)',
     textAlign: "center",
   },
+  image: {
+    height: '25vh',
+    margin: 'auto',
+    marginBottom: '2vh',
+  }
 }));
 
 interface ConfirmProps {
@@ -29,10 +34,11 @@ interface ConfirmProps {
   title?: string,
   text: string | string[], 
   okText?: string,
-  cancelText?: string
+  cancelText?: string,
+  img?: any
 };
 
-export function ConfirmDialog({ open, onOk, onClose, onCancel, allowCancel, title, text, okText, cancelText } : ConfirmProps) {
+export function ConfirmDialog({ open, onOk, onClose, onCancel, allowCancel, title, text, okText, cancelText, img } : ConfirmProps) {
   const classes = useStyle();
   title = title || "";
   okText = okText || "OK";
@@ -51,9 +57,12 @@ export function ConfirmDialog({ open, onOk, onClose, onCancel, allowCancel, titl
     >
       <DialogTitle id="alert-dialog-title" className={classes.helpDialogTitle}>{title}</DialogTitle>
       <DialogContent>
-        {
-          textSections.map((t, i) => <DialogContentText id="alert-dialog-description" key={i}>{t}</DialogContentText>)
+        { img && 
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+          <img src={img} className={classes.image} /> 
+          </div>
         }
+        { textSections.map((t, i) => <DialogContentText id="alert-dialog-description" key={i}>{t}</DialogContentText>) }
       </DialogContent>
       <DialogActions>
         {allowCancel && <Button onClick={onCancel} color="primary">{cancelText}</Button>}
@@ -63,7 +72,16 @@ export function ConfirmDialog({ open, onOk, onClose, onCancel, allowCancel, titl
   );
 };
 
-export function MultiStepDialog({ open, title, steps, setOpen, allowCancel}) {
+interface MultiStepDialogProps {
+  open: boolean,
+  title?: string,
+  steps: string[][],
+  setOpen: any,
+  allowCancel: boolean,
+  img?: any
+};
+
+export function MultiStepDialog({ open, title, steps, setOpen, allowCancel, img } : MultiStepDialogProps) {
   const [idx, setIdx] = useState(0);
   const isFirstStep = idx == 0;
   const isLastStep = idx == steps.length - 1;
@@ -87,6 +105,7 @@ export function MultiStepDialog({ open, title, steps, setOpen, allowCancel}) {
       allowCancel={allowCancel}
       text={steps[idx]}
       okText={isLastStep ? "OK" : "Next"}
+      img={img}
     />
   );
 }

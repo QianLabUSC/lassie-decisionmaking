@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
-import { NORMALIZED_WIDTH, RowType, sampleLocations, NUM_OF_LOCATIONS, 
+import { NORMALIZED_WIDTH, RowType, sampleLocations, NUM_OF_LOCATIONS, objectiveOptions,
   MOISTURE_BINS, NUM_MEASUREMENTS, MAX_NUM_OF_MEASUREMENTS } from './constants';
 import { measurements } from './measurements';
 import { dataset } from './data/rhexDataset';
-import { Sample, PreSample } from './types';
+import { Sample, PreSample, Objective } from './types';
 import { IState } from './state';
 
 
@@ -202,15 +202,7 @@ export function parseQueryString(query: string) {
 
 // This function calculates the robot's suggested location
 export async function calculateRobotSuggestions(samples: Sample[], 
-  globalState: IState, objectives: number[], objectivesRankings: number[]) {
-
-  // Consolidate the objectives and their rankings, ordered by ranking in ascending order
-  let objectivesRanked : any[] = [];
-  for (let i = 0; i < objectives.length; i++) {
-    objectivesRanked.push({objective: objectives[i], ranking: objectivesRankings[i]});
-  }
-  objectivesRanked.sort((a, b) => (a.ranking > b.ranking) ? 1 : -1);
-  //console.log({objectivesRanked});
+  globalState: IState, objectives: Objective[]) {
 
   // Prepare inputs for flask backend calculation
   let locations : number[] = [];
@@ -232,20 +224,20 @@ export async function calculateRobotSuggestions(samples: Sample[],
   // Return the top 3 suggested locations unordered
   let locs;
 
-  switch (objectivesRanked[0].objective) {
-    case 0: {
+  switch (objectives[0].objective) {
+    case objectiveOptions[0]: {
       locs = spatial_selection;
       break;
     }
-    case 1: {
+    case objectiveOptions[1]: {
       locs = variable_selection;
       break;
     }
-    case 2: {
+    case objectiveOptions[2]: {
       locs = discrepancy_selection;
       break;
     }
-    case 3: {
+    case objectiveOptions[3]: {
       locs = discrepancy_low_selection;
       break;
     }
