@@ -305,6 +305,7 @@ class DecisionMaking:
         mean_moisture_each = np.zeros(22)
         min_moisture_each = np.zeros(22)
         max_moisture_each = np.zeros(22)
+        std_moisture_each = np.zeros(22)
         for jj in range(len(location)):
             if(jj == 0):
                 moisture = self.current_state_moisture[jj]
@@ -318,6 +319,7 @@ class DecisionMaking:
                 slope = ((moisture_mean_next - moisture_mean) 
                                 / (location[jj+1] - location[jj]))
                 for loc in range(location[jj]):
+                    std_moisture_each[loc] = moisture_std
                     mean_moisture_each[loc] = moisture_mean - slope * ( 
                                                         location[jj] - loc - 1)
                     min_moisture_each[loc] =  min(moisture_mean - 
@@ -334,6 +336,7 @@ class DecisionMaking:
                 slope = (moisture_mean - moisture_mean_prev) / (location[jj]
                              - location[jj-1])
                 for loc in range(location[jj], 22):
+                    std_moisture_each[loc] = moisture_std
                     mean_moisture_each[loc] = moisture_mean + slope * (
                                                         loc - location[jj] + 1)
                     min_moisture_each[loc] =  min(moisture_mean + 
@@ -341,6 +344,7 @@ class DecisionMaking:
                     max_moisture_each[loc] = max(moisture_mean +
                             2 * slope * (22 - location[jj]), moisture_mean)   
                 for loc in range(location[jj-1], location[jj]):
+                    std_moisture_each[loc] = (moisture_std + moisture_std_prev)/2
                     mean_moisture_each[loc] = moisture_mean + slope * (loc - 
                                         location[jj] + 1)
                     min_moisture_each[loc] = min(moisture_mean_prev, 
@@ -357,6 +361,7 @@ class DecisionMaking:
                 slope = (moisture_mean - moisture_mean_prev) / (location[jj]
                              - location[jj-1])
                 for loc in range(location[jj-1], location[jj]):
+                    std_moisture_each[loc] = (moisture_std + moisture_std_prev)/2
                     mean_moisture_each[loc] = moisture_mean + slope * (loc - 
                                         location[jj] + 1)
                     min_moisture_each[loc] = min(moisture_mean_prev, 
@@ -364,11 +369,12 @@ class DecisionMaking:
                     max_moisture_each[loc] = max(moisture_mean_prev,
                                         moisture_mean) 
         R_v_set = np.zeros(22)
+        self.std_moisture_each = std_moisture_each
         self.mean_moisture_each = mean_moisture_each
         self.min_moisture_each = min_moisture_each
         self.max_moisture_each = max_moisture_each
         for jj in range(22):
-            std = (max_moisture_each[jj] - min_moisture_each[jj])/6
+            std = std_moisture_each[loc]
             min_std = 0.001
             moisture_possibility = np.linspace(mean_moisture_each[jj] - 3*std, 
                                                 mean_moisture_each[jj] + 3*std, 20)
@@ -425,24 +431,32 @@ class DecisionMaking:
         xx_unique = np.unique(xx_sorted)
         xx_mean = np.zeros(len(xx_unique))
         yy_mean = np.zeros(len(xx_unique))
+        xx_std = np.zeros(len(xx_unique))
+        yy_std = np.zeros(len(xx_unique))
         for i in range(len(xx_unique)):
             aa = np.argwhere(xx_sorted==xx_unique[i])
             xx_finded = xx_sorted[aa]
             yy_finded = yy_sorted[aa]
             xx_mean[i] = np.mean(xx_finded)
             yy_mean[i] = np.mean(yy_finded)
+            xx_std[i] = np.std(xx_finded)
+            yy_std[i] = np.std(yy_finded)
         shearstrength_predict = np.zeros(19)
         shearstrength_min = np.zeros(19)
         shearstrength_max = np.zeros(19)
+        shearstrength_std_each = np.zeros(19)
         for i in range(len(xx_mean)):
             if(i == 0):
                 moisture_mean = xx_mean[i]
                 shearstrength_mean = yy_mean[i]
+                shearstrength_std = yy_std[i]
                 moisture_mean_next = xx_mean[i+1]
                 shearstrengh_mean_next = yy_mean[i+1]
+                shearstrength_std_next = yy_std[i+1]
                 slope = (shearstrengh_mean_next - shearstrength_mean)/(
                                     moisture_mean_next - moisture_mean)
                 for jj in range(int(np.floor(xx_unique[i])+2)):
+                    shearstrength_std_each[jj] = shearstrength_std 
                     shearstrength_predict[jj] = shearstrength_mean - slope * (
                         moisture_mean + 1 - jj
                       )
@@ -453,12 +467,15 @@ class DecisionMaking:
             elif(i == len(xx_mean)-1):
                 moisture_mean = xx_mean[i]
                 shearstrength_mean = yy_mean[i]
+                shearstrength_std = yy_std[i]
                 # print(shearstrength_mean)
                 moisture_mean_prev = xx_mean[i-1]
                 shearstrength_mean_prev = yy_mean[i-1]
+                shearstrength_std_prev = yy_std[i-1]
                 slope = (shearstrength_mean - shearstrength_mean_prev)/(
                                     moisture_mean - moisture_mean_prev)
                 for jj in range(int(np.floor(xx_unique[i])+2) , 19):
+                    shearstrength_std_each[jj] = shearstrength_std 
                     shearstrength_predict[jj] = shearstrength_mean + slope * (
                           jj - moisture_mean -1
                       )
@@ -468,6 +485,7 @@ class DecisionMaking:
                            17 - moisture_mean),  shearstrength_mean)
                 for jj in range(int(np.floor(xx_unique[i-1])+2), 
                                                 int(np.floor(xx_unique[i])+2)):
+                    shearstrength_std_each[jj] = (shearstrength_std + shearstrength_std_prev)/2
                     shearstrength_predict[jj] = shearstrength_mean + slope * (
                           jj - moisture_mean - 1)
                     shearstrength_min[jj] = min(yy_mean[i-1], yy_mean[i])
@@ -475,12 +493,15 @@ class DecisionMaking:
             else:
                 moisture_mean = xx_mean[i]
                 shearstrength_mean = yy_mean[i]
+                shearstrength_std = yy_std[i]
                 moisture_mean_prev = xx_mean[i-1]
                 shearstrength_mean_prev = yy_mean[i-1]
+                shearstrength_std_prev = yy_std[i-1]
                 slope = (shearstrength_mean - shearstrength_mean_prev)/(
                                     moisture_mean - moisture_mean_prev)
                 for jj in range(int(np.floor(xx_unique[i-1])+2), 
                                                 int(np.floor(xx_unique[i])+2)):
+                    shearstrength_std_each[jj] = (shearstrength_std + shearstrength_std_prev)/2
                     shearstrength_predict[jj] = shearstrength_mean + slope * (
                           jj - moisture_mean - 1)
                     shearstrength_min[jj] = min(yy_mean[i-1], yy_mean[i])
@@ -490,8 +511,7 @@ class DecisionMaking:
         # compute the potential discrepancy reward
         R_d_set = np.zeros((22))
         for jj in range(22):
-            std_moist = max(0.001, 
-                    (self.max_moisture_each[jj] - self.min_moisture_each[jj])/6)
+            std_moist = max(0.001, self.std_moisture_each[jj])
             moisture_possibility = np.linspace(self.mean_moisture_each[jj] - 3*std_moist, 
                                                 self.mean_moisture_each[jj] + 3*std_moist, 20)
             probability = gauss(self.mean_moisture_each[jj], 1, 
@@ -505,8 +525,7 @@ class DecisionMaking:
                     moisture_index = 18
                 else:
                     moisture_index = np.round(moisture_possibility[kk]) + 1
-                shearstrength_std = max(0.001, 
-                                    shearstrength_range[int(moisture_index)]/6)
+                shearstrength_std = max(0.001, shearstrength_std_each[int(moisture_index)])
                 # print(shearstrength_std)
                 shearstrength_possibility = np.linspace(
                                         shearstrength_predict[int(moisture_index)] - 3*shearstrength_std,
@@ -523,6 +542,7 @@ class DecisionMaking:
                     R_d_l = (R_d_l +shearstrength_actual_prob[qq] * 
                                 np.abs(shearstrength_possibility[qq] -
                                              shearstrength_hypo_value))
+                    average_shearstrength = shearstrength_actual_prob[qq] * shearstrength_possibility[qq]
                 R_d_m = R_d_m + R_d_l * moisture_actual_probability[kk]
             R_d_set[jj] = R_d_m
         self.discrepancy_coverage = R_d_set/3
