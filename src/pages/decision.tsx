@@ -666,7 +666,7 @@ export default function Main() {
       allowCancel={false}
       steps={[
         ["RHex will always take 3 measurements of moisture and strength at each location visited.",
-        "The dune cross-section on the right displays the locations where RHex has already sampled and the charts on the left display the corresponding data. Select \"Update Chart Options\" to adjust the charts to display raw or averaged values (if there are multiple samples taken from the same location along the transect).",
+        "The dune cross-section on the right displays the locations where RHex has already sampled and the charts on the left display the corresponding data.",
         "You will be asked a few questions to determine where RHex should sample next.",
         "If at any point you feel you have collected enough data to make a judgment about the hypothesis, select \"End Collection at Transect.\""
         ]

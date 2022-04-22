@@ -38,8 +38,8 @@ const generateSurveyOutput = (answers: SurveyAnswers, questionList: SurveyQuesti
             value: answers[question.id || "-1"]
         });
         if (question.followUps) {
-            question.followUps.forEach(followUp => {
-                if (followUp) {
+            question.followUps.forEach((followUp, i) => {
+                if (followUp && i === parseInt(answers[question.id || "-1"])) {
                     (Array.isArray(followUp) ? followUp : [followUp]).forEach(followUpQuestion => {
                         extractQuestions(followUpQuestion, questions, answers);
                     });
