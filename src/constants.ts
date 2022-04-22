@@ -609,7 +609,11 @@ export const LONGITUDE_RANGE =  [-106.30, -106.20];
 export const countdownDuration = 10;
 
 // Multiple choice options for robot trust questions in final survey
-export const robotTrustOptions = ["1", "2", "3", "4", "5", "6", "7", "N/A to this robot", "N/A to robots in general", "Not enough information"];
+export const robotAgreeDisagreeOptions = ["Highly disagree", "Moderately disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Moderately agree", "Highly agree"];
+
+// Multiple choice options for robot trust questions in final survey
+export const robotTrustOptions = ["Not at all", "Low", "Slightly", "Neutral", "Moderately", "Very", "Extremely", "N/A to this robot", 
+"N/A to robots in general", "Not enough information"];
 
 /********************************************************************** */
 /* User feedback options for the robot during each data collection step */

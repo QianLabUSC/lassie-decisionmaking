@@ -1,4 +1,4 @@
-import { robotTrustOptions } from '../constants';
+import { robotAgreeDisagreeOptions, robotTrustOptions } from '../constants';
 
 export enum QuestionType { MultipleChoice, MultipleChoiceHorizontal, Ranked, Instruction, Text }
 export enum TextAreaType { Small, Number, Large }
@@ -13,6 +13,27 @@ export type SurveyQuestion = {
     }
 };
 
+let multipleBeliefsFollowUp =  {
+    type: QuestionType.MultipleChoice,
+    text: "When you held multiple beliefs, how did you resolve them?",
+    responses: [
+        "I focused on one-at-a-time. I selected a sampling location that addressed my most important belief.", 
+        "I weighted my beliefs. I prioritized sampling locations that addressed my most important belief first, and then selected from these a location that also addressed my second most important belief.",
+        "I did not weight my beliefs. I selected a sampling location that addressed my multiple beliefs, even if it was not the ideal location to address my most important belief.",
+        "Other"
+    ],
+    followUps: [
+        null,
+        null,
+        null,
+        {
+            type: QuestionType.Text,
+            text: "Please explain."
+        },
+    ]
+}
+
+
 export const surveyQuestions: SurveyQuestion[][] = [
     [
         {
@@ -22,25 +43,13 @@ export const surveyQuestions: SurveyQuestion[][] = [
         {
             type: QuestionType.MultipleChoice,
             text: "How often did you hold multiple beliefs at a time (e.g., believing simultaneously that there are areas along the dune transect where data is needed, AND that there are potential discrepancies between measurements and the given hypothesis that needs to be further investigated)?",
-            responses: ["Always", "Most of the time", "Sometimes", "Rarely", "Never"]
-        },
-        {
-            type: QuestionType.MultipleChoice,
-            text: "When you held multiple beliefs, how did you resolve them?",
-            responses: [
-                "I focused on one-at-a-time. I selected a sampling location that addressed my most important belief.", 
-                "I weighted my beliefs. I prioritized sampling locations that addressed my most important belief first, and then selected from these a location that also addressed my second most important belief.",
-                "I did not weight my beliefs. I selected a sampling location that addressed my multiple beliefs, even if it was not the ideal location to address my most important belief.",
-                "Other"
-            ],
+            responses: ["Always", "Most of the time", "Sometimes", "Rarely", "Never"],
             followUps: [
-                null,
-                null,
-                null,
-                {
-                    type: QuestionType.Text,
-                    text: "Please explain."
-                },
+                multipleBeliefsFollowUp,
+                multipleBeliefsFollowUp,
+                multipleBeliefsFollowUp,
+                multipleBeliefsFollowUp,
+                null
             ]
         },
         {
@@ -53,27 +62,32 @@ export const surveyQuestions: SurveyQuestion[][] = [
     [
         {
             type: QuestionType.Instruction,
-            text: "Rank the extent to which you agree/disagree with each of the following statements (1 - I highly disagree, 2 - I moderately disagree, 3 - I somewhat disagree, 4 - I am unsure, 5 - I somewhat agree, 6 - I moderately agree, 7 - I highly agree):",
+            text: "Rank the extent to which you agree/disagree with each of the following statements:"
         },
         {
-            type: QuestionType.Ranked,
-            text: "The robot’s suggestion was useful when I wanted to increase spatial coverage."
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The robot’s suggestion was useful when I wanted to increase spatial coverage.",
+            responses: robotAgreeDisagreeOptions
         },
         {
-            type: QuestionType.Ranked,
-            text: "The robot’s suggestion was useful when I wanted to increase moisture-range coverage."
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The robot’s suggestion was useful when I wanted to increase moisture-range coverage.",
+            responses: robotAgreeDisagreeOptions
         },
         {
-            type: QuestionType.Ranked,
-            text: "The robot’s suggestion was useful when I wanted to look into a potential discrepancy between measurements and the given hypothesis."
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The robot’s suggestion was useful when I wanted to look into a potential discrepancy between measurements and the given hypothesis.",
+            responses: robotAgreeDisagreeOptions
         },
         {
-            type: QuestionType.Ranked,
-            text: "The robot’s suggestion was useful when I wanted to further verify that the measurements supported the given hypothesis."
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The robot’s suggestion was useful when I wanted to further verify that the measurements supported the given hypothesis.",
+            responses: robotAgreeDisagreeOptions
         },
         {
-            type: QuestionType.Ranked,
-            text: "The robot’s suggestions were not useful."
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The robot’s suggestions were not useful.",
+            responses: robotAgreeDisagreeOptions
         },
         {
             type: QuestionType.Text,
@@ -83,7 +97,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
     [
         {
             type: QuestionType.Instruction,
-            text: "For each of the following statements, rate the intensity of your feelings of trust, or your impression of the robot’s suggestions in simulation: (1 - not at all, 2, 3, 4, 5, 6, 7 - extremely):"
+            text: "For each of the following statements, rate the intensity of your feelings of trust, or your impression of the robot’s suggestions in simulation:"
         },
         {
             type: QuestionType.MultipleChoiceHorizontal,
