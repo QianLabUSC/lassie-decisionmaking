@@ -59,7 +59,7 @@ export function ConfirmDialog({ open, onOk, onClose, onCancel, allowCancel, titl
       <DialogContent>
         { img && 
           <div style={{display: 'flex', justifyContent: 'center'}}>
-          <img src={img} className={classes.image} /> 
+            <img src={img} className={classes.image} /> 
           </div>
         }
         { textSections.map((t, i) => <DialogContentText id="alert-dialog-description" key={i}>{t}</DialogContentText>) }

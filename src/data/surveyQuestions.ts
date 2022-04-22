@@ -1,4 +1,6 @@
-export enum QuestionType { MultipleChoice, Ranked, Instruction, Text }
+import { robotTrustOptions } from '../constants';
+
+export enum QuestionType { MultipleChoice, MultipleChoiceHorizontal, Ranked, Instruction, Text }
 export enum TextAreaType { Small, Number, Large }
 export type SurveyQuestion = {
     type: QuestionType,
@@ -19,163 +21,136 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.MultipleChoice,
-            text: "Why did you select the particular number of measurements per location that you did?",
-            responses: ["I am unsure.", "I had a reason."],
+            text: "How often did you hold multiple beliefs at a time (e.g., believing simultaneously that there are areas along the dune transect where data is needed, AND that there are potential discrepancies between measurements and the given hypothesis that needs to be further investigated)?",
+            responses: ["Always", "Most of the time", "Sometimes", "Rarely", "Never"]
+        },
+        {
+            type: QuestionType.MultipleChoice,
+            text: "When you held multiple beliefs, how did you resolve them?",
+            responses: [
+                "I focused on one-at-a-time. I selected a sampling location that addressed my most important belief.", 
+                "I weighted my beliefs. I prioritized sampling locations that addressed my most important belief first, and then selected from these a location that also addressed my second most important belief.",
+                "I did not weight my beliefs. I selected a sampling location that addressed my multiple beliefs, even if it was not the ideal location to address my most important belief.",
+                "Other"
+            ],
             followUps: [
                 null,
-                [
-                    {
-                        type: QuestionType.Instruction,
-                        text: "Rank the extent to which each of the following contributed to your decision (1 - Not at all, 5 - Very much).",
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "The number (or numbers) were selected and distributed based on the expectation that moisture increased linearly over the dune."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "The number (or numbers) were selected and distributed to capture the most likely point of saturation."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "The number (or numbers) were selected and distributed based on dune slope."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "The number (or numbers) were selected and distributed based on dune elevation profile."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This is the number (or numbers) I default to"
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This is the number (or numbers) that are traditionally used in my discipline."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This is an efficient number (or numbers)."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This number (or numbers) optimizes the balance between efficiency and thoroughness."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This is the best number (or numbers) given the density of locations sampled from."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This number (or numbers) captures naturally occurring variability."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This number (or numbers) capture variability from measurement error."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This number (or numbers) captures any outliers."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This number (or numbers) allows me to compute a useful statistic."
-                    },
-                ],
+                null,
+                null,
+                {
+                    type: QuestionType.Text,
+                    text: "Please explain."
+                },
             ]
         },
         {
             type: QuestionType.MultipleChoice,
-            text: "Why did you select the particular measurement locations on each dune transect that you did?",
-            responses: ["I am unsure.", "I had a reason."],
-            followUps: [
-                null,
-                [
-                    {
-                        type: QuestionType.Instruction,
-                        text: "Rank the extent to which each of the following contributed to your decision (1 - Not at all, 5 - Very much).",
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "The location spacing strategy was selected and distributed based on the expectation that moisture increased linearly over the dune."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "The location spacing strategy was selected and distributed to capture the most likely point of saturation."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "The location spacing strategy was driven by dune slope."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "The location spacing strategy was driven by dune elevation profile."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This is the location spacing strategy I default to."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This is the location spacing strategy that is traditionally used in my discipline."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This is an efficient location spacing strategy."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This location spacing strategy optimizes the balance between efficiency and thoroughness."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This is the best location spacing strategy given the number of measurements taken at each location."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This location spacing strategy avoids spatial bias."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This location spacing strategy achieves sufficient coverage."
-                    },
-                    {
-                        type: QuestionType.Ranked,
-                        text: "This location spacing strategy allows me to compute a useful statistic."
-                    },
-                ]
-            ]
-        }
+            text: "How satisfied were you with the suggested locations provided by the robot?",
+            responses: ["Very satisfied", "Moderately satisfied", "Somewhat satisfied", "Neither satisfied nor unsatisfied", 
+            "Somewhat unsatisfied", "Moderately unsatisfied", "Very unsatisfied"]
+        },
     ],
     [
         {
             type: QuestionType.Instruction,
-            text: "Thank you! You are almost finished. Please respond to a few final questions."
+            text: "Rank the extent to which you agree/disagree with each of the following statements (1 - I highly disagree, 2 - I moderately disagree, 3 - I somewhat disagree, 4 - I am unsure, 5 - I somewhat agree, 6 - I moderately agree, 7 - I highly agree):",
+        },
+        {
+            type: QuestionType.Ranked,
+            text: "The robot’s suggestion was useful when I wanted to increase spatial coverage."
+        },
+        {
+            type: QuestionType.Ranked,
+            text: "The robot’s suggestion was useful when I wanted to increase moisture-range coverage."
+        },
+        {
+            type: QuestionType.Ranked,
+            text: "The robot’s suggestion was useful when I wanted to look into a potential discrepancy between measurements and the given hypothesis."
+        },
+        {
+            type: QuestionType.Ranked,
+            text: "The robot’s suggestion was useful when I wanted to further verify that the measurements supported the given hypothesis."
+        },
+        {
+            type: QuestionType.Ranked,
+            text: "The robot’s suggestions were not useful."
         },
         {
             type: QuestionType.Text,
-            text: "Why did you select the particular dune transects (within the field area) that you did?"
+            text: "If you were to use this robot for data collection in real life, what changes or improvements would you make in how the robot interacts with you to suggest locations?",
         },
-        {
-            type: QuestionType.Text,
-            text: "Did you ever adapt your strategy, why or why not?"
-        },
-        {
-            type: QuestionType.Text,
-            text: "Do you think this web-based scenario has pedagogical value? How so? If not, what would need to be changed to make it useful for geoeducation?"
-        },
-        {
-            type: QuestionType.Text,
-            text: "Was this task too difficult?"
-        },
-        {
-            type: QuestionType.Text,
-            text: " Is there anything else you want to tell us?"
-        }
     ],
     [
         {
             type: QuestionType.Instruction,
-            text: "Thank you! You are almost finished. Please respond to a few final questions."
+            text: "For each of the following statements, rate the intensity of your feelings of trust, or your impression of the robot’s suggestions in simulation: (1 - not at all, 2, 3, 4, 5, 6, 7 - extremely):"
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The system is reliable.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "I am familiar with the system.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "I am confident in the system.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The system is dependable.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "I can trust the system.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The system provides security.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The system has integrity.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "I am suspicious of the system’s intent, action, or outputs.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "I am wary of the system.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The system is deceptive.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The system behaves in an underhanded manner.",
+            responses: robotTrustOptions
+        },
+        {
+            type: QuestionType.MultipleChoiceHorizontal,
+            text: "The system’s actions will have a harmful or injurious outcome.",
+            responses: robotTrustOptions
+        },
+
+    ],
+    [
+        {
+            type: QuestionType.Instruction,
+            text: "Please respond to a few final demographic questions."
         },
         {
             type: QuestionType.Text,
