@@ -409,7 +409,7 @@ export default function Main() {
   const rankObjectives = () => {
     let objectivesTemp = [...objectives];
     objectivesTemp.sort((a, b) => (a.ranking > b.ranking) ? 1 : -1);
-    dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
+    return objectivesTemp;
   }
 
   const onSubmit = async () => {
@@ -450,6 +450,9 @@ export default function Main() {
         return;
       }
       case UserFeedbackState.RANK_OBJECTIVES: {
+        // Order the objectives by ranking
+        let objectivesTemp = rankObjectives();
+        dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
         // Check if objectives contains free response option and if this option is ranked the highest
         let freeResponseRankedHighest = false; 
         for (let i = 0; i < objectives.length; i++) {
@@ -463,7 +466,7 @@ export default function Main() {
         } else {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
 
-          let robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
+          let robotResults = await calculateRobotSuggestions(samples, globalState, objectivesTemp);
           const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
           dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
           dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
@@ -475,8 +478,6 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
         }
-        // Order the objectives by ranking
-        rankObjectives();
         console.log({globalState}); // for debugging
         return;
       }
