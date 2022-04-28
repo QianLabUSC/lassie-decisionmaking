@@ -24,17 +24,24 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
 
   for (let rowIndex = 0; rowIndex < samples.length; rowIndex++) {
     const row = samples[rowIndex];
-    const { index, measurements } = row;
+    const { index, moisture, shear } = row;
+
+    // Create data for shear to moisture chart
+    let shearMoisture : any[] = [];
+    for (let i = 0; i < moisture.length; i++) {
+      shearMoisture.push({shear: shear[i], moisture: moisture[i]});
+    }
+
     // Map x value from just the section of the slope to [0, 1]
     const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
-    const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
-    const averageShearValue = mean(shearValues);
-    const averageMoistureValue = mean(moistureValues);
+    //const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
+    const averageShearValue = mean(shear);
+    const averageMoistureValue = mean(moisture);
 
     if (chartSettings.mode === ChartDisplayMode.RAW) {
-      shearValues.forEach(value => pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), value, rowIndex, currSampleIdx, index));
-      moistureValues.forEach(value => pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), value, rowIndex, currSampleIdx, index));
-      shearMoistureValues.forEach(value => pushChartArrayValue(shearMoistureDataPoints, value.moistureValue, value.shearValue, rowIndex, currSampleIdx, index));
+      shear.forEach(value => pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), value, rowIndex, currSampleIdx, index));
+      moisture.forEach(value => pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), value, rowIndex, currSampleIdx, index));
+      shearMoisture.forEach(value => pushChartArrayValue(shearMoistureDataPoints, value.moisture, value.shear, rowIndex, currSampleIdx, index));
     } else if (chartSettings.mode === ChartDisplayMode.AVERAGE) {
       pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), averageShearValue, rowIndex, currSampleIdx,index);
       pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), averageMoistureValue, rowIndex, currSampleIdx, index);
