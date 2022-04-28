@@ -253,7 +253,6 @@ class DecisionMaking:
         sample = np.array(sample)
         moisture = np.array(moisture)
         shear_strengh = np.array(shear_strenth)
-        print(shear_strengh)
         unique_location, full_indices  = np.unique(location, return_inverse=True)
         integrated_sample = np.zeros(len(unique_location))
         integrated_moisture = []
@@ -268,7 +267,7 @@ class DecisionMaking:
         # print(self.current_state_sample)
         self.current_state_moisture = integrated_moisture
         self.current_state_shear_strength = integrated_shearstrength
-        print("shear:", self.current_state_shear_strength)
+
 
     '''
     compute the spatial reward coverage 
@@ -372,7 +371,8 @@ class DecisionMaking:
                     max_moisture_each[loc] = max(moisture_mean_prev,
                                         moisture_mean) 
         R_v_set = np.zeros(22)
-        
+        std_moisture_each[np.where(std_moisture_each < 0)] = 0
+        std_moisture_each[np.where(std_moisture_each > 1)] = 1
         self.std_moisture_each = std_moisture_each
         mean_moisture_each[np.where(mean_moisture_each < -1)] = -1
         mean_moisture_each[np.where(mean_moisture_each > 17)] = 17
@@ -407,12 +407,8 @@ class DecisionMaking:
         MinCoverage = 0.06
         moisture_bins = np.linspace(-1,17,19)
         moisture_range = np.linspace(-1,18,20) - 0.5
-        print(self.current_state_moisture)
-        print(self.current_state_shear_strength)
         xx = np.array([item for sublist in self.current_state_moisture for item in sublist])
-        print(xx)
         yy = np.array([item for sublist in self.current_state_shear_strength for item in sublist])
-        print(yy)
         zz_unflattend = []
         for jj in range(len(self.current_state_location)):
             zz_unflattend.append(self.current_state_location[jj] * np.ones((1, 
@@ -424,8 +420,6 @@ class DecisionMaking:
         xx_sorted = xx[sort_index]
         yy_sorted = yy[sort_index]
         zz_sorted = zz[sort_index]
-        print(xx_sorted)
-        print(yy_sorted)
         countMoist, bins = np.histogram(xx, moisture_range)
         a = np.nonzero(countMoist)
         moistcoverage = len(np.nonzero(countMoist)[0])/moisture_bins.size
@@ -435,20 +429,18 @@ class DecisionMaking:
             )
         else:
             xx_unique = np.unique(xx_sorted)
-            RMSE_average = 0.5 * np.ones(len(xx_unique))  
             self.xx_model =  0.5 * np.ones(len(moisture_bins))  
             self.xfit = np.linspace((-1,17,19))
 
         ## compute the belief of shearstrenght vs moisture
         xx_unique = np.unique(xx_sorted)
-        xx_mean = np.zeros(len(xx_unique))
-        yy_mean = np.zeros(len(xx_unique))
-        xx_std = np.zeros(len(xx_unique))
-        yy_std = np.zeros(len(xx_unique))
-        for i in range(len(xx_unique)):
-            aa = np.argwhere(xx_sorted==xx_unique[i])
-            xx_finded = xx_sorted[aa]
-            yy_finded = yy_sorted[aa]
+        xx_mean = np.zeros(len(location))
+        yy_mean = np.zeros(len(location))
+        xx_std = np.zeros(len(location))
+        yy_std = np.zeros(len(location))
+        for i in range(len(location)):
+            xx_finded = self.current_state_moisture[i]
+            yy_finded = self.current_state_shear_strength[i]
             print(yy_finded)
             xx_mean[i] = np.mean(xx_finded)
             yy_mean[i] = np.mean(yy_finded)
@@ -506,6 +498,8 @@ class DecisionMaking:
                 shearstrength_predict[i] = f(self.x_detail_fit[i])
                 shearstrength_std_each[i] = f_std(self.x_detail_fit[i])
         print("Dafdsafdasfas", shearstrength_std_each)
+        shearstrength_std_each[np.where(shearstrength_std_each < 0)] = 0
+        shearstrength_std_each[np.where(shearstrength_std_each > 1)] = 1
         self.shearstrength_std_each = shearstrength_std_each
         self.shearstrength_predict = shearstrength_predict
         print(self.shearstrength_predict)
