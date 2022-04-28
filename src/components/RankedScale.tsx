@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useState } from 'react';
 import '../styles/inputs.scss';
 
 const Checkbox = props => (
@@ -15,15 +14,13 @@ export default function RadioButtonGroup(props) {
         <div className="rankedScale">
             <div className="inputs">
                 {
-                    [1, 2, 3, 4, 5].map(i => <Checkbox number={i} checked={props.selectedIndex === i.toString()} onChange={() => {
+                    [1, 2, 3, 4, 5, 6, 7].map(i => <Checkbox number={i} checked={props.selectedIndex === i.toString()} key={props.id + i} onChange={() => {
                         if (props.selectedIndex !== i) {
                             props.onChange(i);
                         }
                     }}/>)
                 }
             </div>
-            <span>Not At All</span>
-            <span>Very Much</span>
         </div>
     );
 }

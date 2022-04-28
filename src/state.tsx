@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { createContext, useContext, useReducer } from 'react';
 import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample, PreSample } from './types';
+import { objectiveOptions } from './constants';
 import { getShearData, getMoistureData } from './util';
 
 export type ChartSettings = {
@@ -37,6 +38,7 @@ export interface IState {
   userSteps: UserStepsData[], // will be in final output after survey is completed
   // Hypothesis fields
   initialHypo: number, // will be in final output after survey is completed
+  finalHypo: number, // will be in final output after survey is completed
   // Chart fields
   chart: Charts,
   chartSettings: ChartSettings,
@@ -68,7 +70,6 @@ export const initialState : IState = {
     step: 1,
     userFeedbackState: 0,
     objectives: [],
-    objectivesRankings: [],
     objectiveFreeResponse: "",
     sampleType: null,
     robotSuggestions: [],
@@ -82,12 +83,12 @@ export const initialState : IState = {
     rejectReasonFreeResponse: "",
     userFreeSelection: false,
     userSample: null,
-    objectivesAddressedRating: [],
     hypoConfidence: 0,
     transition: 0,
   },
   userSteps: [],
   initialHypo: 0,
+  finalHypo: 0,
   chart: null,
   chartSettings: {
     mode: 0,
@@ -124,7 +125,6 @@ export enum Action {
   SET_USER_STEP_IDX,
   SET_USER_FEEDBACK_STATE,
   SET_OBJECTIVES,
-  SET_OBJECTIVES_RANKINGS,
   SET_OBJECTIVES_FREE_RESPONSE,
   SET_SAMPLE_TYPE,
   SET_LOADING_ROBOT_SUGGESTIONS,
@@ -140,13 +140,13 @@ export enum Action {
   SET_REJECT_REASON_FREE_RESPONSE,
   SET_USER_FREE_SELECTION,
   SET_USER_SAMPLE,
-  SET_OBJECTIVES_ADDRESSED_RATING,
   SET_HYPO_CONFIDENCE,
   SET_TRANSITION,
   SET_DISABLE_SUBMIT_BUTTON,
   SET_NUM_SUBMIT_CLICKS,
   /** FINISH */
   SET_INIT_HYPO_CONFIDENCE,
+  SET_FINAL_HYPO_CONFIDENCE,
   SET_CHART,
   SET_CHART_SETTINGS,
   CLEAR_CHART_CURRENT,
@@ -172,6 +172,7 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_SAMPLES]: 'samples',
   [Action.SET_CURR_USER_STEP]: 'currUserStep',
   [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
+  [Action.SET_FINAL_HYPO_CONFIDENCE]: 'finalHypo',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
   [Action.SET_LOADING_ROBOT_SUGGESTIONS]: 'loadingRobotSuggestions',
@@ -226,7 +227,6 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_USER_STEP_IDX]: 'step',
   [Action.SET_USER_FEEDBACK_STATE]: 'userFeedbackState',
   [Action.SET_OBJECTIVES]: 'objectives',
-  [Action.SET_OBJECTIVES_RANKINGS]: 'objectivesRankings',
   [Action.SET_OBJECTIVES_FREE_RESPONSE]: 'objectiveFreeResponse',
   [Action.SET_SAMPLE_TYPE]: 'sampleType',
   [Action.SET_ROBOT_SUGGESTIONS]: 'robotSuggestions',
@@ -240,7 +240,6 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_REJECT_REASON_FREE_RESPONSE]: 'rejectReasonFreeResponse',
   [Action.SET_USER_FREE_SELECTION]: 'userFreeSelection',
   [Action.SET_USER_SAMPLE]: 'userSample',
-  [Action.SET_OBJECTIVES_ADDRESSED_RATING]: 'objectivesAddressedRating',
   [Action.SET_HYPO_CONFIDENCE]: 'hypoConfidence',
   [Action.SET_TRANSITION]: 'transition',
 };
