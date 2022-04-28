@@ -50,18 +50,26 @@ export interface Record {
 /** Interface for local and global data versions */
 export interface DataVersion {
   local: number,
-  global: number
+}
+
+/** Interface for objectives */
+export interface Objective {
+  objective: string, // stores objective(s) for each data collection step
+  ranking: number, // stores priority ranking for each objective
+  addressedRating: number // stores user's rating for how well the latest sample addresses the current objective
 }
 
 /** Interface for current user step */
 export interface CurrUserStepData {
   step: number, 
   userFeedbackState: number, // controls which set of questions are being asked to the user during each step
-  objectives: number[], // stores objective(s) for each data collection step
-  objectivesRankings: number[], // stores priority ranking for each objective
+  objectives: Objective[], 
   objectiveFreeResponse: string, // stores user's free response for the objective
   sampleType: 'robot' | 'user' | null,
   robotSuggestions : Sample[], // stores robot's suggested sample locations at each step
+  spatialReward: number[],
+  variableReward: number[],
+  discrepancyReward: number[],
   acceptOrRejectOptions: string[],
   acceptOrReject: number, // stores which robot suggestion the user accepts (or if the user rejects) at each step
   rejectReasonOptions: string[],
@@ -69,7 +77,6 @@ export interface CurrUserStepData {
   rejectReasonFreeResponse: string, // stores user's free response for the reason for rejecting the robot's suggestion
   userFreeSelection: boolean
   userSample: Sample | null,
-  objectivesAddressedRating: number[], // stores user's rating for how well the latest sample addresses the current objective
   hypoConfidence : number // stores user's updated hypothesis confidence
   transition : number, // stores user's choice for the next data collection step
 }
@@ -77,8 +84,7 @@ export interface CurrUserStepData {
 /** Interface for the finalized user step details */
 export interface UserStepsData {
   step: number, 
-  objectives: string[], 
-  objectivesRankings: number[], 
+  objectives: Objective[], 
   objectiveFreeResponse: string | null, 
   sampleType: 'robot' | 'user' | null,
   robotSuggestions: PreSample[] | null, 
@@ -87,10 +93,12 @@ export interface UserStepsData {
   rejectReason: string | null, 
   rejectReasonFreeResponse: string | null, 
   userFreeSample: Sample | null,
-  objectivesAddressedRating: number[] | null,
   hypoConfidence : string 
   samples: Sample[],
-  transition : string
+  transition : string,
+  spatialReward: number[],
+  variableReward: number[],
+  discrepancyReward: number[]
 }
 
 /** Interface for the samples collected */

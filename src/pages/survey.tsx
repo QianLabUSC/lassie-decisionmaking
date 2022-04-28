@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { putItem } from '../dbHelper';
 import { useStateValue, Action } from '../state';
 import RadioButtonGroup from '../components/RadioButtonGroup';
+import RadioButtonGroupHorizontal from '../components/RadioButtonGroupHorizontal';
 import RankedScale from '../components/RankedScale';
 import { QuestionType, SurveyQuestion, surveyQuestions as rawSurveyQuestions, TextAreaType } from '../data/surveyQuestions';
+import { initialConfidenceTexts, confidenceTexts } from '../constants';
 import '../styles/survey.scss';
 
 const tileIndentation = 40;
@@ -36,8 +38,8 @@ const generateSurveyOutput = (answers: SurveyAnswers, questionList: SurveyQuesti
             value: answers[question.id || "-1"]
         });
         if (question.followUps) {
-            question.followUps.forEach(followUp => {
-                if (followUp) {
+            question.followUps.forEach((followUp, i) => {
+                if (followUp && i === parseInt(answers[question.id || "-1"])) {
                     (Array.isArray(followUp) ? followUp : [followUp]).forEach(followUpQuestion => {
                         extractQuestions(followUpQuestion, questions, answers);
                     });
@@ -92,13 +94,24 @@ const multipleChoiceComponent = (question: SurveyQuestion, setAnswer, answers: S
     );
 }
 
+const multipleChoiceHorizontalComponent = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
+    if (!question.responses) return null;
+    const id: string = question.id || "-1";
+    return (
+        <div className={`section ${unanswered && "highlighted"}`} style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
+            <p>{ question.text }</p>
+            <RadioButtonGroupHorizontal options={question.responses} selectedIndex={Number(answers[id] || "-1")} onChange={i => setAnswer(id, i.toString())}/>
+        </div>
+    );
+}
+
 const rankedComponent = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
     const id: string = question.id || "-1";
     return (
         <div className={`section ${unanswered && "highlighted"}`} style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
             <p>{ question.text }</p>
             <div className="rankedScaleContainer">
-                <RankedScale onChange={v => {setAnswer(id, v.toString())}} selectedIndex={answers[id]}/>
+                <RankedScale onChange={v => {setAnswer(id, v.toString())}} selectedIndex={answers[id]} id={id}/>
             </div>
         </div>
     );
@@ -162,6 +175,7 @@ const buildQuestionComponents = (questionList: SurveyQuestion[], answers: Survey
         const component =
             question.type === QuestionType.Instruction ? instructionComponent(question, depth) :
             question.type === QuestionType.MultipleChoice ? multipleChoiceComponent(question, setAnswer, answers, depth, showAsUnanswered) :
+            question.type === QuestionType.MultipleChoiceHorizontal ? multipleChoiceHorizontalComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.Ranked ? rankedComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.Text ? textComponent(question, answers, setAnswer, depth, showAsUnanswered) :
             <></>; // Should never reach here
@@ -202,7 +216,7 @@ const idOfFirstUnansweredQuestion = (questionList: SurveyQuestion[], answers: Su
 
 export default function Survey() {
     const [globalState, dispatch] = useStateValue();
-    const { dataVersion, initialHypo, samples, userSteps } = globalState;
+    const { dataVersion, initialHypo, finalHypo, samples, userSteps } = globalState;
     const [page, setPage] = useState(0);
     const [answers, setAnswers] = useState({} as SurveyAnswers);
     const setAnswer = (id: string, answer: string) => {
@@ -214,10 +228,10 @@ export default function Survey() {
     let questionComponents = buildQuestionComponents(surveyQuestions[page], answers, setAnswer, firstUnansweredId);
 
     const saveLogs = surveyOutput => {
-
         const log = {
             dataVersion: dataVersion,
-            initialHypo: initialHypo,
+            initialHypo: initialConfidenceTexts[initialHypo + 3],
+            finalHypo: confidenceTexts[finalHypo + 3],
             userSteps: userSteps,
             surveyResponses: surveyOutput
         };
