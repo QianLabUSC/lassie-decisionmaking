@@ -70,13 +70,6 @@ function RouteWrapper() {
 
   // Load initial samples
   useEffect(() => {
-    // let initSamplesToAdd : Sample[] = [];
-    // for (let i = 0; i < initialSamples.length; i++) {
-    //   let tempSample = initialSamples[i]; 
-    //   const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, tempSample.index, tempSample.measurements);
-    //   let newSample : Sample = {...tempSample, shear: shearValues, moisture: moistureValues};
-    //   initSamplesToAdd.push(newSample);
-    // }
     dispatch({ type: Action.SET_SAMPLES, value: initialSamples })
     dispatch({ type: Action.SET_CURR_SAMPLE_IDX, value: 0 });
   }, []);
