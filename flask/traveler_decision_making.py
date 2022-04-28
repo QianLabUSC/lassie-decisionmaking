@@ -4,15 +4,11 @@
           measurements
 '''
 
-from re import T
-from unittest import result
 from scipy.optimize import curve_fit
 from scipy import signal
 import numpy as np
 # from env_wrapper import *
 import matplotlib.pyplot as plt
-import random
-import matplotlib.pylab as pylab
 from scipy.interpolate import interp1d
 '''generate random gaussian variable
 Args:
