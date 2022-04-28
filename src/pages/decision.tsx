@@ -44,10 +44,10 @@ export default function Main() {
     loadingRobotSuggestions, showRobotSuggestions, disableSubmitButton, numSubmitClicks, 
     imgClickEnabled, numImgClicks, transectIdx, } = globalState;
 
-  const { step, userFeedbackState, objectives, objectivesRankings, objectiveFreeResponse, sampleType,
-    robotSuggestions, acceptOrRejectOptions, acceptOrReject, 
+  const { step, userFeedbackState, objectives, objectiveFreeResponse, sampleType,
+    robotSuggestions, spatialReward, variableReward, discrepancyReward, acceptOrRejectOptions, acceptOrReject, 
     rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, userSample, 
-    objectivesAddressedRating, hypoConfidence, transition } = currUserStep;
+    hypoConfidence, transition } = currUserStep;
 
   const history = useHistory();
 
@@ -62,21 +62,18 @@ export default function Main() {
   }, []);
 
   // Function to add next sample to the data plot
-  const addDataToPlot = (sample: Sample) => {
+  const addDataToPlot = () => {
     dispatch({ type: Action.SET_CURR_SAMPLE_IDX, value: currSampleIdx + 1 });
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
   }
 
   // Automatically populate the charts with any remaining measurements from the transectSamples in the strategy (if the image hasn't been clicked)
   if (currSampleIdx < samples.length && numImgClicks === 0) {
-    addDataToPlot(samples[currSampleIdx]);
+    addDataToPlot();
   }
 
   // Function to add the latest user step data to the finalized set of userSteps 
   const updateUserSteps = () => {
-    let objectivesAsText : string[] = objectives.map((objective) => {
-      return objectiveOptions[objective];
-    })
     let acceptedRobotSuggestion;
     if (acceptOrReject !== -1 && acceptOrReject !== acceptOrRejectOptions.length - 1) {
       let robotSuggestionFinal = robotSuggestions[acceptOrReject]; 
@@ -86,8 +83,7 @@ export default function Main() {
     let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
     let newUserStep : UserStepsData = {
       step: step, 
-      objectives: objectivesAsText, 
-      objectivesRankings: objectivesRankings, 
+      objectives: JSON.parse(JSON.stringify(objectives)),  
       objectiveFreeResponse: objectiveFreeResponse, 
       sampleType: sampleType,
       robotSuggestions: robotSuggestions,
@@ -96,10 +92,12 @@ export default function Main() {
       rejectReason: rejectReason === -1 ? null : rejectReasonOptions[rejectReason], 
       rejectReasonFreeResponse: rejectReasonFreeResponse, 
       userFreeSample: userSample,
-      objectivesAddressedRating: objectivesAddressedRating.map(rating => rating / 20 + 1),
       hypoConfidence: confidenceTexts[hypoConfidence + 3],
-      samples: samples,
-      transition: transitionOptions[transitionAdj]
+      samples: JSON.parse(JSON.stringify(samples)),
+      transition: transitionOptions[transitionAdj],
+      spatialReward: spatialReward, 
+      variableReward: variableReward, 
+      discrepancyReward: discrepancyReward,
     }
     dispatch({ type: Action.ADD_USER_STEP, value: newUserStep }); 
   }
@@ -129,30 +127,71 @@ export default function Main() {
     dispatch({ type: Action.SET_HYPO_CONFIDENCE, value: value });
   }
 
-  // Reset objectives rankings array and disable submit button if the user has selected no objectives during the OBJECTIVE step
+  // Disable submit button if the user has selected no objectives during the OBJECTIVE step
   useEffect(() => {
     if (userFeedbackState === UserFeedbackState.OBJECTIVE) {
-      dispatch({ type: Action.SET_OBJECTIVES_RANKINGS, value: new Array(objectives.length).fill(0) });
       dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: objectives.length === 0 });
     }
   }, [objectives]);
 
-  // Disable the submit button during the RANK_OBJECTIVES step until the user fills out a valid set of rankings for each selected objective
+  // In the RANK_OBJECTIVES step, automatically disable the submit button until the user fills out a valid set of rankings for each selected objective
   useEffect(() => {
     if (userFeedbackState === UserFeedbackState.RANK_OBJECTIVES) {
-      dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: objectivesRankings.includes(0) || (new Set(objectivesRankings)).size !== objectivesRankings.length });
-    }
-  }, [objectivesRankings]);
 
+      let objectivesRankings : number[] = [];
+      let disable = false;
+      for (let i = 0; i < objectives.length; i++) {
+        if (objectives[i].ranking === -1 || objectivesRankings.includes(objectives[i].ranking)) {
+          disable = true;
+          break;
+        } else {
+          objectivesRankings.push(objectives[i].ranking);
+        }
+      }
+      dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: disable });
+    }
+  }, [objectives]);
+
+
+  const searchObjective = (target : string) => {
+    for (let obj = 0; obj < objectives.length; obj++) {
+      if (objectives[obj].objective === target) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  let objectiveOptionsLinked = objectiveOptions.map((obj, i) => {
+    if (i === 2) {
+      return (
+        <span>There is a discrepancy between the data and the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>hypothesis</a></strong></span> that needs additional evaluation</span>
+      );
+    } else if (i === 3) {
+      return (
+        <span>
+          The data seems to be supporting the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>hypothesis</a></strong></span> so far but additional evaluation is needed
+        </span>
+      );
+    } else {
+      return <span>{obj}</span>;
+    }
+  });
+  
   const objectiveQuestions = 
     <div className="objective-questions">
       <p><strong>Based on the data collected so far, select which of the following beliefs you currently hold (you may select multiple).</strong></p>
-      <RadioButtonGroupMultipleOptions options={objectiveOptions} selectedIndices={objectives} onChange={i => {
+      <RadioButtonGroupMultipleOptions options={objectiveOptionsLinked} searchObjective={(target) => searchObjective(target)} onChange={i => {
         let objectivesTemp = [...objectives];
-        if (objectivesTemp.includes(i)) {
-          objectivesTemp = objectivesTemp.filter(obj => obj !== i);
+        if (searchObjective(objectiveOptions[i])) {
+          objectivesTemp = objectivesTemp.filter(obj => obj.objective !== objectiveOptions[i]);
         } else {
-          objectivesTemp.push(i);
+          let newObjective = {
+            objective: objectiveOptions[i],
+            ranking: -1,
+            addressedRating: 1
+          };
+          objectivesTemp.push(newObjective);
         }
         dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
       }}/>
@@ -163,26 +202,26 @@ export default function Main() {
       <tbody>
           {
             objectives.map((obj, i) => (
-                <tr key={objectiveOptions[obj]}>
+                <tr key={obj.objective}>
                   <td>
                     <FormControl>
                       <Select
                         id="objectives-select"
-                        value={objectivesRankings[i]}
+                        value={obj.ranking}
                         onChange={(e) => {
-                          let objectivesRankingsTemp = [...objectivesRankings];
-                          if (typeof e.target.value === 'number') objectivesRankingsTemp[i] = e.target.value;
-                          dispatch({ type: Action.SET_OBJECTIVES_RANKINGS, value: objectivesRankingsTemp });
+                          let objectivesTemp = [...objectives];
+                          if (typeof e.target.value === 'number') objectivesTemp[i].ranking = e.target.value;
+                          dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
                         }}
                       >
                         {Array.from({length: objectives.length}, (_, i) => i + 1).map((rank) => (
-                          <MenuItem key={objectiveOptions[obj] + rank} value={rank}>{rank}</MenuItem>
+                          <MenuItem key={obj.objective + rank} value={rank}>{rank}</MenuItem>
                         ))}
                       </Select>
                     </FormControl>
                   </td>
                   <td>
-                      { objectiveOptions[obj] }
+                      { obj.objective }
                   </td>
                 </tr>
             ))
@@ -223,17 +262,12 @@ export default function Main() {
   // Handler for setting the user's rating for how well the latest sample addressed the current objective
   const handleSliderChange = (event, newValue, index) => {
     if (typeof newValue === 'number') {
-      let objectivesAddressedRatingTemp = [...objectivesAddressedRating];
-      objectivesAddressedRatingTemp[index] = newValue;
-      dispatch({ type: Action.SET_OBJECTIVES_ADDRESSED_RATING, value: objectivesAddressedRatingTemp });
+      let objectivesTemp = [...objectives];
+      objectivesTemp[index].addressedRating = newValue / 20 + 1;
+      dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
     }
   }
 
-  // Reset the objectiveAddressedRating back to an array of 0's whenever the objectives are changed
-  useEffect(() => {
-    dispatch({ type: Action.SET_OBJECTIVES_ADDRESSED_RATING, value: new Array(objectives.length).fill(0) });
-  }, [objectives]);
-  
   const marks = [
     { value: 0, label: '1' },
     { value: 20, label: '2' },
@@ -249,16 +283,17 @@ export default function Main() {
 
   const acceptFollowUpQuestions = 
     <div className="accept-follow-up-questions">
-      <p><strong>Rate the extent to which going to this location addressed each of the following beliefs (1 - Definitely addressed, 
-        2 - Moderately addressed, 3 - Somewhat addressed, 4 - Barely addressed, 5 - Did not address, 6 - Unsure):</strong></p>
+      <p><strong>Rate the extent to which going to this location addressed each of the following beliefs (1 - Unsure, 
+        2 - Did not address, 3 - Barely addressed, 4 - Somewhat addressed, 5 - Moderately addressed, 6 - Definitely 
+        addressed):</strong></p>
       { objectives.map((obj, index) => (
-        <div key={objectiveOptions[obj].slice(0, 10) + index}>
-          <p>{objectiveOptions[obj]}</p>
+        <div key={obj.objective.slice(0, 10) + index}>
+          <p><i><strong>Belief #{index + 1}:</strong> {obj.objective}</i></p>
           <div className="slider-box">
             <Box>
               <Slider
                 aria-label="Restricted values"
-                value={objectivesAddressedRating[index]}
+                value={(obj.addressedRating - 1) * 20}
                 valueLabelFormat={valueLabelFormat}
                 valueLabelDisplay="auto"
                 step={20}
@@ -277,9 +312,9 @@ export default function Main() {
       "I rejected the suggested location for a different reason",
     ]
     for (let i = 0; i < objectives.length - 1; i++) {
-      rejectReasonOptionsTemp[0] += objectiveOptions[objectives[i]] + " / ";
+      rejectReasonOptionsTemp[0] += objectives[i].objective + " / ";
     }
-    rejectReasonOptionsTemp[0] += (objectiveOptions[objectives[objectives.length - 1]] + ")");
+    if (objectives.length >= 1) rejectReasonOptionsTemp[0] += (objectives[objectives.length - 1].objective + ")");
     dispatch({ type: Action.SET_REJECT_REASON_OPTIONS, value: rejectReasonOptionsTemp });
   }, [objectives]);
 
@@ -304,21 +339,31 @@ export default function Main() {
       <p><strong>Please select the next location you'd like to sample from by clicking anywhere along the transect surface in the dune cross-section above. When you have finalized your selection and are ready to collect data from that location, click "Submit."</strong></p>
     </div>
 
+  // Hook for displaying hypothesis popup
+  const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
+  const [hypothesisOpen, setHypothesisOpen] = useState(false);
+  const decisionHypothesisDialog =
+    <MultiStepDialog
+      open={hypothesisOpen}
+      setOpen={setHypothesisOpen}
+      title={""}
+      allowCancel={false}
+      steps={[
+        [
+          "Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune crest. RHex is testing the hypothesis that strength will increase as moisture increases until sand is saturated (somewhere along the stoss slope), at which point strength will be constant as moisture continues to increase."
+        ]
+      ]}
+      img={singleTransectNullHypothesis}
+    />;
+
   const updateHypothesisConfidence = 
   <div className="update-hypothesis-confidence">
     <div className="hypothesisBlock">
         <div className="hypothesisTitle"><strong>Updated Hypothesis Confidence</strong></div>
         <div className="hypothesisText">
           <div>
-            Provide a new ranking of your certainty that this hypothesis will be supported or refuted. 
+            Provide a new ranking of your certainty that the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>hypothesis</a></strong></span> will be supported or refuted. 
             If you have no preference, select "I am unsure":
-          </div>
-          <div>
-            <i className="hypothesisStatement">
-              Sand will be weakest and most dry at the dune crest. Strength will increase as moisture increases 
-              (moving towards the interdune) until sand is saturated (somewhere along the stoss slope), at which 
-              point strength will be constant as moisture continues to increase.
-            </i>
           </div>
         </div>
         <FormControl>
@@ -361,20 +406,37 @@ export default function Main() {
   //   console.log({robotSuggestions});
   // }, [robotSuggestions]);
 
+  const rankObjectives = () => {
+    let objectivesTemp = [...objectives];
+    objectivesTemp.sort((a, b) => (a.ranking > b.ranking) ? 1 : -1);
+    return objectivesTemp;
+  }
+
   const onSubmit = async () => {
     dispatch({ type: Action.SET_NUM_SUBMIT_CLICKS, value: numSubmitClicks + 1 });
     switch (userFeedbackState) {
       case UserFeedbackState.OBJECTIVE: {
         if (objectives.length === 1) {
-          if (objectives[0] === 4) {
+
+          // Set the rank of the single objective to 1
+          let objectivesTemp = [...objectives];
+          objectivesTemp[0].ranking = 1;
+          dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
+
+          if (objectives[0].objective === objectiveOptions[4]) {
             dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: "" });
             dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE });
           } else {
+            
             dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
-            dispatch({ 
-              type: Action.SET_ROBOT_SUGGESTIONS, 
-              value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
-            });
+
+            let robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
+            const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
+            dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
+            dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
+            dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
+            dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
+
             dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
             dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
             dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
@@ -388,15 +450,29 @@ export default function Main() {
         return;
       }
       case UserFeedbackState.RANK_OBJECTIVES: {
-        if (objectives.includes(4) && objectivesRankings[objectives.indexOf(4)] === 1) {
+        // Order the objectives by ranking
+        let objectivesTemp = rankObjectives();
+        dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
+        // Check if objectives contains free response option and if this option is ranked the highest
+        let freeResponseRankedHighest = false; 
+        for (let i = 0; i < objectives.length; i++) {
+          if (objectives[i].objective === objectiveOptions[4] && objectives[i].ranking === 1) {
+            freeResponseRankedHighest = true;
+          }
+        }
+        if (freeResponseRankedHighest) {
           dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: "" });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE });
         } else {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
-          dispatch({ 
-            type: Action.SET_ROBOT_SUGGESTIONS, 
-            value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
-          });
+
+          let robotResults = await calculateRobotSuggestions(samples, globalState, objectivesTemp);
+          const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
+          dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
+          dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
+          dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
+          dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
+
           dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
           dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
@@ -470,16 +546,20 @@ export default function Main() {
       }
       case UserFeedbackState.TRANSITION: {
         let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
-        //console.log({globalState, transitionAdj});
+        console.log({globalState, transitionAdj});
 
         // Move to the next round with the same objectives as the previous round and automatically run
         // the robot calculation 
         if (transitionAdj === 0) {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
-          dispatch({ 
-            type: Action.SET_ROBOT_SUGGESTIONS, 
-            value: await calculateRobotSuggestions(samples, globalState, objectives, objectivesRankings) 
-          });
+
+          let robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
+          const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
+          dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
+          dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
+          dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
+          dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
+
           dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
@@ -489,23 +569,27 @@ export default function Main() {
         // Move to the next round with the objectives reset and ask the user to reselect the objectives
         } else if (transitionAdj === 1) {
           dispatch({ type: Action.SET_OBJECTIVES, value: [] });
-          dispatch({ type: Action.SET_OBJECTIVES_RANKINGS, value: [] });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE });
           dispatch({ type: Action.SET_SAMPLE_TYPE, value: null});
-          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: [] });
+          dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: [] });
+          dispatch({ type: Action.SET_SPATIAL_REWARD, value: [] });
+          dispatch({ type: Action.SET_VARIABLE_REWARD, value: [] });
+          dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: [] });
 
         // Move to the next round enabling the user to freely select the next sample location
         } else if (transitionAdj === 2) {
           dispatch({ type: Action.SET_OBJECTIVES, value: [] });
-          dispatch({ type: Action.SET_OBJECTIVES_RANKINGS, value: [] });
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
           dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
           dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
           dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
-          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: [] });
+          dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: [] });
+          dispatch({ type: Action.SET_SPATIAL_REWARD, value: [] });
+          dispatch({ type: Action.SET_VARIABLE_REWARD, value: [] });
+          dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: [] });
 
         // Bring up the quit screen
         } else if (transitionAdj === 3) {
@@ -521,7 +605,6 @@ export default function Main() {
           dispatch({ type: Action.SET_REJECT_REASON, value: -1 });
           dispatch({ type: Action.SET_REJECT_REASON_FREE_RESPONSE, value: ""});
           dispatch({ type: Action.SET_USER_SAMPLE, value: null });
-          dispatch({ type: Action.SET_OBJECTIVES_ADDRESSED_RATING, value: new Array(objectives.length).fill(0) });
           dispatch({ type: Action.SET_TRANSITION, value: 0 });
           updateUserSteps();
         }
@@ -542,7 +625,7 @@ export default function Main() {
       <ImgAlert open={!!showImgAlert} />
       <Tooltip title={userFeedbackState !== UserFeedbackState.USER_LOCATION_SELECTION ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
-            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={(sample) => addDataToPlot(sample)} setPopOver={setImgAlert} />  
+            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
       </Tooltip>
       {!loadingRobotSuggestions && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
@@ -584,7 +667,7 @@ export default function Main() {
       allowCancel={false}
       steps={[
         ["RHex will always take 3 measurements of moisture and strength at each location visited.",
-        "The dune cross-section on the right displays the locations where RHex has already sampled and the charts on the left display the corresponding data. Select \"Update Chart Options\" to adjust the charts to display raw or averaged values (if there are multiple samples taken from the same location along the transect).",
+        "The dune cross-section on the right displays the locations where RHex has already sampled and the charts on the left display the corresponding data.",
         "You will be asked a few questions to determine where RHex should sample next.",
         "If at any point you feel you have collected enough data to make a judgment about the hypothesis, select \"End Collection at Transect.\""
         ]
@@ -615,6 +698,7 @@ export default function Main() {
   return (
     <div id="app" className="decisionPage">
       { helperOpen && <Helper /> }
+      { decisionHypothesisDialog }
       { decisionHelpDialog }
 
       <ConfirmDialog

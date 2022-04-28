@@ -20,6 +20,15 @@ const useStyles = makeStyles(theme => ({
       borderRadius: 5,
       position: 'absolute'
     },
+    '& .triangle': {
+      content: '""',
+      display: 'inline-block',
+      width: 0,
+      height: 0,
+      borderLeft: '10px solid transparent',
+      borderRight: '10px solid transparent',
+      borderBottom: `10px solid ${theme.palette.secondary.main}`,
+    },
     '& .content': {
       borderRadius: '50%',
       border: '2px solid transparent',
@@ -27,7 +36,7 @@ const useStyles = makeStyles(theme => ({
       display: 'inline-block',
       marginLeft: 12,
       textAlign: 'center',
-      transform: 'translate(-70%, 50%)'
+      transform: 'translate(-140%, 50%)'
     }
   },
   current: {
@@ -88,12 +97,23 @@ export default function PositionIndicator({ left, top, type, rowIndex, isHovered
       className={`${classes.indicator} ${classes[type]}
                   ${rowIndex === currSampleIdx - 1 && type !== RowType.DISCARDED ? classes.current : ''} 
                   ${isHovered ? classes.hover : ''}`}
-      //style={{ color: locationColors[locationIndex], left, top }}
       style={{ left, top }}
     >
-      <span className="dot" style={{ backgroundColor: locationColors[locationIndex] }}></span>
-      {robot && <span className="content" style={{ color: theme.palette.secondary.main, fontSize: '2.5vh' }}>{String.fromCharCode(rowIndex + 65)}</span>}
-      {/*<span className="content">{robot ? String.fromCharCode(rowIndex + 65) : rowIndex + 1}</span>*/}
+      {!robot && <span className="dot" style={{ backgroundColor: locationColors[locationIndex] }}></span>}
+      {robot && 
+        <span 
+          style={{ 
+            content: '""', 
+            display: 'block',
+            width: 0,
+            height: 0,
+            borderLeft: '1vh solid transparent',
+            borderRight: '1vh solid transparent',
+            borderBottom: `1.5vh solid ${locationColors[locationIndex]}`,
+        }}>
+      </span>}
+        {robot && <span className="content" style={{ color: theme.palette.secondary.main, fontSize: '2.5vh', transform: 'translate(-60%, 50%)' }}>{String.fromCharCode(rowIndex + 65)}
+      </span>}
     </span>
   );
 }
