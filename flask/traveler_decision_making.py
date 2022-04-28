@@ -12,8 +12,8 @@ import numpy as np
 # from env_wrapper import *
 import matplotlib.pyplot as plt
 import random
-
-
+import matplotlib.pylab as pylab
+from scipy.interpolate import interp1d
 '''generate random gaussian variable
 Args:
     mean: the mean of gaussian variable
@@ -71,8 +71,9 @@ def hypofit(xx, yy, zz):
         RMSE_average[i] = (np.abs(np.mean(yy_finded) - 
                         np.mean(model(xx_finded, Pfit[0], Pfit[1], Pfit[2]))))
         RMSE_spread[i] = np.std(yy_finded, ddof=1)
-
+    x_detail_fit = np.linspace(-1,17,190)
     xx_model = model(xfit, Pfit[0], Pfit[1], Pfit[2])
+    xx_detail_model = model(x_detail_fit, Pfit[0], Pfit[1], Pfit[2])
 
     output = {
         'loc': loc.tolist(), 
@@ -83,7 +84,7 @@ def hypofit(xx, yy, zz):
         'Pfit': Pfit.tolist()
     }
 
-    return loc, RMSE_average, RMSE_spread, xfit, xx_model, Pfit
+    return loc, RMSE_average, RMSE_spread, xfit, xx_model, Pfit, x_detail_fit,xx_detail_model, model
 
 '''the hypothesis model function
 Args:
@@ -252,6 +253,7 @@ class DecisionMaking:
         sample = np.array(sample)
         moisture = np.array(moisture)
         shear_strengh = np.array(shear_strenth)
+        print(shear_strengh)
         unique_location, full_indices  = np.unique(location, return_inverse=True)
         integrated_sample = np.zeros(len(unique_location))
         integrated_moisture = []
@@ -266,6 +268,7 @@ class DecisionMaking:
         # print(self.current_state_sample)
         self.current_state_moisture = integrated_moisture
         self.current_state_shear_strength = integrated_shearstrength
+        print("shear:", self.current_state_shear_strength)
 
     '''
     compute the spatial reward coverage 
@@ -369,15 +372,18 @@ class DecisionMaking:
                     max_moisture_each[loc] = max(moisture_mean_prev,
                                         moisture_mean) 
         R_v_set = np.zeros(22)
+        
         self.std_moisture_each = std_moisture_each
+        mean_moisture_each[np.where(mean_moisture_each < -1)] = -1
+        mean_moisture_each[np.where(mean_moisture_each > 17)] = 17
         self.mean_moisture_each = mean_moisture_each
         self.min_moisture_each = min_moisture_each
         self.max_moisture_each = max_moisture_each
         for jj in range(22):
             std = std_moisture_each[loc]
-            min_std = 0.001
-            moisture_possibility = np.linspace(mean_moisture_each[jj] - 3*std, 
-                                                mean_moisture_each[jj] + 3*std, 20)
+            min_std = 0.01
+            moisture_possibility = np.linspace(mean_moisture_each[jj] - 3*max(std, min_std), 
+                                                mean_moisture_each[jj] + 3*max(std, min_std), 20)
             probability = gauss(mean_moisture_each[jj], 1, moisture_possibility,
                                                 max(std, min_std))
             actual_probability = probability/np.sum(probability)
@@ -401,8 +407,12 @@ class DecisionMaking:
         MinCoverage = 0.06
         moisture_bins = np.linspace(-1,17,19)
         moisture_range = np.linspace(-1,18,20) - 0.5
+        print(self.current_state_moisture)
+        print(self.current_state_shear_strength)
         xx = np.array([item for sublist in self.current_state_moisture for item in sublist])
+        print(xx)
         yy = np.array([item for sublist in self.current_state_shear_strength for item in sublist])
+        print(yy)
         zz_unflattend = []
         for jj in range(len(self.current_state_location)):
             zz_unflattend.append(self.current_state_location[jj] * np.ones((1, 
@@ -414,11 +424,13 @@ class DecisionMaking:
         xx_sorted = xx[sort_index]
         yy_sorted = yy[sort_index]
         zz_sorted = zz[sort_index]
+        print(xx_sorted)
+        print(yy_sorted)
         countMoist, bins = np.histogram(xx, moisture_range)
         a = np.nonzero(countMoist)
         moistcoverage = len(np.nonzero(countMoist)[0])/moisture_bins.size
         if(moistcoverage > MinCoverage):
-            loc, RMSE_average, RMSE_distribution, self.xfit, self.xx_model, Pfit = hypofit(
+            loc, RMSE_average, RMSE_distribution, self.xfit, self.xx_model, self.Pfit, self.x_detail_fit, self.xx_detail_model, self.model = hypofit(
                 xx_sorted, yy_sorted, zz_sorted
             )
         else:
@@ -437,106 +449,114 @@ class DecisionMaking:
             aa = np.argwhere(xx_sorted==xx_unique[i])
             xx_finded = xx_sorted[aa]
             yy_finded = yy_sorted[aa]
+            print(yy_finded)
             xx_mean[i] = np.mean(xx_finded)
             yy_mean[i] = np.mean(yy_finded)
             xx_std[i] = np.std(xx_finded)
             yy_std[i] = np.std(yy_finded)
-        shearstrength_predict = np.zeros(19)
-        shearstrength_min = np.zeros(19)
-        shearstrength_max = np.zeros(19)
-        shearstrength_std_each = np.zeros(19)
-        for i in range(len(xx_mean)):
-            if(i == 0):
-                moisture_mean = xx_mean[i]
-                shearstrength_mean = yy_mean[i]
-                shearstrength_std = yy_std[i]
-                moisture_mean_next = xx_mean[i+1]
-                shearstrengh_mean_next = yy_mean[i+1]
-                shearstrength_std_next = yy_std[i+1]
+        print("yy_std", yy_std)
+        shearstrength_predict = np.zeros(190)
+        shearstrength_min = np.zeros(190)
+        shearstrength_max = np.zeros(190)
+        shearstrength_std_each = np.zeros(190)
+
+        
+        
+        for i in range(len(self.x_detail_fit)):
+            if(self.x_detail_fit[i] <=  xx_mean[0]):
+                moisture_mean = xx_mean[0]
+                shearstrength_mean = yy_mean[0]
+                shearstrength_std = yy_std[0]
+                moisture_mean_next = xx_mean[1]
+                shearstrengh_mean_next = yy_mean[1]
+                shearstrength_std_next = yy_std[1]
                 slope = (shearstrengh_mean_next - shearstrength_mean)/(
                                     moisture_mean_next - moisture_mean)
-                for jj in range(int(np.floor(xx_unique[i])+2)):
-                    shearstrength_std_each[jj] = shearstrength_std 
-                    shearstrength_predict[jj] = shearstrength_mean - slope * (
-                        moisture_mean + 1 - jj
-                      )
-                    shearstrength_min[jj] = min(2 * 
-            shearstrength_predict[0] - shearstrength_mean,  shearstrength_mean)
-                    shearstrength_max[jj] = max(2 * 
-            shearstrength_predict[0] - shearstrength_mean,  shearstrength_mean) 
-            elif(i == len(xx_mean)-1):
-                moisture_mean = xx_mean[i]
-                shearstrength_mean = yy_mean[i]
-                shearstrength_std = yy_std[i]
-                # print(shearstrength_mean)
-                moisture_mean_prev = xx_mean[i-1]
-                shearstrength_mean_prev = yy_mean[i-1]
-                shearstrength_std_prev = yy_std[i-1]
-                slope = (shearstrength_mean - shearstrength_mean_prev)/(
-                                    moisture_mean - moisture_mean_prev)
-                for jj in range(int(np.floor(xx_unique[i])+2) , 19):
-                    shearstrength_std_each[jj] = shearstrength_std 
-                    shearstrength_predict[jj] = shearstrength_mean + slope * (
-                          jj - moisture_mean -1
-                      )
-                    shearstrength_min[jj] = min(shearstrength_mean + 2*slope*(
-                           17 - moisture_mean),  shearstrength_mean)
-                    shearstrength_max[jj] = max(shearstrength_mean + 2*slope*(
-                           17 - moisture_mean),  shearstrength_mean)
-                for jj in range(int(np.floor(xx_unique[i-1])+2), 
-                                                int(np.floor(xx_unique[i])+2)):
-                    shearstrength_std_each[jj] = (shearstrength_std + shearstrength_std_prev)/2
-                    shearstrength_predict[jj] = shearstrength_mean + slope * (
-                          jj - moisture_mean - 1)
-                    shearstrength_min[jj] = min(yy_mean[i-1], yy_mean[i])
-                    shearstrength_max[jj] = max(yy_mean[i-1], yy_mean[i])
-            else:
-                moisture_mean = xx_mean[i]
-                shearstrength_mean = yy_mean[i]
-                shearstrength_std = yy_std[i]
-                moisture_mean_prev = xx_mean[i-1]
-                shearstrength_mean_prev = yy_mean[i-1]
-                shearstrength_std_prev = yy_std[i-1]
-                slope = (shearstrength_mean - shearstrength_mean_prev)/(
-                                    moisture_mean - moisture_mean_prev)
-                for jj in range(int(np.floor(xx_unique[i-1])+2), 
-                                                int(np.floor(xx_unique[i])+2)):
-                    shearstrength_std_each[jj] = (shearstrength_std + shearstrength_std_prev)/2
-                    shearstrength_predict[jj] = shearstrength_mean + slope * (
-                          jj - moisture_mean - 1)
-                    shearstrength_min[jj] = min(yy_mean[i-1], yy_mean[i])
-                    shearstrength_max[jj] = max(yy_mean[i-1], yy_mean[i])
-        shearstrength_range = shearstrength_max - shearstrength_min
+                shearstrengh_moisture_font = shearstrength_mean - slope * (moisture_mean + 1)
+                slope_std = (shearstrength_std_next - shearstrength_std)/(
+                                    moisture_mean_next - moisture_mean)
+                std_moisture_font = max(0, shearstrength_std - slope_std * (moisture_mean + 1))
+                # interplote
+                f_font = interp1d([-1, xx_mean[0]], [shearstrengh_moisture_font, shearstrength_mean], kind = 'linear')
+                std_f_font = interp1d([-1, xx_mean[0]], [std_moisture_font, shearstrength_std], kind = 'linear')
+                shearstrength_predict[i] = f_font(self.x_detail_fit[i])
 
+                shearstrength_std_each[i] = std_f_font(self.x_detail_fit[i])
+            elif(self.x_detail_fit[i] >=  xx_mean[len(xx_mean)-1]):
+                moisture_mean = xx_mean[len(xx_mean)-1]
+                shearstrength_mean = yy_mean[len(xx_mean)-1]
+                shearstrength_std = yy_std[len(xx_mean)-1]
+                # print(shearstrength_mean)
+                moisture_mean_prev = xx_mean[len(xx_mean)-1-1]
+                shearstrength_mean_prev = yy_mean[len(xx_mean)-1-1]
+                shearstrength_std_prev = yy_std[len(xx_mean)-1-1]
+                slope = (shearstrength_mean - shearstrength_mean_prev)/(
+                                    moisture_mean - moisture_mean_prev)
+                shearstrengh_moisture_end = shearstrength_mean + slope * (18 - moisture_mean)
+                slope_std = (shearstrength_std - shearstrength_std_prev)/(
+                                    moisture_mean - moisture_mean_prev)
+                std_moisture_end = max(0, shearstrength_std + slope_std * (18 - moisture_mean))
+                f_end = interp1d([xx_mean[len(xx_mean)-1], 18], [shearstrength_mean, shearstrengh_moisture_end], kind = 'linear')
+                std_f_end = interp1d([xx_mean[len(xx_mean)-1], 18], [shearstrength_std, std_moisture_end], kind = 'linear')
+                shearstrength_predict[i] = f_end(self.x_detail_fit[i])
+                shearstrength_std_each[i] = std_f_end(self.x_detail_fit[i])
+            else:
+                f = interp1d(xx_mean, yy_mean,kind = 'linear')
+                f_std = interp1d(xx_mean, yy_std, kind = 'linear')
+                shearstrength_predict[i] = f(self.x_detail_fit[i])
+                shearstrength_std_each[i] = f_std(self.x_detail_fit[i])
+        print("Dafdsafdasfas", shearstrength_std_each)
+        self.shearstrength_std_each = shearstrength_std_each
+        self.shearstrength_predict = shearstrength_predict
+        print(self.shearstrength_predict)
         # compute the potential discrepancy reward
         R_d_set = np.zeros((22))
+        self.mean_shearstrength_each_loc = []
         for jj in range(22):
             std_moist = max(0.001, self.std_moisture_each[jj])
+            print("stdmoist", std_moist)
             moisture_possibility = np.linspace(self.mean_moisture_each[jj] - 3*std_moist, 
                                                 self.mean_moisture_each[jj] + 3*std_moist, 20)
+            moisture_possibility[np.where(moisture_possibility < -1)] = -1
+            moisture_possibility[np.where(moisture_possibility > 17)] = 17
+            if(self.mean_moisture_each[jj] <= xx_mean[0]):
+                mean_shear_strength = f_font(self.mean_moisture_each[jj])
+            elif(self.mean_moisture_each[jj] >= xx_mean[len(xx_mean)-1]):
+                mean_shear_strength = f_end(self.mean_moisture_each[jj])
+            else:
+                mean_shear_strength = f(self.mean_moisture_each[jj])
+            
+            self.mean_shearstrength_each_loc.append(mean_shear_strength)
             probability = gauss(self.mean_moisture_each[jj], 1, 
                                 moisture_possibility, std_moist)
             moisture_actual_probability = probability/np.sum(probability)
+            
             R_d_m = 0
             for kk in range(len(moisture_possibility)):
-                if(np.round(moisture_possibility[kk]) + 1 < 1):
-                    moisture_index = 0
-                elif(np.round(moisture_possibility[kk]) + 1 > 17):
-                    moisture_index = 18
+                if(moisture_possibility[kk] <= xx_mean[0]):
+                    shearstrengh_mean_spec = f_font(moisture_possibility[kk])
+                    shearstrength_std = std_f_font(moisture_possibility[kk])
+                elif(moisture_possibility[kk] >= xx_mean[len(xx_mean)-1]):
+                    shearstrengh_mean_spec = f_end(moisture_possibility[kk])
+                    shearstrength_std = std_f_end(moisture_possibility[kk])
                 else:
-                    moisture_index = np.round(moisture_possibility[kk]) + 1
-                shearstrength_std = max(0.001, shearstrength_std_each[int(moisture_index)])
+                    shearstrengh_mean_spec = f(moisture_possibility[kk])
+                    shearstrength_std = f_std(moisture_possibility[kk])
+
+                shearstrength_std = max(0.001, shearstrength_std)
                 # print(shearstrength_std)
                 shearstrength_possibility = np.linspace(
-                                        shearstrength_predict[int(moisture_index)] - 3*shearstrength_std,
-                                        shearstrength_predict[int(moisture_index)] + 3*shearstrength_std,
+                                        shearstrengh_mean_spec - 3*shearstrength_std,
+                                        shearstrengh_mean_spec + 3*shearstrength_std,
                                         20)
                 shearstrength_probability = gauss(
-                                    shearstrength_predict[int(moisture_index)],  
+                                    shearstrengh_mean_spec,  
                                 1, shearstrength_possibility, shearstrength_std)
                 shearstrength_actual_prob = (shearstrength_probability/
                                             np.sum(shearstrength_probability)) 
-                shearstrength_hypo_value = self.xx_model[int(moisture_index)]
+                moisture_possibility_adapt = []
+                moisture_possibility_adapt.append(moisture_possibility[kk])
+                shearstrength_hypo_value = self.model(moisture_possibility_adapt, self.Pfit[0], self.Pfit[1], self.Pfit[2])
                 R_d_l = 0
                 for qq in range(len(shearstrength_possibility)):
                     R_d_l = (R_d_l +shearstrength_actual_prob[qq] * 
@@ -665,6 +685,130 @@ def plot(Traveler_DM, Traveler_ENV,sequence, location, sample, mm, erodi, result
     plt.savefig('./figs_test/'
                                  + "num" + str(len(sequence)) + str(sequence))
 
+def deploy_plot(Traveler_DM ,sequence, location, sample, mm, erodi, results):
+    ### plot the state transition graph 
+    plt.rcParams['font.sans-serif'] = ['Times New Roman']
+    plt.rcParams.update({'font.size':36 })
+    fig, axs = plt.subplots(3,1, figsize=(22,25))
+    x = np.linspace(1,22,22)
+    axs[0].plot(x, Traveler_DM.mean_moisture_each, linewidth=3, label="variable_reward", c="black")
+    axs[0].plot(Traveler_DM.current_state_location, Traveler_DM.current_state_moisture, 'o', c="red",markersize=10)
+    axs[0].fill_between(np.linspace(1,22,22), Traveler_DM.mean_moisture_each +  0.5, Traveler_DM.mean_moisture_each -  0.5, alpha=0.2, color="green")
+    axs[0].set_ylabel('Moisture')
+    axs[0].set_xlabel('Location')
+    axs[1].plot(Traveler_DM.x_detail_fit, Traveler_DM.xx_detail_model, linewidth=3,  c="black")
+    axs[1].plot(Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, 'o', c="red",markersize=10)
+    axs[1].plot(Traveler_DM.x_detail_fit, Traveler_DM.shearstrength_predict, c="green", linewidth=3)
+    axs[1].fill_between(Traveler_DM.x_detail_fit, Traveler_DM.shearstrength_predict +  3*Traveler_DM.shearstrength_std_each, Traveler_DM.shearstrength_predict - 3*Traveler_DM.shearstrength_std_each, alpha=0.2, color="green")
+    axs[1].set_ylabel('Shear Strength')
+    axs[1].set_xlabel('Moisture')
+    
+    y = np.array(Traveler_DM.current_state_location).reshape((len(Traveler_DM.current_state_location),1))
+    print(y)
+    x = np.tile(y, [1, 3])
+    print(x)
+    axs[2].plot(x, Traveler_DM.current_state_shear_strength,'o',markersize=10, linewidth=3,  c="red")
+    axs[2].plot(np.linspace(1,22,22), Traveler_DM.mean_shearstrength_each_loc,'o',markersize=10, linewidth=3,  c="black")
+    # moisture_index = np.round(Traveler_DM.current_state_moisture)
+    # axs[2].plot(moisture_index, Traveler_DM.current_state_shear_strength, 'o', c="red",markersize=10)
+    # axs[2].plot(Traveler_DM.xfit, Traveler_DM.shearstrength_predict, 'o', c="green", markersize=10)
+    # axs[2].fill_between(Traveler_DM.xfit, Traveler_DM.shearstrength_predict +  3*Traveler_DM.shearstrength_std_each, Traveler_DM.shearstrength_predict - 3*Traveler_DM.shearstrength_std_each, alpha=0.2, color="green")
+    axs[2].set_ylabel('Shear Strength')
+    axs[2].set_xlabel('Location')
+    # for i in range(len(location)):
+    #     if(i==0):
+    #         axs[1].scatter(location[i] * np.ones(int(sample[i])), 
+    #             erodi[i], marker='D',s=30,c="black", label="current state")
+    #         axs[2].scatter(location[i] * np.ones(int(sample[i])), 
+    #             erodi[i], marker='D',s=30,c="black", label="current state")
+    #         axs[3].scatter(location[i] * np.ones(int(sample[i])), 
+    #             erodi[i], marker='D',s=30,c="black", label="current state")
+    #         axs[4].scatter(location[i] * np.ones(int(sample[i])), 
+    #             erodi[i], marker='D',s=30,c="black", label="current state")
+    #         axs[5].scatter(mm[i], erodi[i], 
+    #                         marker='D',s=30,c="black", label="current state")
+    #     else:
+    #         axs[1].scatter(location[i] * np.ones(int(sample[i])), 
+    #             erodi[i], marker='D',s=30,c="black")
+    #         axs[2].scatter(location[i] * np.ones(int(sample[i])), 
+    #             erodi[i], marker='D',s=30,c="black")
+    #         axs[3].scatter(location[i] * np.ones(int(sample[i])), 
+    #             erodi[i], marker='D',s=30,c="black")
+    #         axs[4].scatter(location[i] * np.ones(int(sample[i])), 
+    #             erodi[i], marker='D',s=30,c="black")
+    #         axs[5].scatter(mm[i], erodi[i], 
+    #                         marker='D',s=30,c="black")
+    # spatial_selection = np.array(results['spatial_locs']) + 1
+    # variable_selection = np.array(results['variable_locs']) + 1
+    # discrepancy_selection = np.array(results['discrepancy_locs']) + 1
+    # discrepancy_low_selection = np.array(results['discrepancy_lows_locs']) + 1 
+    # mm, erodi = Traveler_ENV.get_data_state([spatial_selection, 
+    #                                     3 * np.ones(len(spatial_selection))])
+    # # print(spatial_selection)
+    # # print(erodi)
+    # for i in range(len(spatial_selection)):
+    #     if(i==0):
+    #         axs[1].scatter(spatial_selection[i] * np.ones(3), 
+    #             erodi[i], marker='D',s=40,c="lime", label="spatial reward")
+    #     else:
+    #         axs[1].scatter(spatial_selection[i] * np.ones(3), 
+    #             erodi[i], marker='D',s=40,c="lime")
+    # axs[1].set_ylabel('shear strength')
+    # axs[1].set_ylim((0,12))
+    # axs[1].legend()
+
+    # mm, erodi = Traveler_ENV.get_data_state([variable_selection,
+    #                                      3 * np.ones(len(variable_selection))])
+    # # print(variable_selection)
+    # # print(erodi)
+    # for i in range(len(variable_selection)):
+    #     if(i==0):
+    #         axs[2].scatter(variable_selection[i] * np.ones(3), 
+    #             erodi[i], marker='o',s=40,c="red", label="variable reward")
+    #     else:
+    #         axs[2].scatter(variable_selection[i] * np.ones(3), 
+    #             erodi[i], marker='o',s=40,c="red")
+    # axs[2].set_ylabel('shear strength')
+    # axs[2].set_ylim((0,12))
+    # axs[2].legend()
+
+    # mm, erodi = Traveler_ENV.get_data_state([discrepancy_selection,
+    #                                  3 * np.ones(len(discrepancy_selection))])
+    # for i in range(len(discrepancy_selection)):
+    #     if(i==0):
+    #         axs[3].scatter(discrepancy_selection[i] * np.ones(3), 
+    #             erodi[i], marker='s',s=40,c="blue", label="discrepancy reward")
+    #     else:
+    #         axs[3].scatter(discrepancy_selection[i] * np.ones(3), 
+    #             erodi[i], marker='s',s=40,c="blue")
+    # axs[3].set_ylabel('shear strength')
+    # axs[3].set_xlabel('loc')
+    # axs[3].set_ylim((0,12))
+    # axs[3].legend()
+
+    # mm, erodi = Traveler_ENV.get_data_state([discrepancy_low_selection,
+    #                              3 * np.ones(len(discrepancy_low_selection))])
+    # for i in range(len(discrepancy_low_selection)):
+    #     if(i==0):
+    #         axs[4].scatter(discrepancy_low_selection[i] * np.ones(3), 
+    #             erodi[i], marker='s',s=40,c="blue", 
+    #                                         label="discrepancy lower reward")
+    #     else:
+    #         axs[4].scatter(discrepancy_low_selection[i] * np.ones(3), 
+    #             erodi[i], marker='s',s=40,c="blue")
+    # axs[4].set_ylabel('shear strength')
+    # axs[4].set_xlabel('loc')
+    # axs[4].set_ylim((0,12))
+    # axs[4].legend()
+
+    # axs[5].plot(Traveler_DM.xfit, Traveler_DM.xx_model, linewidth=2)
+    # axs[5].set_ylabel('shear strength')
+    # axs[5].set_xlabel('moisture')
+    # axs[5].set_ylim((0,12))
+    # axs[5].legend()
+    # # plt.show()
+    plt.savefig('./figs_test/'
+                                 + "num" + str(len(sequence)) + str(sequence))
 
 if __name__ == '__main__':
     pass
