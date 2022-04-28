@@ -183,21 +183,22 @@ export function parseQueryString(query: string) {
 }
 
 // This function calculates the robot's suggested location
-export async function calculateRobotSuggestions(samples: Sample[], 
-  globalState: IState, objectives: Objective[]) {
+export async function calculateRobotSuggestions(samples: Sample[], globalState: IState, objectives: Objective[]) {
 
   // Prepare inputs for flask backend calculation
   let locations : number[] = [];
   let measurements : number[] = [];
-  let moistureValues : number[] = [];
-  let shearValues : number[] = [];
+  let moistureValues : number[][] = [];
+  let shearValues : number[][] = [];
 
   for (let i = 0; i < samples.length; i++) {
     locations.push(samples[i].index);
     measurements.push(samples[i].measurements);
-    moistureValues.push(...samples[i].moisture);
-    shearValues.push(...samples[i].shear);
+    moistureValues.push(Array.from(samples[i].moisture));
+    shearValues.push(Array.from(samples[i].shear));
   }
+
+  console.log({locations, measurements, moistureValues, shearValues});
 
   // Compute the robot suggestions based on each objective (limit to 3 suggestions)
   let robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues);
@@ -247,7 +248,7 @@ export async function calculateRobotSuggestions(samples: Sample[],
   };
 }
 
-function flaskCalculations(locations: number[], measurements: number[], moistureValues: number[], shearValues: number[]) {
+function flaskCalculations(locations: number[], measurements: number[], moistureValues: number[][], shearValues: number[][]) {
 
   let inputs = {
     locations : locations,
