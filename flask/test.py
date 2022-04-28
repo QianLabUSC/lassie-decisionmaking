@@ -23,7 +23,7 @@ sample_list = list(3 * np.ones(22, dtype=int))
 
 location = [2,7,10,14,18]
 sample = [3,3,3,3,3]
-for i in range(10):
+for i in range(1):
     mm, erodi = Traveler_ENV.get_data_state([location,sample])
     
     Traveler_DM.update_current_state(location, sample, mm, erodi)
@@ -32,7 +32,7 @@ for i in range(10):
     Traveler_DM.handle_discrepancy_coverage()
     results = Traveler_DM.calculate_suggested_location()
     print("tst" , Traveler_DM.current_state_shear_strength)
-    plot(Traveler_DM, Traveler_ENV, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
+    deploy_plot(Traveler_DM, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
     spatial_selection = np.array(results['discrepancy_locs']) + 1
     location.append(spatial_selection[0])
     sample.append(3)

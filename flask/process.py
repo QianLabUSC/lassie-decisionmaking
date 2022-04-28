@@ -49,6 +49,7 @@ def process():
     Traveler_DM.handle_variable_information_coverage()
     Traveler_DM.handle_discrepancy_coverage()
     results = Traveler_DM.calculate_suggested_location()
+    # deploy_plot(Traveler_DM, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
     spatial_selection = np.array(results['spatial_locs'])
     print('spatial_selection', spatial_selection)
     variable_selection = np.array(results['variable_locs'])
