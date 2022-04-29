@@ -4,15 +4,11 @@
           measurements
 '''
 
-from re import T
-from unittest import result
 from scipy.optimize import curve_fit
 from scipy import signal
 import numpy as np
 # from env_wrapper import *
 import matplotlib.pyplot as plt
-import random
-import matplotlib.pylab as pylab
 from scipy.interpolate import interp1d
 '''generate random gaussian variable
 Args:
@@ -295,8 +291,16 @@ class DecisionMaking:
         moisture_range = np.linspace(-1,18,20) - 0.5
         xx = np.array([item for sublist in self.current_state_moisture for item in sublist])
         countMoist, bins = np.histogram(xx, moisture_range)
-        I_v_s = np.exp(-1/np.sqrt(2*countMoist))
-        # print(I_v_s)
+        countMoistCopy = np.zeros(len(countMoist))
+        for i in range(len(countMoist)):
+            if countMoist[i] == 0:
+                countMoistCopy[i] = 0.01
+            else:
+                countMoistCopy[i] = countMoist[i]
+
+        #print(countMoistCopy)
+        I_v_s = np.exp(-1/np.sqrt(2*countMoistCopy))
+        #print(I_v_s)
         I_v = np.zeros(len(I_v_s))
         for jj in range(len(I_v_s)):
             I_v += gauss(jj - 1, I_v_s[jj], moisture_bins, 0.8)
@@ -381,12 +385,13 @@ class DecisionMaking:
             actual_probability = probability/np.sum(probability)
             R_m_l = 0
             for ii in range(len(moisture_possibility)):
+                moisture_index = 0
                 if(round(moisture_possibility[ii]) + 1 < 1):
                     moisture_index = 0
                 elif(round(moisture_possibility[ii]) + 1 > 17):
                     moisture_index = 18
                 else:
-                    moisture_index = round(moisture_possibility[ii]) + 1
+                    moisture_index = int(round(moisture_possibility[ii]) + 1)
                 R_m_l = R_m_l + I_v[moisture_index] * actual_probability[ii]
             R_v_set[jj] = R_m_l
         self.variable_reward = 1 - R_v_set
@@ -433,12 +438,12 @@ class DecisionMaking:
         for i in range(len(location)):
             xx_finded = self.current_state_moisture[i]
             yy_finded = self.current_state_shear_strength[i]
-            print(yy_finded)
+            #print(yy_finded)
             xx_mean[i] = np.mean(xx_finded)
             yy_mean[i] = np.mean(yy_finded)
             xx_std[i] = np.std(xx_finded)
             yy_std[i] = np.std(yy_finded)
-        print("yy_std", yy_std)
+        #print("yy_std", yy_std)
         shearstrength_predict = np.zeros(190)
         shearstrength_min = np.zeros(190)
         shearstrength_max = np.zeros(190)
@@ -489,18 +494,18 @@ class DecisionMaking:
                 f_std = interp1d(xx_mean, yy_std, kind = 'linear')
                 shearstrength_predict[i] = f(self.x_detail_fit[i])
                 shearstrength_std_each[i] = f_std(self.x_detail_fit[i])
-        print("Dafdsafdasfas", shearstrength_std_each)
+        #print("Dafdsafdasfas", shearstrength_std_each)
         shearstrength_std_each[np.where(shearstrength_std_each < 0)] = 0
         shearstrength_std_each[np.where(shearstrength_std_each > 1)] = 1
         self.shearstrength_std_each = shearstrength_std_each
         self.shearstrength_predict = shearstrength_predict
-        print(self.shearstrength_predict)
+        #print(self.shearstrength_predict)
         # compute the potential discrepancy reward
         R_d_set = np.zeros((22))
         self.mean_shearstrength_each_loc = []
         for jj in range(22):
             std_moist = max(0.001, self.std_moisture_each[jj])
-            print("stdmoist", std_moist)
+            #print("stdmoist", std_moist)
             moisture_possibility = np.linspace(self.mean_moisture_each[jj] - 3*std_moist, 
                                                 self.mean_moisture_each[jj] + 3*std_moist, 20)
             moisture_possibility[np.where(moisture_possibility < -1)] = -1

@@ -1,7 +1,7 @@
 import os
 import sys
 from traveler_decision_making import *
-sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python2.7/site-packages')
+sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/site-packages')
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -33,7 +33,7 @@ def hello_world():
 #                 different rows represents different locations
 # a matrix erodi: a row is the sampled erodis in one location,
 #                 different rows represents different locations
-@app.route('/process', methods=['POST', 'GET'])
+@app.route('/process', methods=['POST'])
 @cross_origin()
 def process():
     inputs = request.json
@@ -41,21 +41,21 @@ def process():
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
     erodi = np.array(inputs['shearValues'])
-    print('location', location)
-    print('sample', sample)
+    #print('location', location)
+    #print('sample', sample)
     Traveler_DM = DecisionMaking()
     Traveler_DM.update_current_state(location, sample, mm, erodi)
     Traveler_DM.handle_spatial_information_coverage()
     Traveler_DM.handle_variable_information_coverage()
     Traveler_DM.handle_discrepancy_coverage()
     results = Traveler_DM.calculate_suggested_location()
-    # deploy_plot(Traveler_DM, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
+    #deploy_plot(Traveler_DM, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
     spatial_selection = np.array(results['spatial_locs'])
-    print('spatial_selection', spatial_selection)
+    #print('spatial_selection', spatial_selection)
     variable_selection = np.array(results['variable_locs'])
-    print('variable_selection', variable_selection)
+    #print('variable_selection', variable_selection)
     discrepancy_selection = np.array(results['discrepancy_locs'])
-    print('discrepancy_selection', discrepancy_selection)
+    #print('discrepancy_selection', discrepancy_selection)
     discrepancy_low_selection = np.array(results['discrepancy_lows_locs'])
     print('discrepancy_low_selection', discrepancy_low_selection)
     print('spatial_reward', Traveler_DM.spatial_reward)
@@ -72,7 +72,7 @@ def process():
     }
 
     return jsonify(output)
-
+    
     
 if __name__ == '__main__':
     app.run(debug=True)
