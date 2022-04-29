@@ -21,8 +21,8 @@ sample_list = list(3 * np.ones(22, dtype=int))
     #         results = Traveler_DM.calculate_suggested_location()
     #         plot(Traveler_DM, location, sample, erodi, results)
 
-location = [2,7,10,14,18]
-sample = [3,3,3,3,3]
+location = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]
+sample = [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]
 for i in range(1):
     mm, erodi = Traveler_ENV.get_data_state([location,sample])
     

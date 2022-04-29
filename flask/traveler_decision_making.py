@@ -308,82 +308,74 @@ class DecisionMaking:
         min_moisture_each = np.zeros(22)
         max_moisture_each = np.zeros(22)
         std_moisture_each = np.zeros(22)
-        for jj in range(len(location)):
-            if(jj == 0):
-                moisture = self.current_state_moisture[jj]
+        location_each = np.linspace(1, 22, 22)
+        for jj in range(len(location_each)):
+            if(location_each[jj] <= location[0]):
+                moisture = self.current_state_moisture[0]
                 moisture_mean = np.mean(moisture)
                 moisture_std = np.std(moisture)
                 ## find the next point b
-                moisture_next = self.current_state_moisture[jj+1]
+                moisture_next = self.current_state_moisture[1]
                 moisture_mean_next = np.mean(moisture_next)
                 moisture_std_next = np.std(moisture_next)
                 ## compute the slope of ab
                 slope = ((moisture_mean_next - moisture_mean) 
-                                / (location[jj+1] - location[jj]))
-                for loc in range(location[jj]):
-                    std_moisture_each[loc] = moisture_std
-                    mean_moisture_each[loc] = moisture_mean - slope * ( 
-                                                        location[jj] - loc - 1)
-                    min_moisture_each[loc] =  min(moisture_mean - 
-                            2 * slope * (location[jj] - 1 - loc), moisture_mean)  
-                    max_moisture_each[loc] = max(moisture_mean - 
-                            2 * slope * (location[jj] - 1 - loc), moisture_mean)
-            elif(jj == len(location) - 1):
-                moisture = self.current_state_moisture[jj]
+                                / (location[1] - location[0]))
+                slope_std = ((moisture_std_next - moisture_std) 
+                                / (location[1] - location[0]))
+                moisture_font = moisture_mean - slope * (location[0] - 1)
+                std_font = max(0, moisture_std - slope_std * (location[0] - 1))
+                m_font = interp1d([0.9, location[0]], [moisture_font, moisture_mean], kind = 'linear')
+                std_m_font = interp1d([0.9, location[0]], [std_font, moisture_std], kind = 'linear')
+                std_moisture_each[jj] = std_m_font(location_each[jj])
+                mean_moisture_each[jj] = m_font(location_each[jj])
+                                        
+            elif(location_each[jj] >= location[len(location)-1]):
+                moisture = self.current_state_moisture[len(location)-1]
                 moisture_mean = np.mean(moisture)
                 moisture_std = np.std(moisture)
-                moisture_prev = self.current_state_moisture[jj-1] 
+                moisture_prev = self.current_state_moisture[len(location)-2] 
                 moisture_mean_prev = np.mean(moisture_prev)
                 moisture_std_prev = np.std(moisture_prev)
-                slope = (moisture_mean - moisture_mean_prev) / (location[jj]
-                             - location[jj-1])
-                for loc in range(location[jj], 22):
-                    std_moisture_each[loc] = moisture_std
-                    mean_moisture_each[loc] = moisture_mean + slope * (
-                                                        loc - location[jj] + 1)
-                    min_moisture_each[loc] =  min(moisture_mean + 
-                            2 * slope * (22 - location[jj]), moisture_mean)  
-                    max_moisture_each[loc] = max(moisture_mean +
-                            2 * slope * (22 - location[jj]), moisture_mean)   
-                for loc in range(location[jj-1], location[jj]):
-                    std_moisture_each[loc] = (moisture_std + moisture_std_prev)/2
-                    mean_moisture_each[loc] = moisture_mean + slope * (loc - 
-                                        location[jj] + 1)
-                    min_moisture_each[loc] = min(moisture_mean_prev, 
-                                        moisture_mean) 
-                    max_moisture_each[loc] = max(moisture_mean_prev,
-                                        moisture_mean) 
+                slope = (moisture_mean - moisture_mean_prev) / (location[len(location)-1]
+                             - location[len(location)-2])
+                slope_std = ((moisture_std - moisture_std_prev) 
+                                / (location[len(location)-1]
+                             - location[len(location)-2]))
+                moisture_end = moisture_mean + slope * (22 - location[len(location)-1])
+                std_end = max(0, moisture_std + slope_std * (22 - location[len(location)-1]))
+                m_end = interp1d([location[len(location)-1], 22.1], [moisture_mean, moisture_end], kind = 'linear')
+                std_m_end = interp1d([location[len(location)-1], 22.1], [moisture_std, std_end], kind = 'linear')
+                std_moisture_each[jj] = std_m_end(location_each[jj])
+                mean_moisture_each[jj] = m_end(location_each[jj])
+                
             else:
-                moisture = self.current_state_moisture[jj]
-                moisture_mean = np.mean(moisture)
-                moisture_std = np.std(moisture)
-                moisture_prev = self.current_state_moisture[jj-1] 
-                moisture_mean_prev = np.mean(moisture_prev)
-                moisture_std_prev = np.std(moisture_prev)
-                slope = (moisture_mean - moisture_mean_prev) / (location[jj]
-                             - location[jj-1])
-                for loc in range(location[jj-1], location[jj]):
-                    std_moisture_each[loc] = (moisture_std + moisture_std_prev)/2
-                    mean_moisture_each[loc] = moisture_mean + slope * (loc - 
-                                        location[jj] + 1)
-                    min_moisture_each[loc] = min(moisture_mean_prev, 
-                                        moisture_mean) 
-                    max_moisture_each[loc] = max(moisture_mean_prev,
-                                        moisture_mean) 
+                moisture = self.current_state_moisture
+                moisture_mean = np.zeros(len(moisture))
+                moisture_std = np.zeros(len(moisture))
+                for i in range(len(moisture)):
+                    moisture_mean[i] = np.mean(moisture[i])
+                    moisture_std[i] = np.std(moisture[i])
+                m_inter = interp1d(location, moisture_mean, kind = 'linear')
+                std_m_inter = interp1d(location, moisture_std, kind = 'linear')
+                std_moisture_each[jj] = std_m_inter(location_each[jj])
+                mean_moisture_each[jj] = m_inter(location_each[jj])
         R_v_set = np.zeros(22)
         std_moisture_each[np.where(std_moisture_each < 0)] = 0
         std_moisture_each[np.where(std_moisture_each > 1)] = 1
         self.std_moisture_each = std_moisture_each
         mean_moisture_each[np.where(mean_moisture_each < -1)] = -1
-        mean_moisture_each[np.where(mean_moisture_each > 17)] = 17
+        mean_moisture_each[np.where(mean_moisture_each > 18)] = 18
         self.mean_moisture_each = mean_moisture_each
-        self.min_moisture_each = min_moisture_each
-        self.max_moisture_each = max_moisture_each
+
         for jj in range(22):
-            std = std_moisture_each[loc]
+            std = std_moisture_each[jj]
             min_std = 0.01
             moisture_possibility = np.linspace(mean_moisture_each[jj] - 3*max(std, min_std), 
                                                 mean_moisture_each[jj] + 3*max(std, min_std), 20)
+            moisture_possibility[np.where(moisture_possibility < -1)] = -1
+            moisture_possibility[np.where(moisture_possibility > 17)] = 17
+            print(moisture_possibility)
             probability = gauss(mean_moisture_each[jj], 1, moisture_possibility,
                                                 max(std, min_std))
             actual_probability = probability/np.sum(probability)
@@ -464,7 +456,7 @@ class DecisionMaking:
                 shearstrength_std_next = yy_std[1]
                 slope = (shearstrengh_mean_next - shearstrength_mean)/(
                                     moisture_mean_next - moisture_mean)
-                shearstrengh_moisture_font = shearstrength_mean - slope * (moisture_mean + 1)
+                shearstrengh_moisture_font = min(0, shearstrength_mean - slope * (moisture_mean + 1))
                 slope_std = (shearstrength_std_next - shearstrength_std)/(
                                     moisture_mean_next - moisture_mean)
                 std_moisture_font = max(0, shearstrength_std - slope_std * (moisture_mean + 1))
@@ -513,6 +505,8 @@ class DecisionMaking:
                                                 self.mean_moisture_each[jj] + 3*std_moist, 20)
             moisture_possibility[np.where(moisture_possibility < -1)] = -1
             moisture_possibility[np.where(moisture_possibility > 17)] = 17
+            self.mean_moisture_each[np.where(self.mean_moisture_each < -1)] = -1
+            self.mean_moisture_each[np.where(self.mean_moisture_each > 17)] = 17
             if(self.mean_moisture_each[jj] <= xx_mean[0]):
                 mean_shear_strength = f_font(self.mean_moisture_each[jj])
             elif(self.mean_moisture_each[jj] >= xx_mean[len(xx_mean)-1]):
@@ -686,22 +680,21 @@ def deploy_plot(Traveler_DM ,sequence, location, sample, mm, erodi, results):
     fig, axs = plt.subplots(3,1, figsize=(22,25))
     x = np.linspace(1,22,22)
     axs[0].plot(x, Traveler_DM.mean_moisture_each, linewidth=3, label="variable_reward", c="black")
-    axs[0].plot(Traveler_DM.current_state_location, Traveler_DM.current_state_moisture, 'o', c="red",markersize=10)
+    for i in range(len(Traveler_DM.current_state_location)):
+        axs[0].plot(Traveler_DM.current_state_location[i] * np.ones(len(Traveler_DM.current_state_moisture[i])), Traveler_DM.current_state_moisture[i], 'o', c="red",markersize=10)
     axs[0].fill_between(np.linspace(1,22,22), Traveler_DM.mean_moisture_each +  0.5, Traveler_DM.mean_moisture_each -  0.5, alpha=0.2, color="green")
     axs[0].set_ylabel('Moisture')
     axs[0].set_xlabel('Location')
     axs[1].plot(Traveler_DM.x_detail_fit, Traveler_DM.xx_detail_model, linewidth=3,  c="black")
-    axs[1].plot(Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, 'o', c="red",markersize=10)
+    for i in range(len(Traveler_DM.current_state_location)):
+        axs[1].plot(Traveler_DM.current_state_moisture[i], Traveler_DM.current_state_shear_strength[i], 'o', c="red",markersize=10)
     axs[1].plot(Traveler_DM.x_detail_fit, Traveler_DM.shearstrength_predict, c="green", linewidth=3)
     axs[1].fill_between(Traveler_DM.x_detail_fit, Traveler_DM.shearstrength_predict +  3*Traveler_DM.shearstrength_std_each, Traveler_DM.shearstrength_predict - 3*Traveler_DM.shearstrength_std_each, alpha=0.2, color="green")
     axs[1].set_ylabel('Shear Strength')
     axs[1].set_xlabel('Moisture')
     
-    y = np.array(Traveler_DM.current_state_location).reshape((len(Traveler_DM.current_state_location),1))
-    print(y)
-    x = np.tile(y, [1, 3])
-    print(x)
-    axs[2].plot(x, Traveler_DM.current_state_shear_strength,'o',markersize=10, linewidth=3,  c="red")
+    for i in range(len(Traveler_DM.current_state_location)):
+        axs[2].plot(Traveler_DM.current_state_location[i] * np.ones(len(Traveler_DM.current_state_shear_strength[i])), Traveler_DM.current_state_shear_strength[i],'o',markersize=10, linewidth=3,  c="red")
     axs[2].plot(np.linspace(1,22,22), Traveler_DM.mean_shearstrength_each_loc,'o',markersize=10, linewidth=3,  c="black")
     # moisture_index = np.round(Traveler_DM.current_state_moisture)
     # axs[2].plot(moisture_index, Traveler_DM.current_state_shear_strength, 'o', c="red",markersize=10)
