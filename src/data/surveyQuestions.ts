@@ -168,6 +168,10 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.Text,
+            text: "What is your name?"
+        },
+        {
+            type: QuestionType.Text,
             text: "What is your age?",
             params: { textAreaType: TextAreaType.Number }
         },
