@@ -16,7 +16,7 @@ import ThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import { storeState, stateExists, removeStoredState, getStoredState } from './handlers/LocalStorageHandler';
 import { AUTO_LOAD_MS } from './constants';
 import { getMoistureData, getShearData, getMeasurements } from './util';
-import { initialSamples } from './sampleTemplates';
+import { initialSamplesSet } from './sampleTemplates';
 
 const theme = createMuiTheme({
   palette: {
@@ -68,8 +68,13 @@ function RouteWrapper() {
     });
   }, [history]);
 
-  // Load initial samples
+  // Load moisture dataset, shear dataset, and initial samples
   useEffect(() => {
+    let moistureData = getMoistureData();
+    let shearData = getShearData(dataVersion.local);
+    let initialSamples = initialSamplesSet[dataVersion.local];
+    dispatch({ type: Action.SET_MOISTURE_DATA, value: moistureData });
+    dispatch({ type: Action.SET_FULL_DATA, value: shearData });
     dispatch({ type: Action.SET_SAMPLES, value: initialSamples })
     dispatch({ type: Action.SET_CURR_SAMPLE_IDX, value: 0 });
   }, []);
