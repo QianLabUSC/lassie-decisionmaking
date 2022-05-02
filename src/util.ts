@@ -69,8 +69,9 @@ export function getMoistureData() {
 }
 
 // Function to load shear data 
-export function getShearData() {
-  return dataset.shear; 
+export function getShearData(dataVersion: number) {
+  if (dataVersion === 0) return dataset.shear0; 
+  return dataset.shear1;
 }
 
 export function getRandomMeasurements(isAlternativeHypo = false) {
@@ -198,7 +199,7 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
     shearValues.push(Array.from(samples[i].shear));
   }
 
-  console.log({locations, measurements, moistureValues, shearValues});
+  //console.log({locations, measurements, moistureValues, shearValues});
 
   // Compute the robot suggestions based on each objective (limit to 3 suggestions)
   let robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues);
