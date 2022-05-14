@@ -8,21 +8,24 @@ import "../styles/chartPanel.scss";
 type ChartPanelMode = "TransectView" | "ConclusionView";
 
 const chartTabMap: {[key in ChartPanelMode]: string[]} = {
+    // Currently displaying only the "Shear vs. Moisture" chart.
+    // To display the "Shear Strength" and "Moisture" charts, add titles such as:
+    //      "TransectView": ["Shear vs. Moisture", "Shear Strength", "Moisture"], 
+    // Note that the order of the titles should match the order of the charts at
+    // the bottom of this script under the "chartsArea" className
     "TransectView": ["Shear vs. Moisture"],
     "ConclusionView": ["Shear vs. Moisture"]
 };
 const chartClassMap: {[key in ChartPanelMode]: string[][]} = {
     "TransectView": [
-        ["chartFull", "chartHidden", "chartHidden", "chartHidden"],
-        ["chartHidden", "chartFull", "chartHidden", "chartHidden"],
-        ["chartHidden", "chartHidden", "chartFull", "chartHidden"],
-        ["chartHidden", "chartHidden", "chartHidden", "chartFull"]
+        ["chartFull", "chartHidden", "chartHidden"],
+        ["chartHidden", "chartFull", "chartHidden"],
+        ["chartHidden", "chartHidden", "chartFull"],
     ],
     "ConclusionView": [
-        ["chartFull", "chartHidden", "chartHidden", "chartHidden"],
-        ["chartHidden", "chartFull", "chartHidden", "chartHidden"],
-        ["chartHidden", "chartHidden", "chartFull", "chartHidden"],
-        ["chartHidden", "chartHidden", "chartHidden", "chartFull"]
+        ["chartFull", "chartHidden", "chartHidden"],
+        ["chartHidden", "chartFull", "chartHidden"],
+        ["chartHidden", "chartHidden", "chartFull"],
     ]
 };
 
@@ -119,14 +122,9 @@ export default function ChartPanel(props: ChartPanelProps) {
                         <div className={chartClassMap[props.mode][tab][2]} id="moistChartParent">
                             <canvas id={`moistChart${chartIDSuffix}`} />
                         </div>
-                        <div className={chartClassMap[props.mode][tab][3]} id="grainChartParent">
-                            <canvas id={`grainChart${chartIDSuffix}`} />
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
     );
-    
 }
