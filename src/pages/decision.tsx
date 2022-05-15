@@ -258,6 +258,22 @@ export default function Main() {
         dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
       }}/>
     </div>
+  
+  //New data Type in page
+  const onObjectiveTextChangeStrength = e1 => {
+    dispatch({ type: Action.ADD_USER_STRENGTH_DATA, value: e1.target.value });
+  }
+  const onObjectiveTextChangeLocation = e2 => {
+    dispatch({ type: Action.ADD_USER_STRENGTH_DATA, value: e2.target.value });
+  }
+  const typeInNewData = 
+  <div className="type-in-new-data" style={{marginBottom: '2vh'}}>
+        <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
+        <div>
+          Shear Strength:<textarea onChange={onObjectiveTextChangeStrength} rows={1} cols={10}/>
+          Location:<textarea onChange={onObjectiveTextChangeLocation} rows={1} cols={10}/>
+        </div>
+  </div>
 
   // Handler for setting the user's rating for how well the latest sample addressed the current objective
   const handleSliderChange = (event, newValue, index) => {
@@ -379,6 +395,8 @@ export default function Main() {
     </div>
   </div>
 
+
+
   const transitionQuestions = 
     <div className="reject-reason-questions">
       <p><strong>What would you like to do next?</strong></p>
@@ -394,6 +412,7 @@ export default function Main() {
     objectiveRankings,
     objectiveFreeResponseQuestion,
     acceptOrRejectQuestions,
+    typeInNewData,
     acceptFollowUpQuestions,
     rejectReasonQuestions,
     rejectReasonFreeResponseQuestion,
@@ -496,7 +515,7 @@ export default function Main() {
           const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSample.index, robotSample.measurements);
           let newSample : Sample = {...robotSample, shear: shearValues, moisture: moistureValues};
           dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_FOLLOW_UP });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA });
           dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
         } else {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON });
@@ -505,10 +524,15 @@ export default function Main() {
         console.log({globalState}); // for debugging
         return;
       }
-      case UserFeedbackState.ACCEPT_FOLLOW_UP: {
+      //Add user type in new method submit method
+      case UserFeedbackState.TYPE_IN_NEW_DATA: {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
-        return;
+        //dispatch({type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA})
       }
+      // case UserFeedbackState.ACCEPT_FOLLOW_UP: {
+      //   dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA });
+      //   return;
+      // }
       case UserFeedbackState.REJECT_REASON: {
         if (rejectReason === 0) {
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });

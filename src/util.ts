@@ -166,6 +166,31 @@ export function getMeasurements(globalState: IState, transectIndex: number, loca
   return {shearValues, moistureValues, shearMoistureValues};
 }
 
+// This function the new function to add the new data typed in by user manually
+export function getUserMeasurements(globalState: IState, transectIndex: number, locationIndex: number, measurements: number) {
+  const {userStrengthData,  userLocationData } = globalState;
+  // Should seed include the current number of measurements taken?
+  const seed = `${transectIndex}${measurements}`;
+  const rng = createRNG(seed);
+  const strengthValues: number[] = [];
+  const locationValues: number[] = [];
+  const shearMoistureValues: {strengthValue: number, locationValue: number}[] = [];
+  for (let i = 0; i < measurements; i++) {
+    const j = Math.floor(Math.random() * MAX_NUM_OF_MEASUREMENTS);
+    strengthValues.push(userStrengthData[locationIndex][j]);
+    locationValues.push(userLocationData[locationIndex][j]);
+    shearMoistureValues.push({strengthValue: userStrengthData[locationIndex][j], locationValue: userLocationData[locationIndex][j]});
+  }
+  //console.log({shearValues, moistureValues, grainValues, shearMoistureValues}); // for debugging
+  return {strengthValues, locationValues, shearMoistureValues};
+}
+
+export function pushUserMeasurements(globalState: IState, strength:string, location:string){
+  const {userStrengthData, userLocationData} = globalState;
+  userStrengthData.push(Number(strength));
+  userLocationData.push(Number(location));
+}
+
 // This function parses the URL to determine whether the original or robotic version of the website will be used
 // Original version with manual execution of strategy: https://www.seas.upenn.edu/~foraging/field/dev/#/
 // New version with robotic suggested execution of strategy: https://www.seas.upenn.edu/~foraging/field/dev/#/?v=1
