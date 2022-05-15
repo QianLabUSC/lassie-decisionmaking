@@ -1,6 +1,6 @@
 import os
 import sys
-from traveler_decision_making import *
+from high_path_planning import *
 sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/site-packages')
 
 from flask import Flask, request, jsonify
@@ -41,36 +41,8 @@ def process():
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
     erodi = np.array(inputs['shearValues'])
-    #print('location', location)
-    #print('sample', sample)
-    Traveler_DM = DecisionMaking()
-    Traveler_DM.update_current_state(location, sample, mm, erodi)
-    Traveler_DM.handle_spatial_information_coverage()
-    Traveler_DM.handle_variable_information_coverage()
-    Traveler_DM.handle_discrepancy_coverage()
-    results = Traveler_DM.calculate_suggested_location()
-    #deploy_plot(Traveler_DM, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
-    spatial_selection = np.array(results['spatial_locs'])
-    #print('spatial_selection', spatial_selection)
-    variable_selection = np.array(results['variable_locs'])
-    #print('variable_selection', variable_selection)
-    discrepancy_selection = np.array(results['discrepancy_locs'])
-    #print('discrepancy_selection', discrepancy_selection)
-    discrepancy_low_selection = np.array(results['discrepancy_lows_locs'])
-    print('discrepancy_low_selection', discrepancy_low_selection)
-    print('spatial_reward', Traveler_DM.spatial_reward)
-    print('variable_reward', Traveler_DM.variable_reward)
-    print('discrepancy_reward', Traveler_DM.discrepancy_reward)
-    output = {
-        'spatial_selection': spatial_selection.tolist(), 
-        'variable_selection': variable_selection.tolist(), 
-        'discrepancy_selection': discrepancy_selection.tolist(), 
-        'discrepancy_low_selection': discrepancy_low_selection.tolist(), 
-        'spatial_reward': Traveler_DM.spatial_reward.tolist(),
-        'variable_reward': Traveler_DM.variable_reward.tolist(),
-        'discrepancy_reward': Traveler_DM.discrepancy_reward.tolist()
-    }
-
+    PathPlanning = TravelerHighPathPlanning()
+    output = PathPlanning.single_step_path_planning(location, sample, mm, erodi)
     return jsonify(output)
     
     
