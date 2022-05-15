@@ -31,6 +31,8 @@ export interface IState {
   dataVersion: DataVersion, // will be in final output after survey is completed
   fullData: number[][],
   moistureData: number[][],
+  userStrengthData: number[],
+  userLocationData: number[],
   // Step fields
   currSampleIdx: number,
   samples: Sample[] // will be in final output after survey is completed
@@ -64,6 +66,8 @@ export const initialState : IState = {
   },
   fullData: [],
   moistureData: [],
+  userLocationData: [],
+  userStrengthData: [],
   currSampleIdx: 0,
   samples: [],
   currUserStep: {
@@ -114,6 +118,8 @@ export enum Action {
   SET_DATA_VERSION,
   SET_FULL_DATA,
   SET_MOISTURE_DATA,
+  ADD_USER_STRENGTH_DATA,
+  ADD_USER_LOCATION_DATA,
   SET_CURR_SAMPLE_IDX,
   SET_SAMPLES,
   ADD_SAMPLE, 
@@ -168,6 +174,8 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_DATA_VERSION]: 'dataVersion',
   [Action.SET_FULL_DATA]: 'fullData',
   [Action.SET_MOISTURE_DATA]: 'moistureData',
+  [Action.ADD_USER_LOCATION_DATA]: 'userLocationData',
+  [Action.ADD_USER_STRENGTH_DATA]: 'userStrengthData',
   [Action.SET_CURR_SAMPLE_IDX]: 'currSampleIdx',
   [Action.SET_SAMPLES]: 'samples',
   [Action.SET_CURR_USER_STEP]: 'currUserStep',
