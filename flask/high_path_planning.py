@@ -27,15 +27,12 @@ class TravelerHighPathPlanning:
     '''
 
 
-    def findbestlocation(self,location, spatial_reward, moisture_reward,
+    def findbestlocation(self,location, spatial_reward,
                         discrepancy_reward):
 
         disrepancy_reward_negative = np.array(discrepancy_reward) * -1
 
         spatial_locs, spatial_properties = signal.find_peaks(spatial_reward,
-                                                            height=0.3,
-                                                            distance=2)
-        variable_locs, variable_properties = signal.find_peaks(moisture_reward,
                                                             height=0.3,
                                                             distance=2)
         discrepancy_locs, discrepancy_properties = signal.find_peaks(
@@ -64,21 +61,6 @@ class TravelerHighPathPlanning:
             max_index = reward_list.argsort()[-3:][::-1]
             spatial_locs = spatial_locs[max_index]
 
-        if len(variable_locs) == 0:
-            variable_locs = moisture_reward.argsort()[-3:][::-1]
-            max_used_variable = True
-        elif len(variable_locs) == 1:
-            variable_locs = np.append(variable_locs,
-                                    moisture_reward.argsort()[-2:][::-1])
-            max_used_variable = True
-        elif len(variable_locs) == 2:
-            variable_locs = np.append(variable_locs,
-                                    moisture_reward.argsort()[-1:][::-1])
-            max_used_variable = True
-        elif len(variable_locs) >= 3:
-            reward_list = moisture_reward[variable_locs]
-            max_index = reward_list.argsort()[-3:][::-1]
-            variable_locs = variable_locs[max_index]
 
         if len(discrepancy_locs) == 0:
             discrepancy_locs = discrepancy_reward.argsort()[-3:][::-1]
@@ -133,21 +115,17 @@ class TravelerHighPathPlanning:
 
         ## reorder the selected locations
         spatial_locs = np.unique(spatial_locs)
-        variable_locs = np.unique(variable_locs)
         discrepancy_locs = np.unique(discrepancy_locs)
         discrepancy_lows_locs = np.unique(discrepancy_lows_locs)
         spatial_locs = np.sort(spatial_locs)
-        variable_locs = np.sort(variable_locs)
         discrepancy_locs = np.sort(discrepancy_locs)
         discrepancy_lows_locs = np.sort(discrepancy_lows_locs)
 
         output = {
             'spatial_locs': spatial_locs.tolist(),
-            'variable_locs': variable_locs.tolist(),
             'discrepancy_locs': discrepancy_locs.tolist(),
             'discrepancy_lows_locs': discrepancy_lows_locs.tolist(),
             'max_used_spatial': max_used_spatial,
-            'max_used_variable': max_used_variable,
             'max_used_discrepancy': max_used_discrepancy,
             'max_used_discrepancy_lows': max_used_discrepancy_lows
         }
@@ -157,28 +135,22 @@ class TravelerHighPathPlanning:
 
     def single_step_path_planning(self, location, sample, variable1, variable2):
         self.ObjectiveComputing.update_current_state(location, sample, variable1, variable2)
-        self.ObjectiveComputing.handle_spatial_information_coverage()
-        self.ObjectiveComputing.handle_variable_information_coverage()
-        self.ObjectiveComputing.handle_discrepancy_coverage()
+        information_reward = self.ObjectiveComputing.handle_spatial_information_coverage()
+        discrepancy_reward = self.ObjectiveComputing.handle_discrepancy_reward()
         results = self.findbestlocation(self.ObjectiveComputing.current_state_location,
-                              self.ObjectiveComputing.spatial_reward, 
-                              self.ObjectiveComputing.variable_reward,
-                              self.ObjectiveComputing.discrepancy_reward)
+                              information_reward, 
+                              discrepancy_reward)
         spatial_selection = np.array(results['spatial_locs'])
-        variable_selection = np.array(results['variable_locs'])
         discrepancy_selection = np.array(results['discrepancy_locs'])
         discrepancy_low_selection = np.array(results['discrepancy_lows_locs'])
         print('discrepancy_low_selection', discrepancy_low_selection)
         print('spatial_reward', self.ObjectiveComputing.spatial_reward)
-        print('variable_reward', self.ObjectiveComputing.variable_reward)
         print('discrepancy_reward', self.ObjectiveComputing.discrepancy_reward)
         output = {
             'spatial_selection': spatial_selection.tolist(), 
-            'variable_selection': variable_selection.tolist(), 
             'discrepancy_selection': discrepancy_selection.tolist(), 
             'discrepancy_low_selection': discrepancy_low_selection.tolist(), 
             'spatial_reward': self.ObjectiveComputing.spatial_reward.tolist(),
-            'variable_reward': self.ObjectiveComputing.variable_reward.tolist(),
             'discrepancy_reward': self.ObjectiveComputing.discrepancy_reward.tolist()
         }
         return output

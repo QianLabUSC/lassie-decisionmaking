@@ -39,16 +39,15 @@ Returns:
     model:
 '''
 
-def hypofit(xx, yy, zz):
+def hypofit(xx, yy, length):
 
     P0 = [8, 0.842, 9.5]
     lb = [0, 0, 0]
     ub = [20, 5, 20]
 
     Pfit, covs = curve_fit(model, xx, yy, P0, bounds=(lb, ub))
-    xfit = np.linspace(-1, 17, 19)
+    xfit = np.linspace(1, length, length)
     unique_x = np.unique(xx)
-    loc = np.unique(zz)
 
     RMSE_average = [0] * len(unique_x)
     RMSE_spread = [0] * len(unique_x)
@@ -61,18 +60,10 @@ def hypofit(xx, yy, zz):
             np.mean(yy_finded) -
             np.mean(model(xx_finded, Pfit[0], Pfit[1], Pfit[2]))))
         RMSE_spread[i] = np.std(yy_finded, ddof=1)
-    x_detail_fit = np.linspace(-1, 17, 190)
+    x_detail_fit = np.linspace(1, length, length)
     xx_model = model(xfit, Pfit[0], Pfit[1], Pfit[2])
     xx_detail_model = model(x_detail_fit, Pfit[0], Pfit[1], Pfit[2])
 
-    output = {
-        'loc': loc.tolist(),
-        'err': RMSE_average,
-        'spread': RMSE_spread,
-        'xfit': xfit.tolist(),
-        'xx_model': xx_model,
-        'Pfit': Pfit.tolist()
-    }
 
-    return loc, RMSE_average, RMSE_spread, xfit, xx_model, Pfit,\
+    return RMSE_average, RMSE_spread, xfit, xx_model, Pfit,\
             x_detail_fit, xx_detail_model, model
