@@ -23,6 +23,7 @@ import RadioButtonGroup from '../components/RadioButtonGroup';
 import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMultipleOptions';
 import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
+import createBreakpoints from '@material-ui/core/styles/createBreakpoints';
 
 function ImgAlert({ open }) {
   return (
@@ -260,23 +261,40 @@ export default function Main() {
     </div>
   
   //New data Type in page
-  const onObjectiveTextChangeStrength = e1 => {
+  const onObjectiveTextChangeStrength1 = e1 => {
     dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e1.target.value });
   }
-  const onObjectiveTextChangeLocation = e2 => {
-    dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e2.target.value });
-  }
+
   const typeInNewData = 
   <div className="type-in-new-data" style={{marginBottom: '2vh'}}>
         <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
         <div>
-          Shear Strength:<textarea id = "latestStrength" name = "latestStrength" onChange={onObjectiveTextChangeStrength} rows={1} cols={10}/>
-          Location:<textarea id = "latestLocation" name = "latestLocation"  onChange={onObjectiveTextChangeLocation} rows={1} cols={10}/>
+          Shear Strength:<textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={20}/>
+          <br />
+          <br />
+          <br />
+          <br />
         </div>
   </div>
 //var x = document.getElementById("myTextarea").value;
 
+  //New data Type with User Location in page
+  const onObjectiveTextChangeStrength3 = e2 => {
+    dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e2.target.value });
+  }
+  const onObjectiveTextChangeLocation = e3 => {
+    dispatch({ type: Action.SET_USER_LOCATION_DATA, value: e3.target.value });
+  }
 
+  const typeInNewLocationData = 
+  <div className="type-in-new-location-data" style={{marginBottom: '2vh'}}>
+        <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
+        <div>
+          Shear Strength:<textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength3} rows={5} cols={20}/>
+          <br />
+          Normalized Distance:<textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation} rows={5} cols={20}/>
+        </div>
+  </div>
 
 
   // Handler for setting the user's rating for how well the latest sample addressed the current objective
@@ -421,6 +439,7 @@ export default function Main() {
     rejectReasonQuestions,
     rejectReasonFreeResponseQuestion,
     userLocationSelectionQuestion,
+    typeInNewLocationData,
     updateHypothesisConfidence,
     transitionQuestions,
   ]
@@ -508,44 +527,54 @@ export default function Main() {
         dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
         dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
         dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
-        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });
         dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION: {
         if (acceptOrReject !== acceptOrRejectOptions.length - 1) {
-          let robotSample = robotSuggestions[acceptOrReject]; 
-          const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSample.index, robotSample.measurements);
-          let newSample : Sample = {...robotSample, shear: shearValues, moisture: moistureValues};
-          dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA });
-          dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA });        
         } else {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON });
-        }
-        dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
+        }    
         console.log({globalState}); // for debugging
         return;
       }
       //Add user type in new method submit method
       case UserFeedbackState.TYPE_IN_NEW_DATA: {
+
+        let robotSample = robotSuggestions[acceptOrReject]; 
+        const {userStrengthData} = globalState;
+        const stringStrengthData = String(userStrengthData);
+        console.log("stringStrengthData", stringStrengthData);
+        var splittedStrength = stringStrengthData.split(" ");
+        const strengthNumArr = splittedStrength.map(Number);
+        // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSample.index, robotSample.measurements);
+        let newSample : Sample = {...robotSample, shear: strengthNumArr, moisture: [5,5,5]};
+        dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
+        
+        dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
+
+        // add the new sample to the state
         var curStrength = document.getElementById("latestStrength")?.innerText;
         var curLocation = document.getElementById("latestLocation")?.innerText;
         // pushUserMeasurements(globalState,curStrength,curLocation);
+        dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
         //dispatch({type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA})
       }
       // case UserFeedbackState.ACCEPT_FOLLOW_UP: {
       //   dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA });
       //   return;
-      // }
+
+      
       case UserFeedbackState.REJECT_REASON: {
         if (rejectReason === 0) {
-          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
-          dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
-          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
+          dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
+          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });
           dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         } else if (rejectReason === 1) {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON_FREE_RESPONSE });
@@ -554,22 +583,52 @@ export default function Main() {
         return;
       }
       case UserFeedbackState.REJECT_REASON_FREE_RESPONSE: {
-        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
-        dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
-        dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
-        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
-        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
-        console.log({globalState}); // for debugging
-        return;
-      }
-      case UserFeedbackState.USER_LOCATION_SELECTION: {
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
         dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
-        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 }); // load the next Sample into the charts and strategy 
-        dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
-        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
+        dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });
+        // dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         console.log({globalState}); // for debugging
+        console.log('test');
         return;
       }
+      case UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA: {
+
+        let robotSample = robotSuggestions[acceptOrReject]; 
+        const {userStrengthData,userLocationData} = globalState;
+        
+        const stringStrengthData = String(userStrengthData);
+        console.log("stringStrengthData", stringStrengthData);
+        var splittedStrength = stringStrengthData.split(" ");
+        const strengthNumArr = splittedStrength.map(Number);
+
+        const stringLocationData = String(userLocationData);
+        console.log("stringLocationData", stringLocationData);
+        var splittedLocation = stringLocationData.split(" ");
+        const locationNumArr = splittedLocation.map(Number);
+        // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSample.index, robotSample.measurements);
+        let newSample : Sample = {...robotSample, shear: strengthNumArr, moisture: locationNumArr};
+        dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
+        
+        dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
+
+        // add the new sample to the state
+        var curStrength = document.getElementById("latestStrength")?.innerText;
+        var curLocation = document.getElementById("latestLocation")?.innerText;
+        // pushUserMeasurements(globalState,curStrength,curLocation);
+        dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
+        console.log('test')
+        dispatch({type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA})
+      }
+      // case UserFeedbackState.USER_LOCATION_SELECTION: {
+      //   dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
+      //   dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 }); // load the next Sample into the charts and strategy 
+      //   dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
+      //   dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA });
+      //   console.log({globalState}); // for debugging
+      //   return;
+      // }
       case UserFeedbackState.HYPOTHESIS_CONFIDENCE: {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TRANSITION });
         console.log({globalState}); // for debugging
@@ -614,7 +673,7 @@ export default function Main() {
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
           dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });
           dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
           dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
           dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: [] });
@@ -654,7 +713,7 @@ export default function Main() {
   const collectionRightPanel = (
     <div className="collectionRightPanel">
       <ImgAlert open={!!showImgAlert} />
-      <Tooltip title={userFeedbackState !== UserFeedbackState.USER_LOCATION_SELECTION ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
+      <Tooltip title={userFeedbackState !== UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
             <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
