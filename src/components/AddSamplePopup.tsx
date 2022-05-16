@@ -95,21 +95,21 @@ export default function Popup(props) {
     if (!checkVal(value)) {
       return;
     }
-    const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, clickIndex, NUM_MEASUREMENTS);
-    const newSample : Sample = {
-      index: clickIndex,
-      type: 'user',
-      measurements: NUM_MEASUREMENTS,
-      normOffsetX: normOffsetX,
-      normOffsetY: normOffsetY,
-      isHovered: false,
-      moisture: moistureValues,
-      shear: shearValues
-    };
-    dispatch({ 
-      type: Action.ADD_SAMPLE, 
-      value: newSample 
-    }); // add the new sample to the state
+    // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, clickIndex, NUM_MEASUREMENTS);
+    // const newSample : Sample = {
+    //   index: clickIndex,
+    //   type: 'user',
+    //   measurements: NUM_MEASUREMENTS,
+    //   normOffsetX: normOffsetX,
+    //   normOffsetY: normOffsetY,
+    //   isHovered: false,
+    //   moisture: moistureValues,
+    //   shear: shearValues
+    // };
+    // dispatch({ 
+    //   type: Action.ADD_SAMPLE, 
+    //   value: newSample 
+    // }); // add the new sample to the state
 
     close();
     dispatch({ 

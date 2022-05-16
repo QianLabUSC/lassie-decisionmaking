@@ -31,8 +31,8 @@ export interface IState {
   dataVersion: DataVersion, // will be in final output after survey is completed
   fullData: number[][],
   moistureData: number[][],
-  userStrengthData: number[][],
-  userLocationData: number[][],
+  userStrengthData: number[],
+  userLocationData: number[],
   // Step fields
   currSampleIdx: number,
   samples: Sample[] // will be in final output after survey is completed

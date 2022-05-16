@@ -8,18 +8,18 @@ import "../styles/chartPanel.scss";
 type ChartPanelMode = "TransectView" | "ConclusionView";
 
 const chartTabMap: {[key in ChartPanelMode]: string[]} = {
-    "TransectView": ["Shear vs. Moisture"],
-    "ConclusionView": ["Shear vs. Moisture"]
+    "TransectView": ["Shear vs. Location"],
+    "ConclusionView": ["Shear vs. Location"]
 };
 const chartClassMap: {[key in ChartPanelMode]: string[][]} = {
     "TransectView": [
-        ["chartFull", "chartHidden", "chartHidden", "chartHidden"],
+        ["chartHidden", "chartFull", "chartHidden", "chartHidden"],
         ["chartHidden", "chartFull", "chartHidden", "chartHidden"],
         ["chartHidden", "chartHidden", "chartFull", "chartHidden"],
         ["chartHidden", "chartHidden", "chartHidden", "chartFull"]
     ],
     "ConclusionView": [
-        ["chartFull", "chartHidden", "chartHidden", "chartHidden"],
+        ["chartHidden", "chartFull", "chartHidden", "chartHidden"],
         ["chartHidden", "chartFull", "chartHidden", "chartHidden"],
         ["chartHidden", "chartHidden", "chartFull", "chartHidden"],
         ["chartHidden", "chartHidden", "chartHidden", "chartFull"]
