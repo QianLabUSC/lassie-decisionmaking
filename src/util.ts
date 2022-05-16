@@ -185,11 +185,11 @@ export function getUserMeasurements(globalState: IState, transectIndex: number, 
   return {strengthValues, locationValues, shearMoistureValues};
 }
 
-export function pushUserMeasurements(globalState: IState, strength:string, location:string){
-  const {userStrengthData, userLocationData} = globalState;
-  userStrengthData.push(Number(strength));
-  userLocationData.push(Number(location));
-}
+// export function pushUserMeasurements(globalState: IState, strength:string, location:string){
+//   const {userStrengthData, userLocationData} = globalState;
+//   userStrengthData.push(Number(strength));
+//   userLocationData.push(Number(location));
+// }
 
 // This function parses the URL to determine whether the original or robotic version of the website will be used
 // Original version with manual execution of strategy: https://www.seas.upenn.edu/~foraging/field/dev/#/
