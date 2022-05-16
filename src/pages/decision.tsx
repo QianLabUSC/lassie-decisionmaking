@@ -9,7 +9,7 @@ import { FormControl, Select, MenuItem, CircularProgress, Box, Slider } from '@m
 import Popbox from '../components/Popbox';
 import ClickableImage from '../components/ClickableImage';
 import { ConfirmDialog, MultiStepDialog } from '../components/Dialogs';
-import { getMeasurements, calculateRobotSuggestions } from '../util';
+import { getMeasurements, calculateRobotSuggestions} from '../util';
 import {
   PopboxTypeEnum, confidenceTexts, NUM_OF_HYPOS,
   UserFeedbackState, objectiveOptions, transitionOptions,
@@ -261,19 +261,23 @@ export default function Main() {
   
   //New data Type in page
   const onObjectiveTextChangeStrength = e1 => {
-    dispatch({ type: Action.ADD_USER_STRENGTH_DATA, value: e1.target.value });
+    dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e1.target.value });
   }
   const onObjectiveTextChangeLocation = e2 => {
-    dispatch({ type: Action.ADD_USER_STRENGTH_DATA, value: e2.target.value });
+    dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e2.target.value });
   }
   const typeInNewData = 
   <div className="type-in-new-data" style={{marginBottom: '2vh'}}>
         <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
         <div>
-          Shear Strength:<textarea onChange={onObjectiveTextChangeStrength} rows={1} cols={10}/>
-          Location:<textarea onChange={onObjectiveTextChangeLocation} rows={1} cols={10}/>
+          Shear Strength:<textarea id = "latestStrength" name = "latestStrength" onChange={onObjectiveTextChangeStrength} rows={1} cols={10}/>
+          Location:<textarea id = "latestLocation" name = "latestLocation"  onChange={onObjectiveTextChangeLocation} rows={1} cols={10}/>
         </div>
   </div>
+//var x = document.getElementById("myTextarea").value;
+
+
+
 
   // Handler for setting the user's rating for how well the latest sample addressed the current objective
   const handleSliderChange = (event, newValue, index) => {
@@ -526,6 +530,9 @@ export default function Main() {
       }
       //Add user type in new method submit method
       case UserFeedbackState.TYPE_IN_NEW_DATA: {
+        var curStrength = document.getElementById("latestStrength")?.innerText;
+        var curLocation = document.getElementById("latestLocation")?.innerText;
+        // pushUserMeasurements(globalState,curStrength,curLocation);
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
         //dispatch({type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA})
       }
