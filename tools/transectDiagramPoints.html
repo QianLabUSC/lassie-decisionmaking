@@ -8,15 +8,16 @@
         <input id="fileInput" type="file"/>
         <br/>
         <div>
-            <canvas id="canvas" width="1100" height="321"></canvas>
+            <canvas id="canvas" width="2218" height="650"></canvas>
             <br/>
             <textarea id="output" rows="30" cols="60"></textarea>
+
         </div>
         <script>
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
-            const imageWidth = 1100;
-            const imageHeight = 321;
+            const imageWidth = 2218; //PREVIOUS 1100
+            const imageHeight = 650; //previous 321
             const finalPointCount = 22;
 
             let colWidth = 1; // Pixel width of each column
