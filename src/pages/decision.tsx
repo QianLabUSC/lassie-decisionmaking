@@ -128,7 +128,7 @@ export default function Main() {
     dispatch({ type: Action.SET_HYPO_CONFIDENCE, value: value });
   }
 
-  // Disable submit button if the user has selected no objectives during the OBJECTIVE step
+  //Disable submit button if the user has selected no objectives during the OBJECTIVE step
   useEffect(() => {
     if (userFeedbackState === UserFeedbackState.OBJECTIVE) {
       dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: objectives.length === 0 });
@@ -543,7 +543,7 @@ export default function Main() {
       }
       //Add user type in new method submit method
       case UserFeedbackState.TYPE_IN_NEW_DATA: {
-
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false});
         let robotSample = robotSuggestions[acceptOrReject]; 
         const {userStrengthData} = globalState;
         const stringStrengthData = String(userStrengthData);

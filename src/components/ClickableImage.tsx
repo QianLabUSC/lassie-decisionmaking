@@ -183,8 +183,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
           
           return <PositionIndicator
             key={sampleIdx}
-            left={normOffsetX * height / NORMALIZED_HEIGHT}
-            top={normOffsetY * height / NORMALIZED_HEIGHT}
+            left={((index*0.05)*701.1+196.9) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*701.1+196.9
+            top={((index*0.05)*(index*0.05)*228.7 + (index*0.05)*5.203+17.57) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57
             rowIndex={sampleIdx}
             isHovered={isHovered}
             type={type}
@@ -195,8 +195,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
       }
       {
         <PositionIndicatorRhex
-          left={(samples[samples.length - 1].normOffsetX - 7) * height / NORMALIZED_HEIGHT}
-          top={(samples[samples.length - 1].normOffsetY - 50) * height / NORMALIZED_HEIGHT}
+          top={((samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57 - 7) * height / NORMALIZED_HEIGHT}//previous 7
+          left={((samples[samples.length - 1].index*0.05)*701.1+196.9 - 50) * height / NORMALIZED_HEIGHT} //previous 50
         />
       }
       {showRobotSuggestions && robotSuggestions &&
