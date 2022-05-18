@@ -524,11 +524,11 @@ export default function Main() {
         return;
       }
       case UserFeedbackState.OBJECTIVE_FREE_RESPONSE: {
-        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
-        dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
-        dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
+        // dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+        // dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
+        // dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });
-        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
+        // dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         console.log({globalState}); // for debugging
         return;
       }
@@ -537,6 +537,7 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA });        
         } else {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON });
+          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
         }    
         console.log({globalState}); // for debugging
         return;
@@ -572,10 +573,10 @@ export default function Main() {
       case UserFeedbackState.REJECT_REASON: {
         if (rejectReason === 0) {
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
-          dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
-          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
+        //   dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
+        //   dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });
-          dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
+        //   dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         } else if (rejectReason === 1) {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON_FREE_RESPONSE });
         }
@@ -584,8 +585,8 @@ export default function Main() {
       }
       case UserFeedbackState.REJECT_REASON_FREE_RESPONSE: {
         dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
-        dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
-        dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
+        // dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
+        // dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });
         // dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         console.log({globalState}); // for debugging
@@ -594,33 +595,37 @@ export default function Main() {
       }
       case UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA: {
 
-        let robotSample = robotSuggestions[acceptOrReject]; 
         const {userStrengthData,userLocationData} = globalState;
-        
         const stringStrengthData = String(userStrengthData);
         console.log("stringStrengthData", stringStrengthData);
         var splittedStrength = stringStrengthData.split(" ");
         const strengthNumArr = splittedStrength.map(Number);
 
-        const stringLocationData = String(userLocationData);
-        console.log("stringLocationData", stringLocationData);
-        var splittedLocation = stringLocationData.split(" ");
-        const locationNumArr = splittedLocation.map(Number);
-        // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSample.index, robotSample.measurements);
-        let newSample : Sample = {...robotSample, shear: strengthNumArr, moisture: locationNumArr};
+        const newLocationData = Number(userLocationData);
+        console.log('newLocationData:', newLocationData);
+        const indexLength = 20;
+        const newSample : Sample = {
+            index: newLocationData * indexLength,
+            type: 'user',
+            measurements: 3,
+            normOffsetX: 800,
+            normOffsetY: 200,
+            isHovered: false,
+            moisture: [13, 13, 13],
+            shear: strengthNumArr
+          };
         dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
         
-        dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
+        dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
 
         // add the new sample to the state
         var curStrength = document.getElementById("latestStrength")?.innerText;
         var curLocation = document.getElementById("latestLocation")?.innerText;
-        // pushUserMeasurements(globalState,curStrength,curLocation);
-        dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
-        console.log('test')
-        dispatch({type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA})
-      }
+        dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
+        console.log({globalState});
+        return;
+    }
       // case UserFeedbackState.USER_LOCATION_SELECTION: {
       //   dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
       //   dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 }); // load the next Sample into the charts and strategy 
