@@ -272,7 +272,7 @@ export default function Main() {
         <div>
           Shear Strength:
           <br />
-          <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={20}/>
+          <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={15} cols={20}/>
           <br />
           <br />
           <br />
@@ -295,11 +295,11 @@ export default function Main() {
         <div>
           Shear Strength:
           <br />
-          <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength3} rows={5} cols={20}/>
+          <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength3} rows={15} cols={20}/>
           <br />
           Normalized Distance:
           <br />
-          <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation} rows={5} cols={20}/>
+          <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation} rows={15} cols={20}/>
         </div>
   </div>
 
