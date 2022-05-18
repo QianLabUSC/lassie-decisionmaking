@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid';
+import {INDEX_LENGTH } from '../constants';
 
 import HelpIcon from '@material-ui/icons/Help';
 import { FormControl, Select, MenuItem, CircularProgress, Box, Slider } from '@material-ui/core';
@@ -603,7 +604,7 @@ export default function Main() {
 
         const newLocationData = Number(userLocationData);
         console.log('newLocationData:', newLocationData);
-        const indexLength = 20;
+        const indexLength = INDEX_LENGTH;
         const newSample : Sample = {
             index: newLocationData * indexLength,
             type: 'user',
