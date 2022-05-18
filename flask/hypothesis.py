@@ -20,10 +20,10 @@ Returns:
 '''
 
 
-def model(x, P1, P2, P3):
+def model(x, P1, P2):
     result = [0] * len(x)
     for i in range(len(x)):
-        result[i] = P1 - P2 * max(P3 - x[i], 0)
+        result[i] = P1 + P2 * x[i]
     return result
 
 
@@ -41,9 +41,9 @@ Returns:
 
 def hypofit(xx, yy, length):
 
-    P0 = [8, 0.842, 9.5]
-    lb = [0, 0, 0]
-    ub = [20, 5, 20]
+    P0 = [0, 0.842]
+    lb = [-10, 0]
+    ub = [10, 5]
 
     Pfit, covs = curve_fit(model, xx, yy, P0, bounds=(lb, ub))
     xfit = np.linspace(1, length, length)
@@ -58,11 +58,11 @@ def hypofit(xx, yy, length):
         yy_finded = yy[aa]
         RMSE_average[i] = (np.abs(
             np.mean(yy_finded) -
-            np.mean(model(xx_finded, Pfit[0], Pfit[1], Pfit[2]))))
+            np.mean(model(xx_finded, Pfit[0], Pfit[1]))))
         RMSE_spread[i] = np.std(yy_finded, ddof=1)
     x_detail_fit = np.linspace(1, length, length)
-    xx_model = model(xfit, Pfit[0], Pfit[1], Pfit[2])
-    xx_detail_model = model(x_detail_fit, Pfit[0], Pfit[1], Pfit[2])
+    xx_model = model(xfit, Pfit[0], Pfit[1])
+    xx_detail_model = model(x_detail_fit, Pfit[0], Pfit[1])
 
 
     return RMSE_average, RMSE_spread, xfit, xx_model, Pfit,\
