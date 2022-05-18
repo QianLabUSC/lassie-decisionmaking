@@ -609,7 +609,7 @@ export const LONGITUDE_RANGE =  [-106.30, -106.20];
 export const countdownDuration = 10;
 
 // Multiple choice options for robot trust questions in final survey
-export const robotAgreeDisagreeOptions = ["Highly disagree", "Moderately disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Moderately agree", "Highly agree"];
+export const robotAgreeDisagreeOptions = ["I did not use this suggestion", "Highly disagree", "Moderately disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Moderately agree", "Highly agree"];
 
 // Multiple choice options for robot trust questions in final survey
 export const robotTrustOptions = ["Not at all", "Low", "Slightly", "Neutral", "Moderately", "Very", "Extremely", "N/A to this robot", 
@@ -631,12 +631,12 @@ export enum UserFeedbackState {
   HYPOTHESIS_CONFIDENCE,
   TRANSITION,
 };
-
-export const objectiveOptions = [
-  "There are areas along the dune transect where data is needed", // Option 0 - spatial coverage algorithm
-  "There are portions of the dynamic range of the moisture variable where data is needed", // Option 1 - variable coverage algorithm
-  "There is a discrepancy between the data and the hypothesis that needs additional evaluation", // Option 2 - hypo invalidating algorithm
-  "The data seems to be supporting the hypothesis so far but additional evaluation is needed", // Option 3 - hypo validating algorithm
+// Apply new changes
+ export const objectiveOptions = [
+  "Did the robot address one potential area where data is needed?", // Option 0 - spatial coverage algorithm
+  "Did the robot address one potential portion of the moisture range where data is needed?", // Option 1 - variable coverage algorithm
+  "Did the robot address one potential location that facilitates the evaluation of the discrepancy between the data and the hypothesis?", // Option 2 - hypo invalidating algorithm
+  "Did the robot address one potential location that facilitates the evaluation of whether the hypothesis is supported by the data?", // Option 3 - hypo validating algorithm
   "I hold a different belief that is not described here" // Option 4 - free response
 ]
 

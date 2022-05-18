@@ -163,7 +163,13 @@ export default function Main() {
   }
 
   let objectiveOptionsLinked = objectiveOptions.map((obj, i) => {
-    if (i === 2) {
+    // Add option 0 and 1
+    if (i === 0) {
+      return <span>There are areas along the dune transect where data is needed</span>;
+    } else if (i === 1) {
+      return <span>There are portions of the dynamic range of the moisture variable where data is needed</span>;
+    }
+    else if (i === 2) {
       return (
         <span>There is a discrepancy between the data and the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>hypothesis</a></strong></span> that needs additional evaluation</span>
       );
@@ -283,9 +289,10 @@ export default function Main() {
 
   const acceptFollowUpQuestions = 
     <div className="accept-follow-up-questions">
-      <p><strong>Rate the extent to which going to this location addressed each of the following beliefs (1 - Unsure, 
+      {/* Rate the extent to which going to this location addressed each of the following beliefs (1 - Unsure, 
         2 - Did not address, 3 - Barely addressed, 4 - Somewhat addressed, 5 - Moderately addressed, 6 - Definitely 
-        addressed):</strong></p>
+        addressed): */}
+      <p><strong>How well did the robot-suggested locations address each of your beliefs? Please provide a rating for each belief you have selected previously.</strong></p>
       { objectives.map((obj, index) => (
         <div key={obj.objective.slice(0, 10) + index}>
           <p><i><strong>Belief #{index + 1}:</strong> {obj.objective}</i></p>
@@ -383,9 +390,9 @@ export default function Main() {
     <div className="reject-reason-questions">
       <p><strong>What would you like to do next?</strong></p>
       <RadioButtonGroup 
-        options={transitionOptions.slice((!userFreeSelection) ? 0 : 1)} 
-        selectedIndex={transition} 
-        onChange={i => dispatch({ type: Action.SET_TRANSITION, value: i })}/>
+        options={transitionOptions.slice((!userFreeSelection) ? 0 : 1)}
+        selectedIndex={transition}
+        onChange={i => dispatch({ type: Action.SET_TRANSITION, value: i })} />
     </div>
 
   // Match the order of UserFeedbackStates in 'constants.ts'
@@ -605,7 +612,7 @@ export default function Main() {
           dispatch({ type: Action.SET_REJECT_REASON, value: -1 });
           dispatch({ type: Action.SET_REJECT_REASON_FREE_RESPONSE, value: ""});
           dispatch({ type: Action.SET_USER_SAMPLE, value: null });
-          dispatch({ type: Action.SET_TRANSITION, value: 0 });
+          // dispatch({ type: Action.SET_TRANSITION, value: 0 }); Hided this line becuase it reset option to 0 by Zeyu 5/17/2022
           updateUserSteps();
         }
         console.log({globalState}); // for debugging

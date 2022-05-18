@@ -84,7 +84,7 @@ export const initialState : IState = {
     userFreeSelection: false,
     userSample: null,
     hypoConfidence: 0,
-    transition: 0,
+    transition: 1, // previous: 0 Set the option from 0 to 1 by default. - Zeyu, 5/17/2022
   },
   userSteps: [],
   initialHypo: 0,

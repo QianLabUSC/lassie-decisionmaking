@@ -4,7 +4,7 @@ import '../styles/inputs.scss';
 type RadioButtonGroupProps = {
     options: string[],
     selectedIndex: number,
-    onChange: (i: number) => any
+    onChange: (i: number) => any,
 };
 
 export const Checkbox = props => (
