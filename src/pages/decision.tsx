@@ -548,12 +548,15 @@ export default function Main() {
       }
       case UserFeedbackState.HYPOTHESIS_CONFIDENCE: {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TRANSITION });
+        dispatch({ type: Action.SET_TRANSITION, value: userFreeSelection ? 0 : 1 });
         console.log({globalState}); // for debugging
         return;
       }
       case UserFeedbackState.TRANSITION: {
         let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
         console.log({globalState, transitionAdj});
+        // **Transition Adjustment** is used to align the transition options from transition variabite in constant.ts between 
+        // userFreeSelection being true or false, and thus we can apply the same logic for the functions below - Zeyu & Steven 5/18/2022
 
         // Move to the next round with the same objectives as the previous round and automatically run
         // the robot calculation 
@@ -589,7 +592,7 @@ export default function Main() {
           dispatch({ type: Action.SET_OBJECTIVES, value: [] });
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
           dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
-          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
+          dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });// **Set the default opton pointing to "ignore" if the user selected it. - Zeyu & Steven 5/18/2022
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
           dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
           dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
@@ -612,7 +615,8 @@ export default function Main() {
           dispatch({ type: Action.SET_REJECT_REASON, value: -1 });
           dispatch({ type: Action.SET_REJECT_REASON_FREE_RESPONSE, value: ""});
           dispatch({ type: Action.SET_USER_SAMPLE, value: null });
-          // dispatch({ type: Action.SET_TRANSITION, value: 0 }); Hided this line becuase it reset option to 0 by Zeyu 5/17/2022
+          dispatch({ type: Action.SET_TRANSITION, value: 1 }); // Set default option pointing to if the user didn't choose *ignore*. - Zeyu 5/18/2022
+          // console.log("hello");
           updateUserSteps();
         }
         console.log({globalState}); // for debugging
