@@ -272,7 +272,7 @@ export default function Main() {
         <div>
           Shear Strength(please type 3 samples(could be same)):
           <br />
-          <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={15} cols={20}/>
+          <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={100}/>
           <br />
           <br />
           <br />
@@ -295,11 +295,11 @@ export default function Main() {
         <div>
           Shear Strength(please type 3 samples(could be same)):
           <br />
-          <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength3} rows={15} cols={20}/>
+          <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength3} rows={5} cols={50}/>
           <br />
           Normalized Distance(type the normalized distance to moutain bottom):
           <br />
-          <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation} rows={15} cols={20}/>
+          <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation} rows={5} cols={50}/>
         </div>
   </div>
 
