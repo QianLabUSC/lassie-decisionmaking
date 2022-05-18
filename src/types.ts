@@ -111,6 +111,7 @@ export interface Sample {
   isHovered: boolean,
   moisture: number[],
   shear: number[],
+
 }
 
 /** Interface for the samples collected */

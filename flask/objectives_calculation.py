@@ -45,7 +45,7 @@ class ObjectiveComputing:
         self.current_state_moisture = []
         self.current_state_shear_strength = []
         self.strategy = 0
-        self.location_length = 22
+        self.location_length = 21
     '''
     update the user's belief toward the hypothesis
     '''
@@ -120,11 +120,18 @@ class ObjectiveComputing:
             if (location_each[jj] <= location[0]):
                 variable = variable_[0]
                 variable_mean = np.mean(variable)
-                variable_std = np.std(variable)
+                print(variable)
+                if(len(variable) == 0):
+                    variable_std = 0.5
+                else:
+                    variable_std = np.std(variable)
                 ## find the next point b
                 variable_next = variable_[1]
                 variable_mean_next = np.mean(variable_next)
-                variable_std_next = np.std(variable_next)
+                if(len(variable_next) == 0):
+                    variable_std_next = 0.5
+                else:
+                    variable_std_next = np.std(variable_next)
                 ## compute the slope of ab
                 slope = ((variable_mean_next - variable_mean) /
                          (location[1] - location[0]))
@@ -144,10 +151,16 @@ class ObjectiveComputing:
             elif (location_each[jj] >= location[len(location) - 1]):
                 variable = variable_[len(location) - 1]
                 variable_mean = np.mean(variable)
-                variable_std = np.std(variable)
+                if(len(variable) == 0):
+                    variable_std = 0.5
+                else:
+                    variable_std = np.std(variable)
                 variable_prev = variable_[len(location) - 2]
                 variable_mean_prev = np.mean(variable_prev)
-                variable_std_prev = np.std(variable_prev)
+                if(len(variable_prev) == 0):
+                    variable_std_prev = 0.5
+                else:
+                    variable_std_prev = np.std(variable_prev)
                 slope = (variable_mean - variable_mean_prev) / (
                     location[len(location) - 1] - location[len(location) - 2])
                 slope_std = ((variable_std - variable_std_prev) /
@@ -173,7 +186,10 @@ class ObjectiveComputing:
                 variable_std = np.zeros(len(variable))
                 for i in range(len(variable)):
                     variable_mean[i] = np.mean(variable[i])
-                    variable_std[i] = np.std(variable[i])
+                    if(len(variable[i]) == 0):
+                        variable_std[i] = 0.5
+                    else:
+                        variable_std[i] = np.std(variable[i])
                 m_inter = interp1d(location, variable_mean, kind='linear')
                 std_m_inter = interp1d(location, variable_std, kind='linear')
                 std_variable_each[jj] = std_m_inter(location_each[jj])

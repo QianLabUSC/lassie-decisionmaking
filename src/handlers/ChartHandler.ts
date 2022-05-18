@@ -1,5 +1,5 @@
 import { getMeasurements, mean } from '../util';
-import { shearChartOption, moistChartOption, shearMoistChartOption, NORMALIZED_CREST_RANGE } from '../constants';
+import { shearChartOption, moistChartOption, shearMoistChartOption, NORMALIZED_CREST_RANGE, INDEX_LENGTH } from '../constants';
 import { IState, Action, Charts, ChartDisplayMode } from '../state';
 import * as Chart from 'chart.js';
 
@@ -33,7 +33,7 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     }
 
     // Map x value from just the section of the slope to [0, 1]
-    const xVal = (row.index)/20;
+    const xVal = (row.index)/INDEX_LENGTH;
     // const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
     //const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
     const averageShearValue = mean(shear);

@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { useState, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NUM_MEASUREMENTS } from '../constants';
+import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NUM_MEASUREMENTS,INDEX_LENGTH } from '../constants';
 import { Sample } from '../types';
 import { getNearestIndex, getMeasurements } from '../util';
 import { useStateValue, Action } from '../state';
 import AddSamplePopup from './AddSamplePopup';
 import PositionIndicator from './PositionIndicator';
 import PositionIndicatorRhex from './PositionIndicatorRhex';
+
 
 const diagram = require('../../assets/diagram_scalebar.png');
 
@@ -183,8 +184,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
           
           return <PositionIndicator
             key={sampleIdx}
-            left={((index*0.05)*701.1+196.9) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*701.1+196.9
-            top={((index*0.05)*(index*0.05)*228.7 + (index*0.05)*5.203+17.57) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57
+            left={((index/INDEX_LENGTH)*701.1+196.9) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*701.1+196.9
+            top={((index/INDEX_LENGTH)*(index/INDEX_LENGTH)*228.7 + (index/INDEX_LENGTH)*5.203+17.57) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57
             rowIndex={sampleIdx}
             isHovered={isHovered}
             type={type}
@@ -195,8 +196,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
       }
       {
         <PositionIndicatorRhex
-          top={((samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57-30 ) * height / NORMALIZED_HEIGHT}//previous 7
-          left={((samples[samples.length - 1].index*0.05)*701.1+196.9 -10 ) * height / NORMALIZED_HEIGHT} //previous 50
+          top={((samples[samples.length - 1].index/INDEX_LENGTH)*(samples[samples.length - 1].index/INDEX_LENGTH)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57-30 ) * height / NORMALIZED_HEIGHT}//previous 7
+          left={((samples[samples.length - 1].index/INDEX_LENGTH)*701.1+196.9 -10 ) * height / NORMALIZED_HEIGHT} //previous 50
         />
       }
       {showRobotSuggestions && robotSuggestions &&
