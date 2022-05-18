@@ -33,7 +33,8 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     }
 
     // Map x value from just the section of the slope to [0, 1]
-    const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
+    const xVal = (row.index)/20;
+    // const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
     //const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
     const averageShearValue = mean(shear);
     const averageMoistureValue = mean(moisture);
