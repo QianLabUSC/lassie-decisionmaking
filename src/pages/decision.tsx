@@ -270,7 +270,7 @@ export default function Main() {
   <div className="type-in-new-data" style={{marginBottom: '2vh'}}>
         <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
         <div>
-          Shear Strength:
+          Shear Strength(please type 3 samples(could be same)):
           <br />
           <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={20}/>
           <br />
@@ -293,11 +293,11 @@ export default function Main() {
   <div className="type-in-new-location-data" style={{marginBottom: '2vh'}}>
         <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
         <div>
-          Shear Strength:
+          Shear Strength(please type 3 samples(could be same)):
           <br />
           <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength3} rows={5} cols={20}/>
           <br />
-          Normalized Distance:
+          Normalized Distance(type the normalized distance to moutain bottom):
           <br />
           <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation} rows={5} cols={20}/>
         </div>
