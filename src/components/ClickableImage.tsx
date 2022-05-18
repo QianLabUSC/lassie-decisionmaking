@@ -195,8 +195,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
       }
       {
         <PositionIndicatorRhex
-          top={((samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57 - 7) * height / NORMALIZED_HEIGHT}//previous 7
-          left={((samples[samples.length - 1].index*0.05)*701.1+196.9 - 50) * height / NORMALIZED_HEIGHT} //previous 50
+          top={((samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57-30 ) * height / NORMALIZED_HEIGHT}//previous 7
+          left={((samples[samples.length - 1].index*0.05)*701.1+196.9 -10 ) * height / NORMALIZED_HEIGHT} //previous 50
         />
       }
       {showRobotSuggestions && robotSuggestions &&
