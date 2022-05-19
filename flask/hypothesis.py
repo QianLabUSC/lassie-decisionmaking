@@ -41,11 +41,13 @@ Returns:
 
 def hypofit(xx, yy, length):
 
-    P0 = [0, 0.842]
-    lb = [-10, 0]
-    ub = [10, 5]
-
+    P0 = [10, 0.842]
+    lb = [-20, -5]
+    ub = [20, 5]
+    print("test model", xx, yy)
     Pfit, covs = curve_fit(model, xx, yy, P0, bounds=(lb, ub))
+    print(Pfit)
+
     xfit = np.linspace(1, length, length)
     unique_x = np.unique(xx)
 

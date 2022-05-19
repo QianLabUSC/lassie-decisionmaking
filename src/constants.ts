@@ -12,7 +12,7 @@ export const NORMALIZED_HEIGHT = 321;
 export const NORMALIZED_CREST_RANGE = {min: 209, max: 1089} // {209 = 229 - sqrt(400)}, {1089 = 1069 + sqrt(400)}
 export const INDEX_LENGTH = 20;
 export const NUM_OF_LOCATIONS = 22;
-export const NUM_MEASUREMENTS = 1;
+export const NUM_MEASUREMENTS = 3;
 export const MAX_NUM_OF_MEASUREMENTS = 30;
 export const MAX_NUM_OF_TRANSECTS = 5;
 export const POPOVER_TIME = 3000;
@@ -636,7 +636,7 @@ export enum UserFeedbackState {
 
 export const objectiveOptions = [
   "There are areas along the dune transect where data is needed", // Option 0 - spatial coverage algorithm
-  "There are portions of the dynamic range of the moisture variable where data is needed", // Option 1 - variable coverage algorithm
+//   "There are portions of the dynamic range of the moisture variable where data is needed", // Option 1 - variable coverage algorithm
   "There is a discrepancy between the data and the hypothesis that needs additional evaluation", // Option 2 - hypo invalidating algorithm
   "The data seems to be supporting the hypothesis so far but additional evaluation is needed", // Option 3 - hypo validating algorithm
   "I hold a different belief that is not described here" // Option 4 - free response

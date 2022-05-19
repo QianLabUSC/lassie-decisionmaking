@@ -1,5 +1,6 @@
 import os
 import sys
+from traveler_decision_making import deploy_plot
 from high_path_planning import *
 sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/site-packages')
 
@@ -41,8 +42,10 @@ def process():
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
     erodi = np.array(inputs['shearValues'])
+    print('erodi:', erodi)
     PathPlanning = TravelerHighPathPlanning()
     output = PathPlanning.single_step_path_planning(location, sample, mm, erodi)
+    deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
     return jsonify(output)
     
     
