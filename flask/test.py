@@ -21,15 +21,15 @@ sample_list = list(3 * np.ones(22, dtype=int))
     #         results = Traveler_DM.calculate_suggested_location()
     #         plot(Traveler_DM, location, sample, erodi, results)
 
-location = [4,9,10,18,22]
-sample = [3,3,3,3,3]
+location = [2,11,15]
+sample = [3,3,3]
 for i in range(1):
-    mm, erodi = Traveler_ENV.get_data_state([location,sample])
+    mm = [[10,10,10],[10,10,10],[10,10,10]]
+    erodi = [[10,10,10],[5,5,5],[3,3,3]]
     
     PathPlanning = TravelerHighPathPlanning()
     output = PathPlanning.single_step_path_planning(location, sample, mm, erodi)
-    print("tst" , Traveler_DM.current_state_shear_strength)
-    deploy_plot(Traveler_DM, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
+    deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
     spatial_selection = np.array(output['spatial_selection']) + 1
     location.append(spatial_selection[0])
     sample.append(3)

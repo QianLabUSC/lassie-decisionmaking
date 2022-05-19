@@ -272,7 +272,7 @@ export default function Main() {
         <div>
           Shear Strength(please type 3 samples(could be same)):
           <br />
-          <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={100}/>
+          <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={50}/>
           <br />
           <br />
           <br />
@@ -666,7 +666,7 @@ export default function Main() {
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: false });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
-          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
           
         // Move to the next round with the objectives reset and ask the user to reselect the objectives
         } else if (transitionAdj === 1) {
@@ -682,7 +682,7 @@ export default function Main() {
         // Move to the next round enabling the user to freely select the next sample location
         } else if (transitionAdj === 2) {
           dispatch({ type: Action.SET_OBJECTIVES, value: [] });
-          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
           dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });

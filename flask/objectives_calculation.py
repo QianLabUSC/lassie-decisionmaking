@@ -83,7 +83,7 @@ class ObjectiveComputing:
         # print(self.current_state_sample)
         self.current_state_moisture = integrated_moisture
         self.current_state_shear_strength = integrated_shearstrength
-
+        print('curent', self.current_state_shear_strength)
     '''
     compute the spatial reward coverage 
     '''
@@ -99,7 +99,13 @@ class ObjectiveComputing:
                         self.location_length, self.location_length), 
                         0.8 * self.location_length/22)
             I_s[I_s > 1] = 1
-
+        #add a punishment on the end and front
+        I_s += gauss(0, 0.1, np.linspace(1, 
+                        self.location_length, self.location_length), 
+                        0.8 * self.location_length/22)
+        I_s += gauss(self.location_length-1, 0.1, np.linspace(1, 
+                        self.location_length, self.location_length), 
+                        0.8 * self.location_length/22)
         self.spatial_information_coverage = I_s
         self.spatial_reward = 1 - I_s
         return self.spatial_reward
@@ -204,13 +210,14 @@ class ObjectiveComputing:
         return mean_variable_each, std_variable_each
 
     def calculate_discrepancy(self, variable_, length, mean_variable_each, std_variable_each):
-        MinCoverage = 3
+        MinCoverage = 2
         location = self.current_state_location
         sample = self.current_state_sample
         yy = np.array([
             item for sublist in variable_
             for item in sublist
         ])
+        print("yy", yy)
         zz_unflattend = []
         for jj in range(len(location)):
             zz_unflattend.append(location[jj] * np.ones(
@@ -220,6 +227,7 @@ class ObjectiveComputing:
         sort_index = np.argsort(xx)
         yy_sorted = yy[sort_index]
         xx_sorted = xx[sort_index]
+        print(yy_sorted)
         coverage = len(location)
         if (coverage > MinCoverage):
             RMSE_average, RMSE_distribution, self.xfit, self.xx_model,\
@@ -234,15 +242,16 @@ class ObjectiveComputing:
             std = std_variable_each[jj]
             min_std = 0.01
             variable_possibility = np.linspace(
-                mean_variable_each[jj] - 3 * max(std, min_std),
-                mean_variable_each[jj] + 3 * max(std, min_std), 20)
-            print(variable_possibility)
+                mean_variable_each[jj] - 3 * min_std,
+                mean_variable_each[jj] + 3 * min_std, 20)
+            print(mean_variable_each)
+            print(self.xx_model)
             probability = gauss(mean_variable_each[jj], 1,
-                                variable_possibility, max(std, min_std))
+                                variable_possibility, min_std)
             actual_probability = probability / np.sum(probability)
             R_m_l = 0
             for ii in range(len(variable_possibility)):
-                R_m_l = R_m_l + abs(variable_possibility[ii] - self.xx_model[ii]) * actual_probability[ii]
+                R_m_l = R_m_l + abs(variable_possibility[ii] - self.xx_model[jj]) * actual_probability[ii]
             R_d_set[jj] = R_m_l
         return R_d_set
 
@@ -250,6 +259,7 @@ class ObjectiveComputing:
         mean_variable_each, std_variable_each = \
                         self.infer_variable(self.current_state_shear_strength, 
                                 self.location_length)
+        print(self.current_state_shear_strength)
         self.discrepancy_reward = self.calculate_discrepancy(self.current_state_shear_strength, 
                     self.location_length, mean_variable_each, std_variable_each)
         return self.discrepancy_reward
