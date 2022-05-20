@@ -45,7 +45,7 @@ def process():
     print('erodi:', erodi)
     PathPlanning = TravelerHighPathPlanning()
     output = PathPlanning.single_step_path_planning(location, sample, mm, erodi)
-    deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
+    # deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
     return jsonify(output)
     
     

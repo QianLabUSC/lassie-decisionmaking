@@ -242,12 +242,12 @@ class ObjectiveComputing:
             std = std_variable_each[jj]
             min_std = 0.01
             variable_possibility = np.linspace(
-                mean_variable_each[jj] - 3 * min_std,
-                mean_variable_each[jj] + 3 * min_std, 20)
+                mean_variable_each[jj] - 3 * max(min_std, std),
+                mean_variable_each[jj] + 3 * max(min_std, std), 20)
             print(mean_variable_each)
             print(self.xx_model)
             probability = gauss(mean_variable_each[jj], 1,
-                                variable_possibility, min_std)
+                                variable_possibility, max(min_std, std))
             actual_probability = probability / np.sum(probability)
             R_m_l = 0
             for ii in range(len(variable_possibility)):

@@ -238,15 +238,15 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
       locs = spatial_selection;
       break;
     }
-    // case objectiveOptions[1]: {
-    //   locs = variable_selection;
-    //   break;
-    // }
     case objectiveOptions[1]: {
-      locs = discrepancy_selection;
+      locs = variable_selection;
       break;
     }
     case objectiveOptions[2]: {
+      locs = discrepancy_selection;
+      break;
+    }
+    case objectiveOptions[3]: {
       locs = discrepancy_low_selection;
       break;
     }
