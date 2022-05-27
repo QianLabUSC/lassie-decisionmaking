@@ -608,7 +608,7 @@ export const LONGITUDE_RANGE =  [-106.30, -106.20];
 // Countdown timer period on decision page
 export const countdownDuration = 10;
 
-// Multiple choice options for robot trust questions in final survey
+// Multiple choice options for robot trust questions in final survey - add new option ""I did not use this suggestion" by Zeyu 5/17/2022
 export const robotAgreeDisagreeOptions = ["I did not use this suggestion", "Highly disagree", "Moderately disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Moderately agree", "Highly agree"];
 
 // Multiple choice options for robot trust questions in final survey
@@ -631,8 +631,9 @@ export enum UserFeedbackState {
   HYPOTHESIS_CONFIDENCE,
   TRANSITION,
 };
+
 // Apply new changes
- export const objectiveOptions = [
+export const objectiveOptions = [
   "Did the robot address one potential area where data is needed?", // Option 0 - spatial coverage algorithm
   "Did the robot address one potential portion of the moisture range where data is needed?", // Option 1 - variable coverage algorithm
   "Did the robot address one potential location that facilitates the evaluation of the discrepancy between the data and the hypothesis?", // Option 2 - hypo invalidating algorithm

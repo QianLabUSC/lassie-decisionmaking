@@ -13,7 +13,6 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
-// Need to replace the following graph by a shear vs. mositure graph
 const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
 
 export default function Intro(props) {
@@ -90,7 +89,7 @@ export default function Intro(props) {
                     </div>
 
                     <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/> 
-{/* Previous tag: <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/>  */}
+
                     <div className="text">
                         <p>
                             Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 

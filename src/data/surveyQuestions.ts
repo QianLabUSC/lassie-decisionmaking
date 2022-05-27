@@ -93,7 +93,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
             type: QuestionType.Text,
             text: "If you were to use this robot for data collection in real life, what changes or improvements would you make in how the robot interacts with you to suggest locations?",
         },
-        {
+        {//Add new survery question below by Zeyu 5/16/2022
             type: QuestionType.Text,
             text: "Why did you refute the hypothesis?",
         },

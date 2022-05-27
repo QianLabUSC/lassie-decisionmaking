@@ -163,13 +163,16 @@ export default function Main() {
   }
 
   let objectiveOptionsLinked = objectiveOptions.map((obj, i) => {
-    // Add option 0 and 1
+    // Add option 0 and 1 by Zeyu 5/16/2022
     if (i === 0) {
-      return <span>There are areas along the dune transect where data is needed</span>;
+      return (
+      <span>There are areas along the dune transect where data is needed</span>
+      );
     } else if (i === 1) {
-      return <span>There are portions of the dynamic range of the moisture variable where data is needed</span>;
-    }
-    else if (i === 2) {
+      return (
+      <span>There are portions of the dynamic range of the moisture variable where data is needed</span>
+      );
+    } else if (i === 2) {
       return (
         <span>There is a discrepancy between the data and the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>hypothesis</a></strong></span> that needs additional evaluation</span>
       );
@@ -289,10 +292,9 @@ export default function Main() {
 
   const acceptFollowUpQuestions = 
     <div className="accept-follow-up-questions">
-      {/* Rate the extent to which going to this location addressed each of the following beliefs (1 - Unsure, 
+      <p><strong>Rate the extent to which going to this location addressed each of the following beliefs (1 - Unsure, 
         2 - Did not address, 3 - Barely addressed, 4 - Somewhat addressed, 5 - Moderately addressed, 6 - Definitely 
-        addressed): */}
-      <p><strong>How well did the robot-suggested locations address each of your beliefs? Please provide a rating for each belief you have selected previously.</strong></p>
+        addressed):</strong></p>
       { objectives.map((obj, index) => (
         <div key={obj.objective.slice(0, 10) + index}>
           <p><i><strong>Belief #{index + 1}:</strong> {obj.objective}</i></p>
@@ -390,9 +392,9 @@ export default function Main() {
     <div className="reject-reason-questions">
       <p><strong>What would you like to do next?</strong></p>
       <RadioButtonGroup 
-        options={transitionOptions.slice((!userFreeSelection) ? 0 : 1)}
-        selectedIndex={transition}
-        onChange={i => dispatch({ type: Action.SET_TRANSITION, value: i })} />
+        options={transitionOptions.slice((!userFreeSelection) ? 0 : 1)} 
+        selectedIndex={transition} 
+        onChange={i => dispatch({ type: Action.SET_TRANSITION, value: i })}/>
     </div>
 
   // Match the order of UserFeedbackStates in 'constants.ts'
@@ -548,7 +550,7 @@ export default function Main() {
       }
       case UserFeedbackState.HYPOTHESIS_CONFIDENCE: {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TRANSITION });
-        dispatch({ type: Action.SET_TRANSITION, value: userFreeSelection ? 0 : 1 });
+        dispatch({ type: Action.SET_TRANSITION, value: userFreeSelection ? 0 : 1 }); // Add this for transition adjustment by Zeyu 5/18/2022
         console.log({globalState}); // for debugging
         return;
       }
@@ -557,6 +559,9 @@ export default function Main() {
         console.log({globalState, transitionAdj});
         // **Transition Adjustment** is used to align the transition options from transition variabite in constant.ts between 
         // userFreeSelection being true or false, and thus we can apply the same logic for the functions below - Zeyu & Steven 5/18/2022
+
+        // Move to the next round with the same objectives as the previous round and automatically run
+        // the robot calculation 
 
         // Move to the next round with the same objectives as the previous round and automatically run
         // the robot calculation 
@@ -616,7 +621,7 @@ export default function Main() {
           dispatch({ type: Action.SET_REJECT_REASON_FREE_RESPONSE, value: ""});
           dispatch({ type: Action.SET_USER_SAMPLE, value: null });
           dispatch({ type: Action.SET_TRANSITION, value: 1 }); // Set default option pointing to if the user didn't choose *ignore*. - Zeyu 5/18/2022
-          // console.log("hello");
+          // console.log("hello"); for debugging
           updateUserSteps();
         }
         console.log({globalState}); // for debugging
