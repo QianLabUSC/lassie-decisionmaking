@@ -62,13 +62,13 @@
   },
   "description": "My webpack project",
   "scripts": {
-    "start:main": "webpack-dev-server --env.app=main",
     "start:admin": "webpack-dev-server --env.app=admin",
     "build:main": "webpack --config webpack.prod.js --env.app=main",
     "build:admin": "webpack --config webpack.prod.js --env.app=admin",
     "build:docs": "typedoc --options ./typedoc.json",
     "build:all": "yarn build:main && yarn build:admin && yarn build:docs",
     "test": "jest",
-    "deploy": "aws s3 sync dist/ s3://traveler-website-1d"
+    "deploy:main": "aws s3 sync dist s3://traveler-website-1d-admin",
+    "deploy:admin": "aws s3 sync dist/admin s3://traveler-website-1d-admin"
   }
 }

@@ -2,7 +2,8 @@
 
 This repo is a fork of Shenyue Chen's original work, which I contributed to and am now forking as the new developer takes over. This web application simulates a geo-scientist's decision making process when conducting an experiment, recording their actions for research.
 
-Website is now hosting on AWS S3: http://traveler-website-1d.s3-website-us-west-1.amazonaws.com/#/
+Website (main) is now hosting on AWS S3: http://traveler-website-1d.s3-website-us-west-1.amazonaws.com/#/
+Website (admin) is now hosting on AWS S3: http://traveler-website-1d-admin.s3-website-us-west-1.amazonaws.com
 
 ## Technologies
 This is a `React` application. There is some styling from `Material-UI`, as well as lots of custom CSS I have added. The React code uses `TypeScript`, although not all components are fully typed. The main page uses `deck.gl` to render the map and transects, and the various charts are rendered to canvas tags using `Chart.js`. For building, `Webpack` is used to bundle the assets. The backend of the application is simply pushing a JSON string to `DynamoDB` once the user has completed the entire scenario.
