@@ -2,10 +2,10 @@ library(R.matlab)
 library(rjson)
 library(here)
 
-inputFile <- "agu2022.mat"
+inputFile <- "thri2.mat"
 outputFile <- "rhexDataset.json"
 
-setwd("C:/Users/swu04/OneDrive/Documents/Wharton MBA/Internships/Kod Lab/Data/Datasets/SingleTransect_Agu2022")
+setwd("C:/Users/wzy07/Desktop/Traveler_website/tools/current_dataset")
 
 data <- readMat(inputFile)
 
@@ -38,4 +38,4 @@ names(shear1Data) <- "shear1"
 
 textResult <- toJSON(c(moistureData, shear0Data, shear1Data))
 
-write(paste("export const dataset = ", textResult), "C:/Users/swu04/OneDrive/Documents/Wharton MBA/Internships/Kod Lab/Data/Output/SingleTransectDataset_Agu2022_12-1-21/rhexDataset.ts")
+write(paste("export const dataset = ", textResult), "C:/Users/wzy07/Desktop/Traveler_website/src/data/rhexDataset.ts")

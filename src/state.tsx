@@ -39,6 +39,7 @@ export interface IState {
   // Hypothesis fields
   initialHypo: number, // will be in final output after survey is completed
   finalHypo: number, // will be in final output after survey is completed
+  conclusionFreeResponse: string,
   // Chart fields
   chart: Charts,
   chartSettings: ChartSettings,
@@ -80,6 +81,8 @@ export const initialState : IState = {
     acceptOrReject: -1,
     rejectReasonOptions: [],
     rejectReason: -1,
+    rejectReasons: [],
+    rejectReasonsOptions: [],
     rejectReasonFreeResponse: "",
     userFreeSelection: false,
     userSample: null,
@@ -89,6 +92,7 @@ export const initialState : IState = {
   userSteps: [],
   initialHypo: 0,
   finalHypo: 0,
+  conclusionFreeResponse: "", //Add by Zeyu 6/13/2022
   chart: null,
   chartSettings: {
     mode: 0,
@@ -137,6 +141,8 @@ export enum Action {
   SET_ACCEPT_OR_REJECT,
   SET_REJECT_REASON_OPTIONS,
   SET_REJECT_REASON,
+  SET_REJECT_REASONS,// New int[]
+  SET_REJECT_REASONS_OPTIONS, // New string[]
   SET_REJECT_REASON_FREE_RESPONSE,
   SET_USER_FREE_SELECTION,
   SET_USER_SAMPLE,
@@ -147,6 +153,7 @@ export enum Action {
   /** FINISH */
   SET_INIT_HYPO_CONFIDENCE,
   SET_FINAL_HYPO_CONFIDENCE,
+  SET_CONCLUSION_FREE_RESPONSE,
   SET_CHART,
   SET_CHART_SETTINGS,
   CLEAR_CHART_CURRENT,
@@ -173,6 +180,7 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_CURR_USER_STEP]: 'currUserStep',
   [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
   [Action.SET_FINAL_HYPO_CONFIDENCE]: 'finalHypo',
+  [Action.SET_CONCLUSION_FREE_RESPONSE]: 'conclusionFreeResponse',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
   [Action.SET_LOADING_ROBOT_SUGGESTIONS]: 'loadingRobotSuggestions',
@@ -237,6 +245,8 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_ACCEPT_OR_REJECT]: 'acceptOrReject',
   [Action.SET_REJECT_REASON_OPTIONS]: 'rejectReasonOptions',
   [Action.SET_REJECT_REASON]: 'rejectReason',
+  [Action.SET_REJECT_REASONS]: 'rejectReasons',
+  [Action.SET_REJECT_REASONS_OPTIONS]: 'rejectReasonsOptions',//Add new change
   [Action.SET_REJECT_REASON_FREE_RESPONSE]: 'rejectReasonFreeResponse',
   [Action.SET_USER_FREE_SELECTION]: 'userFreeSelection',
   [Action.SET_USER_SAMPLE]: 'userSample',
@@ -301,7 +311,7 @@ const chartReducer : SubReducer<Charts> = (chart, state, action) => {
   }
   return chart;
 };
-
+// Replace extra condition loops by visiting keyActionMap
 export const reducer = (state: IState, action: IAction) : IState => {
   if (action.type === Action.SET_STATE) {
     return action.value as IState;

@@ -1,4 +1,4 @@
-import { Button } from '@material-ui/core';
+import {  FormControl, Select, MenuItem, Button } from '@material-ui/core';
 import * as React from 'react';
 import { useState } from 'react';
 import { putItem } from '../dbHelper';
@@ -7,8 +7,9 @@ import RadioButtonGroup from '../components/RadioButtonGroup';
 import RadioButtonGroupHorizontal from '../components/RadioButtonGroupHorizontal';
 import RankedScale from '../components/RankedScale';
 import { QuestionType, SurveyQuestion, surveyQuestions as rawSurveyQuestions, TextAreaType } from '../data/surveyQuestions';
-import { initialConfidenceTexts, confidenceTexts } from '../constants';
+import { confidenceTexts, initialConfidenceTexts } from '../constants';
 import '../styles/survey.scss';
+import { MultiStepDialog } from '../components/Dialogs';
 
 const tileIndentation = 40;
 type SurveyAnswers = {[key: string] : string}
@@ -30,7 +31,7 @@ const setSurveyQuestionIDs = (page: number, questionList: SurveyQuestion[], pare
 const generateSurveyOutput = (answers: SurveyAnswers, questionList: SurveyQuestion[][]) => {
     const questions = [];
     const extractQuestions = (question: SurveyQuestion, questions: any[], answers: SurveyAnswers) => {
-        if (question.type === QuestionType.Instruction || !answers[question.id || "-1"]) return;
+        if (question.type === QuestionType.Instruction || question.type === QuestionType.Image1 || question.type === QuestionType.Image2 || !answers[question.id || "-1"]) return;
         questions.push({
             id: question.id,
             text: question.text,
@@ -56,7 +57,7 @@ const generateSurveyOutput = (answers: SurveyAnswers, questionList: SurveyQuesti
 const allQuestionsAnswered = (answers, questions: SurveyQuestion[]) : boolean => {
     for (let i = 0; i < questions.length; i++) {
         const question = questions[i];
-        if (question.type === QuestionType.Instruction) continue;
+        if (question.type === QuestionType.Instruction || question.type === QuestionType.Image1 || question.type === QuestionType.Image2) continue;
         const id = question.id || "-1";
         const answer = answers[id];
         if (!answer) return false;
@@ -81,6 +82,76 @@ const instructionComponent = (question: SurveyQuestion, depth: number) => {
             <p>{ question.text }</p>
         </div>
     );
+}
+// instruction photo component by condition loop: Add two images for 1st page survey question. 
+// Apply new changes By Zeyu 6/11/2022
+const H022LocationMoisture = require('../../assets/H022LocationMoisture.png');
+const H122LocationMoisture = require('../../assets/H122LocationMoisture.png');
+
+const instructionImageComponentA = (question: SurveyQuestion, depth: number) => {
+    const id: string = question.id || "-1";
+    return (
+        <div className="section" style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
+            <img src={H022LocationMoisture} alt="H022LocationMoisture"
+            style={{width: 'auto', height: '500px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
+        </div>
+    );
+}
+
+const instructionImageComponentB = (question: SurveyQuestion, depth: number) => {
+    const id: string = question.id || "-1";
+    return (
+        <div className="section" style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
+            <img src={H122LocationMoisture} alt="H122LocationMoisture"
+            style={{width: 'auto', height: '500px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
+        </div>
+    );
+}
+//Add dropDown menu by Zeyu 6/16/2022
+const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
+// const [hypothesisOpen, setHypothesisOpen] = useState(false);
+const decisionHypothesisDialog =
+    <MultiStepDialog
+      open={false}
+      setOpen={false}
+      title={""}
+      allowCancel={false}
+      steps={[
+        [
+          "Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune crest (see blue line). RHex is testing the hypothesis that strength will increase as moisture increases until sand is saturated (somewhere along the stoss slope), at which point strength will be constant as moisture continues to increase (see blue line)."
+        ]
+      ]}
+      img={singleTransectNullHypothesis}
+    />;
+let currentIndex = 0;
+const dropDownMenuComponent = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
+    if (!question.responses) return null;
+    const id: string = question.id || "-1";
+    return (
+      <div className={`section ${unanswered && "highlighted"}`} style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
+        <div className="hypothesisBlock">
+            <div className="hypothesisText">
+              <div>
+                Provide a new ranking of your certainty that the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => {decisionHypothesisDialog}}>hypothesis</a></strong></span> will be supported or refuted. 
+                If you have no preference, select "I am unsure":
+              </div>
+            </div>
+            <FormControl>
+                <Select
+                    style={{fontSize: '2vh'}}
+                    value={currentIndex + 3}
+                    onChange={event => {
+                        setAnswer(id, (Number(event.target.value) - 3).toString());
+                        currentIndex = Number(event.target.value) - 3;
+                        }}>
+                    {
+                        question.responses.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
+                    }
+                </Select>
+            </FormControl>
+        </div>
+      </div>
+    )
 }
 
 const multipleChoiceComponent = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
@@ -174,7 +245,10 @@ const buildQuestionComponents = (questionList: SurveyQuestion[], answers: Survey
         const showAsUnanswered = firstUnansweredId === question.id;
         const component =
             question.type === QuestionType.Instruction ? instructionComponent(question, depth) :
+            question.type === QuestionType.Image1 ? instructionImageComponentA(question, depth) :
+            question.type === QuestionType.Image2 ? instructionImageComponentB(question, depth) :
             question.type === QuestionType.MultipleChoice ? multipleChoiceComponent(question, setAnswer, answers, depth, showAsUnanswered) :
+            question.type === QuestionType.dropDownMenuComponent ? dropDownMenuComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.MultipleChoiceHorizontal ? multipleChoiceHorizontalComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.Ranked ? rankedComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.Text ? textComponent(question, answers, setAnswer, depth, showAsUnanswered) :
@@ -216,7 +290,7 @@ const idOfFirstUnansweredQuestion = (questionList: SurveyQuestion[], answers: Su
 
 export default function Survey() {
     const [globalState, dispatch] = useStateValue();
-    const { dataVersion, initialHypo, finalHypo, samples, userSteps } = globalState;
+    const { dataVersion, initialHypo, finalHypo, conclusionFreeResponse, samples, userSteps } = globalState;
     const [page, setPage] = useState(0);
     const [answers, setAnswers] = useState({} as SurveyAnswers);
     const setAnswer = (id: string, answer: string) => {
@@ -232,6 +306,7 @@ export default function Survey() {
             dataVersion: dataVersion,
             initialHypo: initialConfidenceTexts[initialHypo + 3],
             finalHypo: confidenceTexts[finalHypo + 3],
+            conclusionFreeResponse: conclusionFreeResponse,
             userSteps: userSteps,
             surveyResponses: surveyOutput
         };
@@ -265,7 +340,14 @@ export default function Survey() {
     return (
         <div className="surveyContainer">
             { questionComponents }
-            {!(page === surveyQuestions.length - 1) &&
+            {/* Apply new change by Zeyu 6/8/2022 */}
+            {(page === surveyQuestions.length - 2) &&
+                <div className="buttonRow">
+                    <Button disabled={page === 0} className="backButton" color="primary" variant="contained" onClick={onBackClick}>Back</Button>
+                    <Button disabled={!allQuestionsAnswered(answers, surveyQuestions[page])} className="continueButton" color="primary" variant="contained" onClick={onContinueClick}>Finish</Button>
+                </div>
+            }
+            {!(page >= surveyQuestions.length - 2) &&
                 <div className="buttonRow">
                     <Button disabled={page === 0} className="backButton" color="primary" variant="contained" onClick={onBackClick}>Back</Button>
                     <Button disabled={!allQuestionsAnswered(answers, surveyQuestions[page])} className="continueButton" color="primary" variant="contained" onClick={onContinueClick}>Continue</Button>

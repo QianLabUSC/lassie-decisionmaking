@@ -1,16 +1,21 @@
-import { robotAgreeDisagreeOptions, robotTrustOptions } from '../constants';
+import { confidenceTexts, robotAgreeDisagreeOptions, robotTrustOptions } from '../constants';
 
-export enum QuestionType { MultipleChoice, MultipleChoiceHorizontal, Ranked, Instruction, Text }
+
+export enum QuestionType {
+    MultipleChoice, MultipleChoiceHorizontal, Ranked, Instruction, Text, Image1, Image2,
+    dropDownMenuComponent
+}
 export enum TextAreaType { Small, Number, Large }
+
 export type SurveyQuestion = {
     type: QuestionType,
-    text: string,
+    text?: string,
     responses?: string[],
     followUps?: (null | SurveyQuestion | SurveyQuestion[])[],
     id?: string,
     params?: {
         textAreaType?: TextAreaType
-    }
+    },
 };
 
 let multipleBeliefsFollowUp =  {
@@ -33,13 +38,74 @@ let multipleBeliefsFollowUp =  {
     ]
 }
 
+//Add new follow-ups for bachelors degree question if the user selected 'Yes'
+let multipleBachelorFollowUp = [
+    [
+        {
+            type: QuestionType.Text,
+            text: "How many years of practice do you have, post bachelor's degree?",
+            params: { textAreaType: TextAreaType.Number }
+        },
+        {
+            type: QuestionType.MultipleChoice,
+            text: "Are you in academia or industry",
+            responses: ["Academia", "Industry"],
+            followUps: [
+                {
+                    type: QuestionType.MultipleChoice,
+                    text: "Which best describes your current position?",
+                    responses: ["Graduate Student", "Postdoctoral", "Adjunct", "Assistant Professor", "Associate Professor", "Full Professor", "Emeritus"]
+                },
+                null
+            ]
+        },
+        {
+            type: QuestionType.Text,
+            text: "What is your discipline?"
+        },
+        {
+            type: QuestionType.Text,
+            text: "How would you describe your specialization?",
+        }
+    ],
+    null
+]
 
 export const surveyQuestions: SurveyQuestion[][] = [
+    // Apply new change by Zeyu 6/13/2022
     [
         {
             type: QuestionType.Instruction,
             text: "Thank you! You are almost finished. Please respond to a few final questions."
         },
+        {
+            type: QuestionType.Instruction,
+            text: "Imagine a trusted student or colleague also collected data at White Sands using RHex. They found the following relationship between sand moisture and shear strength:",
+        },
+        {
+            type: QuestionType.Image1,
+            // text: "Image A"
+        },
+        {
+            type: QuestionType.dropDownMenuComponent,
+            // text: "Provide a ranking of your certainty that the hypothesis is supported or refuted by this data. If you have no preference, select “I am unsure”:",
+            responses: confidenceTexts
+        },
+        {
+            type: QuestionType.Instruction,
+            text: "Imagine a different student or colleague, using the same methods, found the following relationship between sand moisture and shear strength:",
+        },
+        {
+            type: QuestionType.Image2,
+            // text: "Image B"
+        },
+        {
+            type: QuestionType.dropDownMenuComponent,
+            // text: "Provide a ranking of your certainty that the hypothesis is supported or refuted by this data. If you have no preference, select “I am unsure”:",
+            responses: confidenceTexts
+        }
+    ],
+    [
         {
             type: QuestionType.MultipleChoice,
             text: "How often did you hold multiple beliefs at a time (e.g., believing simultaneously that there are areas along the dune transect where data is needed, AND that there are potential discrepancies between measurements and the given hypothesis that needs to be further investigated)?",
@@ -55,8 +121,8 @@ export const surveyQuestions: SurveyQuestion[][] = [
         {
             type: QuestionType.MultipleChoice,
             text: "How satisfied were you with the suggested locations provided by the robot?",
-            responses: ["Very satisfied", "Moderately satisfied", "Somewhat satisfied", "Neither satisfied nor unsatisfied", 
-            "Somewhat unsatisfied", "Moderately unsatisfied", "Very unsatisfied"]
+            responses: ["Very satisfied", "Satisfied", "Somewhat satisfied", "Neither satisfied nor unsatisfied", 
+            "Somewhat unsatisfied", "Unsatisfied", "Very unsatisfied"]
         },
     ],
     [
@@ -92,78 +158,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
         {
             type: QuestionType.Text,
             text: "If you were to use this robot for data collection in real life, what changes or improvements would you make in how the robot interacts with you to suggest locations?",
-        },
-        {//Add new survery question below by Zeyu 5/16/2022
-            type: QuestionType.Text,
-            text: "Why did you refute the hypothesis?",
-        },
-    ],
-    [
-        {
-            type: QuestionType.Instruction,
-            text: "For each of the following statements, rate the intensity of your feelings of trust, or your impression of the robot’s suggestions in simulation:"
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The system is reliable.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "I am familiar with the system.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "I am confident in the system.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The system is dependable.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "I can trust the system.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The system provides security.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The system has integrity.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "I am suspicious of the system’s intent, action, or outputs.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "I am wary of the system.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The system is deceptive.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The system behaves in an underhanded manner.",
-            responses: robotTrustOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The system’s actions will have a harmful or injurious outcome.",
-            responses: robotTrustOptions
-        },
-
+        }
     ],
     [
         {
@@ -172,35 +167,30 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.Text,
-            text: "What is your name?"
-        },
-        {
-            type: QuestionType.Text,
             text: "What is your age?",
             params: { textAreaType: TextAreaType.Number }
         },
         {
+            //Apply new changes by Zeyu 6/7/2022
             type: QuestionType.MultipleChoice,
             text: "What is your gender?",
-            responses: [ "Man", "Woman", "Non-binary" ]
+            responses: [ "Woman", "Man", "Gender Variant / Non-conforming", "Prefer to self describe", "Prefer not to say" ],
+            followUps: [
+                null,
+                null,
+                null,
+                {
+                    type: QuestionType.Text,
+                    text: "Please describe your gender."
+                },
+                null
+            ]
         },
         {
             type: QuestionType.MultipleChoice,
             text: "Have you completed a bachelor's degree?",
-            responses: [ "Yes", "No" ]
-        },
-        {
-            type: QuestionType.Text,
-            text: "How many years of practice do you have, post bachelor's degree?",
-            params: { textAreaType: TextAreaType.Number }
-        },
-        {
-            type: QuestionType.Text,
-            text: "What is your discipline?"
-        },
-        {
-            type: QuestionType.Text,
-            text: "How would you describe your specialization, if any?"
+            responses: [ "Yes", "No" ],
+            followUps: multipleBachelorFollowUp // Apply new changes by Zeyu 6/7/2022
         },
         {
             type: QuestionType.MultipleChoice,
@@ -210,19 +200,6 @@ export const surveyQuestions: SurveyQuestion[][] = [
                 {
                     type: QuestionType.Text,
                     text: "Please explain which features of the scenario you are familiar with."
-                },
-                null
-            ]
-        },
-        {
-            type: QuestionType.MultipleChoice,
-            text: "Are you in academia or industry?",
-            responses: ["Academia", "Industry"],
-            followUps: [
-                {
-                    type: QuestionType.MultipleChoice,
-                    text: "Which best describes your current position?",
-                    responses: ["Graduate Student", "Postdoctoral", "Adjunct", "Assistant Professor", "Associate Professor", "Full Professor", "Emeritus"]
                 },
                 null
             ]

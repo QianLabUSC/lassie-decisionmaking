@@ -21,6 +21,7 @@ import { CurrUserStepData, UserStepsData, Sample, PreSample } from '../types';
 import { initializeCharts } from '../handlers/ChartHandler';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMultipleOptions';
+import RadioButtonGroupMultipleSelectionOptions from '../components/RadioButtonGroupMultipleSelectionOptions';
 import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -36,17 +37,19 @@ function ImgAlert({ open }) {
   );
 }
 
+export const rejectReasonOptionsGlobal:string[] = [];
+
 export default function Main() {
   const [showImgAlert, setImgAlert] = useState(false);
   const [globalState, dispatch] = useStateValue();
 
   const { currSampleIdx, samples, currUserStep, userSteps, chart, chartSettings, 
     loadingRobotSuggestions, showRobotSuggestions, disableSubmitButton, numSubmitClicks, 
-    imgClickEnabled, numImgClicks, transectIdx, } = globalState;
+    imgClickEnabled, numImgClicks, transectIdx } = globalState;
 
   const { step, userFeedbackState, objectives, objectiveFreeResponse, sampleType,
     robotSuggestions, spatialReward, variableReward, discrepancyReward, acceptOrRejectOptions, acceptOrReject, 
-    rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, userSample, 
+    rejectReasonOptions, rejectReason, rejectReasons, rejectReasonsOptions, rejectReasonFreeResponse, userFreeSelection, userSample, 
     hypoConfidence, transition } = currUserStep;
 
   const history = useHistory();
@@ -82,21 +85,23 @@ export default function Main() {
     }
     let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
     let newUserStep : UserStepsData = {
-      step: step, 
-      objectives: JSON.parse(JSON.stringify(objectives)),  
-      objectiveFreeResponse: objectiveFreeResponse, 
+      step: step,
+      objectives: JSON.parse(JSON.stringify(objectives)),
+      objectiveFreeResponse: objectiveFreeResponse,
       sampleType: sampleType,
       robotSuggestions: robotSuggestions,
-      acceptOrReject: acceptOrReject === -1 ? null : acceptOrRejectOptions[acceptOrReject], 
+      acceptOrReject: acceptOrReject === -1 ? null : acceptOrRejectOptions[acceptOrReject],
       acceptedRobotSuggestion: (acceptOrReject !== -1 && acceptOrReject !== acceptOrRejectOptions.length - 1) ? acceptedRobotSuggestion : null,
-      rejectReason: rejectReason === -1 ? null : rejectReasonOptions[rejectReason], 
-      rejectReasonFreeResponse: rejectReasonFreeResponse, 
+      rejectReason: rejectReason === -1 ? null : rejectReasonOptions[rejectReason],
+      rejectReasons: rejectReasons,//Add new change
+      rejectReasonsOptions: rejectReasonsOptions, //Add new change
+      rejectReasonFreeResponse: rejectReasonFreeResponse,
       userFreeSample: userSample,
       hypoConfidence: confidenceTexts[hypoConfidence + 3],
       samples: JSON.parse(JSON.stringify(samples)),
       transition: transitionOptions[transitionAdj],
-      spatialReward: spatialReward, 
-      variableReward: variableReward, 
+      spatialReward: spatialReward,
+      variableReward: variableReward,
       discrepancyReward: discrepancyReward,
     }
     dispatch({ type: Action.ADD_USER_STEP, value: newUserStep }); 
@@ -135,6 +140,7 @@ export default function Main() {
   }, [objectives]);
 
   // In the RANK_OBJECTIVES step, automatically disable the submit button until the user fills out a valid set of rankings for each selected objective
+  // Example of set two group of user input buttons 6/12/2022
   useEffect(() => {
     if (userFeedbackState === UserFeedbackState.RANK_OBJECTIVES) {
 
@@ -150,6 +156,11 @@ export default function Main() {
       }
       dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: disable });
     }
+
+    if (userFeedbackState === UserFeedbackState.REJECT_REASON) {
+      dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: rejectReasons.length == 0 });
+    }
+
   }, [objectives]);
 
 
@@ -163,14 +174,14 @@ export default function Main() {
   }
 
   let objectiveOptionsLinked = objectiveOptions.map((obj, i) => {
-    // Add option 0 and 1 by Zeyu 5/16/2022
+    // Add option 0 and 1 by Zeyu 6/7/2022
     if (i === 0) {
       return (
-      <span>There are areas along the dune transect where data is needed</span>
+      <span>There are areas along the dune transect (between crest and interdune) where data is needed</span>
       );
     } else if (i === 1) {
       return (
-      <span>There are portions of the dynamic range of the moisture variable where data is needed</span>
+      <span>There are portions of the dynamic range of the moisture variable (x axis of the data plot) where data is needed</span>
       );
     } else if (i === 2) {
       return (
@@ -191,7 +202,7 @@ export default function Main() {
     <div className="objective-questions">
       <p><strong>Based on the data collected so far, select which of the following beliefs you currently hold (you may select multiple).</strong></p>
       <RadioButtonGroupMultipleOptions options={objectiveOptionsLinked} searchObjective={(target) => searchObjective(target)} onChange={i => {
-        let objectivesTemp = [...objectives];
+        let objectivesTemp = [...objectives]; // objectives: [0, 1, 2]
         if (searchObjective(objectiveOptions[i])) {
           objectivesTemp = objectivesTemp.filter(obj => obj.objective !== objectiveOptions[i]);
         } else {
@@ -203,6 +214,17 @@ export default function Main() {
           objectivesTemp.push(newObjective);
         }
         dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
+
+        // Clear the user's previous rejectReasons because the user want to update their beliefs
+        let resetRejectReasons:number[] = [...rejectReasons];
+        resetRejectReasons.splice(0, resetRejectReasons.length);
+
+        let resetRejectReasonsOptions:string[] = [...rejectReasonsOptions];
+        resetRejectReasonsOptions.splice(0, resetRejectReasonsOptions.length);
+
+        dispatch({ type: Action.SET_REJECT_REASONS, value: resetRejectReasons });
+        dispatch({ type: Action.SET_REJECT_REASONS_OPTIONS, value: resetRejectReasonsOptions });
+
       }}/>
     </div>
 
@@ -237,7 +259,7 @@ export default function Main() {
           }
       </tbody>
     </table>
-    
+
   const objectiveRankings =
     <div className="objective-rankings">
       <p><strong>Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement. You must assign a unique number to each belief:</strong></p>
@@ -292,12 +314,12 @@ export default function Main() {
 
   const acceptFollowUpQuestions = 
     <div className="accept-follow-up-questions">
-      <p><strong>Rate the extent to which going to this location addressed each of the following beliefs (1 - Unsure, 
+      <p><strong>How well did the robot-suggested locations address each of your beliefs? Please provide a rating for each belief you have selected previously (1 - Unsure, 
         2 - Did not address, 3 - Barely addressed, 4 - Somewhat addressed, 5 - Moderately addressed, 6 - Definitely 
         addressed):</strong></p>
       { objectives.map((obj, index) => (
         <div key={obj.objective.slice(0, 10) + index}>
-          <p><i><strong>Belief #{index + 1}:</strong> {obj.objective}</i></p>
+          <p><i><strong>Please provide your rating for your selected Belief #{index + 1}:</strong> {obj.objective}</i></p>
           <div className="slider-box">
             <Box>
               <Slider
@@ -315,22 +337,39 @@ export default function Main() {
       ))}
     </div>  
 
+// Apply new changes by Zeyu 6/21/2022
   useEffect(() => {
-    let rejectReasonOptionsTemp = [
-      "The suggested location did not address the beliefs I selected (", 
-      "I rejected the suggested location for a different reason",
-    ]
-    for (let i = 0; i < objectives.length - 1; i++) {
-      rejectReasonOptionsTemp[0] += objectives[i].objective + " / ";
-    }
-    if (objectives.length >= 1) rejectReasonOptionsTemp[0] += (objectives[objectives.length - 1].objective + ")");
+    const prefix:string = "The suggested location did not address my selected belief #";
+
+    const rejectReasonOptionsTemp = objectives.map((obj, i) => prefix + (i+1) + ": " + obj.objective);
+
+    const lastOption = "I rejected the suggested location for a different reason.";
+    rejectReasonOptionsTemp.push(lastOption);
+
     dispatch({ type: Action.SET_REJECT_REASON_OPTIONS, value: rejectReasonOptionsTemp });
+
   }, [objectives]);
 
+  // Apply new changes by Zeyu 6/19/2022
   const rejectReasonQuestions = 
     <div className="reject-reason-questions">
       <p><strong>Why did you reject RHex's suggested locations?</strong></p>
-      <RadioButtonGroup options={rejectReasonOptions} selectedIndex={rejectReason} onChange={i => dispatch({ type: Action.SET_REJECT_REASON, value: i })} />
+      <RadioButtonGroupMultipleSelectionOptions options={rejectReasonOptions}
+      selectedIndexs = {rejectReasons}
+      onChange={i => {
+        let selectIndexTemp:number[] = [...rejectReasons];
+        
+        if (!selectIndexTemp.includes(i)) selectIndexTemp.push(i);
+        
+        let rejectReasonsOptionsTemp:string[] = [...rejectReasonsOptions];
+
+        if (!rejectReasonsOptionsTemp.includes(rejectReasonOptions[i])) rejectReasonsOptionsTemp.push(rejectReasonOptions[i]);
+    
+        dispatch({ type: Action.SET_REJECT_REASONS_OPTIONS, value: rejectReasonsOptionsTemp })
+        dispatch({ type: Action.SET_REJECT_REASONS, value: selectIndexTemp })
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
+      }
+    }/>
     </div>
   
   const onRejectReasonTextChange = e => {
@@ -349,6 +388,7 @@ export default function Main() {
     </div>
 
   // Hook for displaying hypothesis popup
+  // Apply new changes 6/7/2022 by Zeyu
   const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
   const [hypothesisOpen, setHypothesisOpen] = useState(false);
   const decisionHypothesisDialog =
@@ -359,7 +399,7 @@ export default function Main() {
       allowCancel={false}
       steps={[
         [
-          "Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune crest. RHex is testing the hypothesis that strength will increase as moisture increases until sand is saturated (somewhere along the stoss slope), at which point strength will be constant as moisture continues to increase."
+          "Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune crest (see blue line). RHex is testing the hypothesis that strength will increase as moisture increases until sand is saturated (somewhere along the stoss slope), at which point strength will be constant as moisture continues to increase (see blue line)."
         ]
       ]}
       img={singleTransectNullHypothesis}
@@ -394,7 +434,9 @@ export default function Main() {
       <RadioButtonGroup 
         options={transitionOptions.slice((!userFreeSelection) ? 0 : 1)} 
         selectedIndex={transition} 
-        onChange={i => dispatch({ type: Action.SET_TRANSITION, value: i })}/>
+        onChange={i => {
+          dispatch({ type: Action.SET_TRANSITION, value: i });
+          }}/>
     </div>
 
   // Match the order of UserFeedbackStates in 'constants.ts'
@@ -518,15 +560,19 @@ export default function Main() {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
         return;
       }
+      // Select the reason why the use reject their belefs
       case UserFeedbackState.REJECT_REASON: {
-        if (rejectReason === 0) {
+        // [0,1,2] convert to -> str[0,1,2]
+        // Apply new chanegs by Zeyu 6/13/2022
+        // if the user select first option, then they will redirect to the following dispatch action, which will lead them to user free selection
+        if (rejectReasonsOptions.includes(rejectReasonOptions[rejectReasonOptions.length - 1])) { // Otherwise, the user will select 'I rejected the suggested location for a different reason.', there will be textbox for the user
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON_FREE_RESPONSE });
+        } else {
           dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
           dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: true });
           dispatch({ type: Action.SET_USER_FREE_SELECTION, value: true });
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.USER_LOCATION_SELECTION });
           dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
-        } else if (rejectReason === 1) {
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON_FREE_RESPONSE });
         }
         console.log({globalState}); // for debugging
         return;

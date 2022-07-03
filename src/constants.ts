@@ -181,21 +181,21 @@ export const rhexLocations = rhexPoints;
 
 export const initialConfidenceTexts = [
   'I am highly certain this hypothesis will be refuted',
-  'I am moderately certain this hypothesis will be refuted',
+  'I am certain this hypothesis will be refuted',
   'I am somewhat certain this hypothesis will be refuted',
   'I am unsure',
   'I am somewhat certain this hypothesis will be supported',
-  'I am moderately certain this hypothesis will be supported',
+  'I am certain this hypothesis will be supported',
   'I am highly certain this hypothesis will be supported'
 ];
 
 export const confidenceTexts = [
   'I am highly certain this hypothesis is refuted',
-  'I am moderately certain this hypothesis is refuted',
+  'I am certain this hypothesis is refuted',
   'I am somewhat certain this hypothesis is refuted',
   'I am unsure',
   'I am somewhat certain this hypothesis is supported',
-  'I am moderately certain this hypothesis is supported',
+  'I am certain this hypothesis is supported',
   'I am highly certain this hypothesis is supported'
 ];
 
@@ -609,7 +609,7 @@ export const LONGITUDE_RANGE =  [-106.30, -106.20];
 export const countdownDuration = 10;
 
 // Multiple choice options for robot trust questions in final survey - add new option ""I did not use this suggestion" by Zeyu 5/17/2022
-export const robotAgreeDisagreeOptions = ["I did not use this suggestion", "Highly disagree", "Moderately disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Moderately agree", "Highly agree"];
+export const robotAgreeDisagreeOptions = ["I did not use this suggestion", "Highly disagree", "Disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Agree", "Highly agree"];
 
 // Multiple choice options for robot trust questions in final survey
 export const robotTrustOptions = ["Not at all", "Low", "Slightly", "Neutral", "Moderately", "Very", "Extremely", "N/A to this robot", 
@@ -632,12 +632,11 @@ export enum UserFeedbackState {
   TRANSITION,
 };
 
-// Apply new changes
 export const objectiveOptions = [
-  "Did the robot address one potential area where data is needed?", // Option 0 - spatial coverage algorithm
-  "Did the robot address one potential portion of the moisture range where data is needed?", // Option 1 - variable coverage algorithm
-  "Did the robot address one potential location that facilitates the evaluation of the discrepancy between the data and the hypothesis?", // Option 2 - hypo invalidating algorithm
-  "Did the robot address one potential location that facilitates the evaluation of whether the hypothesis is supported by the data?", // Option 3 - hypo validating algorithm
+  "There are areas along the dune transect (between crest and interdune) where data is needed", // Option 0 - spatial coverage algorithm
+  "There are portions of the dynamic range of the moisture variable (x axis of the data plot) where data is needed", // Option 1 - variable coverage algorithm
+  "There is a discrepancy between the data and the hypothesis that needs additional evaluation", // Option 2 - hypo invalidating algorithm
+  "The data seems to be supporting the hypothesis so far but additional evaluation is needed", // Option 3 - hypo validating algorithm
   "I hold a different belief that is not described here" // Option 4 - free response
 ]
 

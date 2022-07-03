@@ -72,6 +72,7 @@ export default function Intro(props) {
         </div>,
  
         // Panel 1
+        // Apply new changes 6/7/2022 by Zeyu
         <div className="introCard">
             <div className="page1 contentWrapper">
                 <div className="contentContainer">
@@ -92,10 +93,13 @@ export default function Intro(props) {
 
                     <div className="text">
                         <p>
-                            Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
-                            crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
-                            sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
-                            as moisture continues to increase.
+                            Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune crest (see purple line).
+                            <br></br>
+                            <br></br>
+                            <b>The goal for you and RHex today is to select measurement locations on 
+                                the dune transect (from crest to interdune) to test the following hypothesis: </b>
+                            Soil strength will increase as moisture increases until sand is saturated (somewhere along the stoss slope), 
+                            at which point strength will be constant as moisture continues to increase (see blue line).
                         </p>
                     </div>
 
