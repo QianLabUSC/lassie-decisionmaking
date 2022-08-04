@@ -25,7 +25,7 @@ export default function Conclusion() {
 
   function handleChange(e) {
     setDisable(e.target.value === '');
-}
+  }
 
   // Display the charts when the conclusion screen is first loaded
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function Conclusion() {
               <div className="hypothesisText">
                 Provide a final ranking of your certainty that the hypothesis has been supported or refuted:
               </div>
-              <FormControl>
+              <FormControl style={{border: '2.5px solid red', animation: 'blinker 2s linear infinite'}}>
                   <Select
                       style={{fontSize: '1.5vh'}}
                       value={finalHypo + 3}

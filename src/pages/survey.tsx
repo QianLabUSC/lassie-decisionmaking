@@ -123,8 +123,8 @@ const decisionHypothesisDialog =
       ]}
       img={singleTransectNullHypothesis}
     />;
-let currentIndex = 0;
-const dropDownMenuComponent = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
+let currentIndex1 = 0;
+const dropDownMenuComponent1 = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
     if (!question.responses) return null;
     const id: string = question.id || "-1";
     return (
@@ -136,13 +136,44 @@ const dropDownMenuComponent = (question: SurveyQuestion, setAnswer, answers: Sur
                 If you have no preference, select "I am unsure":
               </div>
             </div>
-            <FormControl>
+            <FormControl style={{border: '2.5px solid red', animation: 'blinker 2s linear infinite'}}>
                 <Select
                     style={{fontSize: '2vh'}}
-                    value={currentIndex + 3}
+                    value={currentIndex1 + 3}
                     onChange={event => {
                         setAnswer(id, (Number(event.target.value) - 3).toString());
-                        currentIndex = Number(event.target.value) - 3;
+                        currentIndex1 = Number(event.target.value) - 3;
+                        }}>
+                    {
+                        question.responses.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
+                    }
+                </Select>
+            </FormControl>
+        </div>
+      </div>
+    )
+}
+
+let currentIndex2 = 0;
+const dropDownMenuComponent2 = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
+    if (!question.responses) return null;
+    const id: string = question.id || "-1";
+    return (
+      <div className={`section ${unanswered && "highlighted"}`} style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
+        <div className="hypothesisBlock">
+            <div className="hypothesisText">
+              <div>
+                Provide a new ranking of your certainty that the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => {decisionHypothesisDialog}}>hypothesis</a></strong></span> will be supported or refuted. 
+                If you have no preference, select "I am unsure":
+              </div>
+            </div>
+            <FormControl style={{border: '2.5px solid red', animation: 'blinker 2s linear infinite'}}>
+                <Select
+                    style={{fontSize: '2vh'}}
+                    value={currentIndex2 + 3}
+                    onChange={event => {
+                        setAnswer(id, (Number(event.target.value) - 3).toString());
+                        currentIndex2 = Number(event.target.value) - 3;
                         }}>
                     {
                         question.responses.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
@@ -248,7 +279,8 @@ const buildQuestionComponents = (questionList: SurveyQuestion[], answers: Survey
             question.type === QuestionType.Image1 ? instructionImageComponentA(question, depth) :
             question.type === QuestionType.Image2 ? instructionImageComponentB(question, depth) :
             question.type === QuestionType.MultipleChoice ? multipleChoiceComponent(question, setAnswer, answers, depth, showAsUnanswered) :
-            question.type === QuestionType.dropDownMenuComponent ? dropDownMenuComponent(question, setAnswer, answers, depth, showAsUnanswered) :
+            question.type === QuestionType.dropDownMenuComponent1 ? dropDownMenuComponent1(question, setAnswer, answers, depth, showAsUnanswered) :
+            question.type === QuestionType.dropDownMenuComponent2 ? dropDownMenuComponent2(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.MultipleChoiceHorizontal ? multipleChoiceHorizontalComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.Ranked ? rankedComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.Text ? textComponent(question, answers, setAnswer, depth, showAsUnanswered) :

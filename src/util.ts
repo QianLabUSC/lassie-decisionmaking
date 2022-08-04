@@ -259,8 +259,9 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
   }
   
   return new Promise((resolve, reject) => {
-    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
-    // http://ec2-52-53-216-166.us-west-1.compute.amazonaws.com/abc
+    fetch('http://127.0.0.1:5000/process', { //production URL
+    // https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process // production URL
+    // http://ec2-52-53-216-166.us-west-1.compute.amazonaws.com/process // production URL
     //fetch('http://127.0.0.1:5000/process', { //local development URL
       method: 'POST',
       mode: 'cors',
@@ -274,7 +275,7 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
       res => res.json()
     ).then(
       data => {
-        //console.log({data});
+        console.log({data});
         resolve(data);
       }
     ).catch((err) => {

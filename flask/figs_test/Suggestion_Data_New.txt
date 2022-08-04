@@ -1,0 +1,4 @@
+spatial_selection:  [ 8 16 17]
+variable_selection:  [ 8 16 17]
+discrepancy_selection:  [8]
+discrepancy_low_selection:  [ 8 16]

@@ -11,6 +11,7 @@ import "../styles/intro.scss";
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import { isInteger, isNumber, values } from "lodash";
 
 const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
 const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
@@ -22,6 +23,12 @@ export default function Intro(props) {
     const [currentPage, setCurrentPage] = useState(0);
     const [animationDirection, setAnimationDirection] = useState("Right");
     const pageCount = 2;
+    // Set the textarea as reqiured for users
+    const [disable, setDisable] = useState(true);
+
+    function handleChange(e) {
+        setDisable(e.target.value === '');
+    }
 
     const onBackClick = () => {
         setAnimationDirection("Left");
@@ -49,12 +56,17 @@ export default function Intro(props) {
         }
     }
 
+    const [nextDisable, setNextDisablee] = useState(true);
+    function onNextFreeResponse(e) {
+        if (isNumber(e)) setNextDisablee(isNumber(e) ? false : true);
+    }
+
     const buttonRow = (
         <div className="buttonRow">
             {
                 currentPage > 0 && <Button onClick={onBackClick} color='primary' variant='contained'>Previous</Button>
             }
-            <Button onClick={onNextClick} color='primary' variant='contained' className="buttonRowButton">Next</Button>
+            <Button disabled={nextDisable} onClick={onNextClick} color='primary' variant='contained' className="buttonRowButton">Next</Button>
         </div>
     );
 
@@ -108,11 +120,14 @@ export default function Intro(props) {
                         <div className="hypothesisText">
                             Provide a ranking of your initial certainty that this hypothesis will be supported or refuted. If you have no initial preference, simply select "I am unsure":
                         </div>
-                        <FormControl>
+                        <FormControl style={{border: '2.5px solid red', animation: 'blinker 2s linear infinite'}}>
                             <Select
                                 style={{fontSize: '1.5vh'}}
                                 value={initialHypo + 3}
-                                onChange={event => handleResponse(Number(event.target.value) - 3)}>
+                                onChange={event => {
+                                    handleResponse(Number(event.target.value) - 3);
+                                    onNextFreeResponse(Number(event.target.value) - 3);
+                                }}>
                                 {
                                     initialConfidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
                                 }

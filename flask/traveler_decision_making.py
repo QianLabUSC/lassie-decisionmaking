@@ -82,8 +82,22 @@ def hypofit(xx, yy, zz):
 
     return loc, RMSE_average, RMSE_spread, xfit, xx_model, Pfit, x_detail_fit,xx_detail_model, model
 
+'''the modified hypothesis model function
+Args:
+    loation: a list of locations based on number of objectives
+    spatial_reward: reward matrix considering spatial factor 
+    moisture_reward: reward matrix considering variable factor
+    discrepancy_reward: reward matrix considering discrepancy factor
+Returns:
+    suggested three locations that have maximal 
+    spatial, moisture, and discrepancy reward.
+'''
+
+
+
 '''the hypothesis model function
 Args:
+    location: a list of locations based on number of objectives
     spatial_reward: reward matrix considering spatial factor 
     moisture_reward: reward matrix considering variable factor
     discrepancy_reward: reward matrix considering discrepancy factor
@@ -93,7 +107,7 @@ Returns:
 '''
 def findbestlocation(location, spatial_reward, moisture_reward, discrepancy_reward):
 
-    disrepancy_reward_negative = np.array(discrepancy_reward) * -1
+    disrepancy_reward_negative = np.array(discrepancy_reward) * - 1
 
     spatial_locs, spatial_properties = signal.find_peaks(spatial_reward, 
                                                         height=0.3, distance=2)
@@ -108,6 +122,11 @@ def findbestlocation(location, spatial_reward, moisture_reward, discrepancy_rewa
     max_used_variable = False
     max_used_discrepancy = False
     max_used_discrepancy_lows = False
+
+    print('spatial_locs: ', spatial_locs)
+    print('varaible_locs: ', variable_locs)
+    print('discrepancy_locs: ', discrepancy_locs)
+    print('discrepancy_lows_locs: ', discrepancy_lows_locs)
 
     if len(spatial_locs) == 0:
         spatial_locs = spatial_reward.argsort()[-3:][::-1]
@@ -166,9 +185,10 @@ def findbestlocation(location, spatial_reward, moisture_reward, discrepancy_rewa
         discrepancy_lows_locs = discrepancy_lows_locs[max_index]
 
     # select discrepancy location
-
+    print('location: ', location)
     if(len(location) < 22):
-        a = location - 1 
+        a = location - 1
+        print('a', a) 
         unselected_location = np.rint(np.delete(np.linspace(1,22,22), a-1))
         for i in range(len(discrepancy_locs)):
             idx = ((np.abs(unselected_location - discrepancy_locs[i])).argmin()) 
@@ -199,6 +219,7 @@ def findbestlocation(location, spatial_reward, moisture_reward, discrepancy_rewa
         'max_used_discrepancy': max_used_discrepancy,
         'max_used_discrepancy_lows': max_used_discrepancy_lows
     }
+    print("output: ", output)
 
     return output
 
@@ -566,6 +587,15 @@ class DecisionMaking:
     def calculate_suggested_location(self):
         output = findbestlocation(self.current_state_location, self.spatial_reward, self.variable_reward, 
                                             self.discrepancy_reward)
+                    
+        # output = findWeightedObjectives(self.current_state_location, self.spatial_reward, self.variable_reward, 
+        #                                     self.discrepancy_reward)
+                                            
+        print('current_state_location ', self.current_state_location)
+        print('current_spatial_reward: ', self.spatial_reward)
+        print('current_variable_reward: ', self.variable_reward)
+        print('current_discrepancy_reward: ', self.discrepancy_reward)
+
         return output
         
 def plot(Traveler_DM, Traveler_ENV,sequence, location, sample, mm, erodi, results):

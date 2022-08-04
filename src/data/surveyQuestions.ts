@@ -3,7 +3,7 @@ import { confidenceTexts, robotAgreeDisagreeOptions, robotTrustOptions } from '.
 
 export enum QuestionType {
     MultipleChoice, MultipleChoiceHorizontal, Ranked, Instruction, Text, Image1, Image2,
-    dropDownMenuComponent
+    dropDownMenuComponent1, dropDownMenuComponent2
 }
 export enum TextAreaType { Small, Number, Large }
 
@@ -87,7 +87,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
             // text: "Image A"
         },
         {
-            type: QuestionType.dropDownMenuComponent,
+            type: QuestionType.dropDownMenuComponent1,
             // text: "Provide a ranking of your certainty that the hypothesis is supported or refuted by this data. If you have no preference, select “I am unsure”:",
             responses: confidenceTexts
         },
@@ -100,7 +100,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
             // text: "Image B"
         },
         {
-            type: QuestionType.dropDownMenuComponent,
+            type: QuestionType.dropDownMenuComponent2,
             // text: "Provide a ranking of your certainty that the hypothesis is supported or refuted by this data. If you have no preference, select “I am unsure”:",
             responses: confidenceTexts
         }

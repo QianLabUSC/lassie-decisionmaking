@@ -24,6 +24,7 @@ import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMulti
 import RadioButtonGroupMultipleSelectionOptions from '../components/RadioButtonGroupMultipleSelectionOptions';
 import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
+import { isNumber } from 'lodash';
 
 function ImgAlert({ open }) {
   return (
@@ -127,7 +128,6 @@ export default function Main() {
     history.push('/conclusion');
     console.log({globalState});
   };
-
   const handleHypoResponse = (value: any) => {
     dispatch({ type: Action.SET_HYPO_CONFIDENCE, value: value });
   }
@@ -197,7 +197,7 @@ export default function Main() {
       return <span>{obj}</span>;
     }
   });
-  
+
   const objectiveQuestions = 
     <div className="objective-questions">
       <p><strong>Based on the data collected so far, select which of the following beliefs you currently hold (you may select multiple).</strong></p>
@@ -224,7 +224,6 @@ export default function Main() {
 
         dispatch({ type: Action.SET_REJECT_REASONS, value: resetRejectReasons });
         dispatch({ type: Action.SET_REJECT_REASONS_OPTIONS, value: resetRejectReasonsOptions });
-
       }}/>
     </div>
 
@@ -300,12 +299,12 @@ export default function Main() {
   }
 
   const marks = [
-    { value: 0, label: '1' },
-    { value: 20, label: '2' },
-    { value: 40, label: '3' },
-    { value: 60, label: '4' },
-    { value: 80, label: '5' },
-    { value: 100, label: '6' },
+    { value: 0, label: '1-Unsure' },
+    { value: 20, label: ['2-Did Not', <br/>, 'Address'] },
+    { value: 40, label: ['3-Barely', <br/>, 'Addressed'] },
+    { value: 60, label: ['4-Somewhat', <br/>, 'Addressed'] },
+    { value: 80, label: '5-Addressed' },
+    { value: 100, label: ['6-Definitely', <br/>, 'Addressed'] },
   ];
 
   function valueLabelFormat(value) {
@@ -314,9 +313,7 @@ export default function Main() {
 
   const acceptFollowUpQuestions = 
     <div className="accept-follow-up-questions">
-      <p><strong>How well did the robot-suggested locations address each of your beliefs? Please provide a rating for each belief you have selected previously (1 - Unsure, 
-        2 - Did not address, 3 - Barely addressed, 4 - Somewhat addressed, 5 - Moderately addressed, 6 - Definitely 
-        addressed):</strong></p>
+      <p><strong>How well did the robot-suggested locations address each of your beliefs? Please provide a rating for each belief you have selected previously:</strong></p>
       { objectives.map((obj, index) => (
         <div key={obj.objective.slice(0, 10) + index}>
           <p><i><strong>Please provide your rating for your selected Belief #{index + 1}:</strong> {obj.objective}</i></p>
@@ -404,7 +401,10 @@ export default function Main() {
       ]}
       img={singleTransectNullHypothesis}
     />;
-
+  // const [updateButton, setUpdateButton] = useState(true);
+  // function handleUpdateButton(e) {
+  //   setUpdateButton(false);
+  // }
   const updateHypothesisConfidence = 
   <div className="update-hypothesis-confidence">
     <div className="hypothesisBlock">
@@ -415,11 +415,14 @@ export default function Main() {
             If you have no preference, select "I am unsure":
           </div>
         </div>
-        <FormControl>
+        <FormControl style={{border: '2.5px solid red', animation: 'blinker 2s linear infinite'}}>
             <Select
                 style={{fontSize: '1.5vh'}}
                 value={hypoConfidence + 3}
-                onChange={event => handleHypoResponse(Number(event.target.value) - 3)}>
+                onChange={event => {
+                  handleHypoResponse(Number(event.target.value) - 3);
+                  dispatch({type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false});
+                  }}>
                 {
                     confidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
                 }
@@ -541,6 +544,7 @@ export default function Main() {
         console.log({globalState}); // for debugging
         return;
       }
+
       case UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION: {
         if (acceptOrReject !== acceptOrRejectOptions.length - 1) {
           let robotSample = robotSuggestions[acceptOrReject]; 
@@ -558,6 +562,7 @@ export default function Main() {
       }
       case UserFeedbackState.ACCEPT_FOLLOW_UP: {
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true }); // Disable update hypothesis confidence button unless the user made a selection. by Zeyu 7/7/2022
         return;
       }
       // Select the reason why the use reject their belefs
@@ -591,6 +596,7 @@ export default function Main() {
         dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 }); // load the next Sample into the charts and strategy 
         dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'user'});
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true }); // Disable update hypothesis confidence button unless the user made a selection. by Zeyu 7/7/2022
         console.log({globalState}); // for debugging
         return;
       }
