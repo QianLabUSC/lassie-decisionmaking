@@ -1,0 +1,1021 @@
+{
+    "dataVersion": {
+        "local": 0
+    },
+    "initialHypo": "I am unsure",
+    "finalHypo": "I am somewhat certain this hypothesis is supported",
+    "userSteps": [
+        {
+            "step": 1,
+            "objectives": [
+                {
+                    "objective": "The data seems to be supporting the hypothesis so far but additional evaluation is needed",
+                    "ranking": 1,
+                    "addressedRating": 1
+                }
+            ],
+            "objectiveFreeResponse": "",
+            "sampleType": "robot",
+            "robotSuggestions": [
+                {
+                    "index": 17,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 792.835,
+                    "normOffsetY": 187.2283,
+                    "isHovered": false
+                },
+                {
+                    "index": 20,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 898,
+                    "normOffsetY": 251.473,
+                    "isHovered": false
+                }
+            ],
+            "acceptOrReject": "Accept suggested location A",
+            "acceptedRobotSuggestion": {
+                "index": 17,
+                "type": "robot",
+                "measurements": 3,
+                "normOffsetX": 792.835,
+                "normOffsetY": 187.2283,
+                "isHovered": false,
+                "shear": [
+                    8.3259,
+                    6.4879,
+                    7.5372
+                ],
+                "moisture": [
+                    13.2294,
+                    13.8166,
+                    13.1165
+                ]
+            },
+            "rejectReason": null,
+            "rejectReasonFreeResponse": "",
+            "userFreeSample": null,
+            "hypoConfidence": "I am unsure",
+            "samples": [
+                {
+                    "index": 0,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 230,
+                    "normOffsetY": 18,
+                    "isHovered": false,
+                    "moisture": [
+                        0.331,
+                        -0.0119,
+                        0.1695
+                    ],
+                    "shear": [
+                        4.964,
+                        5.463,
+                        5.626
+                    ]
+                },
+                {
+                    "index": 4,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 550,
+                    "normOffsetY": 80,
+                    "isHovered": false,
+                    "moisture": [
+                        6.6964,
+                        6.7325,
+                        6.8068
+                    ],
+                    "shear": [
+                        4.85,
+                        4.776,
+                        4.65
+                    ]
+                },
+                {
+                    "index": 18,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 690,
+                    "normOffsetY": 130,
+                    "isHovered": false,
+                    "moisture": [
+                        10.3154,
+                        10.5678,
+                        10.2507
+                    ],
+                    "shear": [
+                        5.615,
+                        2.353,
+                        4.753
+                    ]
+                },
+                {
+                    "index": 17,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 792.835,
+                    "normOffsetY": 187.2283,
+                    "isHovered": false,
+                    "shear": [
+                        4.8,
+                        2.68,
+                        3.39
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                }
+            ],
+            "transition": "Update belief rankings to receive new suggestions from RHex of where to sample next",
+            "spatialReward": [
+                0.39619021026279133,
+                0.758341814054208,
+                0.9635817373420312,
+                0.7615813528374539,
+                0.4386154677772496,
+                0.7618314283753729,
+                0.9818131320147828,
+                0.9997500343385869,
+                0.9999993816252247,
+                0.9999999997246583,
+                0.9999999999999779,
+                1,
+                0.9999999999999779,
+                0.9999999997246543,
+                0.9999993815761777,
+                0.9997499241867354,
+                0.9817686053272264,
+                0.7585917797156212,
+                0.3961908286375666,
+                0.6618314286507185,
+                0.9393878744512997
+            ],
+            "discrepancyReward": [
+                0.26046248084944595,
+                0.1930630349148827,
+                0.14516401762006612,
+                0.14337250706137167,
+                0.20905485323517456,
+                0.21425086414069205,
+                0.25627302389317586,
+                0.3117122559049601,
+                0.3774088887796536,
+                0.44310552165434675,
+                0.5091480054076222,
+                0.5830360875090477,
+                0.656924169610473,
+                0.7308122517118981,
+                0.79718947388651,
+                0.7971894738865102,
+                0.7971894738865102,
+                0.7971894738865104,
+                0.7971894738865103,
+                0.7971894738865103,
+                0.7971894738865103
+            ]
+        },
+        {
+            "step": 2,
+            "objectives": [
+                {
+                    "objective": "There are areas along the dune transect where data is needed",
+                    "ranking": 1,
+                    "addressedRating": 1
+                }
+            ],
+            "objectiveFreeResponse": "",
+            "sampleType": "robot",
+            "robotSuggestions": [
+                {
+                    "index": 2,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 267.01,
+                    "normOffsetY": 20.3773,
+                    "isHovered": false
+                },
+                {
+                    "index": 10,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 547.45,
+                    "normOffsetY": 77.3465,
+                    "isHovered": false
+                }
+            ],
+            "acceptOrReject": "Accept suggested location B",
+            "acceptedRobotSuggestion": {
+                "index": 10,
+                "type": "robot",
+                "measurements": 3,
+                "normOffsetX": 547.45,
+                "normOffsetY": 77.3465,
+                "isHovered": false,
+                "shear": [
+                    7.2315,
+                    7.515,
+                    5.448
+                ],
+                "moisture": [
+                    6.7978,
+                    6.3303,
+                    6.518
+                ]
+            },
+            "rejectReason": null,
+            "rejectReasonFreeResponse": "",
+            "userFreeSample": null,
+            "hypoConfidence": "I am somewhat certain this hypothesis is supported",
+            "samples": [
+                {
+                    "index": 0,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 230,
+                    "normOffsetY": 18,
+                    "isHovered": false,
+                    "moisture": [
+                        0.331,
+                        -0.0119,
+                        0.1695
+                    ],
+                    "shear": [
+                        4.964,
+                        5.463,
+                        5.626
+                    ]
+                },
+                {
+                    "index": 4,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 550,
+                    "normOffsetY": 80,
+                    "isHovered": false,
+                    "moisture": [
+                        6.6964,
+                        6.7325,
+                        6.8068
+                    ],
+                    "shear": [
+                        4.85,
+                        4.776,
+                        4.65
+                    ]
+                },
+                {
+                    "index": 18,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 690,
+                    "normOffsetY": 130,
+                    "isHovered": false,
+                    "moisture": [
+                        10.3154,
+                        10.5678,
+                        10.2507
+                    ],
+                    "shear": [
+                        5.615,
+                        2.353,
+                        4.753
+                    ]
+                },
+                {
+                    "index": 17,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 792.835,
+                    "normOffsetY": 187.2283,
+                    "isHovered": false,
+                    "shear": [
+                        4.8,
+                        2.68,
+                        3.39
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                },
+                {
+                    "index": 10,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 547.45,
+                    "normOffsetY": 77.3465,
+                    "isHovered": false,
+                    "shear": [
+                        5.68,
+                        3.73,
+                        5.76
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                }
+            ],
+            "transition": "Update belief rankings to receive new suggestions from RHex of where to sample next",
+            "spatialReward": [
+                0.39619021026279133,
+                0.758341814054208,
+                0.9635817373420312,
+                0.7615813528374539,
+                0.4386154677772496,
+                0.7618314283753729,
+                0.9818131320147828,
+                0.9997500343385869,
+                0.9999993816252247,
+                0.9999999997246583,
+                0.9999999999999779,
+                0.9999999999999779,
+                0.9999999997246362,
+                0.999999381349879,
+                0.9997494159147646,
+                0.9815630562015403,
+                0.7436000339779449,
+                0.19720786591669293,
+                0.15802225728828512,
+                0.6436445606655234,
+                0.9391379087898866
+            ],
+            "discrepancyReward": [
+                0.2503088437245479,
+                0.19227924866129423,
+                0.14516401762006612,
+                0.12540841656450863,
+                0.15893578733815908,
+                0.1872331065475015,
+                0.22574406755541404,
+                0.2680890620289771,
+                0.3146441334066405,
+                0.36119920478430406,
+                0.40775427616196813,
+                0.45430934753963215,
+                0.5017464979998827,
+                0.5517437774970059,
+                0.6017410569941295,
+                0.6517383364912529,
+                0.7017356159883761,
+                0.7517328954854996,
+                0.8459034326726536,
+                1.1804799811228277,
+                1.728661729761961
+            ]
+        },
+        {
+            "step": 3,
+            "objectives": [
+                {
+                    "objective": "The data seems to be supporting the hypothesis so far but additional evaluation is needed",
+                    "ranking": 1,
+                    "addressedRating": 1
+                }
+            ],
+            "objectiveFreeResponse": "",
+            "sampleType": "robot",
+            "robotSuggestions": [
+                {
+                    "index": 3,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 302.065,
+                    "normOffsetY": 23.4962,
+                    "isHovered": false
+                },
+                {
+                    "index": 9,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 512.395,
+                    "normOffsetY": 66.2231,
+                    "isHovered": false
+                },
+                {
+                    "index": 20,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 898,
+                    "normOffsetY": 251.473,
+                    "isHovered": false
+                }
+            ],
+            "acceptOrReject": "Accept suggested location B",
+            "acceptedRobotSuggestion": {
+                "index": 9,
+                "type": "robot",
+                "measurements": 3,
+                "normOffsetX": 512.395,
+                "normOffsetY": 66.2231,
+                "isHovered": false,
+                "shear": [
+                    4.0585,
+                    7.311,
+                    4.6189
+                ],
+                "moisture": [
+                    5.7407,
+                    5.3588,
+                    5.3402
+                ]
+            },
+            "rejectReason": null,
+            "rejectReasonFreeResponse": "",
+            "userFreeSample": null,
+            "hypoConfidence": "I am unsure",
+            "samples": [
+                {
+                    "index": 0,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 230,
+                    "normOffsetY": 18,
+                    "isHovered": false,
+                    "moisture": [
+                        0.331,
+                        -0.0119,
+                        0.1695
+                    ],
+                    "shear": [
+                        4.964,
+                        5.463,
+                        5.626
+                    ]
+                },
+                {
+                    "index": 4,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 550,
+                    "normOffsetY": 80,
+                    "isHovered": false,
+                    "moisture": [
+                        6.6964,
+                        6.7325,
+                        6.8068
+                    ],
+                    "shear": [
+                        4.85,
+                        4.776,
+                        4.65
+                    ]
+                },
+                {
+                    "index": 18,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 690,
+                    "normOffsetY": 130,
+                    "isHovered": false,
+                    "moisture": [
+                        10.3154,
+                        10.5678,
+                        10.2507
+                    ],
+                    "shear": [
+                        5.615,
+                        2.353,
+                        4.753
+                    ]
+                },
+                {
+                    "index": 17,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 792.835,
+                    "normOffsetY": 187.2283,
+                    "isHovered": false,
+                    "shear": [
+                        4.8,
+                        2.68,
+                        3.39
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                },
+                {
+                    "index": 10,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 547.45,
+                    "normOffsetY": 77.3465,
+                    "isHovered": false,
+                    "shear": [
+                        5.68,
+                        3.73,
+                        5.76
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                },
+                {
+                    "index": 9,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 512.395,
+                    "normOffsetY": 66.2231,
+                    "isHovered": false,
+                    "shear": [
+                        5.06,
+                        4.87,
+                        3.66
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                }
+            ],
+            "transition": "Update belief rankings to receive new suggestions from RHex of where to sample next",
+            "spatialReward": [
+                0.39619021026279133,
+                0.758341814054208,
+                0.9635817373420312,
+                0.7615813528374539,
+                0.4386154677772275,
+                0.761831428100031,
+                0.9818125136400075,
+                0.9995000686771738,
+                0.9818125136400296,
+                0.7618314283753768,
+                0.43861608620104975,
+                0.7618314286506965,
+                0.981813131739441,
+                0.9997494156884659,
+                0.9997487975399895,
+                0.9815630559261984,
+                0.743600033977923,
+                0.19720786591669293,
+                0.15802225728828512,
+                0.6436445606655234,
+                0.9391379087898866
+            ],
+            "discrepancyReward": [
+                0.2245085224410616,
+                0.1871148174930394,
+                0.17589879602118233,
+                0.2035360283843467,
+                0.2709105036063155,
+                0.21700408129014512,
+                0.2933105231827734,
+                0.4111825985401804,
+                0.5498921261196128,
+                0.6886016536990447,
+                0.8319675037400814,
+                0.7882460550672926,
+                0.7491809288561087,
+                0.7286165045920542,
+                0.7220578248060123,
+                0.7283761872325272,
+                0.7549714494456181,
+                0.7904758239819165,
+                0.8159530781483569,
+                1.1009072811858573,
+                1.6210533703578045
+            ]
+        },
+        {
+            "step": 4,
+            "objectives": [
+                {
+                    "objective": "There are areas along the dune transect where data is needed",
+                    "ranking": 1,
+                    "addressedRating": 1
+                }
+            ],
+            "objectiveFreeResponse": "",
+            "sampleType": "robot",
+            "robotSuggestions": [
+                {
+                    "index": 2,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 267.01,
+                    "normOffsetY": 20.3773,
+                    "isHovered": false
+                },
+                {
+                    "index": 6,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 407.23,
+                    "normOffsetY": 39.7139,
+                    "isHovered": false
+                },
+                {
+                    "index": 13,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 652.615,
+                    "normOffsetY": 117.5777,
+                    "isHovered": false
+                }
+            ],
+            "acceptOrReject": "Accept suggested location B",
+            "acceptedRobotSuggestion": {
+                "index": 6,
+                "type": "robot",
+                "measurements": 3,
+                "normOffsetX": 407.23,
+                "normOffsetY": 39.7139,
+                "isHovered": false,
+                "shear": [
+                    3.0962,
+                    3.6955,
+                    1.8822
+                ],
+                "moisture": [
+                    2.8714,
+                    2.8404,
+                    2.6426
+                ]
+            },
+            "rejectReason": null,
+            "rejectReasonFreeResponse": "",
+            "userFreeSample": null,
+            "hypoConfidence": "I am unsure",
+            "samples": [
+                {
+                    "index": 0,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 230,
+                    "normOffsetY": 18,
+                    "isHovered": false,
+                    "moisture": [
+                        0.331,
+                        -0.0119,
+                        0.1695
+                    ],
+                    "shear": [
+                        4.964,
+                        5.463,
+                        5.626
+                    ]
+                },
+                {
+                    "index": 4,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 550,
+                    "normOffsetY": 80,
+                    "isHovered": false,
+                    "moisture": [
+                        6.6964,
+                        6.7325,
+                        6.8068
+                    ],
+                    "shear": [
+                        4.85,
+                        4.776,
+                        4.65
+                    ]
+                },
+                {
+                    "index": 18,
+                    "type": "initial",
+                    "measurements": 3,
+                    "normOffsetX": 690,
+                    "normOffsetY": 130,
+                    "isHovered": false,
+                    "moisture": [
+                        10.3154,
+                        10.5678,
+                        10.2507
+                    ],
+                    "shear": [
+                        5.615,
+                        2.353,
+                        4.753
+                    ]
+                },
+                {
+                    "index": 17,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 792.835,
+                    "normOffsetY": 187.2283,
+                    "isHovered": false,
+                    "shear": [
+                        4.8,
+                        2.68,
+                        3.39
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                },
+                {
+                    "index": 10,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 547.45,
+                    "normOffsetY": 77.3465,
+                    "isHovered": false,
+                    "shear": [
+                        5.68,
+                        3.73,
+                        5.76
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                },
+                {
+                    "index": 9,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 512.395,
+                    "normOffsetY": 66.2231,
+                    "isHovered": false,
+                    "shear": [
+                        5.06,
+                        4.87,
+                        3.66
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                },
+                {
+                    "index": 6,
+                    "type": "robot",
+                    "measurements": 3,
+                    "normOffsetX": 407.23,
+                    "normOffsetY": 39.7139,
+                    "isHovered": false,
+                    "shear": [
+                        0
+                    ],
+                    "moisture": [
+                        5,
+                        5,
+                        5
+                    ]
+                }
+            ],
+            "transition": "See RHex's suggestions for where to sample next based on your current belief rankings",
+            "spatialReward": [
+                0.39619021026279133,
+                0.758341814054208,
+                0.9635817373420312,
+                0.7615813528374318,
+                0.43861546750188574,
+                0.7618308097252557,
+                0.9815625479785944,
+                0.9813132006919786,
+                0.7436439422907482,
+                0.2004475145764486,
+                0.20044751485176837,
+                0.7436445606655013,
+                0.9815631660780278,
+                0.9997487973136907,
+                0.9997487972646476,
+                0.9815630559261763,
+                0.743600033977923,
+                0.19720786591669293,
+                0.15802225728828512,
+                0.6436445606655234,
+                0.9391379087898866
+            ],
+            "discrepancyReward": [
+                0.22717818363578474,
+                0.18483627003056413,
+                0.16395330482235138,
+                0.18306281196657503,
+                0.24647312709791785,
+                0.24209548755775098,
+                0.2851504100675984,
+                0.3482537083010386,
+                0.42300630365157155,
+                0.4977588990021052,
+                0.8425477959282256,
+                0.7937101815349882,
+                0.7545554794788264,
+                0.7286165045920541,
+                0.7220578248060124,
+                0.7232703641447423,
+                0.749955202202811,
+                0.7810900809281235,
+                0.8207901737012089,
+                1.113471697559882,
+                1.6376596234216831
+            ]
+        }
+    ],
+    "surveyResponses": [
+        {
+            "id": "0-1",
+            "text": "How often did you hold multiple beliefs at a time (e.g., believing simultaneously that there are areas along the dune transect where data is needed, AND that there are potential discrepancies between measurements and the given hypothesis that needs to be further investigated)?",
+            "type": "MultipleChoice",
+            "value": "0"
+        },
+        {
+            "id": "0-1.0.0",
+            "text": "When you held multiple beliefs, how did you resolve them?",
+            "type": "MultipleChoice",
+            "value": "1"
+        },
+        {
+            "id": "0-2",
+            "text": "How satisfied were you with the suggested locations provided by the robot?",
+            "type": "MultipleChoice",
+            "value": "0"
+        },
+        {
+            "id": "1-1",
+            "text": "The robot’s suggestion was useful when I wanted to increase spatial coverage.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "6"
+        },
+        {
+            "id": "1-2",
+            "text": "The robot’s suggestion was useful when I wanted to increase moisture-range coverage.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "3"
+        },
+        {
+            "id": "1-3",
+            "text": "The robot’s suggestion was useful when I wanted to look into a potential discrepancy between measurements and the given hypothesis.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "6"
+        },
+        {
+            "id": "1-4",
+            "text": "The robot’s suggestion was useful when I wanted to further verify that the measurements supported the given hypothesis.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "3"
+        },
+        {
+            "id": "1-5",
+            "text": "The robot’s suggestions were not useful.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "0"
+        },
+        {
+            "id": "1-6",
+            "text": "If you were to use this robot for data collection in real life, what changes or improvements would you make in how the robot interacts with you to suggest locations?",
+            "type": "Text",
+            "value": "more location multiple fitting curves"
+        },
+        {
+            "id": "2-1",
+            "text": "The system is reliable.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "5"
+        },
+        {
+            "id": "2-2",
+            "text": "I am familiar with the system.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "0"
+        },
+        {
+            "id": "2-3",
+            "text": "I am confident in the system.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "5"
+        },
+        {
+            "id": "2-4",
+            "text": "The system is dependable.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "5"
+        },
+        {
+            "id": "2-5",
+            "text": "I can trust the system.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "5"
+        },
+        {
+            "id": "2-6",
+            "text": "The system provides security.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "3"
+        },
+        {
+            "id": "2-7",
+            "text": "The system has integrity.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "7"
+        },
+        {
+            "id": "2-8",
+            "text": "I am suspicious of the system’s intent, action, or outputs.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "0"
+        },
+        {
+            "id": "2-9",
+            "text": "I am wary of the system.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "7"
+        },
+        {
+            "id": "2-10",
+            "text": "The system is deceptive.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "7"
+        },
+        {
+            "id": "2-11",
+            "text": "The system behaves in an underhanded manner.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "0"
+        },
+        {
+            "id": "2-12",
+            "text": "The system’s actions will have a harmful or injurious outcome.",
+            "type": "MultipleChoiceHorizontal",
+            "value": "0"
+        },
+        {
+            "id": "3-1",
+            "text": "What is your name?",
+            "type": "Text",
+            "value": "Douglas Jerolmack"
+        },
+        {
+            "id": "3-2",
+            "text": "What is your age?",
+            "type": "Text",
+            "value": "45"
+        },
+        {
+            "id": "3-3",
+            "text": "What is your gender?",
+            "type": "MultipleChoice",
+            "value": "0"
+        },
+        {
+            "id": "3-4",
+            "text": "Have you completed a bachelor's degree?",
+            "type": "MultipleChoice",
+            "value": "0"
+        },
+        {
+            "id": "3-5",
+            "text": "How many years of practice do you have, post bachelor's degree?",
+            "type": "Text",
+            "value": "20"
+        },
+        {
+            "id": "3-6",
+            "text": "What is your discipline?",
+            "type": "Text",
+            "value": "geomorphology"
+        },
+        {
+            "id": "3-7",
+            "text": "How would you describe your specialization, if any?",
+            "type": "Text",
+            "value": "geomorphology"
+        },
+        {
+            "id": "3-8",
+            "text": "Are you familiar with any of the features of this decision making scenario? Have you ever collected data at White Sands National Monument before or investigated a similar research question?",
+            "type": "MultipleChoice",
+            "value": "0"
+        },
+        {
+            "id": "3-8.0.0",
+            "text": "Please explain which features of the scenario you are familiar with.",
+            "type": "Text",
+            "value": "environment gradient"
+        },
+        {
+            "id": "3-9",
+            "text": "Are you in academia or industry?",
+            "type": "MultipleChoice",
+            "value": "0"
+        },
+        {
+            "id": "3-9.0.0",
+            "text": "Which best describes your current position?",
+            "type": "MultipleChoice",
+            "value": "5"
+        }
+    ]
+}
