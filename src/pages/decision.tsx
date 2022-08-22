@@ -165,14 +165,16 @@ export default function Main() {
   }
 
   let objectiveOptionsLinked = objectiveOptions.map((obj, i) => {
-    if (i === 2) {
-      return (
-        <span>There is a discrepancy between the data and the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>hypothesis</a></strong></span> that needs additional evaluation</span>
-      );
-    } else if (i === 3) {
+    if (i === 1) {
       return (
         <span>
-          The data seems to be supporting the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>hypothesis</a></strong></span> so far but additional evaluation is needed
+            There is a discrepancy between the strength data and the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>strength hypothesis</a></strong></span> that needs additional evaluation (maximize hypo discrepancy objective)
+        </span>
+      );
+    } else if (i === 2) {
+      return (
+        <span>
+          The strength data seems to be supporting the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>strength hypothesis</a></strong></span> so far but additional evaluation is needed (minimize hypo discrepancy objective)
         </span>
       );
     } else {
@@ -263,6 +265,7 @@ export default function Main() {
   
   //New data Type in page
   const onObjectiveTextChangeStrength1 = e1 => {
+    console.log("Shear Strength Input1: " + e1.target.value)
     dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e1.target.value });
   }
 
@@ -271,21 +274,18 @@ export default function Main() {
         <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
         <div>
           Shear Strength(please type 3 samples(could be same)):
-          <br />
           <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={50}/>
-          <br />
-          <br />
-          <br />
-          <br />
         </div>
   </div>
 //var x = document.getElementById("myTextarea").value;
 
   //New data Type with User Location in page
-  const onObjectiveTextChangeStrength3 = e2 => {
+  const onObjectiveTextChangeStrength2 = e2 => {
+    console.log("Shear Strength Input2: " + e2.target.value)
     dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e2.target.value });
   }
-  const onObjectiveTextChangeLocation = e3 => {
+  const onObjectiveTextChangeLocation3 = e3 => {
+    console.log("Normalized Distance Input: " + e3.target.value)
     dispatch({ type: Action.SET_USER_LOCATION_DATA, value: e3.target.value });
   }
 
@@ -295,11 +295,11 @@ export default function Main() {
         <div>
           Shear Strength(please type 3 samples(could be same)):
           <br />
-          <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength3} rows={5} cols={50}/>
+          <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
           Normalized Distance(type the normalized distance to moutain bottom):
           <br />
-          <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation} rows={5} cols={50}/>
+          <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>
   </div>
 
