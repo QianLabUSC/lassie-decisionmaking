@@ -1,10 +1,11 @@
+from ast import Break
 import os, json
 from turtle import color
 import numpy as np
 import matplotlib.pyplot as plt
 
 def main():
-
+    print("Current Directory Path: ", os.getcwd())
     for filename in os.scandir('./data'):
         if filename.is_file():
             file_name = os.path.basename(filename.path)
@@ -28,12 +29,18 @@ def user_steps_calculations(file_name, user_data, user_steps, robot_suggestions,
         human_accepted_locations = []
 
         for robot_suggestion in step["robotSuggestions"]:
-            robot_suggested_locations.append(robot_suggestion.get('index'))
+            if (robot_suggestion is not None):
+                robot_suggested_locations.append(robot_suggestion.get('index'))
+            else:
+                robot_suggested_locations.append(-1)
         robot_suggestions.append(robot_suggested_locations)
 
         human_decision = step["acceptedRobotSuggestion"]
         if human_decision is not None:
             human_accepted_locations.append(human_decision.get('index'))
+        else:
+            user_free_selection = step["userFreeSample"]
+            human_accepted_locations.append(user_free_selection.get('index'))
         human_decisions.append(human_accepted_locations)
 
     print("robot_suggestions for User " + file_name.replace('.json', ': '), robot_suggestions)
@@ -71,7 +78,7 @@ def plot_user_step(file_name, current_user_step, current_robot_suggestions, curr
     plt.grid(True, linestyle='--', linewidth=0.5)
     plt.subplots_adjust(bottom=0.15)
 
-    plt.legend(loc="lower left", fontsize=8)
+    # plt.legend(loc="lower left", fontsize=8)
 
     current_path = os.path.dirname(os.path.abspath(__file__))
     my_path = os.path.join(current_path, 'figs_test', str(file_name).replace('.json', ''))
