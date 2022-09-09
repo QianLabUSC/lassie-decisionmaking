@@ -257,7 +257,7 @@ export const shearChartOption = {
   options: {
       title: {
         display: true,
-        text: "Shear Strength vs Normalized Distance",
+        text: "Strength vs Distance",
         fontStyle: "bold"
       },
       responsive: true,
@@ -292,7 +292,7 @@ export const shearChartOption = {
             id: 'shear',
             scaleLabel: {
               display: true,
-              labelString: 'Shear Strength (N)'
+              labelString: 'Strength (N)'
             },
             ticks: {
               min: 0,
@@ -304,7 +304,7 @@ export const shearChartOption = {
               position: 'bottom',
               scaleLabel: {
                 display: true,
-                labelString: 'Normalized distance from crest'
+                labelString: 'Distance from crest'
               },
               ticks: {
                 min: 0,
