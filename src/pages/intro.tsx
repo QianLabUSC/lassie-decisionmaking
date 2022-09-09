@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
-import ConsentPanel from '../components/ConsentPanel';
+// import ConsentPanel from '../components/ConsentPanel';
 import ProgressBar from '../components/ProgressBar';
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { useStateValue, Action } from '../state';
@@ -31,7 +31,7 @@ export default function Intro(props) {
     }
 
     const onNextClick = () => {
-        if (currentPage + 1 >= pageCount) {
+        if (currentPage + 2 >= pageCount) {
             
             // When the user completes the intro section, set the "introCompleted" state property to true
             // so that the user will not be redirected to the intro section when revisiting the website
@@ -44,16 +44,16 @@ export default function Intro(props) {
         } else {
             setAnimationDirection("Right");
             setTimeout(() => {
-                setCurrentPage(currentPage + 1);
+                setCurrentPage(currentPage + 2);
             }, 100);
         }
     }
 
     const buttonRow = (
         <div className="buttonRow">
-            {
+            {/* {
                 currentPage > 0 && <Button onClick={onBackClick} color='primary' variant='contained'>Previous</Button>
-            }
+            } */}
             <Button onClick={onNextClick} color='primary' variant='contained' className="buttonRowButton">Next</Button>
         </div>
     );
@@ -67,16 +67,16 @@ export default function Intro(props) {
 
     const pages = [
         // Panel 0
-        <div className="introCard">
-            <ConsentPanel onCompletion={onNextClick}/>
-        </div>,
+        // <div className="introCard">
+        //     {/* <ConsentPanel onCompletion={onNextClick}/> */}
+        // </div>,
  
         // Panel 1
         <div className="introCard">
             <div className="page1 contentWrapper">
                 <div className="contentContainer">
-                    <img src={robotDesertGif} className="robotGif"/>
-                    <div className="text">
+                    {/* <img src={robotDesertGif} className="robotGif"/> */}
+                    {/* <div className="text">
                         <p>
                             The mobile hexapod robot RHex needs your help testing a hypothesis about the relationship 
                             between sand strength and moisture at White Sands National Monument in New Mexico.
@@ -86,21 +86,21 @@ export default function Intro(props) {
                             by mechanical resistance to shear (dragging) during robot leg-soil interactions and moisture 
                             was measured using a probe attached to the robot.
                         </p>
-                    </div>
+                    </div> */}
 
-                    <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/> 
+                    {/* <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/>  */}
 
-                    <div className="text">
+                    {/* <div className="text">
                         <p>
                             Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
                             crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
                             sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
                             as moisture continues to increase.
                         </p>
-                    </div>
+                    </div> */}
 
                     <div className="hypothesisBlock">
-                        <div className="hypothesisTitle"><strong>Initial Hypothesis Confidence</strong></div>
+                        <div className="hypothesisTitle"><strong>Initial Strength Hypothesis</strong></div>
                         <div className="hypothesisText">
                             Provide a ranking of your initial certainty that this hypothesis will be supported or refuted. If you have no initial preference, simply select "I am unsure":
                         </div>

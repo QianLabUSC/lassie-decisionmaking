@@ -385,7 +385,7 @@ export default function Main() {
     </div>
 
   // Hook for displaying hypothesis popup
-  const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
+  // const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
   const [hypothesisOpen, setHypothesisOpen] = useState(false);
   const decisionHypothesisDialog =
     <MultiStepDialog
@@ -398,7 +398,7 @@ export default function Main() {
           "Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune crest. RHex is testing the hypothesis that strength will increase as moisture increases until sand is saturated (somewhere along the stoss slope), at which point strength will be constant as moisture continues to increase."
         ]
       ]}
-      img={singleTransectNullHypothesis}
+      // img={singleTransectNullHypothesis}
     />;
 
   const updateHypothesisConfidence = 
@@ -760,7 +760,7 @@ export default function Main() {
   );
 
   // Popup for displaying instructions on the decision page
-  const [decisionHelpOpen, setDecisionHelpOpen] = useState(true);
+  const [decisionHelpOpen, setDecisionHelpOpen] = useState(false);
   const decisionHelpDialog =
     <MultiStepDialog
       open={decisionHelpOpen}

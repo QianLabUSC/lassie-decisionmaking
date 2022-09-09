@@ -58,15 +58,15 @@ export default function Conclusion() {
               <h1>Conclusion</h1>
               <hr style={{width: '90%'}}/>
           </div>
-          <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/> 
-          <div className="text">
+          {/* <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/>  */}
+          {/* <div className="text">
               <p>
                   Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
                   crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
                   sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
                   as moisture continues to increase.
               </p>
-          </div>
+          </div> */}
           <div className="hypothesisBlock">
               <div className="hypothesisTitle"><strong>Final Hypothesis Confidence</strong></div>
               <div className="hypothesisText">
