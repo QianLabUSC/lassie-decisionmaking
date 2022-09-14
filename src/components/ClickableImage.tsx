@@ -170,7 +170,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
 
   return (
     <div id="clickable-image" style={{ position: 'relative' }} >
-      <img ref={imgHeightRef} className={`${classes.imageDecision} ${enabled ? classes.cross : ''}`} id="pos-picker" src={diagram} onClick={onImageClick}/>
+      <img style={{height: '15.3vw', width: '44.5vw', margin: 'auto', display: 'block', boxShadow: '0px 2px 6px rgb(0 0 0 / 30%)', borderRadius: '4px'}}
+      ref={imgHeightRef} className={`${classes.imageDecision} ${enabled ? classes.cross : ''}`} id="pos-picker" src={diagram} onClick={onImageClick}/>
       {
         showNOMInput && <AddSamplePopup clickPosition={clickPosition} clickIndex={clickIndex} onAddData={addDataFunc} />
       }
