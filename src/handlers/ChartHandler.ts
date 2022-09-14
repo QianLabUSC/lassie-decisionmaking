@@ -1,5 +1,5 @@
 import { getMeasurements, mean } from '../util';
-import { shearChartOption, moistChartOption, shearMoistChartOption, NORMALIZED_CREST_RANGE, INDEX_LENGTH } from '../constants';
+import { shearChartOption, moistChartOption, shearMoistChartOption, NORMALIZED_CREST_RANGE, INDEX_LENGTH, SCALAR_X_VAL } from '../constants';
 import { IState, Action, Charts, ChartDisplayMode } from '../state';
 import * as Chart from 'chart.js';
 
@@ -33,18 +33,18 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     }
 
     // Map x value from just the section of the slope to [0, 1]
-    const xVal = (row.index)/INDEX_LENGTH;
+    const xVal = SCALAR_X_VAL * (row.index)/INDEX_LENGTH;
     // const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
     //const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
     const averageShearValue = mean(shear);
     const averageMoistureValue = mean(moisture);
 
     if (chartSettings.mode === ChartDisplayMode.RAW) {
-      shear.forEach(value => pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), value, rowIndex, currSampleIdx, index));
+      shear.forEach(value => pushChartArrayValue(shearDataPoints, Math.min(xVal, SCALAR_X_VAL), value, rowIndex, currSampleIdx, index));
       moisture.forEach(value => pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), value, rowIndex, currSampleIdx, index));
       shearMoisture.forEach(value => pushChartArrayValue(shearMoistureDataPoints, value.moisture, value.shear, rowIndex, currSampleIdx, index));
     } else if (chartSettings.mode === ChartDisplayMode.AVERAGE) {
-      pushChartArrayValue(shearDataPoints, Math.min(xVal, 1), averageShearValue, rowIndex, currSampleIdx,index);
+      pushChartArrayValue(shearDataPoints, Math.min(xVal, SCALAR_X_VAL), averageShearValue, rowIndex, currSampleIdx,index);
       pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), averageMoistureValue, rowIndex, currSampleIdx, index);
       pushChartArrayValue(shearMoistureDataPoints, averageMoistureValue, averageShearValue, rowIndex, currSampleIdx, index);
     }
@@ -88,7 +88,7 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
   const minMoisture = apply(Math.min, moistureData) - 0.5;
   const maxMoisture = apply(Math.max, moistureData) + 0.5
 
-  shearChartOption.options.scales.xAxes[0].ticks = { min: -0.1, max: 1.1 };
+  shearChartOption.options.scales.xAxes[0].ticks = { min: 0, max: 140 };
   shearChartOption.options.scales.yAxes[0].ticks = { min: 0, max: 8 };
   moistChartOption.options.scales.xAxes[0].ticks = { min: -0.1, max: 1.1 };
   moistChartOption.options.scales.yAxes[0].ticks = { min: minMoisture, max: maxMoisture };
