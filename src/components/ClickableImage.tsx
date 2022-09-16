@@ -185,8 +185,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
           
           return <PositionIndicator
             key={sampleIdx}
-            left={28.79 * index + 120}
-            top={(6.3 * index) ** 1.303}
+            left={22.75 * index + 90.6}
+            top={11.14 * index + 4.2}
             // left={((index/INDEX_LENGTH)*701.1+196.9) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*701.1+196.9
             // top={((index/INDEX_LENGTH)*(index/INDEX_LENGTH)*228.7 + (index/INDEX_LENGTH)*5.203+17.57) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57
             rowIndex={sampleIdx}
@@ -199,16 +199,18 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
       }
       {
         <PositionIndicatorRhex
-          top={((samples[samples.length - 1].index/INDEX_LENGTH)*(samples[samples.length - 1].index/INDEX_LENGTH)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57-30 ) * height / NORMALIZED_HEIGHT}//previous 7
-          left={((samples[samples.length - 1].index/INDEX_LENGTH)*701.1+196.9 -10 ) * height / NORMALIZED_HEIGHT} //previous 50
+          top={11.14 * samples[samples.length - 1].index - 20}
+          left={22.75 * samples[samples.length - 1].index + 90.6}
+          // top={((samples[samples.length - 1].index/INDEX_LENGTH)*(samples[samples.length - 1].index/INDEX_LENGTH)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57-30 ) * height / NORMALIZED_HEIGHT}//previous 7
+          // left={((samples[samples.length - 1].index/INDEX_LENGTH)*701.1+196.9 -10 ) * height / NORMALIZED_HEIGHT} //previous 50
         />
       }
       {showRobotSuggestions && robotSuggestions &&
         robotSuggestions.map((suggestion, rowIndex) => (
           <PositionIndicator
             key={suggestion.index + suggestion.normOffsetX + suggestion.normOffsetY}
-            left={suggestion.normOffsetX * height / NORMALIZED_HEIGHT}
-            top={suggestion.normOffsetY * height / NORMALIZED_HEIGHT}
+            left={22.75 * suggestion.index + 90.6}
+            top={11.14 * suggestion.index + 4.2}
             rowIndex={rowIndex}
             isHovered={suggestion.isHovered}
             type={suggestion.type}

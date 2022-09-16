@@ -13,7 +13,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
-const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
+const singleTransectNullHypothesis = require('../../assets/John Ruck Strength Hypothesis.png');
 
 export default function Intro(props) {
     const history = useHistory();
@@ -88,7 +88,7 @@ export default function Intro(props) {
                         </p>
                     </div> */}
 
-                    {/* <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/>  */}
+                    <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/> 
 
                     {/* <div className="text">
                         <p>
