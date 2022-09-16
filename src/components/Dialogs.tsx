@@ -19,7 +19,7 @@ const useStyle = makeStyles(() => ({
     textAlign: "center",
   },
   image: {
-    height: '25vh',
+    height: '45vh',
     margin: 'auto',
     marginBottom: '2vh',
   }

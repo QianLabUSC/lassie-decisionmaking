@@ -271,10 +271,10 @@ export default function Main() {
 
   const typeInNewData = 
   <div className="type-in-new-data" style={{marginBottom: '2vh'}}>
-        <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
+        <div className="TypeInDataTitle"><strong>Enter strength data</strong></div>
         <div>
-          Shear Strength(please type 3 samples(could be same)):
-          <textarea id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={50}/>
+          Type 3 measurement values separated by a space:
+          <textarea style={{marginTop: '1vh'}} id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={50}/>
         </div>
   </div>
 //var x = document.getElementById("myTextarea").value;
@@ -285,19 +285,19 @@ export default function Main() {
     dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e2.target.value });
   }
   const onObjectiveTextChangeLocation3 = e3 => {
-    console.log("Normalized Distance Input: " + e3.target.value)
+    console.log("Distance Input: " + e3.target.value)
     dispatch({ type: Action.SET_USER_LOCATION_DATA, value: e3.target.value });
   }
 
   const typeInNewLocationData = 
   <div className="type-in-new-location-data" style={{marginBottom: '2vh'}}>
-        <div className="TypeInDataTitle"><strong>Please type in new data</strong></div>
+        <div className="TypeInDataTitle"><strong>Enter strength and distance data</strong></div>
         <div>
-          Shear Strength(please type 3 samples(could be same)):
+          Shear Strength (type 3 measurement values separated by a space):
           <br />
           <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
-          Normalized Distance(type the normalized distance to moutain bottom):
+          Distance (type 3 measurement values separated by a space):
           <br />
           <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>
@@ -385,7 +385,7 @@ export default function Main() {
     </div>
 
   // Hook for displaying hypothesis popup
-  // const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
+  const singleTransectNullHypothesis = require('../../assets/John Ruck Strength Hypothesis.png');
   const [hypothesisOpen, setHypothesisOpen] = useState(false);
   const decisionHypothesisDialog =
     <MultiStepDialog
@@ -395,10 +395,10 @@ export default function Main() {
       allowCancel={false}
       steps={[
         [
-          "Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune crest. RHex is testing the hypothesis that strength will increase as moisture increases until sand is saturated (somewhere along the stoss slope), at which point strength will be constant as moisture continues to increase."
+          ""
         ]
       ]}
-      // img={singleTransectNullHypothesis}
+      img={singleTransectNullHypothesis}
     />;
 
   const updateHypothesisConfidence = 
