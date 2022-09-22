@@ -11,30 +11,6 @@ import '../styles/conclusion.scss';
 import ChartPanel from '../components/ChartPanel';
 import { initializeCharts, updateCharts } from '../handlers/ChartHandler';
 import { confidenceTexts } from '../constants';
-import {
-  query,
-  updateItemAccessTimeByCreateTime,
-  updateItemDeleteTimeByCreateTime
-} from '../dbHelper';  
-import { DynamoDB } from 'aws-sdk/clients/all';
-
-function formatData(dbRow : DynamoDB.AttributeMap) {
-  const result : DDBRow = {
-    createTime: -1,
-    lastAccessTime: -1,
-    deleteTime: -1,
-    value: ''
-  };
-  for (const key in dbRow) {
-    const attr = dbRow[key];
-    if (attr.N) {
-      result[key] = parseInt(attr.N);
-    } else if (attr.S) {
-      result[key] = attr.S;
-    }
-  }
-  return result;
-}
 
 // const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
 
@@ -49,46 +25,9 @@ export default function Conclusion() {
     initializeCharts(globalState, dispatch);
     setTimeout(() => {updateCharts(globalState, dispatch)}, 100);
   }, []);
-  
-  const [rows, setRows] = useState<DDBRow[]>([]);
-  const loadData = () => {
-      query(function(err, data) {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        console.log(data);
-        if (data.Items) {
-          setRows(data.Items.map(v => formatData(v)));
-        }
-      });
-    }  
-  
-  useEffect(() => {
-      loadData();
-    }, [])
-  
-  const onDownloadClick = (idx : number) => {
-      const a = document.createElement('a');
-      const url = window.URL.createObjectURL(new Blob([rows[idx].value], { type: 'application/json' }));
-      a.download = `${rows[idx].createTime}.json`;
-      a.href = url;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
-      updateItemAccessTimeByCreateTime(rows[idx].createTime, function(err, data) {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        loadData();
-      });
-    };
-
 
   const onContinueClick = () => {
     history.push('/survey');
-    onDownloadClick(0);
   };
 
   const continueButton = (
