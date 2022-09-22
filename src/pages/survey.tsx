@@ -235,12 +235,15 @@ export default function Survey() {
             userSteps: userSteps,
             surveyResponses: surveyOutput
         };
-        putItem(JSON.stringify(log), function(err, data) {
-            if (err) {
-                console.log('Err', err);
-            }
-            console.log(data);
-        });
+        const output = JSON.stringify(log);
+
+        return output;
+        // putItem(JSON.stringify(log), function(err, data) {
+        //     if (err) {
+        //         console.log('Err', err);
+        //     }
+        //     console.log(data);
+        // });
     }
 
     const onContinueClick = () => {
@@ -248,7 +251,22 @@ export default function Survey() {
             if (page + 1 === surveyQuestions.length - 1) {
                 const output = generateSurveyOutput(answers, surveyQuestions);
                 // Outputs the user's responses to the database
-                saveLogs(output);
+                // saveLogs(output);
+                
+                // Outputs the user's responses to a downloadable JSON file locally
+                const blob = new Blob([saveLogs(output)], { type: "application/json" });
+                const href = URL.createObjectURL(blob);
+
+                const link = document.createElement("a");
+                link.href = href;
+                link.download = "user_data.json";
+
+                document.body.appendChild(link);
+                link.click();
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+
                 // Set the "submitted" state property to true so that if the user revisits the website,
                 // the user will start from the begining and will not be shown a continue progress screen
                 dispatch({type: 
