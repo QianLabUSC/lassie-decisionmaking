@@ -42,7 +42,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.MultipleChoice,
-            text: "How often did you hold multiple beliefs at a time (e.g., believing simultaneously that there are areas along the dune transect where data is needed, AND that there are potential discrepancies between measurements and the given hypothesis that needs to be further investigated)?",
+            text: "How often did you hold multiple beliefs at a time (e.g., believing simultaneously that there are areas along the hillslope transect where data is needed, AND that there are potential discrepancies between measurements and the given hypothesis that needs to be further investigated)?",
             responses: ["Always", "Most of the time", "Sometimes", "Rarely", "Never"],
             followUps: [
                 multipleBeliefsFollowUp,

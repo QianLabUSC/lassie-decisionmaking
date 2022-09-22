@@ -48,8 +48,8 @@ export default function Main() {
 
   const { step, userFeedbackState, objectives, objectiveFreeResponse, sampleType,
     robotSuggestions, spatialReward, variableReward, discrepancyReward, acceptOrRejectOptions, acceptOrReject, 
-    rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, userSample, 
-    hypoConfidence, transition } = currUserStep;
+    acceptOrRejectFreeResponse, rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, 
+    userSample, hypoConfidence, transition } = currUserStep;
 
   const history = useHistory();
 
@@ -91,6 +91,7 @@ export default function Main() {
       robotSuggestions: robotSuggestions,
       acceptOrReject: acceptOrReject === -1 ? null : acceptOrRejectOptions[acceptOrReject], 
       acceptedRobotSuggestion: (acceptOrReject !== -1 && acceptOrReject !== acceptOrRejectOptions.length - 1) ? acceptedRobotSuggestion : null,
+      acceptOrRejectFreeResponse: acceptOrRejectFreeResponse,
       rejectReason: rejectReason === -1 ? null : rejectReasonOptions[rejectReason], 
       rejectReasonFreeResponse: rejectReasonFreeResponse, 
       userFreeSample: userSample,
@@ -254,6 +255,11 @@ export default function Main() {
     dispatch({ type: Action.SET_ACCEPT_OR_REJECT_OPTIONS, value: acceptOrRejectTemp });
   }, [robotSuggestions]);
   
+  const onAcceptOrRejectTextChange = e => {
+    console.log("acceptOrRejectFreeResponse: ", e.target.value)
+    dispatch({ type: Action.SET_ACCEPT_OR_REJECT_FREE_RESPONSE, value: e.target.value });
+  }
+
   const acceptOrRejectQuestions = 
     <div className="accept-or-reject-questions">
       <p><strong>Based on your belief rankings, RHex suggests sampling from one of the lettered locations marked on the dune cross-section above.</strong></p>
@@ -261,7 +267,27 @@ export default function Main() {
         dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: i });
         dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
       }}/>
+      <div className="accept-or-reject-free-response-question" style={{ marginTop: '-15px'}}>
+        <p style={{ marginBottom: '-12px' }}><strong>Impressions about suggested locations (optional):</strong></p>
+        <p>
+          <i><small>
+          Ranking system
+          <br />
+          +2 (what I would do or should have thought of)
+          <br />
+          +1 (similar to what I would do)
+          <br />
+          0 (neither good nor bad suggestion)
+          <br />
+          -1 (if a human did this, I would question them)
+          <br />
+          -2 (no human would do this)
+          </small></i>
+        </p>
+        <textarea style={{ marginTop: '-3px', marginBottom: '5px' }} onChange={onAcceptOrRejectTextChange} rows={5} cols={75}/>
+      </div>
     </div>
+
   
   //New data Type in page
   const onObjectiveTextChangeStrength1 = e1 => {
@@ -274,7 +300,7 @@ export default function Main() {
         <div className="TypeInDataTitle"><strong>Enter strength data</strong></div>
         <div>
           Type 3 measurement values separated by a space:
-          <textarea style={{marginTop: '1vh'}} id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={50}/>
+          <textarea placeholder='e.g., 3 4 5' style={{marginTop: '1vh'}} id = "latestStrength1" name = "latestStrength1" onChange={onObjectiveTextChangeStrength1} rows={5} cols={50}/>
         </div>
   </div>
 //var x = document.getElementById("myTextarea").value;
@@ -295,11 +321,11 @@ export default function Main() {
         <div>
           Shear Strength (type 3 measurement values separated by a space):
           <br />
-          <textarea id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
+          <textarea placeholder='e.g., 3 4 5' id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
-          Distance (type 3 measurement values separated by a space):
+          Location (type 1 location number (multiple of 7)):
           <br />
-          <textarea id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
+          <textarea placeholder='e.g., 21' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>
   </div>
 
@@ -376,7 +402,7 @@ export default function Main() {
   const rejectReasonFreeResponseQuestion = 
     <div className="reject-reason-free-response-question" style={{marginBottom: '2vh'}}>
       <p><strong>Please state your reason for rejecting the suggestion:</strong></p>
-      <textarea onChange={onRejectReasonTextChange} rows={5} cols={85}/>
+      <textarea onChange={onRejectReasonTextChange} rows={5} cols={75}/>
     </div>
 
   const userLocationSelectionQuestion = 
@@ -604,15 +630,15 @@ export default function Main() {
 
         const {userStrengthData,userLocationData} = globalState;
         const stringStrengthData = String(userStrengthData);
-        console.log("stringStrengthData", stringStrengthData);
+        console.log("stringStrengthData", stringStrengthData);    
         var splittedStrength = stringStrengthData.split(" ");
         const strengthNumArr = splittedStrength.map(Number);
 
-        const newLocationData = Number(userLocationData);
+        const newLocationData = Math.floor(Number(userLocationData) / 7);
         console.log('newLocationData:', newLocationData);
-        const indexLength = INDEX_LENGTH;
+
         const newSample : Sample = {
-            index: newLocationData * indexLength,
+            index: newLocationData,
             type: 'user',
             measurements: 3,
             normOffsetX: 800,

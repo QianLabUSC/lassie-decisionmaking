@@ -13,8 +13,13 @@ export const kTableName = isProduction() ? 'geo-decision-making-alt' : 'geo-deci
 export const kType = 'jsonResult';
 
 const DBInstance = new DynamoDB({
-  accessKeyId: 'AKIA5FUYZTBPJZVPRUPV',
-  secretAccessKey: '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',
+  // accessKeyId: 'AKIA5FUYZTBPJZVPRUPV',
+  // secretAccessKey: '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',
+
+  //Local dynamoDB
+  endpoint: "http://localhost:8000",
+  accessKeyId: '123',
+  secretAccessKey: '123',
   region: 'us-east-2',
 });
 
