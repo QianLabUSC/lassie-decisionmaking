@@ -11,7 +11,7 @@ export const NORMALIZED_HEIGHT = 321;
 // maximum x value in "sampleLocations."
 export const NORMALIZED_CREST_RANGE = {min: 209, max: 1089} // {209 = 229 - sqrt(400)}, {1089 = 1069 + sqrt(400)}
 export const INDEX_LENGTH = 20;
-export const SCALAR_X_VAL = 140;
+export const SCALAR_X_VAL = 135;
 export const NUM_OF_LOCATIONS = 22;
 export const NUM_MEASUREMENTS = 3;
 export const MAX_NUM_OF_MEASUREMENTS = 30;
@@ -308,8 +308,8 @@ export const shearChartOption = {
                 labelString: 'Distance'
               },
               ticks: {
-                min: 0,
-                max: 140
+                min: 10,
+                max: 130
               }
           }]
       },

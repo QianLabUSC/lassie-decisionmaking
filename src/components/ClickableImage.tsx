@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NUM_MEASUREMENTS,INDEX_LENGTH } from '../constants';
+import { NORMALIZED_HEIGHT, POPOVER_TIME, PopboxTypeEnum, NORMALIZED_WIDTH, NUM_MEASUREMENTS,INDEX_LENGTH, SCALAR_X_VAL } from '../constants';
 import { Sample } from '../types';
 import { getNearestIndex, getMeasurements } from '../util';
 import { useStateValue, Action } from '../state';
@@ -182,11 +182,15 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
           }
 
           const { index, type, normOffsetX, normOffsetY, isHovered } = sample;
+
+          // console.log("left: " + 23.82 * index + 82.53);
+          // console.log("top: " + String(11.62 * index + 1.15));
+          // console.log("\n")
           
           return <PositionIndicator
             key={sampleIdx}
-            left={22.75 * index + 90.6}
-            top={11.14 * index + 4.2}
+            left={23.82 * index + 82.53}
+            top={11.62 * index + 1.15}
             // left={((index/INDEX_LENGTH)*701.1+196.9) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*701.1+196.9
             // top={((index/INDEX_LENGTH)*(index/INDEX_LENGTH)*228.7 + (index/INDEX_LENGTH)*5.203+17.57) * height / NORMALIZED_HEIGHT} //(samples[samples.length - 1].index*0.05)*(samples[samples.length - 1].index*0.05)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57
             rowIndex={sampleIdx}
@@ -199,8 +203,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
       }
       {
         <PositionIndicatorRhex
-          top={11.14 * samples[samples.length - 1].index - 20}
-          left={22.75 * samples[samples.length - 1].index + 90.6}
+          left={23.82 * samples[samples.length - 1].index + 79.53}
+          top={11.62 * samples[samples.length - 1].index - 21.15}
           // top={((samples[samples.length - 1].index/INDEX_LENGTH)*(samples[samples.length - 1].index/INDEX_LENGTH)*228.7+(samples[samples.length - 1].index*0.05)*5.203+17.57-30 ) * height / NORMALIZED_HEIGHT}//previous 7
           // left={((samples[samples.length - 1].index/INDEX_LENGTH)*701.1+196.9 -10 ) * height / NORMALIZED_HEIGHT} //previous 50
         />
@@ -209,8 +213,8 @@ export default function ClickableImage({ enabled, addDataFunc, setPopOver, width
         robotSuggestions.map((suggestion, rowIndex) => (
           <PositionIndicator
             key={suggestion.index + suggestion.normOffsetX + suggestion.normOffsetY}
-            left={22.75 * suggestion.index + 90.6}
-            top={11.14 * suggestion.index + 4.2}
+            left={23.82 * suggestion.index + 82.53}
+            top={11.62 * suggestion.index + 1.15}
             rowIndex={rowIndex}
             isHovered={suggestion.isHovered}
             type={suggestion.type}
