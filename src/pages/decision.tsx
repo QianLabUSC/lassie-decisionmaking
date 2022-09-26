@@ -323,9 +323,10 @@ export default function Main() {
           <br />
           <textarea placeholder='e.g., 3 4 5' id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
-          Location (type 1 location number (multiple of 7)):
           <br />
-          <textarea placeholder='e.g., 21' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
+          Location (type 1 location number x where x = 10 + 6 * index, x in [10, 130]):
+          <br />
+          <textarea placeholder='e.g., 10 + 6 * 1 = 16' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>
   </div>
 
@@ -630,12 +631,12 @@ export default function Main() {
 
         const {userStrengthData,userLocationData} = globalState;
         const stringStrengthData = String(userStrengthData);
-        console.log("stringStrengthData", stringStrengthData);    
+        // console.log("stringStrengthData", stringStrengthData);    
         var splittedStrength = stringStrengthData.split(" ");
         const strengthNumArr = splittedStrength.map(Number);
 
-        const newLocationData = Math.floor(Number(userLocationData) / 7);
-        console.log('newLocationData:', newLocationData);
+        const newLocationData = Math.floor((Number(userLocationData) - 10) / 6);
+        // console.log('newLocationData:', newLocationData);
 
         const newSample : Sample = {
             index: newLocationData,
