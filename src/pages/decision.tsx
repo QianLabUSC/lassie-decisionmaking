@@ -169,13 +169,13 @@ export default function Main() {
     if (i === 1) {
       return (
         <span>
-            There is a discrepancy between the strength data and the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>strength hypothesis</a></strong></span> that needs additional evaluation (maximize hypo discrepancy objective)
+            There is a discrepancy between the strength data and the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>strength hypothesis</a></strong></span> that needs additional evaluation
         </span>
       );
     } else if (i === 2) {
       return (
         <span>
-          The strength data seems to be supporting the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>strength hypothesis</a></strong></span> so far but additional evaluation is needed (minimize hypo discrepancy objective)
+          The strength data seems to be supporting the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>strength hypothesis</a></strong></span> so far but additional evaluation is needed
         </span>
       );
     } else {
@@ -324,9 +324,9 @@ export default function Main() {
           <textarea placeholder='e.g., 3 4 5' id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
           <br />
-          Location (type 1 location number x where x = 10 + 6 * index, x in [10, 130]):
+          Enter 1 single location value corresponding to the distance downslope in meters (value must be between 10 to 130):
           <br />
-          <textarea placeholder='e.g., 10 + 6 * 1 = 16' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
+          <textarea placeholder='e.g., 10' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>
   </div>
 

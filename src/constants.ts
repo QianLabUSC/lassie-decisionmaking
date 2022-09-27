@@ -636,9 +636,9 @@ export enum UserFeedbackState {
 };
 
 export const objectiveOptions = [
-  "There are areas along the hillslope transect where data is needed (spatial coverage objective)", // Option 0 - spatial coverage algorithm
-  "There is a discrepancy between the strength data and the strength hypothesis that needs additional evaluation (maximize hypo discrepancy objective)", // Option 1 - hypo invalidating algorithm
-  "The strength data seems to be supporting the strength hypothesis so far but additional evaluation is needed (minimize hypo discrepancy objective)", // Option 2 - hypo validating algorithm
+  "There are areas along the hillslope transect where data is needed", // Option 0 - spatial coverage algorithm
+  "There is a discrepancy between the strength data and the strength hypothesis that needs additional evaluation", // Option 1 - hypo invalidating algorithm
+  "The strength data seems to be supporting the strength hypothesis so far but additional evaluation is needed", // Option 2 - hypo validating algorithm
 ]
 
 export const acceptFollowUpOptions = [
