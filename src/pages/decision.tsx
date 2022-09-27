@@ -324,7 +324,7 @@ export default function Main() {
           <textarea placeholder='e.g., 3 4 5' id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
           <br />
-          Enter 1 single location value corresponding to the distance downslope in meters (value must be between 10 to 130):
+          Location (type 1 location value corresponding to distance downslope in meters, must be between 10-130):
           <br />
           <textarea placeholder='e.g., 10' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>
