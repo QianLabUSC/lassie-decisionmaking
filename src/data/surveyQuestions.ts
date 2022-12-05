@@ -120,7 +120,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.MultipleChoice,
-            text: "How satisfied were you with the suggested locations provided by the robot?",
+            text: "If the robot collected data autonomously using its own suggestions, how satisfied would you be with the resulting data collection strategy?",
             responses: ["Very satisfied", "Satisfied", "Somewhat satisfied", "Neither satisfied nor unsatisfied", 
             "Somewhat unsatisfied", "Unsatisfied", "Very unsatisfied"]
         },
@@ -132,27 +132,27 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestion was useful when I wanted to increase spatial coverage.",
+            text: "The robot's suggestions were useful <u>when my reported belief was to increase spatial coverage</u>.",
             responses: robotAgreeDisagreeOptions
         },
         {
             type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestion was useful when I wanted to increase moisture-range coverage.",
+            text: "The robot's  suggestions were useful <u>when my reported belief was to increase moisture-range coverage</u>.",
             responses: robotAgreeDisagreeOptions
         },
         {
             type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestion was useful when I wanted to look into a potential discrepancy between measurements and the given hypothesis.",
+            text: "The robot's suggestions were useful <u>when my reported belief was that there was a discrepancy between the data and hypothesis that needed further evaluation</u>.",
             responses: robotAgreeDisagreeOptions
         },
         {
             type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestion was useful when I wanted to further verify that the measurements supported the given hypothesis.",
+            text: "The robot's suggestions were useful <u>when my reported belief was the the data was supporting the hypothesis but additional evaluation was needed</u>.",
             responses: robotAgreeDisagreeOptions
         },
         {
             type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestions were not useful.",
+            text: "The robot's suggestions were <b>NOT</b> useful.",
             responses: robotAgreeDisagreeOptions
         },
         {

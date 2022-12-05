@@ -69,6 +69,11 @@
         border-radius: 5px;
     }
 
+    .radioButtonGroupHorizontal tbody tr .radioButton:nth-child(1) {
+        width: 16%;
+        border-right: 2px dashed black;
+    }
+
     .mapConclusionImage {
         white-space: pre;
         height: 30vh;

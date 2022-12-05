@@ -608,8 +608,8 @@ export const LONGITUDE_RANGE =  [-106.30, -106.20];
 // Countdown timer period on decision page
 export const countdownDuration = 10;
 
-// Multiple choice options for robot trust questions in final survey - add new option ""I did not use this suggestion" by Zeyu 5/17/2022
-export const robotAgreeDisagreeOptions = ["I did not use this suggestion", "Highly disagree", "Disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Agree", "Highly agree"];
+// Multiple choice options for robot trust questions in final survey - add new option "" report this belief" by Zeyu 11/29/2022
+export const robotAgreeDisagreeOptions = ["I did NOT report this belief", "Highly disagree", "Disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Agree", "Highly agree"];
 
 // Multiple choice options for robot trust questions in final survey
 export const robotTrustOptions = ["Not at all", "Low", "Slightly", "Neutral", "Moderately", "Very", "Extremely", "N/A to this robot", 

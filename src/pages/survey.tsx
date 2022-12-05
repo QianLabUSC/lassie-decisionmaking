@@ -10,6 +10,7 @@ import { QuestionType, SurveyQuestion, surveyQuestions as rawSurveyQuestions, Te
 import { confidenceTexts, initialConfidenceTexts } from '../constants';
 import '../styles/survey.scss';
 import { MultiStepDialog } from '../components/Dialogs';
+import ReactHtmlParser from 'react-html-parser'
 
 const tileIndentation = 40;
 type SurveyAnswers = {[key: string] : string}
@@ -199,9 +200,10 @@ const multipleChoiceComponent = (question: SurveyQuestion, setAnswer, answers: S
 const multipleChoiceHorizontalComponent = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
     if (!question.responses) return null;
     const id: string = question.id || "-1";
+    const str = question.text;
     return (
         <div className={`section ${unanswered && "highlighted"}`} style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
-            <p>{ question.text }</p>
+            <p>{ReactHtmlParser(str)}</p>
             <RadioButtonGroupHorizontal options={question.responses} selectedIndex={Number(answers[id] || "-1")} onChange={i => setAnswer(id, i.toString())}/>
         </div>
     );
@@ -209,6 +211,7 @@ const multipleChoiceHorizontalComponent = (question: SurveyQuestion, setAnswer, 
 
 const rankedComponent = (question: SurveyQuestion, setAnswer, answers: SurveyAnswers, depth: number, unanswered: boolean) => {
     const id: string = question.id || "-1";
+
     return (
         <div className={`section ${unanswered && "highlighted"}`} style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
             <p>{ question.text }</p>

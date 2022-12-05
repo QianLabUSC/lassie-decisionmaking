@@ -19,7 +19,7 @@ export default function RadioButtonGroupHorizontal(props: RadioButtonGroupProps)
             <tbody>
                 <tr>
                     {props.options && props.options.map((option, i) => (
-                        <td key={option.slice(0, 10) + i} width="10%" style={{verticalAlign: "top"}} rowSpan={2}>
+                        <td className="radioButton" key={option.slice(0, 10) + i} width="15%" style={{verticalAlign: "top" }} rowSpan={2}>
                             <Checkbox checked={props.selectedIndex === i} onChange={() => {
                                 if (props.selectedIndex !== i) {
                                     props.onChange(i);

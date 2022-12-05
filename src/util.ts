@@ -259,9 +259,9 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
   }
   
   return new Promise((resolve, reject) => {
-    fetch('http://127.0.0.1:5000/process', { //production URL
-    // https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process // production URL
-    // http://ec2-52-53-216-166.us-west-1.compute.amazonaws.com/process // production URL
+    fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
+    // https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process // production URL1 From UPenn
+    // http://ec2-54-183-157-53.us-west-1.compute.amazonaws.com:8080/process // production URL2 From AWS EC2
     //fetch('http://127.0.0.1:5000/process', { //local development URL
       method: 'POST',
       mode: 'cors',
