@@ -823,45 +823,60 @@ def plot(Traveler_DM, Traveler_ENV, sequence, location, sample, mm, erodi,
     plt.savefig('./figs_test/' + "num" + str(len(sequence)) + str(sequence))
 
 
-def deploy_plot(Traveler_DM, sequence, location, sample, mm, erodi, results):
+def deploy_plot(Traveler_DM, sequence, location, sample, mm, erodi, results, suggestions):
     ### plot the state transition graph
     plt.rcParams['font.sans-serif'] = ['Times New Roman']
     plt.rcParams.update({'font.size': 36})
-    fig, axs = plt.subplots(2, 1, figsize=(22, 25))
+    fig, axs = plt.subplots(2, 1, figsize=(25, 25))
     x = np.linspace(1, 20, 20)
-    axs[0].plot(Traveler_DM.xfit,
-                Traveler_DM.discrepancy_reward,
+    index_min = min(Traveler_DM.current_state_location)
+    index_max = max(Traveler_DM.current_state_location)
+    axs[0].plot(Traveler_DM.xfit[index_min:index_max],
+                Traveler_DM.discrepancy_reward[index_min:index_max],
                 linewidth=3,
                 c="black")
-    axs[0].plot(Traveler_DM.xfit,
-                Traveler_DM.discrepancy_reward,
+    axs[0].plot(Traveler_DM.xfit[index_min:index_max],
+                Traveler_DM.discrepancy_reward[index_min:index_max],
                 linewidth=3,
                 c="blue")
-    axs[1].set_ylabel('Discrepancy reward')
-    axs[1].set_xlabel('location')
-    axs[1].plot(Traveler_DM.xfit,
-                Traveler_DM.xx_model,
+    axs[0].set_xlim([-1,22])
+    axs[0].set_title("num" + str(len(sequence)) + str(sequence))
+
+    axs[0].set_ylabel('Discrepancy reward')
+    axs[0].set_xlabel('location')
+    axs[1].plot(Traveler_DM.xfit[index_min:index_max],
+                Traveler_DM.xx_model[index_min:index_max],
                 linewidth=3,
                 c="black")
+
     for i in range(len(Traveler_DM.current_state_location)):
-        axs[1].plot(Traveler_DM.current_state_location[i],
-                    Traveler_DM.current_state_shear_strength[i][0],
+        axs[1].plot(Traveler_DM.current_state_location[i] * np.ones(3),
+                    Traveler_DM.current_state_shear_strength[i],
                     'o',
                     c="red",
                     markersize=10)
-    axs[1].plot(Traveler_DM.xfit,
-                Traveler_DM.mean_variable_each,
+
+    axs[1].plot(suggestions,-
+                    1 * np.ones(len(suggestions)),
+                    'o',
+                    c="green",
+                    markersize=10)
+    
+ 
+    axs[1].plot(Traveler_DM.xfit[index_min:index_max],
+                Traveler_DM.mean_variable_each[index_min:index_max],
                 c="green",
                 linewidth=3)
-    axs[1].fill_between(Traveler_DM.xfit,
-                        Traveler_DM.mean_variable_each +
-                        3 * Traveler_DM.std_variable_each,
-                        Traveler_DM.mean_variable_each -
-                        3 * Traveler_DM.std_variable_each,
+    axs[1].fill_between(Traveler_DM.xfit[index_min:index_max],
+                        Traveler_DM.mean_variable_each[index_min:index_max] +
+                        3 * Traveler_DM.std_variable_each[index_min:index_max],
+                        Traveler_DM.mean_variable_each[index_min:index_max] -
+                        3 * Traveler_DM.std_variable_each[index_min:index_max],
                         alpha=0.2,
                         color="green")
     axs[1].set_ylabel('Shear Strength')
     axs[1].set_xlabel('Location')
+    axs[1].set_xlim([-1,22])
 
 
     # moisture_index = np.round(Traveler_DM.current_state_moisture)
