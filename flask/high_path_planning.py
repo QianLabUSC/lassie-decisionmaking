@@ -35,10 +35,35 @@ class TravelerHighPathPlanning:
         spatial_locs, spatial_properties = signal.find_peaks(spatial_reward,
                                                             height=0.3,
                                                             distance=2)
+        # get the peak values
+        peak_values = spatial_reward[spatial_locs]
+
+        # sort the peak values and their indices in descending order
+        sorted_indices = np.argsort(peak_values)[::-1]
+
+        # return the sorted peak indices
+        spatial_locs = spatial_locs[sorted_indices]
         discrepancy_locs, discrepancy_properties = signal.find_peaks(
             discrepancy_reward, height=0.2, distance=2)
+        # get the peak values
+        peak_values = discrepancy_reward[discrepancy_locs]
+
+        # sort the peak values and their indices in descending order
+        sorted_indices = np.argsort(peak_values)[::-1]
+
+        # return the sorted peak indices
+        discrepancy_locs = discrepancy_locs[sorted_indices]
         discrepancy_lows_locs, discrepancy_lows_properties = signal.find_peaks(
             disrepancy_reward_negative, height=-0.5, distance=2)
+        
+        # get the peak values
+        peak_values = disrepancy_reward_negative[discrepancy_lows_locs]
+
+        # sort the peak values and their indices in descending order
+        sorted_indices = np.argsort(peak_values)[::-1]
+
+        # return the sorted peak indices
+        discrepancy_lows_locs = discrepancy_lows_locs[sorted_indices]
 
         max_used_spatial = False
         max_used_variable = False
@@ -114,12 +139,12 @@ class TravelerHighPathPlanning:
                     discrepancy_lows_locs[i] = unselected_location[idx]
 
         ## reorder the selected locations
-        spatial_locs = np.unique(spatial_locs)
-        discrepancy_locs = np.unique(discrepancy_locs)
-        discrepancy_lows_locs = np.unique(discrepancy_lows_locs)
-        spatial_locs = np.sort(spatial_locs)
-        discrepancy_locs = np.sort(discrepancy_locs)
-        discrepancy_lows_locs = np.sort(discrepancy_lows_locs)
+        # spatial_locs = np.unique(spatial_locs)
+        # discrepancy_locs = np.unique(discrepancy_locs)
+        # discrepancy_lows_locs = np.unique(discrepancy_lows_locs)
+        # spatial_locs = np.sort(spatial_locs)
+        # discrepancy_locs = np.sort(discrepancy_locs)
+        # discrepancy_lows_locs = np.sort(discrepancy_lows_locs)
 
         output = {
             'spatial_locs': spatial_locs.tolist(),

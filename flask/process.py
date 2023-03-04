@@ -7,12 +7,12 @@ sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/sit
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import numpy as np
-from ros2_node_webgui import *
+# from ros2_node_webgui import *
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-node_web_gui = Ros2NodeWebGui()
-app.config['ros_node'] = node_web_gui
+# node_web_gui = Ros2NodeWebGui()
+# app.config['ros_node'] = node_web_gui
 # #Sample GET API Route
 # @app.route('/sample', methods=['GET'])
 # @cross_origin()
@@ -47,7 +47,7 @@ def process():
     PathPlanning = TravelerHighPathPlanning()
     output = PathPlanning.single_step_path_planning(location, sample, mm, erodi)
     print("output locs: ", output)
-    app.config['ros_node'].publish_gui_information([0.2,0.1,0.1])
+    # app.config['ros_node'].publish_gui_information([0.2,0.1,0.1])
     # deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
     return jsonify(output)
     
