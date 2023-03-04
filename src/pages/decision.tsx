@@ -1058,7 +1058,7 @@ export default function Main() {
   // Right panel to display when collecting data, sampleState != FINISH_TRANSECT
   const collectionRightPanel = (
     <div className="collectionRightPanel">
-      {/* <ImgAlert open={!!showImgAlert} />
+      <ImgAlert open={!!showImgAlert} />
       <Tooltip
         title={
           userFeedbackState !== UserFeedbackState.USER_LOCATION_SELECTION ? (
@@ -1077,7 +1077,7 @@ export default function Main() {
             setPopOver={setImgAlert}
           />
         </div>
-      </Tooltip> */}
+      </Tooltip>
       <PositionChart />
       {!loadingRobotSuggestions && (
         <div
