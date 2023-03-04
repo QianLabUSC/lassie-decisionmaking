@@ -53,7 +53,7 @@ def process():
     results = Traveler_DM.calculate_suggested_location()
     print('calculated suggested location: ', results)
     # Plot function
-    deploy_plot(Traveler_DM, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
+    # deploy_plot(Traveler_DM, location, Traveler_DM.current_state_location, Traveler_DM.current_state_sample, Traveler_DM.current_state_moisture, Traveler_DM.current_state_shear_strength, results)
     spatial_selection = np.array(results['spatial_locs'])
     print('spatial_selection: ', spatial_selection)
     variable_selection = np.array(results['variable_locs'])

@@ -111,13 +111,26 @@ def findbestlocation(location, spatial_reward, moisture_reward, discrepancy_rewa
 
     spatial_locs, spatial_properties = signal.find_peaks(spatial_reward, 
                                                         height=0.3, distance=2)
+    print('spatial reward', spatial_reward)
+    peak_values = spatial_reward[spatial_locs]
+    sorted_indices = np.argsort(peak_values)[::-1]
+    spatial_locs = spatial_locs[sorted_indices]
     variable_locs, variable_properties = signal.find_peaks(moisture_reward,
                                                          height=0.3, distance=2)
+    peak_values = moisture_reward[variable_locs]
+    sorted_indices = np.argsort(peak_values)[::-1]
+    variable_locs = variable_locs[sorted_indices]
     discrepancy_locs, discrepancy_properties = signal.find_peaks(
                                     discrepancy_reward, height=0.2, distance=2)
+    peak_values = discrepancy_reward[discrepancy_locs]
+    sorted_indices = np.argsort(peak_values)[::-1]
+    discrepancy_locs = discrepancy_locs[sorted_indices]
     discrepancy_lows_locs, discrepancy_lows_properties = signal.find_peaks(
                             disrepancy_reward_negative, height=-0.5, distance=2)
-
+    print('discrepancy low reward', discrepancy_reward)
+    peak_values = disrepancy_reward_negative[discrepancy_lows_locs]
+    sorted_indices = np.argsort(peak_values)[::-1]
+    discrepancy_lows_locs = discrepancy_lows_locs[sorted_indices]
     max_used_spatial = False
     max_used_variable = False
     max_used_discrepancy = False
@@ -200,14 +213,14 @@ def findbestlocation(location, spatial_reward, moisture_reward, discrepancy_rewa
                 discrepancy_lows_locs[i] = unselected_location[idx]
 
     ## reorder the selected locations
-    spatial_locs = np.unique(spatial_locs)
-    variable_locs = np.unique(variable_locs)
-    discrepancy_locs = np.unique(discrepancy_locs)
-    discrepancy_lows_locs = np.unique(discrepancy_lows_locs)
-    spatial_locs = np.sort(spatial_locs)
-    variable_locs = np.sort(variable_locs)
-    discrepancy_locs = np.sort(discrepancy_locs)
-    discrepancy_lows_locs = np.sort(discrepancy_lows_locs)
+    # spatial_locs = np.unique(spatial_locs)
+    # variable_locs = np.unique(variable_locs)
+    # discrepancy_locs = np.unique(discrepancy_locs)
+    # discrepancy_lows_locs = np.unique(discrepancy_lows_locs)
+    # spatial_locs = np.sort(spatial_locs)
+    # variable_locs = np.sort(variable_locs)
+    # discrepancy_locs = np.sort(discrepancy_locs)
+    # discrepancy_lows_locs = np.sort(discrepancy_lows_locs)
           
     output = {
         'spatial_locs': spatial_locs.tolist(),
