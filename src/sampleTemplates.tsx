@@ -1,6 +1,6 @@
-import { NUM_MEASUREMENTS } from './constants';
-import { Sample } from './types';
-import { dataset } from './data/rhexDataset';
+import { NUM_MEASUREMENTS } from "./constants";
+import { Sample } from "./types";
+import { dataset } from "./data/rhexDataset";
 
 // Initial strategy for alternate version of website
 export const initialSamplesSet : Sample[][] = [
@@ -74,4 +74,11 @@ export const initialSamplesSet : Sample[][] = [
 ]
 
 // Sample robot suggestion for debugging alternate version of website
-export const sampleRobotSuggestion : IRow = { index: 5, type: 'robot', measurements: 5, normOffsetX: 429, normOffsetY: 95, isHovered: false };
+export const sampleRobotSuggestion: IRow = {
+  index: 5,
+  type: "robot",
+  measurements: 5,
+  normOffsetX: 429,
+  normOffsetY: 95,
+  isHovered: false,
+};

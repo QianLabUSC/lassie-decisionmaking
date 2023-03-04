@@ -91,6 +91,12 @@
                     color: #114B5F;
                     font-family: Helvetic, sans-serif;
                     margin-bottom: 2px;
+                    animation: blinker 3s linear infinite;
+                }
+                @keyframes blinker {
+                    50% {
+                        border-color: #fff;
+                    }
                 }
                 .hypothesisText {
                     font-size: 1.8vh;

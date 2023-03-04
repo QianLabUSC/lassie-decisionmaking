@@ -24,6 +24,8 @@ export type Charts = {
   shearChartMap : Chart | null,
   moistChartMap : Chart | null,
   shearMoistChartMap : Chart | null,
+  positionChart : Chart | null,
+  positionChartMap : Chart | null,
 } | null;
 
 export interface IState {
@@ -41,6 +43,7 @@ export interface IState {
   // Hypothesis fields
   initialHypo: number, // will be in final output after survey is completed
   finalHypo: number, // will be in final output after survey is completed
+  conclusionFreeResponse: string,
   // Chart fields
   chart: Charts,
   chartSettings: ChartSettings,
@@ -85,15 +88,18 @@ export const initialState : IState = {
     acceptOrRejectFreeResponse: "",
     rejectReasonOptions: [],
     rejectReason: -1,
+    rejectReasons: [],
+    rejectReasonsOptions: [],
     rejectReasonFreeResponse: "",
     userFreeSelection: false,
     userSample: null,
     hypoConfidence: 0,
-    transition: 0,
+    transition: 1, // previous: 0 Set the option from 0 to 1 by default. - Zeyu, 5/17/2022
   },
   userSteps: [],
   initialHypo: 0,
   finalHypo: 0,
+  conclusionFreeResponse: "", //Add by Zeyu 6/13/2022
   chart: null,
   chartSettings: {
     mode: 0,
@@ -110,11 +116,12 @@ export const initialState : IState = {
   numImgClicks: 0,
   showNOMInput: false,
   introCompleted: false,
-  submitted: false
+  submitted: false,
 };
 
 export type IAction = { type: any, value?: any }
 export enum Action {
+<<<<<<< HEAD
   SET_STATE, // For loading previous runs; sets the entire state object.  
   SET_DATA_VERSION,
   SET_FULL_DATA,
@@ -165,6 +172,59 @@ export enum Action {
   SET_SHOW_NOM_INPUT,
   SET_INTRO_STATUS, // Executed when user completes the introduction agreements
   SET_SUBMITTED_STATUS // Executed when user submits final responses
+=======
+    SET_STATE,
+    SET_DATA_VERSION,
+    SET_FULL_DATA,
+    SET_MOISTURE_DATA,
+    SET_CURR_SAMPLE_IDX,
+    SET_SAMPLES,
+    ADD_SAMPLE,
+    DELETE_SAMPLE,
+    SET_CURR_USER_STEP,
+    SET_USER_STEPS,
+    ADD_USER_STEP,
+    /** START - Actions to update the current user step data */
+    SET_USER_STEP_IDX,
+    SET_USER_FEEDBACK_STATE,
+    SET_OBJECTIVES,
+    SET_OBJECTIVES_FREE_RESPONSE,
+    SET_SAMPLE_TYPE,
+    SET_LOADING_ROBOT_SUGGESTIONS,
+    SET_SHOW_ROBOT_SUGGESTIONS,
+    SET_ROBOT_SUGGESTIONS,
+    SET_SPATIAL_REWARD,
+    SET_VARIABLE_REWARD,
+    SET_DISCREPANCY_REWARD,
+    SET_ACCEPT_OR_REJECT_OPTIONS,
+    SET_ACCEPT_OR_REJECT,
+    SET_REJECT_REASON_OPTIONS,
+    SET_REJECT_REASON,
+    SET_REJECT_REASONS,
+    SET_REJECT_REASONS_OPTIONS,
+    SET_REJECT_REASON_FREE_RESPONSE,
+    SET_USER_FREE_SELECTION,
+    SET_USER_SAMPLE,
+    SET_HYPO_CONFIDENCE,
+    SET_TRANSITION,
+    SET_DISABLE_SUBMIT_BUTTON,
+    SET_NUM_SUBMIT_CLICKS,
+    /** FINISH */
+    SET_INIT_HYPO_CONFIDENCE,
+    SET_FINAL_HYPO_CONFIDENCE,
+    SET_CONCLUSION_FREE_RESPONSE,
+    SET_CHART,
+    SET_CHART_SETTINGS,
+    CLEAR_CHART_CURRENT,
+    SET_DIALOG_PROPS,
+    SET_IMG_CLICK_ENABLED,
+    SET_NUM_IMG_CLICKS,
+    SET_HOVER,
+    SET_SHOW_NOM_INPUT,
+    SET_INTRO_STATUS,
+    SET_SUBMITTED_STATUS // Executed when user submits final responses
+    ,
+>>>>>>> fieldtest_newfeature
 };
 
 // For actions that simply replace the corresponding key in state,
@@ -183,6 +243,7 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_CURR_USER_STEP]: 'currUserStep',
   [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
   [Action.SET_FINAL_HYPO_CONFIDENCE]: 'finalHypo',
+  [Action.SET_CONCLUSION_FREE_RESPONSE]: 'conclusionFreeResponse',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
   [Action.SET_LOADING_ROBOT_SUGGESTIONS]: 'loadingRobotSuggestions',
@@ -249,6 +310,8 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_ACCEPT_OR_REJECT_FREE_RESPONSE]: 'acceptOrRejectFreeResponse',
   [Action.SET_REJECT_REASON_OPTIONS]: 'rejectReasonOptions',
   [Action.SET_REJECT_REASON]: 'rejectReason',
+  [Action.SET_REJECT_REASONS]: 'rejectReasons',
+  [Action.SET_REJECT_REASONS_OPTIONS]: 'rejectReasonsOptions',//Add new change
   [Action.SET_REJECT_REASON_FREE_RESPONSE]: 'rejectReasonFreeResponse',
   [Action.SET_USER_FREE_SELECTION]: 'userFreeSelection',
   [Action.SET_USER_SAMPLE]: 'userSample',
@@ -313,7 +376,7 @@ const chartReducer : SubReducer<Charts> = (chart, state, action) => {
   }
   return chart;
 };
-
+// Replace extra condition loops by visiting keyActionMap
 export const reducer = (state: IState, action: IAction) : IState => {
   if (action.type === Action.SET_STATE) {
     return action.value as IState;

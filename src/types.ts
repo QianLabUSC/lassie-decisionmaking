@@ -75,6 +75,8 @@ export interface CurrUserStepData {
   acceptOrRejectFreeResponse: string, // Impressions about suggested locations
   rejectReasonOptions: string[],
   rejectReason: number,  // stores why the user rejected the robot's suggestion at each step
+  rejectReasons: number[], // stores why the user rejected the robot's suggestions at each step
+  rejectReasonsOptions: string[], // stores user reject options
   rejectReasonFreeResponse: string, // stores user's free response for the reason for rejecting the robot's suggestion
   userFreeSelection: boolean
   userSample: Sample | null,
@@ -93,6 +95,8 @@ export interface UserStepsData {
   acceptedRobotSuggestion: Sample | null,
   acceptOrRejectFreeResponse: string | null,
   rejectReason: string | null, 
+  rejectReasons: number[],
+  rejectReasonsOptions: string[],
   rejectReasonFreeResponse: string | null, 
   userFreeSample: Sample | null,
   hypoConfidence : string 

@@ -92,8 +92,22 @@ def hypofit(xx, yy, zz):
             x_detail_fit, xx_detail_model, model
 
 
+'''the modified hypothesis model function
+Args:
+    loation: a list of locations based on number of objectives
+    spatial_reward: reward matrix considering spatial factor 
+    moisture_reward: reward matrix considering variable factor
+    discrepancy_reward: reward matrix considering discrepancy factor
+Returns:
+    suggested three locations that have maximal 
+    spatial, moisture, and discrepancy reward.
+'''
+
+
+
 '''the hypothesis model function
 Args:
+    location: a list of locations based on number of objectives
     spatial_reward: reward matrix considering spatial factor 
     moisture_reward: reward matrix considering variable factor
     discrepancy_reward: reward matrix considering discrepancy factor
@@ -106,23 +120,39 @@ Returns:
 def findbestlocation(location, spatial_reward, moisture_reward,
                      discrepancy_reward):
 
-    disrepancy_reward_negative = np.array(discrepancy_reward) * -1
+    disrepancy_reward_negative = np.array(discrepancy_reward) * - 1
 
-    spatial_locs, spatial_properties = signal.find_peaks(spatial_reward,
-                                                         height=0.3,
-                                                         distance=2)
+    spatial_locs, spatial_properties = signal.find_peaks(spatial_reward, 
+                                                        height=0.3, distance=2)
+    print('spatial reward', spatial_reward)
+    peak_values = spatial_reward[spatial_locs]
+    sorted_indices = np.argsort(peak_values)[::-1]
+    spatial_locs = spatial_locs[sorted_indices]
     variable_locs, variable_properties = signal.find_peaks(moisture_reward,
-                                                           height=0.3,
-                                                           distance=2)
+                                                         height=0.3, distance=2)
+    peak_values = moisture_reward[variable_locs]
+    sorted_indices = np.argsort(peak_values)[::-1]
+    variable_locs = variable_locs[sorted_indices]
     discrepancy_locs, discrepancy_properties = signal.find_peaks(
-        discrepancy_reward, height=0.2, distance=2)
+                                    discrepancy_reward, height=0.2, distance=2)
+    peak_values = discrepancy_reward[discrepancy_locs]
+    sorted_indices = np.argsort(peak_values)[::-1]
+    discrepancy_locs = discrepancy_locs[sorted_indices]
     discrepancy_lows_locs, discrepancy_lows_properties = signal.find_peaks(
-        disrepancy_reward_negative, height=-0.5, distance=2)
-
+                            disrepancy_reward_negative, height=-0.5, distance=2)
+    print('discrepancy low reward', discrepancy_reward)
+    peak_values = disrepancy_reward_negative[discrepancy_lows_locs]
+    sorted_indices = np.argsort(peak_values)[::-1]
+    discrepancy_lows_locs = discrepancy_lows_locs[sorted_indices]
     max_used_spatial = False
     max_used_variable = False
     max_used_discrepancy = False
     max_used_discrepancy_lows = False
+
+    print('spatial_locs: ', spatial_locs)
+    print('varaible_locs: ', variable_locs)
+    print('discrepancy_locs: ', discrepancy_locs)
+    print('discrepancy_lows_locs: ', discrepancy_lows_locs)
 
     if len(spatial_locs) == 0:
         spatial_locs = spatial_reward.argsort()[-3:][::-1]
@@ -208,15 +238,15 @@ def findbestlocation(location, spatial_reward, moisture_reward,
                 discrepancy_lows_locs[i] = unselected_location[idx]
 
     ## reorder the selected locations
-    spatial_locs = np.unique(spatial_locs)
-    variable_locs = np.unique(variable_locs)
-    discrepancy_locs = np.unique(discrepancy_locs)
-    discrepancy_lows_locs = np.unique(discrepancy_lows_locs)
-    spatial_locs = np.sort(spatial_locs)
-    variable_locs = np.sort(variable_locs)
-    discrepancy_locs = np.sort(discrepancy_locs)
-    discrepancy_lows_locs = np.sort(discrepancy_lows_locs)
-
+    # spatial_locs = np.unique(spatial_locs)
+    # variable_locs = np.unique(variable_locs)
+    # discrepancy_locs = np.unique(discrepancy_locs)
+    # discrepancy_lows_locs = np.unique(discrepancy_lows_locs)
+    # spatial_locs = np.sort(spatial_locs)
+    # variable_locs = np.sort(variable_locs)
+    # discrepancy_locs = np.sort(discrepancy_locs)
+    # discrepancy_lows_locs = np.sort(discrepancy_lows_locs)
+          
     output = {
         'spatial_locs': spatial_locs.tolist(),
         'variable_locs': variable_locs.tolist(),
@@ -227,6 +257,7 @@ def findbestlocation(location, spatial_reward, moisture_reward,
         'max_used_discrepancy': max_used_discrepancy,
         'max_used_discrepancy_lows': max_used_discrepancy_lows
     }
+    print("output: ", output)
 
     return output
 
@@ -632,9 +663,17 @@ class DecisionMaking:
     # give the final suggested location choice and then pass it to user
     # user interface
     def calculate_suggested_location(self):
-        output = findbestlocation(self.current_state_location,
-                                  self.spatial_reward, self.variable_reward,
-                                  self.discrepancy_reward)
+        output = findbestlocation(self.current_state_location, self.spatial_reward, self.variable_reward, 
+                                            self.discrepancy_reward)
+                    
+        # output = findWeightedObjectives(self.current_state_location, self.spatial_reward, self.variable_reward, 
+        #                                     self.discrepancy_reward)
+                                            
+        print('current_state_location ', self.current_state_location)
+        print('current_spatial_reward: ', self.spatial_reward)
+        print('current_variable_reward: ', self.variable_reward)
+        print('current_discrepancy_reward: ', self.discrepancy_reward)
+
         return output
 
 

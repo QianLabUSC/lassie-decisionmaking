@@ -11,6 +11,7 @@ import "../styles/intro.scss";
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import { isInteger, isNumber, values } from "lodash";
 
 const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
 const singleTransectNullHypothesis = require('../../assets/John Ruck Strength Hypothesis.png');
@@ -22,6 +23,12 @@ export default function Intro(props) {
     const [currentPage, setCurrentPage] = useState(0);
     const [animationDirection, setAnimationDirection] = useState("Right");
     const pageCount = 2;
+    // Set the textarea as reqiured for users
+    const [disable, setDisable] = useState(true);
+
+    function handleChange(e) {
+        setDisable(e.target.value === '');
+    }
 
     const onBackClick = () => {
         setAnimationDirection("Left");
@@ -49,6 +56,11 @@ export default function Intro(props) {
         }
     }
 
+    const [nextDisable, setNextDisablee] = useState(true);
+    function onNextFreeResponse(e) {
+        if (isNumber(e)) setNextDisablee(isNumber(e) ? false : true);
+    }
+
     const buttonRow = (
         <div className="buttonRow">
             {/* {
@@ -72,6 +84,7 @@ export default function Intro(props) {
         // </div>,
  
         // Panel 1
+        // Apply new changes 6/7/2022 by Zeyu
         <div className="introCard">
             <div className="page1 contentWrapper">
                 <div className="contentContainer">
@@ -92,10 +105,13 @@ export default function Intro(props) {
 
                     {/* <div className="text">
                         <p>
-                            Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
-                            crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
-                            sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
-                            as moisture continues to increase.
+                            Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune crest (see purple line).
+                            <br></br>
+                            <br></br>
+                            <b>The goal for you and RHex today is to select measurement locations on 
+                                the dune transect (from crest to interdune) to test the following hypothesis: </b>
+                            Soil strength will increase as moisture increases until sand is saturated (somewhere along the stoss slope), 
+                            at which point strength will be constant as moisture continues to increase (see blue line).
                         </p>
                     </div> */}
 
@@ -104,11 +120,14 @@ export default function Intro(props) {
                         <div className="hypothesisText">
                             Provide a ranking of your initial certainty that this hypothesis will be supported or refuted. If you have no initial preference, simply select "I am unsure":
                         </div>
-                        <FormControl>
+                        <FormControl style={{border: '2.5px solid red', animation: 'blinker 2s linear infinite'}}>
                             <Select
                                 style={{fontSize: '1.5vh'}}
                                 value={initialHypo + 3}
-                                onChange={event => handleResponse(Number(event.target.value) - 3)}>
+                                onChange={event => {
+                                    handleResponse(Number(event.target.value) - 3);
+                                    onNextFreeResponse(Number(event.target.value) - 3);
+                                }}>
                                 {
                                     initialConfidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
                                 }

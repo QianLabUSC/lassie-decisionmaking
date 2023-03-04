@@ -38,6 +38,7 @@ def hello_world():
 @app.route('/process', methods=['POST'])
 @cross_origin()
 def process():
+    print('A new test: ')
     inputs = request.json
     location = np.array(inputs['locations'])+1
     sample = np.array(inputs['measurements'])

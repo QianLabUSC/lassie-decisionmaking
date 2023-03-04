@@ -21,6 +21,7 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
   const shearDataPoints = [] as any[];
   const moistureDataPoints = [] as any[];
   const shearMoistureDataPoints = [] as any[];
+  const pos = [] as any[];
 
   for (let rowIndex = 0; rowIndex < samples.length; rowIndex++) {
     const row = samples[rowIndex];
@@ -40,6 +41,8 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     console.log("\n");
     // const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
     //const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
+    const xPos = row.index / 22; // 22 indexes per transect
+
     const averageShearValue = mean(shear);
     const averageMoistureValue = mean(moisture);
 
@@ -52,7 +55,14 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
       pushChartArrayValue(moistureDataPoints, Math.min(xVal, 1), averageMoistureValue, rowIndex, currSampleIdx, index);
       pushChartArrayValue(shearMoistureDataPoints, averageMoistureValue, averageShearValue, rowIndex, currSampleIdx, index);
     }
+    pos.push({x:xVal, y:0, curRowIdx: rowIndex, rowIndex: rowIndex, index: index, hover: false})
   }
+
+  // loop through the shearDataPoints and make an exact copy except with the y value being 0
+  const positionDataPoints = shearDataPoints.map((point) => {
+    return {x: point.x, y:0, curRowIdx: point.curRowIdx, rowIndex: point.rowIndex, index: point.index, hover: point.hover}
+})
+  
   
 
   if (chart.shearChart) {
@@ -69,6 +79,12 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     chart.shearMoistChartMap.data.datasets[0].data = shearMoistureDataPoints;
   } else {
     //console.log("chart.shearChartMap undefined");
+  }
+
+  if (chart.positionChart){
+    chart.positionChart.data.datasets[0].data= pos;
+  } else {
+    console.log("chart.positionChart undefined");
   }
 
   Object.values(chart).forEach(c => c?.update());  
@@ -119,9 +135,16 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
   // moistChartOption.options.onHover = onHoverFunc;
 
   let shearChart: any, moistChart: any, shearMoistChart: any, 
-      shearChartMap: any, moistChartMap: any, shearMoistChartMap: any
+      shearChartMap: any, moistChartMap: any, shearMoistChartMap: any, positionChart: any, positionChartMap: any;
 
   // Assume that if one chart is in DOM, the others also are.
+  if (document.getElementById('positionChart')) {
+    const positionCtx = (document.getElementById('positionChart') as HTMLCanvasElement).getContext('2d');
+    if (positionCtx) {
+        positionChart = new Chart(positionCtx, positionChartOption as any);
+    }
+  }
+
   if (document.getElementById('shearChart')) {
     const shearCtx = (document.getElementById('shearChart') as HTMLCanvasElement).getContext('2d');
     const moistCtx = (document.getElementById('moistChart') as HTMLCanvasElement).getContext('2d');
@@ -147,7 +170,7 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
   }
 
   const charts : Charts = {
-    shearChart, moistChart, shearMoistChart, shearChartMap, moistChartMap, shearMoistChartMap
+    shearChart, moistChart, shearMoistChart, shearChartMap, moistChartMap, shearMoistChartMap, positionChart, positionChartMap
   };
   dispatch({
     type: Action.SET_CHART,
@@ -184,6 +207,7 @@ const pushChartArrayValue = (array: any[], x, y, rowIndex, curRowIdx, index) => 
 // This function was added to resolve a bug where old chart data would sometimes flash back up when the mouse hovers over it.
 // It is called in the "clearCharts" function above.
 var resetCanvas = function(){
+  document.getElementById('positionChart')?.remove();
   document.getElementById('shearChart')?.remove();
   document.getElementById('moistChart')?.remove();
   document.getElementById('shearMoistChart')?.remove();
@@ -199,5 +223,9 @@ var resetCanvas = function(){
   let canvasShearMoist = document.createElement('canvas');
   canvasShearMoist.id = 'shearMoistChart';
   document.getElementById('shearMoistChartParent')?.appendChild(canvasShearMoist);
+
+  let canvasPosition = document.createElement('canvas');
+  canvasPosition.id='positionChart';
+  document.getElementById('positionChartParent')?.appendChild(canvasPosition);
 };
 

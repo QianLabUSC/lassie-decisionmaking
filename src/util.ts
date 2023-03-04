@@ -298,7 +298,7 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
       res => res.json()
     ).then(
       data => {
-        //console.log({data});
+        console.log({data});
         resolve(data);
       }
     ).catch((err) => {

@@ -9,7 +9,7 @@ type RadioButtonGroupMultipleOptionsProps = {
     searchObjective: (i: string) => any,
     onChange: (i: number) => any
 };
-
+// Resuable components for multi-choice options
 export default function RadioButtonGroupMultipleOptions(props: RadioButtonGroupMultipleOptionsProps) {
     return (
         <table className="radioButtonGroup">
@@ -20,7 +20,9 @@ export default function RadioButtonGroupMultipleOptions(props: RadioButtonGroupM
                             <td>
                                 <Checkbox 
                                     checked={props.searchObjective(objectiveOptions[i])}
-                                    onChange={() => {props.onChange(i)}}
+                                    onChange={() => {
+                                        props.onChange(i);
+                                    }}
                                 />
                             </td>
                             <td>

@@ -1,0 +1,64 @@
+User 1:
+
+[13,15] -> B Accepted 15 (Shear vs Moisture)
+
+[] -> null
+
+[5,12,16] -> A Accepted 5 (Shear vs Moisture)
+
+[8,12,16] -> A Accepted 8 (Shear vs Moisture)
+ 
+[6,12,16] -> B Accepted (Shear vs Moisture)
+
+User 2:
+
+[5,12,16] -> C Accepted 16 (Shear vs Moisture)
+
+[5,12,17] -> B Accepted 12 (Shear vs Moisture)
+
+[5,17] -> A Accepted 5 (Shear vs Moisture)
+
+[8,17] -> A Accepted 8 (Shear vs Moisture)
+
+[7,17,21] -> A Accepted 7 (Shear vs Moisture)
+
+[4,9,11] -> A Accepted 4 (Shear vs Moisture)
+
+[6,9,11] -> C Accepted 11 (Shear vs Moisture)
+
+[] -> null
+
+[] -> null
+
+
+User 3:
+
+[5,12,16] -> C Accepted 16
+
+[] -> null
+
+[5,12,17] -> C Accepted 17
+
+[12,15,18] -> C Accepted 18
+
+[5,12] -> B 12
+
+[2,15,20] -> C 20
+
+[15] -> A 15
+
+[13,17] -> Reject
+
+[13,17] -> A 13
+
+[] -> null
+
+[9,16,18] -> reject
+
+[9,16,18] -> C 18
+
+[9,16,18] -> B 16
+
+[] -> null
+
+[] -> null
