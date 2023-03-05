@@ -54,7 +54,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.MultipleChoice,
-            text: "How satisfied were you with the suggested locations provided by the robot?",
+            text: "If the robot collected data autonomously using its own suggestions, how satisfied would you be with the resulting data collection strategy?",
             responses: ["Very satisfied", "Moderately satisfied", "Somewhat satisfied", "Neither satisfied nor unsatisfied", 
             "Somewhat unsatisfied", "Moderately unsatisfied", "Very unsatisfied"]
         },
@@ -66,17 +66,17 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestion was useful when I wanted to increase spatial coverage.",
+            text: "The robot's suggestions were useful when my reported belief was to increase spatial coverage.",
             responses: robotAgreeDisagreeOptions
         },
+        // {
+        //     type: QuestionType.MultipleChoiceHorizontal,
+        //     text: "The robot’s suggestion was useful when I wanted to increase moisture-range coverage.",
+        //     responses: robotAgreeDisagreeOptions
+        // },
         {
             type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestion was useful when I wanted to increase moisture-range coverage.",
-            responses: robotAgreeDisagreeOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestion was useful when I wanted to look into a potential discrepancy between measurements and the given hypothesis.",
+            text: "The robot's suggestions were useful when my reported belief was that there was a discrepancy between the data and hypothesis that needed further evaluation.",
             responses: robotAgreeDisagreeOptions
         },
         {
@@ -84,11 +84,11 @@ export const surveyQuestions: SurveyQuestion[][] = [
             text: "The robot’s suggestion was useful when I wanted to further verify that the measurements supported the given hypothesis.",
             responses: robotAgreeDisagreeOptions
         },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot’s suggestions were not useful.",
-            responses: robotAgreeDisagreeOptions
-        },
+        // {
+        //     type: QuestionType.MultipleChoiceHorizontal,
+        //     text: "The robot’s suggestions were not useful.",
+        //     responses: robotAgreeDisagreeOptions
+        // },
         {
             type: QuestionType.Text,
             text: "If you were to use this robot for data collection in real life, what changes or improvements would you make in how the robot interacts with you to suggest locations?",

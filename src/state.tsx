@@ -24,6 +24,8 @@ export type Charts = {
   shearChartMap : Chart | null,
   moistChartMap : Chart | null,
   shearMoistChartMap : Chart | null,
+  positionChart : Chart | null,
+  positionChartMap : Chart | null,
 } | null;
 
 export interface IState {

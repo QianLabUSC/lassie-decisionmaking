@@ -63,7 +63,7 @@
         .rightDecisionPanelContainer {
             background-color: $lightGray;
             box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
-            height: 95vh;
+            height: 100%;
             width: 47vw;
 
             .collectionRightPanel {
@@ -298,7 +298,7 @@
             z-index: 0;
 
             .hypothesisContainer {
-                height: 67vh;
+                height: 100%;
                 position: relative;
                 z-index: 2;
             }

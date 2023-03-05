@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid';
+import PositionChart from "../components/PositionChart";
 import {INDEX_LENGTH } from '../constants';
 
 import HelpIcon from '@material-ui/icons/Help';
@@ -751,33 +752,45 @@ export default function Main() {
   // Right panel to display when collecting data, sampleState != FINISH_TRANSECT
   const collectionRightPanel = (
     <div className="collectionRightPanel">
-      <ImgAlert open={!!showImgAlert} />
+      {/* <ImgAlert open={!!showImgAlert} />
       <Tooltip title={userFeedbackState !== UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
             <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
-      </Tooltip>
-      {!loadingRobotSuggestions && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
-        {userFeedbackStateMap[userFeedbackState]}
-        <div className="submit-user-feedback-button">
-          <Button disabled={disableSubmitButton} variant="contained" color="secondary" onClick={onSubmit}>
-            Submit
-          </Button>
+      </Tooltip> */}
+      <PositionChart />
+      {!loadingRobotSuggestions && (
+        <div
+          className={
+            numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"
+          }
+        >
+          {userFeedbackStateMap[userFeedbackState]}
+          <div className="submit-user-feedback-button">
+            <Button
+              disabled={disableSubmitButton}
+              variant="contained"
+              color="secondary"
+              onClick={onSubmit}
+            >
+              Submit
+            </Button>
+          </div>
         </div>
-      </div>}
-      {loadingRobotSuggestions && <div className="loading-screen">
-        <div className="loading-section">
-          <i>
-            RHex is determining where to sample from next. This should take at most 5-10 seconds...
-          </i>
+      )}
+      {loadingRobotSuggestions && (
+        <div className="loading-screen">
+          <div className="loading-section">
+            <i>
+              RHex is determining where to sample from next. This should take at
+              most 5-10 seconds...
+            </i>
+          </div>
+          <div className="loading-section">
+            <CircularProgress color="secondary" size={100} />
+          </div>
         </div>
-        <div className="loading-section">
-          <CircularProgress 
-            color="secondary"
-            size={100}
-          />
-        </div>
-      </div>}
+      )}
       <div className="quit">
         <Button className="quitButton" variant="contained" color="primary" onClick={onConcludeClick}>
           End Collection At Transect
