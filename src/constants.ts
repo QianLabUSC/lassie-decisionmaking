@@ -701,7 +701,7 @@ export const LONGITUDE_RANGE =  [-106.30, -106.20];
 export const countdownDuration = 10;
 
 // Multiple choice options for robot trust questions in final survey
-export const robotAgreeDisagreeOptions = ["Highly disagree", "Moderately disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Moderately agree", "Highly agree"];
+export const robotAgreeDisagreeOptions = ["I did NOT report this belief", "Highly disagree", "Moderately disagree", "Somewhat disagree", "Unsure", "Somewhat agree", "Moderately agree", "Highly agree"];
 
 // Multiple choice options for robot trust questions in final survey
 export const robotTrustOptions = ["Not at all", "Low", "Slightly", "Neutral", "Moderately", "Very", "Extremely", "N/A to this robot", 
