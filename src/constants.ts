@@ -4,13 +4,15 @@ import * as Chart from 'chart.js';
 // These should match the canvas dimensions used in "transectDiagramPoints.html"
 export const NORMALIZED_WIDTH = 1100;
 export const NORMALIZED_HEIGHT = 321;
+export const NORMALIZED_STRAT = 174;
+export const NORMALIZED_FLAGATOB = 901;
 
 // These are the min and max normOffsetX values (refer to "ClickableImage.tsx") that allow for user to input a measurement number 
 // when user clicks on the dune transect image). These are calculated by subtracting the square root of the "maxSquare" value in 
 // the "getNearestIndex" function in "util.ts" from the minimum x value in "sampleLocations" below and adding the value to the 
 // maximum x value in "sampleLocations."
 export const NORMALIZED_CREST_RANGE = {min: 209, max: 1089} // {209 = 229 - sqrt(400)}, {1089 = 1069 + sqrt(400)}
-export const INDEX_LENGTH = 20;
+export const INDEX_LENGTH = 21;
 export const SCALAR_X_VAL = 135;
 export const NUM_OF_LOCATIONS = 22;
 export const NUM_MEASUREMENTS = 3;
@@ -394,7 +396,7 @@ export const shearChartOption = {
               position: 'bottom',
               scaleLabel: {
                 display: true,
-                labelString: 'Distance'
+                labelString: 'Normalized Distance from flag A to flag B'
               },
               ticks: {
                 min: 10,

@@ -325,9 +325,9 @@ export default function Main() {
           <textarea placeholder='e.g., 3 4 5' id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
           <br />
-          Location (type 1 location value corresponding to distance downslope in meters, must be between 10-130):
+          Location (type 1 location value corresponding to normalized distance from Flag A, must be between 0-1):
           <br />
-          <textarea placeholder='e.g., 10' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
+          <textarea placeholder='e.g., 0.5' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>
   </div>
 
@@ -636,7 +636,7 @@ export default function Main() {
         var splittedStrength = stringStrengthData.split(" ");
         const strengthNumArr = splittedStrength.map(Number);
 
-        const newLocationData = Math.floor((Number(userLocationData) - 10) / 6);
+        const newLocationData = Math.floor(Number(userLocationData) * 21);
         // console.log('newLocationData:', newLocationData);
 
         const newSample : Sample = {
@@ -752,13 +752,13 @@ export default function Main() {
   // Right panel to display when collecting data, sampleState != FINISH_TRANSECT
   const collectionRightPanel = (
     <div className="collectionRightPanel">
-      {/* <ImgAlert open={!!showImgAlert} />
+      <ImgAlert open={!!showImgAlert} />
       <Tooltip title={userFeedbackState !== UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
             <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
-      </Tooltip> */}
-      <PositionChart />
+      </Tooltip>
+      {/* <PositionChart /> */}
       {!loadingRobotSuggestions && (
         <div
           className={

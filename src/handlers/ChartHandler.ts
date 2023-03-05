@@ -35,8 +35,8 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
 
     // Map x value from just the section of the slope to [0, 1]
     // const xVal = SCALAR_X_VAL * (row.index) / INDEX_LENGTH;
-    // const xVal = 10 + 6 * row.index;
-    const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
+    const xVal = row.index/INDEX_LENGTH;
+    // const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
     const xPos = row.index / 22; // 22 indexes per transect
     console.log("Current Index: ", row.index);
     console.log("Current xVal: ", xVal);
@@ -106,7 +106,7 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
   positionChartOption.options.scales.xAxes[0].ticks = { min: 0, max: 1, stepSize: 0.1 }; // CHART IMAGE X AXIS TICKS FOR DISTANCE
   positionChartOption.options.scales.yAxes[0].ticks = { min: 0, max: 2 };
 
-  shearChartOption.options.scales.xAxes[0].ticks = { min: -0.1, max: 1.1 };
+  shearChartOption.options.scales.xAxes[0].ticks = { min: -0.02, max: 1 };
   shearChartOption.options.scales.yAxes[0].ticks = { min: minShear, max: maxShear };
   moistChartOption.options.scales.xAxes[0].ticks = { min: -0.1, max: 1.1 };
   moistChartOption.options.scales.yAxes[0].ticks = { min: minMoisture, max: maxMoisture };
