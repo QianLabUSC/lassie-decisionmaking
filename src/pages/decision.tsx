@@ -755,7 +755,7 @@ export default function Main() {
       <ImgAlert open={!!showImgAlert} />
       <Tooltip title={userFeedbackState !== UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
-            <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
+            <ClickableImage width={600} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
       </Tooltip>
       {/* <PositionChart /> */}

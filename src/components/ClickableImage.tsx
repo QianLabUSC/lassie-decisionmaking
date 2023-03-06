@@ -26,15 +26,15 @@ const useStyles = makeStyles({
   },
   image: {
     borderRadius: 4,
-    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
-    width: "70vw",
+    // boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
+    // width: "70vw",
     display: "block",
     margin: "auto",
   },
   imageDecision: {
     borderRadius: 4,
-    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
-    width: "45vw",
+    // boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
+    width: "41vw",
     display: "block",
     margin: "auto",
   },
@@ -87,11 +87,13 @@ export default function ClickableImage({
   // height if it is run immediately, which would cause all the PositionIndicator labels to initially show up at the top
   // of the ClickableImage until another render.
   const [height, setHeight] = useState(0);
+  const [imgWidth, setImgWidth] = useState(0);
 
   const mid = height - height / 2;
   setTimeout(() => {
     if (imgEl) {
       setHeight(imgEl.getBoundingClientRect().height);
+      setImgWidth(imgEl.getBoundingClientRect().width);
     }
   }, 300);
   // This adjusts the PositionIndicator labels for when the window size changes
@@ -99,6 +101,7 @@ export default function ClickableImage({
     function timer() {
       if (imgEl) {
         setHeight(imgEl.getBoundingClientRect().height);
+        setImgWidth(imgEl.getBoundingClientRect().width);
       }
     }
     window.addEventListener("resize", timer);
@@ -117,7 +120,7 @@ export default function ClickableImage({
     // imgEl.getBoundingClientRect().x gets the x coordinate of the left boundary of the image
     // imgEl.getBoundingClientRect().y gets the y coordinate of the top boundary of the image
     // imgEl.getBoundingClientRect().height gets the height of the image
-    const { x, y, height } = imgEl!.getBoundingClientRect();
+    const { x, y, height, width } = imgEl!.getBoundingClientRect();
 
     // offsetX and offsetY represent the coordinates of the mouse click position with the whitespace to the left and top
     // and of the image (between the image and the edges of the viewport) removed
@@ -220,7 +223,12 @@ export default function ClickableImage({
         return (
           <PositionIndicator
             key={sampleIdx}
-            left={((NORMALIZED_FLAGATOB) * (index / INDEX_LENGTH) + NORMALIZED_STRAT) *  (height / NORMALIZED_HEIGHT)}
+            left={
+              (index / INDEX_LENGTH) * (imgWidth - 1)
+              // (NORMALIZED_FLAGATOB * (index / INDEX_LENGTH) +
+              //   NORMALIZED_STRAT) *
+              // (height / NORMALIZED_HEIGHT)
+            }
             top={height - height / 2}
             rowIndex={sampleIdx}
             isHovered={isHovered}
@@ -233,7 +241,11 @@ export default function ClickableImage({
       {
         <PositionIndicatorRhex
           left={
-            ((NORMALIZED_FLAGATOB) * (samples[samples.length - 1].index / INDEX_LENGTH) + NORMALIZED_STRAT) *  (height / NORMALIZED_HEIGHT)
+            (samples[samples.length - 1].index / INDEX_LENGTH) * (imgWidth - 1)
+            // (NORMALIZED_FLAGATOB *
+            //   (samples[samples.length - 1].index / INDEX_LENGTH) +
+            //   NORMALIZED_STRAT) *
+            // (height / NORMALIZED_HEIGHT)
           }
           top={height - height / 2 - 30}
         />
@@ -245,7 +257,12 @@ export default function ClickableImage({
             key={
               suggestion.index + suggestion.normOffsetX + suggestion.normOffsetY
             }
-            left={((NORMALIZED_FLAGATOB) * (suggestion.index / INDEX_LENGTH) + NORMALIZED_STRAT) *  (height / NORMALIZED_HEIGHT)}
+            left={
+              (suggestion.index / INDEX_LENGTH) * (imgWidth - 1)
+              // (NORMALIZED_FLAGATOB * (suggestion.index / INDEX_LENGTH) +
+              //   NORMALIZED_STRAT) *
+              // (height / NORMALIZED_HEIGHT)
+            }
             top={height - height / 2}
             rowIndex={rowIndex}
             isHovered={suggestion.isHovered}
