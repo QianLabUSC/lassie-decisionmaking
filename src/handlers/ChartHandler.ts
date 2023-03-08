@@ -107,7 +107,7 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
   positionChartOption.options.scales.yAxes[0].ticks = { min: 0, max: 2 };
 
   shearChartOption.options.scales.xAxes[0].ticks = { min: -0.02, max: 1 };
-  shearChartOption.options.scales.yAxes[0].ticks = { min: minShear, max: maxShear };
+  shearChartOption.options.scales.yAxes[0].ticks = { min: minShear, max: 12 };
   moistChartOption.options.scales.xAxes[0].ticks = { min: -0.1, max: 1.1 };
   moistChartOption.options.scales.yAxes[0].ticks = { min: minMoisture, max: maxMoisture };
   shearMoistChartOption.options.scales.xAxes[0].ticks = { min: minMoisture, max: maxMoisture };
