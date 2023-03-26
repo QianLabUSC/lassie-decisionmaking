@@ -64,7 +64,7 @@
             background-color: $lightGray;
             box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
             height: 100%;
-            width: 47vw;
+            width: 100%;
 
             .collectionRightPanel {
                 padding-top: 2vh;
@@ -174,8 +174,11 @@
                 box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
             }
             .clickableImageContainer {
-                width: min-content;
+                background-color: white;
+                padding: 2vw;
+                width:max-content;
                 margin: auto;
+                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
             }
             .buttonList {
                 text-align: center;
@@ -210,8 +213,8 @@
 
             .user-feedback {
                 width: 90%;
-                height: 39vh;
-                max-height: 50vh;
+                // height: 39vh;
+                // max-height: 50vh;
                 padding-left: 2vh;
                 padding-right: 2vh;
                 padding-top: 1vh;
