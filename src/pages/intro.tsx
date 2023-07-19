@@ -13,7 +13,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
-const singleTransectNullHypothesis = require('../../assets/John Ruck Strength Hypothesis.png');
+const singleTransectNullHypothesis = require('../../assets/hypo.png');
 
 export default function Intro(props) {
     const history = useHistory();
@@ -67,9 +67,53 @@ export default function Intro(props) {
 
     const pages = [
         // Panel 0
-        // <div className="introCard">
-        //     {/* <ConsentPanel onCompletion={onNextClick}/> */}
-        // </div>,
+        <div className="introCard">
+            <div className="page1 contentWrapper">
+                <div className="contentContainer">
+                    {/* <img src={robotDesertGif} className="robotGif"/> */}
+                    {/* <div className="text">
+                        <p>
+                            The mobile hexapod robot RHex needs your help testing a hypothesis about the relationship 
+                            between sand strength and moisture at White Sands National Monument in New Mexico.
+                        </p>
+                        <p>
+                            RHex has already collected some strength and moisture data at a dune. Strength was measured 
+                            by mechanical resistance to shear (dragging) during robot leg-soil interactions and moisture 
+                            was measured using a probe attached to the robot.
+                        </p>
+                    </div> */}
+
+                    <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/> 
+
+                    {/* <div className="text">
+                        <p>
+                            Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
+                            crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
+                            sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
+                            as moisture continues to increase.
+                        </p>
+                    </div> */}
+
+                    <div className="hypothesisBlock">
+                        <div className="hypothesisTitle"><strong>Initial Strength Hypothesis</strong></div>
+                        <div className="hypothesisText">
+                            Provide a ranking of your initial certainty that this hypothesis will be supported or refuted. If you have no initial preference, simply select "I am unsure":
+                        </div>
+                        <FormControl>
+                            <Select
+                                style={{fontSize: '1.5vh'}}
+                                value={initialHypo + 3}
+                                onChange={event => handleResponse(Number(event.target.value) - 3)}>
+                                {
+                                    initialConfidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
+                                }
+                            </Select>
+                        </FormControl>
+                    </div>
+                </div>
+            </div>
+            { buttonRow }
+        </div>,
  
         // Panel 1
         <div className="introCard">
