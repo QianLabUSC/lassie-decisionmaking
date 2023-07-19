@@ -7,6 +7,7 @@ import ProgressBar from '../components/ProgressBar';
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { useStateValue, Action } from '../state';
 import { initialConfidenceTexts } from '../constants';
+import { intialMultiobjectiveTexts } from '../constants';
 import "../styles/intro.scss";
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -19,6 +20,7 @@ export default function Intro(props) {
     const history = useHistory();
     const [globalState, dispatch] = useStateValue();
     const { initialHypo } = globalState;
+    const { initialobjectivePattern } = globalState;
     const [currentPage, setCurrentPage] = useState(0);
     const [animationDirection, setAnimationDirection] = useState("Right");
     const pageCount = 2;
@@ -65,8 +67,20 @@ export default function Intro(props) {
         });
     }
 
+    const handleobjectiveResponse = (value: any) => {
+        dispatch({ 
+            type: Action.SET_OBJECTIVE_PATTERN, 
+            value: value 
+        });
+    }
+
     const pages = [
         // Panel 0
+        // <div className="introCard">
+        //     {/* <ConsentPanel onCompletion={onNextClick}/> */}
+        // </div>,
+ 
+        // Panel 1
         <div className="introCard">
             <div className="page1 contentWrapper">
                 <div className="contentContainer">
@@ -110,51 +124,18 @@ export default function Intro(props) {
                             </Select>
                         </FormControl>
                     </div>
-                </div>
-            </div>
-            { buttonRow }
-        </div>,
- 
-        // Panel 1
-        <div className="introCard">
-            <div className="page1 contentWrapper">
-                <div className="contentContainer">
-                    {/* <img src={robotDesertGif} className="robotGif"/> */}
-                    {/* <div className="text">
-                        <p>
-                            The mobile hexapod robot RHex needs your help testing a hypothesis about the relationship 
-                            between sand strength and moisture at White Sands National Monument in New Mexico.
-                        </p>
-                        <p>
-                            RHex has already collected some strength and moisture data at a dune. Strength was measured 
-                            by mechanical resistance to shear (dragging) during robot leg-soil interactions and moisture 
-                            was measured using a probe attached to the robot.
-                        </p>
-                    </div> */}
-
-                    <img src={singleTransectNullHypothesis} className="nullHypothesisImg"/> 
-
-                    {/* <div className="text">
-                        <p>
-                            Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
-                            crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
-                            sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
-                            as moisture continues to increase.
-                        </p>
-                    </div> */}
-
-                    <div className="hypothesisBlock">
-                        <div className="hypothesisTitle"><strong>Initial Strength Hypothesis</strong></div>
-                        <div className="hypothesisText">
-                            Provide a ranking of your initial certainty that this hypothesis will be supported or refuted. If you have no initial preference, simply select "I am unsure":
+                    <div className="multiobjectiveBlock">
+                        <div className="multiobjectiveTitle"><strong>Multiple objective pattern</strong></div>
+                        <div className="multiobjectiveText">
+                        When you held multiple beliefs, how did you resolve them?
                         </div>
                         <FormControl>
                             <Select
                                 style={{fontSize: '1.5vh'}}
-                                value={initialHypo + 3}
-                                onChange={event => handleResponse(Number(event.target.value) - 3)}>
+                                value={initialobjectivePattern}
+                                onChange={event => handleobjectiveResponse(Number(event.target.value))}>
                                 {
-                                    initialConfidenceTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
+                                    intialMultiobjectiveTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
                                 }
                             </Select>
                         </FormControl>

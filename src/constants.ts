@@ -192,6 +192,12 @@ export const initialConfidenceTexts = [
   'I am highly certain this hypothesis will be supported'
 ];
 
+export const intialMultiobjectiveTexts = [
+  'I focused on one-at-a-time. I selected a sampling location that addressed my most important belief.',
+  'I weighted my beliefs. I addressed my most important belief first, and then selected from these a location that also addressed my second belief.',
+  'I did not weight my beliefs. I selected a sampling location that addressed my multiple beliefs simultaneous',
+];
+
 export const confidenceTexts = [
   'I am highly certain this hypothesis is refuted',
   'I am moderately certain this hypothesis is refuted',

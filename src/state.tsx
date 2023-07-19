@@ -42,6 +42,7 @@ export interface IState {
   userSteps: UserStepsData[], // will be in final output after survey is completed
   // Hypothesis fields
   initialHypo: number, // will be in final output after survey is completed
+  initialobjectivePattern: number 
   finalHypo: number, // will be in final output after survey is completed
   // Chart fields
   chart: Charts,
@@ -95,6 +96,7 @@ export const initialState : IState = {
   },
   userSteps: [],
   initialHypo: 0,
+  initialobjectivePattern: 0, 
   finalHypo: 0,
   chart: null,
   chartSettings: {
@@ -156,6 +158,7 @@ export enum Action {
   SET_NUM_SUBMIT_CLICKS,
   /** FINISH */
   SET_INIT_HYPO_CONFIDENCE,
+  SET_OBJECTIVE_PATTERN,
   SET_FINAL_HYPO_CONFIDENCE,
   SET_CHART,
   SET_CHART_SETTINGS,
@@ -184,6 +187,7 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_SAMPLES]: 'samples',
   [Action.SET_CURR_USER_STEP]: 'currUserStep',
   [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
+  [Action.SET_OBJECTIVE_PATTERN]: 'initialobjectivePattern',
   [Action.SET_FINAL_HYPO_CONFIDENCE]: 'finalHypo',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
