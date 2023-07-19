@@ -71,7 +71,7 @@
             }
 
             .nullHypothesisImg {
-                height: 52.5vh;
+                height: 45vh;
                 margin: auto;
                 padding-left: 2%;
 
@@ -79,7 +79,7 @@
 
             .hypothesisBlock {
                 position: absolute;
-                top: 70%;
+                top: 60%;
                 text-align: left;
                 clear: both;
                 width: 80%;
@@ -97,6 +97,27 @@
                 }
             }
             .hypothesisBlock:last-child { margin: 0; }
+
+            .multiobjectiveBlock {
+                position: absolute;
+                top: 75%;
+                text-align: left;
+                clear: both;
+                width: 80%;
+                padding-top: 1vh;
+                padding-left: 10%;
+                margin-bottom: 5vh;
+                .multiobjectiveTitle {
+                    font-size: 2vh;
+                    color: #114B5F;
+                    font-family: Helvetic, sans-serif;
+                    margin-bottom: 2px;
+                }
+                .multiobjectiveText {
+                    font-size: 1.8vh;
+                }
+            }
+            .multiobjectiveBlock:last-child { margin: 0; }
 
         }
 
