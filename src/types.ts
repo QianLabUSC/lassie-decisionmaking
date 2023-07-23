@@ -105,7 +105,7 @@ export interface UserStepsData {
 
 /** Interface for the samples collected */
 export interface Sample {
-  index: number, // In range [0, 21]
+  index: number, // In range [0, 1]
   type: 'initial' | 'robot' | 'user',
   measurements: number,
   normOffsetX: number,
@@ -118,7 +118,7 @@ export interface Sample {
 
 /** Interface for the samples collected */
 export interface PreSample {
-  index: number, // In range [0, 21]
+  index: number, // In range [0, 1]
   type: 'initial' | 'robot' | 'user',
   measurements: number,
   normOffsetX: number,

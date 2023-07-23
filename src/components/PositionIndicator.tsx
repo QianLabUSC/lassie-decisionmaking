@@ -91,6 +91,7 @@ export default function PositionIndicator({ left, top, type, rowIndex, isHovered
       }
     });
   };
+  // console.log(locationColors)
 
   return (
     <span onMouseEnter={() => onHover(true)} onMouseLeave={() => onHover(false)}
@@ -112,7 +113,7 @@ export default function PositionIndicator({ left, top, type, rowIndex, isHovered
             borderBottom: `1.5vh solid ${locationColors[locationIndex]}`,
         }}>
       </span>}
-        {robot && <span className="content" style={{ color: theme.palette.secondary.main, fontSize: '2.5vh', transform: 'translate(-70%, 0%)' }}>{String.fromCharCode(rowIndex + 65)}
+        {robot && <span className="content" style={{ color: theme.palette.secondary.main, fontSize: '2.5vh', transform: 'translate(-70%, -140%)' }}>{String.fromCharCode(rowIndex + 65)}
       </span>}
     </span>
   );

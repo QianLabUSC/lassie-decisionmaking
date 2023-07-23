@@ -12,10 +12,10 @@ export const NORMALIZED_FLAGATOB = 901;
 // the "getNearestIndex" function in "util.ts" from the minimum x value in "sampleLocations" below and adding the value to the 
 // maximum x value in "sampleLocations."
 export const NORMALIZED_CREST_RANGE = {min: 209, max: 1089} // {209 = 229 - sqrt(400)}, {1089 = 1069 + sqrt(400)}
-export const INDEX_LENGTH = 21;
+export const INDEX_LENGTH = 1;
 export const SCALAR_X_VAL = 135;
 export const NUM_OF_LOCATIONS = 22;
-export const NUM_MEASUREMENTS = 3;
+export const NUM_MEASUREMENTS = 1;
 export const MAX_NUM_OF_MEASUREMENTS = 30;
 export const MAX_NUM_OF_TRANSECTS = 5;
 export const POPOVER_TIME = 3000;
@@ -270,7 +270,7 @@ export const positionChartOption = {
     options: {
         title: {
           display: true,
-          text: "Distance between Flag A and B",
+          text: "Ice content level",
           fontStyle: "bold"
         },
         responsive: true,
@@ -319,7 +319,7 @@ export const positionChartOption = {
           id: 'shear',
           scaleLabel: {
             display: true,
-            labelString: 'Strength (N)'
+            labelString: 'Stiffness (N/CM)'
           },
           ticks: {
             min: 0,
@@ -371,7 +371,7 @@ export const shearChartOption = {
           backgroundColor(context) {
             const { dataIndex, dataset } = context;
             const point = dataset.data[dataIndex];
-            return locationColors[point.index];
+            return locationColors[Math.floor(point.index*22)];
           }
         }
       },
@@ -390,7 +390,7 @@ export const shearChartOption = {
             id: 'shear',
             scaleLabel: {
               display: true,
-              labelString: 'Strength (N)'
+              labelString: 'Stiffness (N/CM)'
             },
             ticks: {
               min: 0,
@@ -402,7 +402,7 @@ export const shearChartOption = {
               position: 'bottom',
               scaleLabel: {
                 display: true,
-                labelString: 'Normalized Distance from flag A to flag B'
+                labelString: 'Normalized Ice Content'
               },
               ticks: {
                 min: 10,
@@ -735,7 +735,7 @@ export enum UserFeedbackState {
 export const objectiveOptions = [
   "There are areas along the hillslope transect where data is needed", // Option 0 - spatial coverage algorithm
   "There is a discrepancy between the strength data and the strength hypothesis that needs additional evaluation", // Option 1 - hypo invalidating algorithm
-  "The strength data seems to be supporting the strength hypothesis so far but additional evaluation is needed", // Option 2 - hypo validating algorithm
+  // "The strength data seems to be supporting the strength hypothesis so far but additional evaluation is needed", // Option 2 - hypo validating algorithm
 ]
 
 export const acceptFollowUpOptions = [

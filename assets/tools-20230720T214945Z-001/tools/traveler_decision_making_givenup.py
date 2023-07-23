@@ -10,6 +10,52 @@ import numpy as np
 # from env_wrapper import *
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKernel
+
+
+'''Generates a Gaussian estimation using Gaussian Process Regression.
+Args:
+x: Input variable.
+y: Response variable.
+prediction_range: Range on which to make predictions.
+optimizer: Optimization method for kernel hyperparameters.
+noise_level: Noise level in data.
+length_scale: Length scale parameter for RBF kernel.
+sigma_f: Signal variance parameter for RBF kernel.
+
+Returns:
+y_pred: Predicted responses.
+information: Uncertainty measure (calculated using prediction standard deviation).
+y_std: Standard deviation of the predictions.
+'''
+def Gaussian_Estimation(x, y, prediction_range,  optimizer, noise_level, length_scale, sigma_f):
+
+    # Define the kernel
+    noise_level = noise_level
+    length_scale = length_scale
+    sigma_f = sigma_f * sigma_f
+    kernel = C(sigma_f) * RBF(length_scale) + WhiteKernel(noise_level)
+       
+    # Instantiate the Gaussian Process Regressor
+    if(not optimizer):
+        gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=0, random_state=0, optimizer=None)
+    else:
+        gp = GaussianProcessRegressor(kernel=kernel)
+    x = np.array([x])
+    x = x.T
+    # Fit the model to the data
+    gp.fit(x, y)
+
+    # Make predictions on new data points
+    X_new = np.array([prediction_range])
+    X_new = X_new.T
+    y_pred, y_std = gp.predict(X_new, return_std=True)
+    information = np.exp(-np.square(y_std))
+    return y_pred, information, y_std
+
+
 '''generate random gaussian variable
 Args:
     mean: the mean of gaussian variable
@@ -53,16 +99,15 @@ Returns:
 '''
 
 
-def hypofit(xx, yy, zz):
+def hypofit(xx, yy):
 
     P0 = [8, 0.842, 9.5]
     lb = [0, 0, 0]
     ub = [20, 5, 20]
 
     Pfit, covs = curve_fit(model, xx, yy, P0, bounds=(lb, ub))
-    xfit = np.linspace(-1, 17, 19)
+    xfit = np.linspace(1, 22, 220)
     unique_x = np.unique(xx)
-    loc = np.unique(zz)
 
     RMSE_average = [0] * len(unique_x)
     RMSE_spread = [0] * len(unique_x)
@@ -75,21 +120,10 @@ def hypofit(xx, yy, zz):
             np.mean(yy_finded) -
             np.mean(model(xx_finded, Pfit[0], Pfit[1], Pfit[2]))))
         RMSE_spread[i] = np.std(yy_finded, ddof=1)
-    x_detail_fit = np.linspace(-1, 17, 190)
+    
     xx_model = model(xfit, Pfit[0], Pfit[1], Pfit[2])
-    xx_detail_model = model(x_detail_fit, Pfit[0], Pfit[1], Pfit[2])
 
-    output = {
-        'loc': loc.tolist(),
-        'err': RMSE_average,
-        'spread': RMSE_spread,
-        'xfit': xfit.tolist(),
-        'xx_model': xx_model,
-        'Pfit': Pfit.tolist()
-    }
-
-    return loc, RMSE_average, RMSE_spread, xfit, xx_model, Pfit,\
-            x_detail_fit, xx_detail_model, model
+    return RMSE_average, RMSE_spread, xfit, xx_model, Pfit, model
 
 
 '''the hypothesis model function
@@ -259,7 +293,6 @@ class DecisionMaking:
     '''
     update the user's belief toward the hypothesis
     '''
-
     def update_belief(self, belief, confidence):
         self.current_belief = belief
         self.current_confidence = confidence
@@ -272,7 +305,6 @@ class DecisionMaking:
                len(sample) = 3, then the size of moisture should be 4 * 3
     @shearstrength: an numpy array of shear strength, similar as moisture
     '''
-
     def update_current_state(self, location, sample, moisture, shear_strenth):
         location = np.array(location)
         sample = np.array(sample)
@@ -293,6 +325,12 @@ class DecisionMaking:
         # print(self.current_state_sample)
         self.current_state_moisture = integrated_moisture
         self.current_state_shear_strength = integrated_shearstrength
+
+        # variables for gaussian methods
+        self.location_flattend = location.flatten()
+        self.sample_flattend = sample.flatten()
+        self.moisture_flattend = moisture.flatten()
+        self.shearstrength_flattend = shear_strengh.flatten()
 
     '''
     compute the spatial reward coverage 
@@ -472,9 +510,8 @@ class DecisionMaking:
         a = np.nonzero(countMoist)
         moistcoverage = len(np.nonzero(countMoist)[0]) / moisture_bins.size
         if (moistcoverage > MinCoverage):
-            loc, RMSE_average, RMSE_distribution, self.xfit, self.xx_model,\
-                self.Pfit, self.x_detail_fit, self.xx_detail_model,\
-                self.model = hypofit(xx_sorted, yy_sorted, zz_sorted)
+            RMSE_average, RMSE_distribution, self.xfit, self.xx_model,\
+                self.Pfit, self.model = hypofit(xx_sorted, yy_sorted)
         else:
             xx_unique = np.unique(xx_sorted)
             self.xx_model = 0.5 * np.ones(len(moisture_bins))
@@ -500,8 +537,8 @@ class DecisionMaking:
         shearstrength_max = np.zeros(190)
         shearstrength_std_each = np.zeros(190)
 
-        for i in range(len(self.x_detail_fit)):
-            if (self.x_detail_fit[i] <= xx_mean[0]):
+        for i in range(len(self.xfit)):
+            if (self.xfit[i] <= xx_mean[0]):
                 moisture_mean = xx_mean[0]
                 shearstrength_mean = yy_mean[0]
                 shearstrength_std = yy_std[0]
@@ -524,10 +561,10 @@ class DecisionMaking:
                 std_f_font = interp1d([-1, xx_mean[0]],
                                       [std_moisture_font, shearstrength_std],
                                       kind='linear')
-                shearstrength_predict[i] = f_font(self.x_detail_fit[i])
+                shearstrength_predict[i] = f_font(self.xfit[i])
 
-                shearstrength_std_each[i] = std_f_font(self.x_detail_fit[i])
-            elif (self.x_detail_fit[i] >= xx_mean[len(xx_mean) - 1]):
+                shearstrength_std_each[i] = std_f_font(self.xfit[i])
+            elif (self.xfit[i] >= xx_mean[len(xx_mean) - 1]):
                 moisture_mean = xx_mean[len(xx_mean) - 1]
                 shearstrength_mean = yy_mean[len(xx_mean) - 1]
                 shearstrength_std = yy_std[len(xx_mean) - 1]
@@ -550,13 +587,13 @@ class DecisionMaking:
                 std_f_end = interp1d([xx_mean[len(xx_mean) - 1], 18],
                                      [shearstrength_std, std_moisture_end],
                                      kind='linear')
-                shearstrength_predict[i] = f_end(self.x_detail_fit[i])
-                shearstrength_std_each[i] = std_f_end(self.x_detail_fit[i])
+                shearstrength_predict[i] = f_end(self.xfit[i])
+                shearstrength_std_each[i] = std_f_end(self.xfit[i])
             else:
                 f = interp1d(xx_mean, yy_mean, kind='linear')
                 f_std = interp1d(xx_mean, yy_std, kind='linear')
-                shearstrength_predict[i] = f(self.x_detail_fit[i])
-                shearstrength_std_each[i] = f_std(self.x_detail_fit[i])
+                shearstrength_predict[i] = f(self.xfit[i])
+                shearstrength_std_each[i] = f_std(self.xfit[i])
         #print("Dafdsafdasfas", shearstrength_std_each)
         shearstrength_std_each[np.where(shearstrength_std_each < 0)] = 0
         shearstrength_std_each[np.where(shearstrength_std_each > 1)] = 1
@@ -629,6 +666,38 @@ class DecisionMaking:
         self.discrepancy_coverage = R_d_set / 3
         self.discrepancy_reward = R_d_set / 3
 
+
+
+    def handle_spatial_information_gaussian(self):
+        y_pred, information, y_std = Gaussian_Estimation(self.location_flattend,
+                         self.shearstrength_flattend, np.linspace(1, 22, 220), 
+                         False, 1, 5, 10)
+        self.information_gaussian
+        return self.information_gaussian
+    
+
+    def handle_discrepancy_gaussian(self):
+        y_pred, information, y_std = Gaussian_Estimation(self.location_flattend,
+                         self.shearstrength_flattend, np.linspace(1, 22, 220), 
+                         True, 1, 5, 10)
+        location = self.current_state_location
+       
+        try:
+            RMSE_average, RMSE_distribution, self.xfit, self.xx_model, self.Pfit, self.model \
+                = hypofit(self.location_flattend, self.shearstrength_flattend)
+        except:
+            self.xx_model = np.mean(self.shearstrength_flattend) * np.ones(220)
+            self.xfit = np.linspace(1, 22, 220)
+            self.Pfit = [-1,-1,-1]
+
+        self.discrepancy_gaussian = np.abs(y_std - self.xx_model)
+        if(self.Pfit[2] == -1):
+            self.feature_gaussian = gauss(self.Pfit[2], 0, np.linspace(1, 22, 220), 5)
+        else:
+            self.feature_gaussian = gauss(self.Pfit[2], 1, np.linspace(1, 22, 220), 5)
+        return self.discrepancy_gaussian, self.feature_gaussian
+
+        
     # give the final suggested location choice and then pass it to user
     # user interface
     def calculate_suggested_location(self):
@@ -823,9 +892,9 @@ def plot(Traveler_DM, Traveler_ENV, sequence, location, sample, mm, erodi,
     plt.savefig('./figs_test/' + "num" + str(len(sequence)) + str(sequence))
 
 
-def deploy_plot(Traveler_DM, sequence, location, sample, mm, erodi, results, suggestions):
+def deploy_plot(Traveler_DM, sequence, location, sample, mm, erodi, results): # , suggestions):
     ### plot the state transition graph
-    plt.rcParams['font.sans-serif'] = ['Times New Roman']
+    #plt.rcParams['font.sans-serif'] = ['Times New Roman']
     plt.rcParams.update({'font.size': 36})
     fig, axs = plt.subplots(2, 1, figsize=(25, 25))
     x = np.linspace(1, 20, 20)
@@ -856,17 +925,18 @@ def deploy_plot(Traveler_DM, sequence, location, sample, mm, erodi, results, sug
                     c="red",
                     markersize=10)
 
-    axs[1].plot(suggestions,-
+    '''axs[1].plot(suggestions,-
                     1 * np.ones(len(suggestions)),
                     'o',
                     c="green",
-                    markersize=10)
+                    markersize=10) '''
     
  
     axs[1].plot(Traveler_DM.xfit[index_min:index_max],
                 Traveler_DM.mean_variable_each[index_min:index_max],
                 c="green",
                 linewidth=3)
+    #print(Traveler_DM.xfit[index_min:index_max],Traveler_DM.mean_variable_each[index_min:index_max],Traveler_DM.std_variable_each[index_min:index_max])
     axs[1].fill_between(Traveler_DM.xfit[index_min:index_max],
                         Traveler_DM.mean_variable_each[index_min:index_max] +
                         3 * Traveler_DM.std_variable_each[index_min:index_max],
@@ -983,6 +1053,56 @@ def deploy_plot(Traveler_DM, sequence, location, sample, mm, erodi, results, sug
     # # plt.show()
     plt.savefig('./figs_test/' + "num" + str(len(sequence)) + str(sequence))
 
+
+
+def deploy_plot_Gaussian(Traveler_DM, sequence, location, sample, mm, erodi, results,gausLoc,gausShear): 
+    ### plot the state transition graph
+    #plt.rcParams['font.sans-serif'] = ['Times New Roman']
+    plt.rcParams.update({'font.size': 36})
+    fig, axs = plt.subplots(2, 1, figsize=(25, 25))
+    x = np.linspace(1, 20, 20)
+    index_min = min(Traveler_DM.current_state_location)
+    index_max = max(Traveler_DM.current_state_location)
+    axs[0].plot(Traveler_DM.xfit[index_min:index_max],
+                Traveler_DM.discrepancy_reward[index_min:index_max],
+                linewidth=3,
+                c="black")
+    axs[0].plot(Traveler_DM.xfit[index_min:index_max],
+                Traveler_DM.discrepancy_reward[index_min:index_max],
+                linewidth=3,
+                c="blue")
+    axs[0].set_xlim([-1,22])
+    axs[0].set_title("num" + str(len(sequence)) + str(sequence))
+
+    axs[0].set_ylabel('Discrepancy reward')
+    axs[0].set_xlabel('location')
+    axs[1].plot(Traveler_DM.xfit[index_min:index_max],
+                Traveler_DM.xx_model[index_min:index_max],
+                linewidth=3,
+                c="black")
+
+    for i in range(len(Traveler_DM.current_state_location)):
+        axs[1].plot(Traveler_DM.current_state_location[i] * np.ones(3),
+                    Traveler_DM.current_state_shear_strength[i],
+                    'o',
+                    c="red",
+                    markersize=10)
+ 
+    axs[1].plot(Traveler_DM.xfit[index_min:index_max],
+                Traveler_DM.mean_variable_each[index_min:index_max],
+                c="green",
+                linewidth=3)
+
+    y_pred, information, y_std = Gaussian_Estimation(gausLoc, gausShear, np.linspace(1, 22, 220), False, 1, 5, 10)
+
+    plt.fill_between(np.linspace(1, 22, 220).ravel(), y_pred - 1.96*y_std , y_pred + 1.96*y_std , 
+                     alpha=0.5, color='green', label='Uncertainty')
+
+    axs[1].set_ylabel('Shear Strength')
+    axs[1].set_xlabel('Location')
+    axs[1].set_xlim([-1,22])
+
+    plt.savefig('./figs_test/' + "num" + str(len(sequence)) + str(sequence))
 
 if __name__ == '__main__':
     pass
