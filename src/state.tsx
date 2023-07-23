@@ -65,7 +65,7 @@ export interface IState {
 // Default initial state
 export const initialState : IState = {
   dataVersion: {
-    local: Math.round(Math.random()), // load alternative hypothesis 0 or 1 randomly for shear data
+    local: 0, // load alternative hypothesis 0 or 1 randomly for shear data
   },
   fullData: [],
   moistureData: [],

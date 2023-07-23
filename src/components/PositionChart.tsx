@@ -4,7 +4,7 @@ import ChartOptionsSummary from "../components/ChartOptionsSummary";
 import { useStateValue, Action, ChartDisplayMode } from "../state";
 import { initializeCharts, updateCharts } from "../handlers/ChartHandler";
 import "../styles/chartPanel.scss";
-
+import PositionIndicatorRhex from "./PositionIndicatorRhex";
 type ChartPanelMode = "TransectView" | "ConclusionView";
 
 const chartTabMap: { [key in ChartPanelMode]: string[] } = {
@@ -118,7 +118,7 @@ export default function PositionChart() {
               className={`chartTab chartTabSelected`}
               //   onClick={() => setCurrentTab(i)}
             >
-              Location Visualizaer
+              Visualizer
             </div>
           </div>
 
@@ -132,9 +132,21 @@ export default function PositionChart() {
               <canvas id={`positionChart${chartIDSuffix}`} />
             </div>
             <div className="labels">
-              <div className="flagA">A</div>
-              <div className="flagB">B</div>
+              <div className="flagA">ice content 0</div>
+              <div className="flagB">ice content 1</div>
             </div>
+            {
+            // <PositionIndicatorRhex
+            //   left={
+            //     (samples[samples.length - 1].index / INDEX_LENGTH) * (imgWidth - 1)
+            //     // (NORMALIZED_FLAGATOB *
+            //     //   (samples[samples.length - 1].index / INDEX_LENGTH) +
+            //     //   NORMALIZED_STRAT) *
+            //     // (height / NORMALIZED_HEIGHT)
+            //   }
+            //   top={height - height / 2 - 30}
+            // />
+          }
 
             {/* <span>Flag B</span> */}
           </div>

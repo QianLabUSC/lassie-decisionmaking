@@ -229,11 +229,11 @@ export default function ClickableImage({
               //   NORMALIZED_STRAT) *
               // (height / NORMALIZED_HEIGHT)
             }
-            top={height - height / 2}
+            top={height - height / 1.7}
             rowIndex={sampleIdx}
             isHovered={isHovered}
             type={type}
-            locationIndex={index}
+            locationIndex={Math.floor(index*22)}
             robot={false}
           />
         );
@@ -247,7 +247,7 @@ export default function ClickableImage({
             //   NORMALIZED_STRAT) *
             // (height / NORMALIZED_HEIGHT)
           }
-          top={height - height / 2 - 30}
+          top={height - height / 2 - 40}
         />
       }
       {showRobotSuggestions &&
@@ -263,11 +263,11 @@ export default function ClickableImage({
               //   NORMALIZED_STRAT) *
               // (height / NORMALIZED_HEIGHT)
             }
-            top={height - height / 2}
+            top={height - height / 1.7}
             rowIndex={rowIndex}
             isHovered={suggestion.isHovered}
             type={suggestion.type}
-            locationIndex={suggestion.index}
+            locationIndex={Math.floor(suggestion.index*22)}
             robot={true}
           />
         ))}

@@ -227,38 +227,56 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
   //console.log({locations, measurements, moistureValues, shearValues});
   let objective_pattern = globalState.initialobjectivePattern;
   // Compute the robot suggestions based on each objective (limit to 3 suggestions)
-  let robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues, objective_pattern);
-  let { spatial_selection, variable_selection, discrepancy_selection, discrepancy_low_selection, spatial_reward, variable_reward, discrepancy_reward } = robotSuggestions;
 
-  // Return the top 3 suggested locations unordered
-  let locs;
-
+  let objective_repre;
   switch (objectives[0].objective) {
     case objectiveOptions[0]: {
-      locs = spatial_selection;
+      if (objective_pattern == 0) {
+        objective_repre = 0; //info focused
+      } else if (objective_pattern == 1) {
+          objective_repre = 0.25; //info hier
+      } else {
+          objective_repre = 0.5; // trade off
+      }
+        
       break;
     }
     case objectiveOptions[1]: {
-      locs = discrepancy_selection;
+      if (objective_pattern == 0) {
+        objective_repre = 1; //disp focused
+      } else if (objective_pattern == 1) {
+          objective_repre = 0.75; //disp hier
+      } else {
+          objective_repre = 0.5; // trade off
+      }
       break;
     }
-    case objectiveOptions[2]: {
-      locs = discrepancy_low_selection;
-      break;
-    }
+    // case objectiveOptions[2]: {
+    //   locs = discrepancy_low_selection;
+    //   break;
+    // }
     // case objectiveOptions[3]: {
     //   locs = discrepancy_low_selection;
     //   break;
     // }
   }
-
+  let robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues, objective_repre);
+  console.log(robotSuggestions)
+  let final_suggestion = [robotSuggestions.final_suggestion]
+  let discrepancy_selection = [0.1,0.2,0.4]
+  let spatial_reward = []
+  let variable_reward = []
+  let discrepancy_reward = []
+  // Return the top 3 suggested locations unordered
+  let locs;
+  locs = final_suggestion;
   let results : PreSample[] = locs.map((loc) => {
     let suggestion : PreSample = {
       index: loc,
       type: 'robot',
       measurements: NUM_MEASUREMENTS,
-      normOffsetX: sampleLocations[loc][0],
-      normOffsetY: sampleLocations[loc][1],
+      normOffsetX: 300,
+      normOffsetY: 300,
       isHovered: false
     }
     return suggestion;
@@ -274,14 +292,14 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
   };
 }
 
-function flaskCalculations(locations: number[], measurements: number[], moistureValues: number[][], shearValues: number[][], objective_pattern: number) {
+function flaskCalculations(locations: number[], measurements: number[], moistureValues: number[][], shearValues: number[][], objective_repre: number) {
 
   let inputs = {
     locations : locations,
     measurements: measurements,
     moistureValues: moistureValues,
     shearValues: shearValues,
-    objective_pattern: objective_pattern
+    objective_repre: objective_repre
   }
   
   return new Promise((resolve, reject) => {
@@ -299,7 +317,7 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
       res => res.json()
     ).then(
       data => {
-        //console.log({data});
+        console.log({data});
         resolve(data);
       }
     ).catch((err) => {

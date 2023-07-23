@@ -318,14 +318,14 @@ export default function Main() {
 
   const typeInNewLocationData = 
   <div className="type-in-new-location-data" style={{marginBottom: '2vh'}}>
-        <div className="TypeInDataTitle"><strong>Enter strength and distance data</strong></div>
+        <div className="TypeInDataTitle"><strong>Enter stifness and ice content data</strong></div>
         <div>
-          Shear Strength (type 3 measurement values separated by a space):
+          Stiffness (type 1 stiffness values):
           <br />
-          <textarea placeholder='e.g., 3 4 5' id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
+          <textarea placeholder='e.g., 3' id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
           <br />
-          Location (type 1 location value corresponding to normalized distance from Flag A, must be between 0-1):
+          Ice content (type 1 ice content value, must be between 0-1):
           <br />
           <textarea placeholder='e.g., 0.5' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>
@@ -506,8 +506,9 @@ export default function Main() {
           } else {
             
             dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
-
+            console.log(samples)
             let robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
+
             const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
             dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
             dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
@@ -569,7 +570,7 @@ export default function Main() {
       }
       case UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION: {
         if (acceptOrReject !== acceptOrRejectOptions.length - 1) {
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA });        
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });        
         } else {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON });
           dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
@@ -632,21 +633,21 @@ export default function Main() {
 
         const {userStrengthData,userLocationData} = globalState;
         const stringStrengthData = String(userStrengthData);
-        // console.log("stringStrengthData", stringStrengthData);    
+        console.log("stringStrengthData", stringStrengthData);    
         var splittedStrength = stringStrengthData.split(" ");
         const strengthNumArr = splittedStrength.map(Number);
 
-        const newLocationData = Math.floor(Number(userLocationData) * 21);
-        // console.log('newLocationData:', newLocationData);
+        const newLocationData = Number(userLocationData);
+        console.log('newLocationData:', newLocationData);
 
         const newSample : Sample = {
             index: newLocationData,
             type: 'user',
-            measurements: 3,
+            measurements: 1,
             normOffsetX: 800,
             normOffsetY: 200,
             isHovered: false,
-            moisture: [13, 13, 13],
+            moisture: [13],
             shear: strengthNumArr
           };
         dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext

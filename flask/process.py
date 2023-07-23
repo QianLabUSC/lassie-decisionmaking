@@ -1,8 +1,8 @@
 import os
 import sys
-from traveler_decision_making import deploy_plot
-from high_path_planning import *
 sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/site-packages')
+from multiObjectiveDecisionMaking.decision_making import *
+from multiObjectiveDecisionMaking.multi_objective_tools import *
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -13,21 +13,7 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 # node_web_gui = Ros2NodeWebGui()
 # app.config['ros_node'] = node_web_gui
-# #Sample GET API Route
-# @app.route('/sample', methods=['GET'])
-# @cross_origin()
-# def sample():
-#     return {"outputs": ["Output1", "Output2", "Output3"]}
 
-def model(x, P1, P2, P3):
-    result = [0] * len(x)
-    for i in range(len(x)):
-        result[i] = P1 - P2 * max(P3 - x[i], 0)
-    return result
-
-@app.route("/abc")
-def hello_world():
-    return "<p>Hello, World!</p>"
 
 # backend decision making algorithm processing steps
 # requires a json object which contains list <location>, list <sample>
@@ -39,33 +25,48 @@ def hello_world():
 @cross_origin()
 def process():
     inputs = request.json
-    location = np.array(inputs['locations'])+1
+    location = np.array(inputs['locations'])
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
     erodi = np.array(inputs['shearValues'])
-    multi_objective_pattern = np.array(inputs['objective_pattern'])
+    multi_objective_pattern = np.array(inputs['objective_repre'])
     print('multi_objective_pattern:', multi_objective_pattern)
-    PathPlanning = TravelerHighPathPlanning()
-    output = PathPlanning.single_step_path_planning(location, sample, mm, erodi)
-    print("output locs: ", output)
+    print('location', location)
+    print('sample', sample)
+    print('mm',mm)
+    print('erodi', erodi)
+    DM = DecisionMaking()
+    DM.update_current_state(location, sample, mm, erodi)
+    info_gaussian, information_level, info_signal = DM.handle_spatial_information_gaussian()
+    disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model = DM.handle_discrepancy_direct_gaussian()
+    reward_vector = np.vstack((info_gaussian, disp_gaussian)).T
+    final_type, final_suggestion_index, suggestion_sets_index = run_multi_objective_odsf(
+                    reward_vector, information_level, multi_objective_pattern, 
+                    info_signal, disp_signal, noise_esti)
+    final_suggestion = DM.detailed_loc_flattend[final_suggestion_index]
+    suggestion_sets = DM.detailed_loc_flattend[suggestion_sets_index]
+    plot_test(DM.location_flattend, DM.detailed_loc_flattend,  DM.shearstrength_flattend, info_gaussian, information_level, info_signal,
+              disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model)
+    print("final_type: ", final_type)
+    print("final_suggestion: ", final_suggestion)
+    print("suggestion_sets: ", suggestion_sets)
+    output = {
+        'final_type': final_type,
+        'final_suggestion': final_suggestion,
+        'suggestion_sets': suggestion_sets.tolist(),
+        'info_gaussian': info_gaussian.tolist(),
+        'disp_gaussian': disp_gaussian.tolist(),
+        'information_level': information_level,
+        'info_signal': info_signal,
+        'noise_esti': noise_esti,
+        'disp_signal': disp_signal,
+
+    }
+    # output = findbestlocation(DM.location_flattend, info_gaussian, disp_gaussian, feature_gaussian)
     # app.config['ros_node'].publish_gui_information([0.2,0.1,0.1])
     # deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
     return jsonify(output)
     
-@app.route('/report', methods=['POST'])
-@cross_origin()
-def report():
-    inputs = request.json
-    location = np.array(inputs['locations'])+1
-    sample = np.array(inputs['measurements'])
-    mm = np.array(inputs['moistureValues'])
-    erodi = np.array(inputs['shearValues'])
-    print('erodi:', erodi)
-    PathPlanning = TravelerHighPathPlanning()
-    output = PathPlanning.single_step_path_planning(location, sample, mm, erodi)
-    print("output locs: ", output)
-    # deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
-    return jsonify(output)
     
 if __name__ == '__main__':
     
