@@ -146,7 +146,7 @@ def run_multi_objective_odsf(vector, info_level, human_reported_type,
         trade_off_location = info_hier_location
 
     suggestion_sets = np.array([info_focused_location, info_hier_location, trade_off_location, disp_focused_suggestion, disp_hier_location])
-
+    print(info_level)
     # applied final infor level decision
     if(info_level < 0.5):
         final_type = 0
