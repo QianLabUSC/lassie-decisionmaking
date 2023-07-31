@@ -38,15 +38,19 @@ def process():
     DM = DecisionMaking()
     DM.update_current_state(location, sample, mm, erodi)
     info_gaussian, information_level, info_signal = DM.handle_spatial_information_gaussian()
-    disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model = DM.handle_discrepancy_direct_gaussian()
+    disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model,\
+          gasussian_prediction, gaussian_uncertainty \
+            = DM.handle_discrepancy_direct_gaussian()
     reward_vector = np.vstack((info_gaussian, disp_gaussian)).T
     final_type, final_suggestion_index, suggestion_sets_index = run_multi_objective_odsf(
                     reward_vector, information_level, multi_objective_pattern, 
                     info_signal, disp_signal, noise_esti)
     final_suggestion = DM.detailed_loc_flattend[final_suggestion_index]
     suggestion_sets = DM.detailed_loc_flattend[suggestion_sets_index]
-    plot_test(DM.location_flattend, DM.detailed_loc_flattend,  DM.shearstrength_flattend, info_gaussian, information_level, info_signal,
-              disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model)
+    plot_test(DM.location_flattend, DM.detailed_loc_flattend,  
+              DM.shearstrength_flattend, info_gaussian, information_level,
+              info_signal, disp_gaussian, feature_gaussian, noise_esti, 
+              disp_signal, xx_model, gasussian_prediction, gaussian_uncertainty)
     print("final_type: ", final_type)
     print("final_suggestion: ", final_suggestion)
     print("suggestion_sets: ", suggestion_sets)

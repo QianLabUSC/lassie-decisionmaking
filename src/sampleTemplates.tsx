@@ -8,28 +8,33 @@ export const initialSamplesSet : Sample[][] = [
         { 
             index: 0, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
             moisture: [dataset.moisture[1][0]],
-            shear: [1.964],
+            shear: [2.0],
         },
         {   
-            index: 0.1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            index: 0.4, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0]],
-            shear: [2.85],
+            shear: [4.2],
         },
         {   
-            index: 0.3, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            index: 0.6, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0]],
-            shear: [3.056],
+            shear: [4.21],
         },
         {   
-            index: 0.5, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            index: 1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0]],
-            shear: [5.68],
+            shear: [7.4],
         },
-        { 
-            index: 0.9, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 690, normOffsetY: 130, isHovered: false,
-            moisture: [dataset.moisture[14][0]],
-            shear: [4.915] 
-        },
+        // {   
+        //     index: 0.5, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+        //     moisture: [dataset.moisture[10][0]],
+        //     shear: [5.68],
+        // },
+        // { 
+        //     index: 0.9, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 690, normOffsetY: 130, isHovered: false,
+        //     moisture: [dataset.moisture[14][0]],
+        //     shear: [4.915] 
+        // },
        
     ],
     // [

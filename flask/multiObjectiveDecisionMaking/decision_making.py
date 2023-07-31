@@ -299,7 +299,7 @@ class DecisionMaking:
             # calculate sum and divide by actual window size
             self.information_gaussian[i] = information[start:end].sum() / window_size
         # self.information_gaussian =information
-        self.info_level = np.mean(self.information_gaussian)
+        self.info_level = 1-np.mean(self.information_gaussian)
         self.info_signal = np.max(self.information_gaussian)
         return self.information_gaussian, self.info_level, self.info_signal
     
@@ -311,7 +311,7 @@ class DecisionMaking:
        
         # try:
         RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
-            = linear_hypofit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
+            = doulg_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
         # except:
         #     xx_model = np.mean(self.shearstrength_flattend) * np.ones(self.density)
         #     xfit = shear_pred
@@ -331,7 +331,9 @@ class DecisionMaking:
         #     self.feature_gaussian = gauss(location, 1, self.detailed_loc_flattend, 2)
         self.feature_gaussian = np.zeros_like(self.discrepancy_gaussian)
         self.disp_signal = np.max(self.discrepancy_gaussian)
-        return self.discrepancy_gaussian, self.feature_gaussian, self.noise_estimation, self.disp_signal, xx_model
+        return self.discrepancy_gaussian, self.feature_gaussian,\
+              self.noise_estimation, self.disp_signal, xx_model,\
+              shear_pred, shear_std
 
 
     # def handle_discrepancy_gaussian(self):
@@ -378,7 +380,7 @@ class DecisionMaking:
 
 
 def plot_test(location, detail_location, erodi, info_gaussian, information_level, info_signal,
-              disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model):
+              disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model, gasussian_prediction, gaussian_uncertainty):
     fig, axs = plt.subplots(3,1, sharex=True, figsize=(7,10))
     axs[0].plot(detail_location, info_gaussian,  
                                 linewidth=1, label="info_reward", c="red")
@@ -397,6 +399,8 @@ def plot_test(location, detail_location, erodi, info_gaussian, information_level
     axs[1].set_ylabel('disp reward')
     axs[2].scatter(location, erodi, 60)
     axs[2].plot(detail_location, xx_model)
+    plt.plot(detail_location, gasussian_prediction, label='Prediction')
+    plt.fill_between(detail_location.ravel(), gasussian_prediction - 1.96*gaussian_uncertainty, gasussian_prediction + 1.96*gaussian_uncertainty, alpha=0.5, color='k', label='Uncertainty')
     axs[2].set_ylabel('stiffness')
     axs[2].set_xlabel('normalize location') 
     axs[2].legend()
