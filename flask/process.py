@@ -42,7 +42,9 @@ def process():
     location = np.array(inputs['locations'])+1
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
+    print('erodi:', inputs['shearValues'])
     erodi = np.array(inputs['shearValues'])
+    
     print('erodi:', erodi)
     PathPlanning = TravelerHighPathPlanning()
     output = PathPlanning.single_step_path_planning(location, sample, mm, erodi)

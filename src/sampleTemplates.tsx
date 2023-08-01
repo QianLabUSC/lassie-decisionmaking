@@ -8,120 +8,136 @@ export const initialSamplesSet : Sample[][] = [
         { 
             index: 21, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
             moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
-            shear: [0.09, 0.09, 0.09],
-        },
-        { 
-            index: 21, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
-            moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
-            shear: [0, 0.0, 0.0],
+            shear: [0.052, 0.052, 0.052],
         },
         { 
             index: 20, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
             moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
-            shear: [0.09, 0.09, 0.09],
-        },
-        { 
-            index: 20, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
-            moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
-            shear: [2.23, 2.23, 2.23],
+            shear: [0.082, 1.043, 4.43],
         },
         { 
             index: 19, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
             moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
-            shear: [0, 0.0, 0.0],
+            shear: [6.64, 6.64, 6.64],
         },
-        {   
-            index: 16, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [1.17,1.17,1.17],
-        },
-        {   
-            index: 16, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [0.438,0.438,0.438],
-        },
-        {   
-            index: 15, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [0.3,0.3,0.3],
-        },
-        {   
-            index: 15, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [2.94,2.94,2.94],
-        },
-        {   
-            index: 10, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [2.57, 2.57, 2.57],
-        },
-        {   
-            index: 10, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [2.04, 2.04, 2.04],
-        },
-        {   
-            index: 10, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [1.26, 1.26, 1.26],
-        },
-        {   
-            index: 9, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [1.82, 1.82, 1.82],
-        },
-        {   
-            index: 8, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [2.83, 2.83, 2.83],
-        },
-        {   
-            index: 8, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [0.926, 0.926, 0.926],
-        },
-        {   
-            index: 2, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [3.7, 3.7, 3.7],
-        },
-        {   
-            index: 2, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [11.29, 11.29, 11.29],
-        },
-        {   
-            index: 0, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [0.306, 0.306, 0.306],
-        },
-       
-    ],
-    [
         { 
-            index: 1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
+            index: 18, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
             moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
-            shear: [0.09, 0.09, 0.09],
+            shear: [1.85, 1.85, 1.85],
         },
-        {   
-            index: 5, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [1.17,1.17,1.17],
+        { 
+            index: 16, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
+            moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
+            shear: [1.5, 1.5, 1.5],
         },
         {   
             index: 12, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [2.57, 2.57, 2.57],
+            shear: [8.665,6.867,6.867],
         },
         {   
-            index: 20, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            index: 11, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [3.7, 3.7, 3.7],
+            shear: [6.537,6.537,7.6],
         },
         {   
-            index: 22, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            index: 9, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
-            shear: [0.306, 0.306, 0.306],
+            shear: [3.06,3.06,3.06],
+        },
+        {   
+            index: 7, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [5.802,5.802,9.965],
+        },
+        {   
+            index: 4, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [8.35,5.48,2.665],
+        },
+        {   
+            index: 2, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [3.26, 6.25, 6.25],
+        },
+        {   
+            index: 1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [3.352, 8.853, 12.26],
+        },
+        {   
+            index: 0, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [0.22, 0.22, 0.22],
+        },
+        
+    ],
+    [
+    
+        { 
+            index: 21, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
+            moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
+            shear: [0.052, 0.052, 0.052],
+        },
+        { 
+            index: 20, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
+            moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
+            shear: [0.082, 1.043, 4.43],
+        },
+        { 
+            index: 19, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
+            moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
+            shear: [6.64, 6.64, 6.64],
+        },
+        { 
+            index: 18, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
+            moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
+            shear: [1.85, 1.85, 1.85],
+        },
+        { 
+            index: 16, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
+            moisture: [dataset.moisture[1][0], dataset.moisture[1][1], dataset.moisture[1][2]],
+            shear: [1.5, 1.5, 1.5],
+        },
+        {   
+            index: 12, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [8.665,6.867,6.867],
+        },
+        {   
+            index: 11, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [6.537,6.537,7.6],
+        },
+        {   
+            index: 9, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [3.06,3.06,3.06],
+        },
+        {   
+            index: 7, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [5.802,5.802,9.965],
+        },
+        {   
+            index: 4, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [8.35,5.48,2.665],
+        },
+        {   
+            index: 2, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [3.26, 6.25, 6.25],
+        },
+        {   
+            index: 1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [3.352, 8.853, 12.26],
+        },
+        {   
+            index: 0, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            moisture: [dataset.moisture[10][0], dataset.moisture[10][1], dataset.moisture[10][2]],
+            shear: [0.22, 0.22, 0.22],
         },
        
     ],
