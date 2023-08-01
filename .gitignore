@@ -2,3 +2,4 @@ node_modules
 dist/*
 .vscode/
 flask/venv/
+flask/figs_test/*
