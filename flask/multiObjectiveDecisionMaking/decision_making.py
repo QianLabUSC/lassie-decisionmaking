@@ -13,7 +13,7 @@ from scipy.interpolate import interp1d
 from hypothesisRegulation.hypothesis import *
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKernel
-
+from datetime import datetime
 
 '''Generates a Gaussian estimation using Gaussian Process Regression.
 Args:
@@ -36,7 +36,7 @@ def Gaussian_Estimation(x, y, prediction_range,  optimizer, noise_level, length_
     noise_level = noise_level
     length_scale = length_scale
     sigma_f = sigma_f * sigma_f
-    kernel = C(sigma_f) * RBF(length_scale) + WhiteKernel(noise_level)
+    kernel = C(sigma_f) * RBF(length_scale,(0.1, 0.3)) + WhiteKernel(noise_level, (0, 0.2))
        
     # Instantiate the Gaussian Process Regressor
     if(not optimizer):
@@ -404,7 +404,7 @@ def plot_test(location, detail_location, erodi, info_gaussian, information_level
     axs[2].set_ylabel('stiffness')
     axs[2].set_xlabel('normalize location') 
     axs[2].legend()
-    plt.savefig('./figs_test/'+ 'num' + str(len(location)) + str(location) + '.png')
+    plt.savefig('./figs_test/'+ 'num' + str(len(location)) + str(location) + str(datetime.now().strftime("%Y%m%d_%H%M%S")) + '.png')
 
 
 def plot(Traveler_DM, Traveler_ENV,sequence, location, sample, mm, erodi, results):
