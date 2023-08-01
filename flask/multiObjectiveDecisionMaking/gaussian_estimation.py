@@ -45,12 +45,13 @@ def Gaussian_Estimation(x, y, prediction_range,  optimizer, noise_level, length_
     noise_level = noise_level
     length_scale = length_scale
     sigma_f = sigma_f * sigma_f
-    kernel = C(sigma_f) * RBF(length_scale) + WhiteKernel(noise_level)
+    kernel = C(sigma_f) * RBF(length_scale,(0.1, 0.3)) + WhiteKernel(noise_level, (0, 0.2))
 
     # Instantiate the Gaussian Process Regressor
     if(not optimizer):
         gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=0, random_state=0, optimizer=None)
     else:
+        print('ssssssssssssss')
         gp = GaussianProcessRegressor(kernel=kernel)
     x = np.array([x])
     x = x.T
@@ -62,7 +63,8 @@ def Gaussian_Estimation(x, y, prediction_range,  optimizer, noise_level, length_
     X_new = X_new.T
     y_pred, y_std = gp.predict(X_new, return_std=True)
     information = np.exp(-np.square(y_std))
-    return y_pred, information, y_std
+    noise_level_optimized = gp.kernel_.get_params()["k2__noise_level"]
+    return y_pred, information, y_std, noise_level_optimized
 
 if __name__ == "__main__":
     # X = np.array([3,     7,    10,    13,    16,    19,
@@ -70,13 +72,14 @@ if __name__ == "__main__":
     #     3 ,    7,    10,    13,    16,    19,
     #     3,     7,    10 ,   13,    16,    19])
     X = np.array([0.0, 0.1, 0.3, 0.5, 0.9])
-    y = np.array([1.964, 2.85, 3.056, 5.68, 4.915])
+    y = np.array([1.964, 2.85, 3.056, 5.68, 5.68])
     # y = np.array([0.0992,    7.2285,    9.1036,    7.8270,    7.5175,    6.6421,
     #     2.0124,    8.6191,    9.8502,    7.4650 ,   7.2727,    8.5219,
     #     0.6216,    6.4378,    8.7138 ,   6.3152 ,   6.4360,    9.2684,
     #     1.3204,    7.0980,    8.5359 ,   7.8082 ,  8.5036 ,    7.4663,])
 
-    y_pred, information_gaussian, y_std = Gaussian_Estimation(X,  y,   np.linspace(0, 1, 1000), True, 0.2, 0.15, 4)
+    y_pred, information_gaussian, y_std, noise_est = Gaussian_Estimation(X,  y,   np.linspace(0, 1, 1000), True, 0.2, 0.15, 4)
+    print('esti noise', noise_est)
     print(y_std)
     window_size =151
     half_window = window_size // 2  # integer division to get half window size
