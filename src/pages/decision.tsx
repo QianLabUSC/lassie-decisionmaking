@@ -80,7 +80,9 @@ export default function Main() {
     let acceptedRobotSuggestion;
     if (acceptOrReject !== -1 && acceptOrReject !== acceptOrRejectOptions.length - 1) {
       let robotSuggestionFinal = robotSuggestions[acceptOrReject]; 
-      const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSuggestionFinal.index, robotSuggestionFinal.measurements);
+      // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSuggestionFinal.index, robotSuggestionFinal.measurements);
+      let shearValues = -1
+      let moistureValues = -1
       acceptedRobotSuggestion = {...robotSuggestionFinal, shear: shearValues, moisture: moistureValues};
     }
     let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
@@ -657,6 +659,7 @@ export default function Main() {
         // add the new sample to the state
         var curStrength = document.getElementById("latestStrength")?.innerText;
         var curLocation = document.getElementById("latestLocation")?.innerText;
+        dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
         dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
         dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
         console.log({globalState});
@@ -685,6 +688,7 @@ export default function Main() {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
 
           let robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
+          console.log(robotResults)
           const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
           dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
           dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });

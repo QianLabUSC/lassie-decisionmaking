@@ -371,7 +371,7 @@ export const shearChartOption = {
           backgroundColor(context) {
             const { dataIndex, dataset } = context;
             const point = dataset.data[dataIndex];
-            return locationColors[Math.floor(point.index*22)];
+            return locationColors[Math.floor(point.index*21)];
           }
         }
       },
@@ -735,6 +735,7 @@ export enum UserFeedbackState {
 export const objectiveOptions = [
   "There are areas along the hillslope transect where data is needed", // Option 0 - spatial coverage algorithm
   "There is a discrepancy between the strength data and the strength hypothesis that needs additional evaluation", // Option 1 - hypo invalidating algorithm
+  // "I have a another objective",
   // "The strength data seems to be supporting the strength hypothesis so far but additional evaluation is needed", // Option 2 - hypo validating algorithm
 ]
 
