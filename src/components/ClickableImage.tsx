@@ -219,7 +219,7 @@ export default function ClickableImage({
         }
 
         const { index, type, normOffsetX, normOffsetY, isHovered } = sample;
-
+        console.log('index', index)
         return (
           <PositionIndicator
             key={sampleIdx}
@@ -233,7 +233,7 @@ export default function ClickableImage({
             rowIndex={sampleIdx}
             isHovered={isHovered}
             type={type}
-            locationIndex={Math.floor(index*22)}
+            locationIndex={Math.floor(index*21)}
             robot={false}
           />
         );
