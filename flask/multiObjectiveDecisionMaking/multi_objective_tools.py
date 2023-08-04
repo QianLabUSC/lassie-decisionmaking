@@ -126,7 +126,7 @@ def run_multi_objective_odsf(vector, info_level, human_reported_type,
     disp_focused_suggestion = pareto_sets_loc[disp_focused_index]
 
     disp_high_index = np.where(disp_reward > 0.85)
-    print(disp_reward[disp_high_index])
+    # print(disp_reward[disp_high_index])
     
     disp_hier_index = np.argmax(info_reward[disp_high_index])
     disp_hier_location = pareto_sets_loc[disp_high_index[0][disp_hier_index]]
@@ -163,7 +163,7 @@ def run_multi_objective_odsf(vector, info_level, human_reported_type,
         # Implementation goes here
         discrepancy_singal_level = calculate_disp_signal_level(disp_signature, noise_level, k_noise)
         info_signal_level = calculate_info_signal_level(info_signature, k_info_signal)
-        print('dssss', discrepancy_singal_level)
+        # print('dssss', discrepancy_singal_level)
         if(discrepancy_singal_level > 0):
             except_list = 1
         elif(info_signal_level > 0):
