@@ -154,4 +154,4 @@ if __name__ == "__main__":
     # plt.legend(loc="lower right", fontsize=15)
     # plt.show()
     best_loc = find_best_location_pareto(pareto_inputs)
-    print(best_loc)
+    # print(best_loc)

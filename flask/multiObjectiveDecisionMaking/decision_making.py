@@ -8,13 +8,13 @@ from scipy.optimize import curve_fit
 from scipy import signal
 import numpy as np
 # from env_wrapper import *
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 from scipy.interpolate import interp1d
 from hypothesisRegulation.hypothesis import *
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKernel
 from datetime import datetime
-
+# matplotlib.use('TkAgg') 
 '''Generates a Gaussian estimation using Gaussian Process Regression.
 Args:
 x: Input variable.
@@ -275,9 +275,9 @@ class DecisionMaking:
         self.shearstrength_flattend = shear_strengh.flatten()
         self.detailed_loc_flattend = np.linspace(0, 1, self.density)
 
-        print('loc flatten', self.location_flattend)
-        print('moisture flatten', self.moisture_flattend)
-        print('shear flatten', self.shearstrength_flattend)
+        # print('loc flatten', self.location_flattend)
+        # print('moisture flatten', self.moisture_flattend)
+        # print('shear flatten', self.shearstrength_flattend)
 
 
     def handle_spatial_information_gaussian(self):
@@ -310,8 +310,12 @@ class DecisionMaking:
 
        
         # try:
+        # RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
+        #     = kent_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
+        # RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
+        #     = doulg_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
         RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
-            = doulg_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
+            = ben_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
         # except:
         #     xx_model = np.mean(self.shearstrength_flattend) * np.ones(self.density)
         #     xfit = shear_pred
@@ -380,13 +384,17 @@ class DecisionMaking:
 
 
 def plot_test(location, detail_location, erodi, info_gaussian, information_level, info_signal,
-              disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model, gasussian_prediction, gaussian_uncertainty):
-    fig, axs = plt.subplots(3,1, sharex=True, figsize=(7,10))
+              disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model, gasussian_prediction, gaussian_uncertainty,
+              pareto_sets, pareto_locs):
+    fig = Figure(figsize=(7,10))
+    axs = fig.subplots(3,1, sharex=True)
     axs[0].plot(detail_location, info_gaussian,  
                                 linewidth=1, label="info_reward", c="red")
 
-    axs[0].plot(detail_location, feature_gaussian, 
-                             linewidth=1, label="feature_reward", c="blue")
+    # axs[0].plot(detail_location, feature_gaussian, 
+    #                          linewidth=1, label="feature_reward", c="blue")
+    axs[0].plot(detail_location[pareto_locs], info_gaussian[pareto_locs],'o', c="blue")
+    axs[0].plot(detail_location[pareto_locs], pareto_sets[:,0], 'o', c="yellow")
     axs[0].set_ylabel('reward')
     
     axs[0].set_title("information_level: " + str(information_level) + 
@@ -396,15 +404,17 @@ def plot_test(location, detail_location, erodi, info_gaussian, information_level
     axs[0].legend()
     axs[1].plot(detail_location, disp_gaussian, 
                                 linewidth=1, label="disp_reward", c="lime")
+    axs[1].plot(detail_location[pareto_locs], pareto_sets[:,1], 'o', c="yellow")
+    axs[1].plot(detail_location[pareto_locs], disp_gaussian[pareto_locs], 'o', c="blue")
     axs[1].set_ylabel('disp reward')
     axs[2].scatter(location, erodi, 60)
     axs[2].plot(detail_location, xx_model)
-    plt.plot(detail_location, gasussian_prediction, label='Prediction')
-    plt.fill_between(detail_location.ravel(), gasussian_prediction - 1.96*gaussian_uncertainty, gasussian_prediction + 1.96*gaussian_uncertainty, alpha=0.5, color='k', label='Uncertainty')
+    axs[2].plot(detail_location, gasussian_prediction, label='Prediction')
+    axs[2].fill_between(detail_location.ravel(), gasussian_prediction - 1.96*gaussian_uncertainty, gasussian_prediction + 1.96*gaussian_uncertainty, alpha=0.5, color='k', label='Uncertainty')
     axs[2].set_ylabel('stiffness')
     axs[2].set_xlabel('normalize location') 
     axs[2].legend()
-    plt.savefig('./figs_test/'+ 'num' + str(len(location)) + str(location) + str(datetime.now().strftime("%Y%m%d_%H%M%S")) + '.png')
+    fig.savefig('./figs_test/' + str(datetime.now().strftime("%Y%m%d_%H%M%S")) + '_state_' + str(len(location)) + str(location) + '.png')
 
 
 def plot(Traveler_DM, Traveler_ENV,sequence, location, sample, mm, erodi, results):
