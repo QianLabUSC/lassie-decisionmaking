@@ -37,7 +37,7 @@ def calculate_disp_signal_level(disp_signature, noise_level, k_noise):
     Returns:
     float: The discrepancy signal level.
     """
-    disp_level = np.maximum(0, disp_signature - k_noise * noise_level)
+    disp_level = np.maximum(0, disp_signature - k_noise)
     return disp_level
 
 def calculate_info_signal_level(info_level, k_info_signal):
@@ -65,7 +65,7 @@ def shift_and_scale(x):
     to one of the specific levels between -1 and 1.
     """
     # Apply sigmoid and scale to (-1, 1)
-    y = 2 * sigmoid(x) - 1
+    y = 2 * sigmoid(5*x) - 1
 
     # Define the levels
     levels = np.array([-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1])
@@ -79,7 +79,7 @@ def shift_and_scale(x):
 
 def run_multi_objective_odsf(vector, info_level, human_reported_type,
                             info_signature, disp_signature, noise_level,
-                            k_info_signal=0.4, k_noise=1.5, k_info=1, k_disp=1):
+                            k_info_signal=0.4, k_noise=1.5, k_info=1, k_disp=1.2,k_info_low=0.35, k_info_high=0.7):
     """
     This function uses multi-objective optimization to 
     evaluate the trade-offs between information gain and 
@@ -118,16 +118,19 @@ def run_multi_objective_odsf(vector, info_level, human_reported_type,
     info_focused_index = np.argmax(info_reward)
     info_focused_location = pareto_sets_loc[info_focused_index]
 
-    info_high_index = np.where(info_reward > 0.7)
+    info_high_index = np.where(info_reward > 0.85)
     info_hier_index = np.argmax(disp_reward[info_high_index])
-    info_hier_location = pareto_sets_loc[info_hier_index]
+    info_hier_location = pareto_sets_loc[info_high_index[0][info_hier_index]]
 
     disp_focused_index = np.argmax(disp_reward)
     disp_focused_suggestion = pareto_sets_loc[disp_focused_index]
 
-    disp_high_index = np.where(disp_reward > 0.7)
+    disp_high_index = np.where(disp_reward > 0.85)
+    print(disp_reward[disp_high_index])
+    
     disp_hier_index = np.argmax(info_reward[disp_high_index])
-    disp_hier_location = pareto_sets_loc[disp_hier_index]
+    disp_hier_location = pareto_sets_loc[disp_high_index[0][disp_hier_index]]
+    
 
     # for trade-off suggest the high pareto distance one:
     indices = np.isin(pareto_sets_loc, np.array([info_focused_location, 
@@ -145,26 +148,37 @@ def run_multi_objective_odsf(vector, info_level, human_reported_type,
         trade_off_index = info_hier_index
         trade_off_location = info_hier_location
 
-    suggestion_sets = np.array([info_focused_location, info_hier_location, trade_off_location, disp_focused_suggestion, disp_hier_location])
-    print(info_level)
+    suggestion_sets = np.array([info_focused_location, info_hier_location, trade_off_location, disp_hier_location, disp_focused_suggestion])
+    # print(info_level)
     # applied final infor level decision
-    if(info_level < 0.5):
+    if(info_level < k_info_low):
         final_type = 0
+        except_list = 0
         final_suggestion = info_focused_location
-    elif(info_level > 0.75):
+    elif(info_level > k_info_high):
+        except_list = 3
         final_type = 1
         final_suggestion = disp_focused_suggestion
     else:
         # Implementation goes here
         discrepancy_singal_level = calculate_disp_signal_level(disp_signature, noise_level, k_noise)
         info_signal_level = calculate_info_signal_level(info_signature, k_info_signal)
+        print('dssss', discrepancy_singal_level)
+        if(discrepancy_singal_level > 0):
+            except_list = 1
+        elif(info_signal_level > 0):
+            except_list = 2
+        else:
+            except_list = 2
+            
         shift_distance = k_disp * discrepancy_singal_level - k_info * info_signal_level
         shift_level = shift_and_scale(shift_distance)
         final_level = shift_level + human_reported_type
         ref_level = np.array([0, 0.25, 0.5, 0.75, 1.0])
         final_type = ref_level[np.argmin(np.abs(np.array(ref_level) - final_level))]
         final_suggestion = suggestion_sets[int(final_type * 4)]
-    return final_type, final_suggestion, suggestion_sets
+    return final_type, final_suggestion, suggestion_sets, except_list, pareto_sets, pareto_sets_loc
+        
 
 
 

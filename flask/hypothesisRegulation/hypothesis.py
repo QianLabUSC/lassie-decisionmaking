@@ -48,9 +48,9 @@ Returns:
 '''
 
 def hypofit(xx, yy, detailed_xx, model, P0, lb, ub):
-    print("test model", xx, yy)
+    # print("test model", xx, yy)
     Pfit, covs = curve_fit(model, xx, yy, P0, bounds=(lb, ub))
-    print(Pfit)
+    # print(Pfit)
 
     xfit = detailed_xx
     unique_x = np.unique(xx)
@@ -80,8 +80,8 @@ as ice content continues to increase.
 '''
 def kent_fit(xx, yy, detail_xx):
     P0 = [1, 0.842, 0.5, -0.8]
-    lb = [-20, 0, 0, -20]
-    ub = [20, 20, 1, 0]
+    lb = [-20, 0, 0.05, -20]
+    ub = [20, 20, 0.95, 0]
     RMSE_average, RMSE_spread, xfit, xx_model, Pfit, model = \
         hypofit(xx,yy, detail_xx, two_piecewise_model, P0, lb, ub)
     return RMSE_average, RMSE_spread, xfit, xx_model, Pfit, model
@@ -93,9 +93,9 @@ test on 8/9) Doug's hypothesis: regolith strength will increase with ice content
 then further increase (after saturation)
 '''
 def doulg_fit(xx, yy, detail_xx):
-    P0 = [1, 0.842,0.4, 0.6, 0.8]
-    lb = [-20, 0, 0, 0, 0]
-    ub = [20, 10, 1, 1, 20]
+    P0 = [1, 0.842,0.3, 0.6, 0.8]
+    lb = [-20, 0, 0.15, 0.31, 0]
+    ub = [20, 10, 0.3, 1, 20]
     RMSE_average, RMSE_spread, xfit, xx_model, Pfit, model = \
         hypofit(xx,yy, detail_xx, three_piesewise_model, P0, lb, ub)
     return RMSE_average, RMSE_spread, xfit, xx_model, Pfit, model
