@@ -132,8 +132,8 @@ export default function PositionChart() {
               <canvas id={`positionChart${chartIDSuffix}`} />
             </div>
             <div className="labels">
-              <div className="flagA">ice content 0</div>
-              <div className="flagB">ice content 1</div>
+              <div className="flagA">outside 0</div>
+              <div className="flagB">center of ice 1</div>
             </div>
             {
             // <PositionIndicatorRhex

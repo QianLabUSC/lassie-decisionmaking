@@ -14,8 +14,10 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
-const singleTransectNullHypothesis = require('../../assets/hypo.png');
-
+// const singleTransectNullHypothesis = require('../../assets/hypo_kent.png');
+const singleTransectNullHypothesis = require('../../assets/hypo_ryan.png');
+// const singleTransectNullHypothesis = require('../../assets/hypo_doug.png');
+// const singleTransectNullHypothesis = require('../../assets/hypo_ben.png');
 export default function Intro(props) {
     const history = useHistory();
     const [globalState, dispatch] = useStateValue();

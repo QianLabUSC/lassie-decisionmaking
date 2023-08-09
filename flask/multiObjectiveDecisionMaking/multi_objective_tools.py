@@ -171,8 +171,19 @@ def run_multi_objective_odsf(vector, info_level, human_reported_type,
         else:
             except_list = 2
             
-        shift_distance = k_disp * discrepancy_singal_level - k_info * info_signal_level
-        shift_level = shift_and_scale(shift_distance)
+        # shift_distance = k_disp * discrepancy_singal_level - k_info * info_signal_level
+
+        # shift_level = shift_and_scale(shift_distance)
+        if(discrepancy_singal_level > 2):
+            shift_level = 1
+        elif(discrepancy_singal_level > 1):
+            shift_level = 0.75
+        elif(discrepancy_singal_level > 0.5):
+            shift_level = 0.5
+        elif(discrepancy_singal_level > 0):
+            shift_level = 0.25
+        else:
+            shift_level = 0
         final_level = shift_level + human_reported_type
         ref_level = np.array([0, 0.25, 0.5, 0.75, 1.0])
         final_type = ref_level[np.argmin(np.abs(np.array(ref_level) - final_level))]

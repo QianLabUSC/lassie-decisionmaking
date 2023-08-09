@@ -270,7 +270,7 @@ export const positionChartOption = {
     options: {
         title: {
           display: true,
-          text: "Ice content level",
+          text: "location level",
           fontStyle: "bold"
         },
         responsive: true,
@@ -402,7 +402,7 @@ export const shearChartOption = {
               position: 'bottom',
               scaleLabel: {
                 display: true,
-                labelString: 'Normalized Ice Content'
+                labelString: 'Normalized Location from ice patch outside'
               },
               ticks: {
                 min: 10,
@@ -733,7 +733,7 @@ export enum UserFeedbackState {
 };
 
 export const objectiveOptions = [
-  "There are areas along the hillslope transect where data is needed", // Option 0 - spatial coverage algorithm
+  "There are areas along the line where data is needed", // Option 0 - spatial coverage algorithm
   "There is a discrepancy between the strength data and the strength hypothesis that needs additional evaluation", // Option 1 - hypo invalidating algorithm
   // "I have a another objective",
   // "The strength data seems to be supporting the strength hypothesis so far but additional evaluation is needed", // Option 2 - hypo validating algorithm

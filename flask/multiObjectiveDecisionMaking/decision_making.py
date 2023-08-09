@@ -310,18 +310,28 @@ class DecisionMaking:
 
        
         # try:
-        # RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
-        #     = kent_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
+        RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
+            = kent_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
         # RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
         #     = doulg_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
-        RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
-            = ben_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
+        # RMSE_average, RMSE_distribution, xfit, xx_model, Pfit, model \
+        #     = ben_fit(self.location_flattend, self.shearstrength_flattend, self.detailed_loc_flattend)
         # except:
         #     xx_model = np.mean(self.shearstrength_flattend) * np.ones(self.density)
         #     xfit = shear_pred
         #     Pfit = [-1,-1,-1]
         self.noise_estimation = shear_noise
         self.discrepancy_gaussian = np.abs(shear_pred - xx_model)
+        #identify the maximum index
+        max_loc = np.max(self.location_flattend)
+        min_loc = np.min(self.location_flattend)
+        print(max_loc)
+        print(min_loc)
+        print(self.detailed_loc_flattend)
+        index_range = np.where((self.detailed_loc_flattend < min_loc) | (self.detailed_loc_flattend > max_loc))
+        print(index_range)
+        self.discrepancy_gaussian[index_range] = 0
+        
 
 
         # handle the discrepancy outside the data range:
@@ -335,6 +345,7 @@ class DecisionMaking:
         #     self.feature_gaussian = gauss(location, 1, self.detailed_loc_flattend, 2)
         self.feature_gaussian = np.zeros_like(self.discrepancy_gaussian)
         self.disp_signal = np.max(self.discrepancy_gaussian)
+        
         return self.discrepancy_gaussian, self.feature_gaussian,\
               self.noise_estimation, self.disp_signal, xx_model,\
               shear_pred, shear_std

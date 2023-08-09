@@ -81,7 +81,7 @@ if __name__ == "__main__":
     #     1.3204,    7.0980,    8.5359 ,   7.8082 ,  8.5036 ,    7.4663,])
 
     y_pred, information_gaussian, y_std = Gaussian_Estimation(X,  y,   np.linspace(1, 22, 220), False, 0.2, 4, 3)
-    print(y_std)
+    # print(y_std)
     window_size =41
     half_window = window_size // 2  # integer division to get half window size
     information_gaussian = 1 - information_gaussian
