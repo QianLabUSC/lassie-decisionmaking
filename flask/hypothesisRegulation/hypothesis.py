@@ -79,9 +79,10 @@ increase with ice content before 15-20%, then decrease
 as ice content continues to increase.
 '''
 def kent_fit(xx, yy, detail_xx):
+    # limit the third value to avoid turning point change
     P0 = [1, 0.842, 0.5, -0.8]
-    lb = [-20, 0, 0.05, -20]
-    ub = [20, 20, 0.95, 0]
+    lb = [-20, 0, 0.48, -20]
+    ub = [20, 20, 0.52, 0]
     RMSE_average, RMSE_spread, xfit, xx_model, Pfit, model = \
         hypofit(xx,yy, detail_xx, two_piecewise_model, P0, lb, ub)
     return RMSE_average, RMSE_spread, xfit, xx_model, Pfit, model

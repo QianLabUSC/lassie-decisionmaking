@@ -320,14 +320,14 @@ export default function Main() {
 
   const typeInNewLocationData = 
   <div className="type-in-new-location-data" style={{marginBottom: '2vh'}}>
-        <div className="TypeInDataTitle"><strong>Enter stifness and ice content data</strong></div>
+        <div className="TypeInDataTitle"><strong>Enter stifness and location data</strong></div>
         <div>
           Stiffness (type 1 stiffness values):
           <br />
           <textarea placeholder='e.g., 3' id = "latestStrength3" name = "latestStrength3" onChange={onObjectiveTextChangeStrength2} rows={5} cols={50}/>
           <br />
           <br />
-          Ice content (type 1 ice content value, must be between 0-1):
+          location (type 1 location value, must be between 0-1):
           <br />
           <textarea placeholder='e.g., 0.5' id = "latestLocation" name = "latestLocation" onChange={onObjectiveTextChangeLocation3} rows={5} cols={50}/>
         </div>

@@ -112,7 +112,8 @@ def findBestWeightedObjectives(reward_sets, weight_methods, rank):
     elif(len(rank) == 4):
         weights = [0.4, 0.3, 0.2, 0.1]
     else:
-        print("error", rank)
+        # print("error", rank)
+        pass
         
     # print(weights)
 

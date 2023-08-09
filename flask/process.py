@@ -33,8 +33,8 @@ exception_list[2] = 'Because the robot notices that there are locations with low
 exception_list[3] = 'Because the robot notices that overall information level is high and undertainty is low'
 
 k_info_signal_ = 0.5
-k_noise_ = 1
-k_info_low_ = 0.3
+k_noise_ = 2
+k_info_low_ = 0.27
 k_info_high_ = 0.7
 
 # backend decision making algorithm processing steps
@@ -96,7 +96,7 @@ def process():
         print('to:')
         print(reported_balance_type[final_type])
     
-    print('Therefore, the robot suggests sampling at ice content : ', final_suggestion)
+    print('Therefore, the robot suggests sampling at location : ', final_suggestion)
     print('---------------------------------------------------------------------------------------------------------------------------------------')
     print(suggestion_sets)
     output = {

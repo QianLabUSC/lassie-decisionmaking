@@ -6,25 +6,21 @@ import { dataset } from './data/rhexDataset';
 export const initialSamplesSet : Sample[][] = [
     [
         { 
-            index: 0, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
+            index: 0.1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
             moisture: [dataset.moisture[1][0]],
-            shear: [2.0],
+            shear: [10],
         },
         {   
-            index: 0.4, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            index: 0.51, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0]],
-            shear: [4.2],
+            shear: [17.09],
         },
         {   
-            index: 0.6, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
+            index: 0.9, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0]],
-            shear: [4.21],
+            shear: [9.57],
         },
-        {   
-            index: 1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
-            moisture: [dataset.moisture[10][0]],
-            shear: [7.4],
-        },
+
         // {   
         //     index: 0.5, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
         //     moisture: [dataset.moisture[10][0]],
