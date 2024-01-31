@@ -17,6 +17,9 @@ import { useStateValue, Action } from "../state";
 import AddSamplePopup from "./AddSamplePopup";
 import PositionIndicator from "./PositionIndicator";
 import PositionIndicatorRhex from "./PositionIndicatorRhex";
+import {PathpointIndicator} from "./PositionIndicator";
+import {RowType} from "../constants";
+import { FALSE } from "sass";
 
 const diagram = require("../../assets/diagram_scalebar.png");
 
@@ -34,7 +37,7 @@ const useStyles = makeStyles({
   imageDecision: {
     borderRadius: 4,
     // boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.3)",
-    width: "41vw",
+    width: "30vw",
     display: "block",
     margin: "auto",
   },
@@ -180,6 +183,7 @@ export default function ClickableImage({
       isHovered: false,
       moisture: moistureValues,
       shear: shearValues,
+      path: [[0.5],[0]]
     };
     // Add the new sample to the state
     dispatch({
@@ -218,59 +222,117 @@ export default function ClickableImage({
           return null;
         }
 
-        const { index, type, normOffsetX, normOffsetY, isHovered } = sample;
-        console.log('index', index)
+        let path_x = sample.path[0];
+        let path_y = sample.path[1];
+      
+        const indicators = path_x.map((x, index) => {
+          let xPoint = x;
+          let yPoint = path_y[index];
+          let key_index = `${sampleIdx}-${index}`;
+      
+          return (
+            <PathpointIndicator
+              key={key_index}
+              left={(0.97 * xPoint + 0.02) * imgWidth}
+              top={(0.97 - 0.97 * yPoint) * height}
+              isHovered={false}
+              locationIndex={Math.floor(index * 21)}
+              rowIndex={0}
+              type={RowType.ROBOT_SUGGESTION}
+              robot={false}
+            />
+          );
+        });
+      
         return (
-          <PositionIndicator
-            key={sampleIdx}
-            left={
-              (index / INDEX_LENGTH) * (imgWidth - 1)
-              // (NORMALIZED_FLAGATOB * (index / INDEX_LENGTH) +
-              //   NORMALIZED_STRAT) *
-              // (height / NORMALIZED_HEIGHT)
-            }
-            top={height - height / 1.7}
-            rowIndex={sampleIdx}
-            isHovered={isHovered}
-            type={type}
-            locationIndex={Math.floor(index*21)}
-            robot={false}
-          />
+          <>
+            <PositionIndicator
+              key={`sampleposition-${sampleIdx}`}
+              left={(0.97 * path_x[path_x.length - 1] + 0.02) * imgWidth}
+              top={(0.97 - 0.97 * path_y[path_y.length - 1]) * height}
+              rowIndex={sampleIdx}
+              isHovered={false}
+              type={RowType.ROBOT_SUGGESTION}
+              locationIndex={2}
+              robot={false}
+            />
+            <div key={`samplepath-${sampleIdx}`}>
+              {indicators}
+            </div>
+          </>
         );
+
       })}
-      {
-        <PositionIndicatorRhex
-          left={
-            (samples[samples.length - 1].index / INDEX_LENGTH) * (imgWidth - 1)
-            // (NORMALIZED_FLAGATOB *
-            //   (samples[samples.length - 1].index / INDEX_LENGTH) +
-            //   NORMALIZED_STRAT) *
-            // (height / NORMALIZED_HEIGHT)
-          }
-          top={height - height / 2 - 40}
-        />
-      }
+
+
+
+      {samples.length > 0 && (() => {
+          const lastSample = samples[samples.length - 1];
+          const path_x = lastSample.path[0];
+          const path_y = lastSample.path[1];
+          const path_x_point = path_x[path_x.length - 1];
+          const path_y_point = path_y[path_y.length - 1];
+
+          return (
+            <PositionIndicatorRhex
+              left={
+                // (index / INDEX_LENGTH) * (imgWidth - 1)
+                (0.96 * (path_x_point) + 0.02) * imgWidth - 20
+                
+              }
+              top={(0.96 - 0.96 * (path_y_point)) * height -20}
+            />
+          );
+        })()}
       {showRobotSuggestions &&
         robotSuggestions &&
-        robotSuggestions.map((suggestion, rowIndex) => (
-          <PositionIndicator
-            key={
-              suggestion.index + suggestion.normOffsetX + suggestion.normOffsetY
-            }
-            left={
-              (suggestion.index / INDEX_LENGTH) * (imgWidth - 1)
-              // (NORMALIZED_FLAGATOB * (suggestion.index / INDEX_LENGTH) +
-              //   NORMALIZED_STRAT) *
-              // (height / NORMALIZED_HEIGHT)
-            }
-            top={height - height / 1.7}
-            rowIndex={rowIndex}
-            isHovered={suggestion.isHovered}
-            type={suggestion.type}
-            locationIndex={Math.floor(suggestion.index*22)}
-            robot={true}
-          />
-        ))}
+        robotSuggestions.map((suggestion, rowIndex) => {
+          let path_x = suggestion.path[0];
+          let path_y = suggestion.path[1];
+        
+          const indicators = path_x.map((x, index) => {
+            let xPoint = x;
+            let yPoint = path_y[index];
+            let key_index = `${rowIndex}-${index}`;
+        
+            return (
+              <PathpointIndicator
+                key={key_index}
+                left={(0.97 * xPoint + 0.02) * imgWidth}
+                top={(0.97 - 0.97 * yPoint) * height}
+                isHovered={false}
+                locationIndex={Math.floor(index * 21)}
+                rowIndex={0}
+                type={RowType.ROBOT_SUGGESTION}
+                robot={false}
+              />
+            );
+          });
+        
+          return (
+            <>
+              <PositionIndicator
+                key={`position-${rowIndex}`}
+                left={(0.97 * path_x[path_x.length - 1] + 0.02) * imgWidth -10}
+                top={(0.97 - 0.97 * path_y[path_y.length - 1]) * height-10}
+                rowIndex={rowIndex}
+                isHovered={false}
+                type={RowType.ROBOT_SUGGESTION}
+                locationIndex={2}
+                robot={true}
+              />
+              <div key={`path-${rowIndex}`}>
+                {indicators}
+              </div>
+            </>
+          );
+        })
+        
+          
+          
+          }
+
+
     </div>
   );
 }

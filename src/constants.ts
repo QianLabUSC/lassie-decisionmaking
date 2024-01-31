@@ -733,10 +733,10 @@ export enum UserFeedbackState {
 };
 
 export const objectiveOptions = [
-  "There are areas along the line where data is needed", // Option 0 - spatial coverage algorithm
-  "There is a discrepancy between the strength data and the strength hypothesis that needs additional evaluation", // Option 1 - hypo invalidating algorithm
-  // "I have a another objective",
-  // "The strength data seems to be supporting the strength hypothesis so far but additional evaluation is needed", // Option 2 - hypo validating algorithm
+  "Gather more data on unsampled area", // Option 0 - spatial coverage algorithm
+  "Gather more data where the data has discrepancy with the hypothesis", // Option 1 - hypo invalidating algorithm
+  "The risk of robot entrapment",
+  "The time cost"
 ]
 
 export const acceptFollowUpOptions = [

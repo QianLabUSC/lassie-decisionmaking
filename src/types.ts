@@ -102,6 +102,8 @@ export interface UserStepsData {
   variableReward: number[],
   discrepancyReward: number[]
 }
+// Define a type for Path
+export type Path = [number[], number[]];
 
 /** Interface for the samples collected */
 export interface Sample {
@@ -113,6 +115,7 @@ export interface Sample {
   isHovered: boolean,
   moisture: number[],
   shear: number[],
+  path: Path,
 
 }
 
@@ -124,4 +127,5 @@ export interface PreSample {
   normOffsetX: number,
   normOffsetY: number,
   isHovered: boolean,
+  path: Path,
 }
