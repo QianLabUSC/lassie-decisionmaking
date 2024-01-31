@@ -262,27 +262,25 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
   }
   let robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues, objective_repre);
   console.log(robotSuggestions)
-  let final_suggestion = [robotSuggestions.final_suggestion]
-  let discrepancy_selection = [0.1,0.2,0.4]
+  let path_ = robotSuggestions.path
   let spatial_reward = []
   let variable_reward = []
   let discrepancy_reward = []
-  // Return the top 3 suggested locations unordered
-  let locs;
-  locs = final_suggestion;
-  let results : PreSample[] = locs.map((loc) => {
-    let suggestion : PreSample = {
-      index: loc,
+  let results: PreSample[] = path_.map((path, index) => {
+    let suggestion: PreSample = {
+      index: index,   // Setting the index of the current path
       type: 'robot',
       measurements: NUM_MEASUREMENTS,
       normOffsetX: 300,
       normOffsetY: 300,
-      isHovered: false
+      isHovered: false,
+      path: path,     // Assuming you want to set this to the current path, not path_
     }
     return suggestion;
   });
+  
 
-  console.log({locations, measurements, moistureValues, shearValues, robotSuggestions, results});
+  console.log('results',  results);
   
   return {
     results: results,
@@ -305,6 +303,72 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
   return new Promise((resolve, reject) => {
     // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
     fetch('http://127.0.0.1:5000/process', { //local development URL
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-cache',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': "application/json",
+      },
+      body: JSON.stringify(inputs), 
+    }).then(
+      res => res.json()
+    ).then(
+      data => {
+        console.log({data});
+        resolve(data);
+      }
+    ).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
+// This function command the robot to collect moisture and shear (data)
+export async function commandRobotCollectData(suggestion: PreSample) {
+
+  // Prepare inputs for flask backend calculation
+  let path_x : number[] = [];
+  let path_y : number[] = [];
+ 
+
+  path_x = suggestion.path[0]
+  path_y = suggestion.path[1]
+
+  let collected_data : any = await flaskCollections(path_x, path_y);
+  console.log(collected_data)
+  
+  
+  // Creating a new Sample from PreSample
+  let dataSample: Sample = {
+    ...suggestion, // This spreads all properties of preSample into the new object
+    moisture: collected_data.moisture, // Adding moisture data
+    shear: collected_data.shear // Adding shear data
+  };
+ 
+  
+
+  console.log('dataSample',  dataSample);
+  
+  return {
+    dataSample: dataSample,
+  };
+}
+
+
+
+
+
+function flaskCollections(path_x: number[], path_y: number[]) {
+
+  let inputs = {
+    path_x : path_x,
+    path_y: path_y
+  }
+  
+  return new Promise((resolve, reject) => {
+    // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/dataCollection', { //production URL
+    fetch('http://127.0.0.1:5000/dataCollection', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',

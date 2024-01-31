@@ -9,16 +9,19 @@ export const initialSamplesSet : Sample[][] = [
             index: 0.1, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 230, normOffsetY: 18, isHovered: false,
             moisture: [dataset.moisture[1][0]],
             shear: [10],
+            path: [[0.5],[0]]
         },
         {   
             index: 0.51, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0]],
             shear: [17.09],
+            path: [[0.5],[0]]
         },
         {   
             index: 0.9, type: 'initial', measurements: NUM_MEASUREMENTS, normOffsetX: 550, normOffsetY: 80, isHovered: false,
             moisture: [dataset.moisture[10][0]],
             shear: [9.57],
+            path: [[0.5],[0]]
         },
 
         // {   

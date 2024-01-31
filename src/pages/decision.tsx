@@ -11,7 +11,7 @@ import { FormControl, Select, MenuItem, CircularProgress, Box, Slider } from '@m
 import Popbox from '../components/Popbox';
 import ClickableImage from '../components/ClickableImage';
 import { ConfirmDialog, MultiStepDialog } from '../components/Dialogs';
-import { getMeasurements, calculateRobotSuggestions} from '../util';
+import { getMeasurements, calculateRobotSuggestions, commandRobotCollectData} from '../util';
 import {
   PopboxTypeEnum, confidenceTexts, NUM_OF_HYPOS,
   UserFeedbackState, objectiveOptions, transitionOptions,
@@ -172,38 +172,42 @@ export default function Main() {
     if (i === 1) {
       return (
         <span>
-            There is a discrepancy between the strength data and the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>strength hypothesis</a></strong></span> that needs additional evaluation
-        </span>
-      );
-    } else if (i === 2) {
-      return (
-        <span>
-          The strength data seems to be supporting the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>strength hypothesis</a></strong></span> so far but additional evaluation is needed
+          Gather more data where the data has discrepancy with the <span style={{color: 'blue', textDecorationLine: 'underline', cursor: 'pointer'}}><strong><a onClick={() => setHypothesisOpen(true)}>hypothesis</a></strong></span>
         </span>
       );
     } else {
       return <span>{obj}</span>;
     }
   });
+
   
+  const onObjectiveTextChange = e => {
+    dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: e.target.value });
+  }
+
+
   const objectiveQuestions = 
     <div className="objective-questions">
-      <p><strong>Based on the data collected so far, select which of the following beliefs you currently hold (you may select multiple).</strong></p>
+      <p><strong>During the sampling process, the following objectives are considered.</strong></p>
       <RadioButtonGroupMultipleOptions options={objectiveOptionsLinked} searchObjective={(target) => searchObjective(target)} onChange={i => {
-        let objectivesTemp = [...objectives];
-        if (searchObjective(objectiveOptions[i])) {
-          objectivesTemp = objectivesTemp.filter(obj => obj.objective !== objectiveOptions[i]);
-        } else {
-          let newObjective = {
-            objective: objectiveOptions[i],
-            ranking: -1,
-            addressedRating: 1
-          };
-          objectivesTemp.push(newObjective);
-        }
-        dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
+        // let objectivesTemp = [...objectives];
+        // if (searchObjective(objectiveOptions[i])) {
+        //   objectivesTemp = objectivesTemp.filter(obj => obj.objective !== objectiveOptions[i]);
+        // } else {
+        //   let newObjective = {
+        //     objective: objectiveOptions[i],
+        //     ranking: -1,
+        //     addressedRating: 1
+        //   };
+        //   objectivesTemp.push(newObjective);
+        // }
+        // dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
       }}/>
+      <p><strong>Please describe your additional belief about the data collected so far:</strong></p>
+      <textarea onChange={onObjectiveTextChange} rows={5} cols={85}/>
+
     </div>
+
 
   const objectivesToRank = 
     <table className="dropDownMenuGroup" style={{marginBottom: '2vh'}}>
@@ -243,9 +247,7 @@ export default function Main() {
       {objectivesToRank}
     </div>
 
-  const onObjectiveTextChange = e => {
-    dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: e.target.value });
-  }
+
   const objectiveFreeResponseQuestion = 
     <div className="objective-free-response-question" style={{marginBottom: '2vh'}}>
       <p><strong>Please describe your belief about the data collected so far:</strong></p>
@@ -481,9 +483,18 @@ export default function Main() {
     transitionQuestions,
   ]
 
-  // useEffect(() => {
-  //   console.log({robotSuggestions});
-  // }, [robotSuggestions]);
+  useEffect(() => {
+    if (userFeedbackState === UserFeedbackState.OBJECTIVE) {
+      // Initialize objectives with all options selected
+      let initialObjectives = objectiveOptions.map(option => ({
+        objective: option,
+        ranking: -1,
+        addressedRating: 1
+      }));
+      dispatch({ type: Action.SET_OBJECTIVES, value: initialObjectives });
+      dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false });
+    }
+  }, [userFeedbackState]);
 
   const rankObjectives = () => {
     let objectivesTemp = [...objectives];
@@ -495,37 +506,15 @@ export default function Main() {
     dispatch({ type: Action.SET_NUM_SUBMIT_CLICKS, value: numSubmitClicks + 1 });
     switch (userFeedbackState) {
       case UserFeedbackState.OBJECTIVE: {
-        if (objectives.length === 1) {
-
-          // Set the rank of the single objective to 1
-          let objectivesTemp = [...objectives];
-          objectivesTemp[0].ranking = 1;
-          dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
-
-          if (objectives[0].objective === objectiveOptions[4]) {
-            dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: "" });
-            dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE });
-          } else {
-            
-            dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
-            console.log(samples)
-            let robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
-
-            const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
-            dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
-            dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
-            dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
-            dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
-
-            dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
-            dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
-            dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
-            dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
-          }
-        } else {
-          dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.RANK_OBJECTIVES });
-        } 
+        // if user add a new objective, show next time(potential study) in new position
+        // if (objectiveFreeResponse !== ''){
+        //   objectiveOptions.push(objectiveFreeResponse)
+        //   console.log(objectiveOptions)
+        // }
+        console.log(samples)
+        dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.RANK_OBJECTIVES });
+      
         console.log({globalState}); // for debugging
         return;
       }
@@ -572,14 +561,27 @@ export default function Main() {
       }
       case UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION: {
         if (acceptOrReject !== acceptOrRejectOptions.length - 1) {
-          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA });        
+          // here we decide to allow user to manually input both location and measured variable 
+          // dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA});    
+          // here we decide to allow user to manually input only the measured variable but the location is directly generated from   
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.TYPE_IN_NEW_DATA});  
+          // here we directly get the data from the server(which is the robot sampling)
+          // let robotSample = robotSuggestions[acceptOrReject];
+          // dispatch({ type: Action.ADD_SAMPLE, value: robotSample }); // add the new sample to the StateContext
+          // dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
+          // dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
+
         } else {
           dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.REJECT_REASON });
           dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
+          dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
+          dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: false });
+          dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.HYPOTHESIS_CONFIDENCE });
         }    
         console.log({globalState}); // for debugging
         return;
       }
+
       //Add user type in new method submit method
       case UserFeedbackState.TYPE_IN_NEW_DATA: {
         dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false});
@@ -631,6 +633,7 @@ export default function Main() {
         console.log('test');
         return;
       }
+
       case UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA: {
 
         const {userStrengthData,userLocationData} = globalState;
@@ -650,7 +653,8 @@ export default function Main() {
             normOffsetY: 200,
             isHovered: false,
             moisture: [13],
-            shear: strengthNumArr
+            shear: strengthNumArr,
+            path: [[0.5],[0]]
           };
         dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
         
@@ -862,10 +866,10 @@ export default function Main() {
 
       <Grid container>
         <Grid container>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={7}>
             <ChartPanel fullSize={true} mode={"TransectView"}/>
           </Grid>
-          <Grid item xs={12} md={6} className="rightDecisionPanel">
+          <Grid item xs={12} md={5} className="rightDecisionPanel">
             <div className="rightDecisionPanelContainer">
               { collectionRightPanel }
             </div>

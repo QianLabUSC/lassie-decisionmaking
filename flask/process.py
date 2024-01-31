@@ -69,10 +69,20 @@ def process():
                     info_signal, disp_signal, noise_esti, k_info_signal=k_info_signal_, k_noise=k_noise_, k_info_low = k_info_low_, k_info_high = k_info_high_)
     final_suggestion = DM.detailed_loc_flattend[final_suggestion_index]
     suggestion_sets = DM.detailed_loc_flattend[suggestion_sets_index]
-    plot_test(DM.location_flattend, DM.detailed_loc_flattend,  
-              DM.shearstrength_flattend, info_gaussian, information_level,
-              info_signal, disp_gaussian, feature_gaussian, noise_esti, 
-              disp_signal, xx_model, gasussian_prediction, gaussian_uncertainty, pareto_sets, pareto_locs)
+    final_path_x = np.linspace(0.5, 1, 500)
+    final_path_y = np.linspace(0, 1, 500)
+    final_path_x1 = np.linspace(0.5, 0.5, 500)
+    final_path_y1 = np.linspace(0, 1, 500)
+    final_path_x2 = np.linspace(0.5, 1, 500)
+    final_path_y2 = np.linspace(0, 0.5, 500)
+    final_path1 = np.array([final_path_x, final_path_y]).tolist()
+    final_path2 = np.array([final_path_x1, final_path_y1]).tolist()
+    final_path3 = np.array([final_path_x2, final_path_y2]).tolist()
+    final_path_set = [final_path1, final_path2, final_path3]
+    # plot_test(DM.location_flattend, DM.detailed_loc_flattend,  
+    #           DM.shearstrength_flattend, info_gaussian, information_level,
+    #           info_signal, disp_gaussian, feature_gaussian, noise_esti, 
+    #           disp_signal, xx_model, gasussian_prediction, gaussian_uncertainty, pareto_sets, pareto_locs)
     # print("final_type: ", final_type)
     # print("final_suggestion: ", final_suggestion)
     # print("suggestion_sets: ", suggestion_sets)
@@ -105,10 +115,11 @@ def process():
         'suggestion_sets': suggestion_sets.tolist(),
         'info_gaussian': info_gaussian.tolist(),
         'disp_gaussian': disp_gaussian.tolist(),
+        'path': final_path_set,
         'information_level': information_level,
         'info_signal': info_signal,
         'noise_esti': noise_esti,
-        'disp_signal': disp_signal,
+        'disp_signal': disp_signal
 
     }
     # output = findbestlocation(DM.location_flattend, info_gaussian, disp_gaussian, feature_gaussian)
@@ -116,6 +127,19 @@ def process():
     # deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
     return jsonify(output)
     
+@app.route('/dataCollection', methods=['POST'])
+@cross_origin()
+def getVariable():
+    inputs = request.json
+    path_x = np.array(inputs['path_x'])
+    path_y = np.array(inputs['path_y'])
+    shear = np.linspace(0.5, 1, 500)
+    moisture = np.linspace(0, 1, 500)
+    output = {
+    'shear': shear.tolist(),
+    'moisture': moisture.tolist(),
+    }
+    return jsonify(output)
     
 if __name__ == '__main__':
     
