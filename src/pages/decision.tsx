@@ -26,6 +26,7 @@ import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMulti
 import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints';
+import RobotChart from '../components/RobotChart';
 
 function ImgAlert({ open }) {
   return (
@@ -768,6 +769,7 @@ export default function Main() {
           </div>
       </Tooltip>
       {/* <PositionChart /> */}
+      <RobotChart/>
       {!loadingRobotSuggestions && (
         <div
           className={
