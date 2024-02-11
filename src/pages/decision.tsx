@@ -763,11 +763,11 @@ export default function Main() {
   const collectionRightPanel = (
     <div className="collectionRightPanel">
       <ImgAlert open={!!showImgAlert} />
-      <Tooltip title={userFeedbackState !== UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
+      {/* <Tooltip title={userFeedbackState !== UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA ? "" : <span style={clickableImageTipStyle}>{clickableImageTip}</span>} placement="bottom">
           <div className="clickableImageContainer">
             <ClickableImage width={600} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
-      </Tooltip>
+      </Tooltip> */}
       {/* <PositionChart /> */}
       <RobotChart/>
       {!loadingRobotSuggestions && (
