@@ -6,5 +6,6 @@
     "includeDeclarations": true,
     "excludeExternals": true,
     "ignoreCompilerErrors": true,
+    "semi": false,
     "externalPattern": "**/node_modules/**"
 }

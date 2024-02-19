@@ -43,6 +43,7 @@
     "@types/node": "^15.12.5",
     "@visx/axis": "^3.8.0",
     "@visx/group": "^3.3.0",
+    "@visx/heatmap": "^3.3.0",
     "@visx/scale": "^3.5.0",
     "@visx/shape": "^3.5.0",
     "@visx/text": "^3.3.0",

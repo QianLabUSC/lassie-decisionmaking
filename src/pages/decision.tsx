@@ -27,6 +27,8 @@ import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints';
 import RobotChart from '../components/RobotChart';
+import HeatmapComponent from '../components/HeatMap/HeatMap';
+import HeatMap2D from '../components/HeatMap/HeatMap2D';
 
 function ImgAlert({ open }) {
   return (
@@ -770,6 +772,8 @@ export default function Main() {
       </Tooltip> */}
       {/* <PositionChart /> */}
       <RobotChart/>
+      <HeatmapComponent/>
+      <HeatMap2D/>
       {!loadingRobotSuggestions && (
         <div
           className={
