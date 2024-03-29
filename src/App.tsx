@@ -1,7 +1,14 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { HashRouter as Router, Route, Switch, Redirect, useHistory, useLocation } from "react-router-dom";
+import {
+  HashRouter as Router,
+  Route,
+  Switch,
+  Redirect,
+  useHistory,
+  useLocation,
+} from 'react-router-dom';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { StateProvider, useStateValue, Action } from './state';
 import Intro from './pages/intro';
@@ -13,7 +20,12 @@ import { GlobalDialog } from './components/GlobalDialog';
 import { logTrace } from './logger';
 import { TraceType } from './types';
 import ThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
-import { storeState, stateExists, removeStoredState, getStoredState } from './handlers/LocalStorageHandler';
+import {
+  storeState,
+  stateExists,
+  removeStoredState,
+  getStoredState,
+} from './handlers/LocalStorageHandler';
 import { AUTO_LOAD_MS } from './constants';
 import { getMoistureData, getShearData, getMeasurements } from './util';
 import { initialSamplesSet } from './sampleTemplates';
@@ -25,10 +37,10 @@ const theme = createMuiTheme({
   },
 });
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   body: {
-    margin: 0
-  }
+    margin: 0,
+  },
 }));
 
 // A wrapper in order to access the state value
@@ -40,7 +52,7 @@ function RouteWrapper() {
   useEffect(() => {
     const unlisten = history.listen((newLocation, action) => {
       logTrace(TraceType.ENTER_PAGE, newLocation.pathname);
-      if (action === "PUSH") {
+      if (action === 'PUSH') {
         if (
           newLocation.pathname !== currentPathname ||
           newLocation.search !== currentSearch
@@ -49,7 +61,7 @@ function RouteWrapper() {
           currentSearch = newLocation.search;
           history.push({
             pathname: newLocation.pathname,
-            search: newLocation.search
+            search: newLocation.search,
           });
         }
       } else {
@@ -68,14 +80,14 @@ function RouteWrapper() {
     const initialSamples = initialSamplesSet[globalState.dataVersion.local];
     dispatch({ type: Action.SET_MOISTURE_DATA, value: moistureData });
     dispatch({ type: Action.SET_FULL_DATA, value: shearData });
-    dispatch({ type: Action.SET_SAMPLES, value: initialSamples })
+    dispatch({ type: Action.SET_SAMPLES, value: initialSamples });
     dispatch({ type: Action.SET_CURR_SAMPLE_IDX, value: 0 });
   }, [dispatch, globalState.dataVersion.local]);
 
   useEffect(() => {
     const beforeUnloadHandler = (e) => {
       e.preventDefault();
-      if (location.pathname !== "/" && !globalState.submitted) {
+      if (location.pathname !== '/' && !globalState.submitted) {
         const { chart } = globalState;
         if (chart) {
           dispatch({ type: Action.SET_CHART, value: null });
@@ -84,7 +96,7 @@ function RouteWrapper() {
     };
 
     const unloadHandler = () => {
-      if (location.pathname !== "/" && !globalState.submitted) {
+      if (location.pathname !== '/' && !globalState.submitted) {
         storeState(location.pathname, globalState);
       } else if (globalState.submitted) {
         removeStoredState();
@@ -104,10 +116,10 @@ function RouteWrapper() {
     const data = getStoredState();
     if (!data) {
       removeStoredState();
-      history.push("/");
+      history.push('/');
     } else {
       const { path, state, date } = data;
-      if ((Date.now() - date) < AUTO_LOAD_MS) {
+      if (Date.now() - date < AUTO_LOAD_MS) {
         removeStoredState();
         dispatch({ type: Action.SET_STATE, value: state });
         history.push(path);
@@ -119,7 +131,7 @@ function RouteWrapper() {
         onNew={() => {
           const data = getStoredState();
           removeStoredState();
-          history.push("/");
+          history.push('/');
         }}
         onContinue={() => {
           const { path, state } = data;
@@ -135,26 +147,48 @@ function RouteWrapper() {
     <div>
       <Switch>
         <Route exact path="/" component={Intro} />
-        <Route path="/decision" render={props => (
-          globalState.introCompleted ? <Decision /> : <Redirect to={{ pathname: '/' }} />
-        )} />
-        <Route path="/conclusion" render={props => (
-          globalState.introCompleted ? <Conclusion /> : <Redirect to={{ pathname: '/' }} />
-        )} />
-        <Route path="/survey" render={props => (
-          globalState.introCompleted ? <Survey /> : <Redirect to={{ pathname: '/' }} />
-        )} />
+        <Route
+          path="/decision"
+          render={(props) =>
+            globalState.introCompleted ? (
+              <Decision />
+            ) : (
+              <Redirect to={{ pathname: '/' }} />
+            )
+          }
+        />
+        <Route
+          path="/conclusion"
+          render={(props) =>
+            globalState.introCompleted ? (
+              <Conclusion />
+            ) : (
+              <Redirect to={{ pathname: '/' }} />
+            )
+          }
+        />
+        <Route
+          path="/survey"
+          render={(props) =>
+            globalState.introCompleted ? (
+              <Survey />
+            ) : (
+              <Redirect to={{ pathname: '/' }} />
+            )
+          }
+        />
       </Switch>
       <GlobalDialog />
     </div>
   );
 }
 
-let currentPathname = '', currentSearch = '';
+let currentPathname = '',
+  currentSearch = '';
 
 export function App() {
   const classes = useStyles();
-  document.title = "Geologic Field Decision Making";
+  document.title = 'Geologic Field Decision Making';
 
   return (
     <ThemeProvider theme={theme}>
