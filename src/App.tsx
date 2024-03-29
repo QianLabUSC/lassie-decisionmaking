@@ -70,9 +70,9 @@ function RouteWrapper() {
 
   // Load moisture dataset, shear dataset, and initial samples
   useEffect(() => {
-    let moistureData = getMoistureData();
-    let shearData = getShearData(dataVersion.local);
-    let initialSamples = initialSamplesSet[dataVersion.local];
+    const moistureData = getMoistureData();
+    const shearData = getShearData(dataVersion.local);
+    const initialSamples = initialSamplesSet[dataVersion.local];
     dispatch({ type: Action.SET_MOISTURE_DATA, value: moistureData });
     dispatch({ type: Action.SET_FULL_DATA, value: shearData });
     dispatch({ type: Action.SET_SAMPLES, value: initialSamples })
@@ -87,7 +87,7 @@ function RouteWrapper() {
       e.preventDefault();
       // Execute this if the user is past the intro section and if the full survey hasn't been submitted yet
       if (location.pathname !== "/" && !globalState.submitted) {
-        let { chart } = globalState;
+        const { chart } = globalState;
         // Clear the chart data because it contains circular references on the "data" and "datasets" properties.
         // If this data isn't cleared, it causes issues when trying to stringify the globalState in the "storeState"
         // function below. The chart is cleared in the "dispatch" function in this 'beforeunload' step prior to

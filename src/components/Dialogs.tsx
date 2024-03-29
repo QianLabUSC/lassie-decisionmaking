@@ -36,7 +36,7 @@ interface ConfirmProps {
   okText?: string,
   cancelText?: string,
   img?: any
-};
+}
 
 export function ConfirmDialog({ open, onOk, onClose, onCancel, allowCancel, title, text, okText, cancelText, img } : ConfirmProps) {
   const classes = useStyle();
@@ -70,7 +70,7 @@ export function ConfirmDialog({ open, onOk, onClose, onCancel, allowCancel, titl
       </DialogActions>
     </Dialog>
   );
-};
+}
 
 interface MultiStepDialogProps {
   open: boolean,
@@ -79,7 +79,7 @@ interface MultiStepDialogProps {
   setOpen: any,
   allowCancel: boolean,
   img?: any
-};
+}
 
 export function MultiStepDialog({ open, title, steps, setOpen, allowCancel, img } : MultiStepDialogProps) {
   const [idx, setIdx] = useState(0);

@@ -104,7 +104,7 @@ export default function PositionChart() {
 
   const chartIDSuffix = "";
 
-  let tab = currentTab;
+  const tab = currentTab;
 
   return (
     <div className={`chartPanelContainer`}>

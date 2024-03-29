@@ -93,7 +93,7 @@ const RobotChart: React.FC = () => {
         
           const lastPoint = data[data.length - 1];
 
-          let pathsToRender = [
+          const pathsToRender = [
             <React.Fragment key={`fragment-${index}`}>
               <LinePath
                 key={`line-${index}`}
