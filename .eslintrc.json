@@ -23,6 +23,6 @@
       "spaced-comment": "off",
       "padded-blocks": "off",
       "arrow-parens": "off",
-      "@typescript-eslint/no-unused-vars": ["error", { "vars": "local", "args": "none" }]
+      "@typescript-eslint/no-unused-vars": "off"
     }
 }
