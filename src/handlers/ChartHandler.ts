@@ -28,7 +28,7 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     const { index, moisture, shear } = row;
 
     // Create data for shear to moisture chart
-    let shearMoisture : any[] = [];
+    const shearMoisture : any[] = [];
     for (let i = 0; i < moisture.length; i++) {
       shearMoisture.push({shear: shear[i], moisture: moisture[i]});
     }
@@ -88,7 +88,7 @@ const positionDataPoints = shearDataPoints.map((point) => {
 
 export const initializeCharts = (globalState: IState, dispatch: any) : Charts => {
 
-  let { chart } = globalState;
+  const { chart } = globalState;
   try {
     clearCharts(chart);
   } catch (e) {
@@ -211,19 +211,19 @@ var resetCanvas = function(){
   document.getElementById('moistChart')?.remove();
   document.getElementById('shearMoistChart')?.remove();
 
-  let canvasShear = document.createElement('canvas');
+  const canvasShear = document.createElement('canvas');
   canvasShear.id = 'shearChart';
   document.getElementById('shearChartParent')?.appendChild(canvasShear);
 
-  let canvasMoist = document.createElement('canvas');
+  const canvasMoist = document.createElement('canvas');
   canvasMoist.id = 'moistChart';
   document.getElementById('moistChartParent')?.appendChild(canvasMoist);
 
-  let canvasShearMoist = document.createElement('canvas');
+  const canvasShearMoist = document.createElement('canvas');
   canvasShearMoist.id = 'shearMoistChart';
   document.getElementById('shearMoistChartParent')?.appendChild(canvasShearMoist);
 
-  let canvasPosition = document.createElement('canvas');
+  const canvasPosition = document.createElement('canvas');
   canvasPosition.id='positionChart';
   document.getElementById('positionChartParent')?.appendChild(canvasPosition);
 };

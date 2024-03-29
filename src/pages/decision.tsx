@@ -80,14 +80,14 @@ export default function Main() {
   const updateUserSteps = () => {
     let acceptedRobotSuggestion;
     if (acceptOrReject !== -1 && acceptOrReject !== acceptOrRejectOptions.length - 1) {
-      let robotSuggestionFinal = robotSuggestions[acceptOrReject]; 
+      const robotSuggestionFinal = robotSuggestions[acceptOrReject]; 
       // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSuggestionFinal.index, robotSuggestionFinal.measurements);
-      let shearValues = -1
-      let moistureValues = -1
+      const shearValues = -1
+      const moistureValues = -1
       acceptedRobotSuggestion = {...robotSuggestionFinal, shear: shearValues, moisture: moistureValues};
     }
-    let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
-    let newUserStep : UserStepsData = {
+    const transitionAdj = (!userFreeSelection) ? transition : transition + 1;
+    const newUserStep : UserStepsData = {
       step: step, 
       objectives: JSON.parse(JSON.stringify(objectives)),  
       objectiveFreeResponse: objectiveFreeResponse, 
@@ -145,7 +145,7 @@ export default function Main() {
   useEffect(() => {
     if (userFeedbackState === UserFeedbackState.RANK_OBJECTIVES) {
 
-      let objectivesRankings : number[] = [];
+      const objectivesRankings : number[] = [];
       let disable = false;
       for (let i = 0; i < objectives.length; i++) {
         if (objectives[i].ranking === -1 || objectivesRankings.includes(objectives[i].ranking)) {
@@ -169,7 +169,7 @@ export default function Main() {
     return false;
   }
 
-  let objectiveOptionsLinked = objectiveOptions.map((obj, i) => {
+  const objectiveOptionsLinked = objectiveOptions.map((obj, i) => {
     if (i === 1) {
       return (
         <span>
@@ -222,7 +222,7 @@ export default function Main() {
                         id="objectives-select"
                         value={obj.ranking}
                         onChange={(e) => {
-                          let objectivesTemp = [...objectives];
+                          const objectivesTemp = [...objectives];
                           if (typeof e.target.value === 'number') objectivesTemp[i].ranking = e.target.value;
                           dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
                         }}
@@ -256,7 +256,7 @@ export default function Main() {
     </div>
 
   useEffect(() => {
-    let acceptOrRejectTemp : string[] = robotSuggestions.map((suggestion, index) => "Accept suggested location " + String.fromCharCode(index + 65));
+    const acceptOrRejectTemp : string[] = robotSuggestions.map((suggestion, index) => "Accept suggested location " + String.fromCharCode(index + 65));
     acceptOrRejectTemp.push("Reject suggestions");
     dispatch({ type: Action.SET_ACCEPT_OR_REJECT_OPTIONS, value: acceptOrRejectTemp });
   }, [robotSuggestions]);
@@ -340,7 +340,7 @@ export default function Main() {
   // Handler for setting the user's rating for how well the latest sample addressed the current objective
   const handleSliderChange = (event, newValue, index) => {
     if (typeof newValue === 'number') {
-      let objectivesTemp = [...objectives];
+      const objectivesTemp = [...objectives];
       objectivesTemp[index].addressedRating = newValue / 20 + 1;
       dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
     }
@@ -385,7 +385,7 @@ export default function Main() {
     </div>  
 
   useEffect(() => {
-    let rejectReasonOptionsTemp = [
+    const rejectReasonOptionsTemp = [
       "The suggested location did not address the beliefs I selected (", 
       "I rejected the suggested location for a different reason",
     ]
@@ -418,7 +418,7 @@ export default function Main() {
     </div>
 
   // Hook for displaying hypothesis popup
-  const singleTransectNullHypothesis = require('../../assets/John Ruck Strength Hypothesis.png');
+  const singleTransectNullHypothesis = require('../assests/John Ruck Strength Hypothesis.png');
   const [hypothesisOpen, setHypothesisOpen] = useState(false);
   const decisionHypothesisDialog =
     <MultiStepDialog
@@ -487,7 +487,7 @@ export default function Main() {
   useEffect(() => {
     if (userFeedbackState === UserFeedbackState.OBJECTIVE) {
       // Initialize objectives with all options selected
-      let initialObjectives = objectiveOptions.map(option => ({
+      const initialObjectives = objectiveOptions.map(option => ({
         objective: option,
         ranking: -1,
         addressedRating: 1
@@ -498,7 +498,7 @@ export default function Main() {
   }, [userFeedbackState]);
 
   const rankObjectives = () => {
-    let objectivesTemp = [...objectives];
+    const objectivesTemp = [...objectives];
     objectivesTemp.sort((a, b) => (a.ranking > b.ranking) ? 1 : -1);
     return objectivesTemp;
   }
@@ -521,7 +521,7 @@ export default function Main() {
       }
       case UserFeedbackState.RANK_OBJECTIVES: {
         // Order the objectives by ranking
-        let objectivesTemp = rankObjectives();
+        const objectivesTemp = rankObjectives();
         dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
         // Check if objectives contains free response option and if this option is ranked the highest
         let freeResponseRankedHighest = false; 
@@ -536,7 +536,7 @@ export default function Main() {
         } else {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
 
-          let robotResults = await calculateRobotSuggestions(samples, globalState, objectivesTemp);
+          const robotResults = await calculateRobotSuggestions(samples, globalState, objectivesTemp);
           const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
           dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
           dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
@@ -586,14 +586,14 @@ export default function Main() {
       //Add user type in new method submit method
       case UserFeedbackState.TYPE_IN_NEW_DATA: {
         dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: false});
-        let robotSample = robotSuggestions[acceptOrReject]; 
+        const robotSample = robotSuggestions[acceptOrReject]; 
         const {userStrengthData} = globalState;
         const stringStrengthData = String(userStrengthData);
         console.log("stringStrengthData", stringStrengthData);
         var splittedStrength = stringStrengthData.split(" ");
         const strengthNumArr = splittedStrength.map(Number);
         // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSample.index, robotSample.measurements);
-        let newSample : Sample = {...robotSample, shear: strengthNumArr, moisture: [5,5,5]};
+        const newSample : Sample = {...robotSample, shear: strengthNumArr, moisture: [5,5,5]};
         dispatch({ type: Action.ADD_SAMPLE, value: newSample }); // add the new sample to the StateContext
         
         dispatch({ type: Action.SET_SAMPLE_TYPE, value: 'robot'});
@@ -684,7 +684,7 @@ export default function Main() {
         return;
       }
       case UserFeedbackState.TRANSITION: {
-        let transitionAdj = (!userFreeSelection) ? transition : transition + 1;
+        const transitionAdj = (!userFreeSelection) ? transition : transition + 1;
         console.log({globalState, transitionAdj});
 
         // Move to the next round with the same objectives as the previous round and automatically run
@@ -692,7 +692,7 @@ export default function Main() {
         if (transitionAdj === 0) {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
 
-          let robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
+          const robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
           console.log(robotResults)
           const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
           dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });

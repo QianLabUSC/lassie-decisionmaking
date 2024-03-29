@@ -260,7 +260,8 @@ const textComponent = (
   );
 };
 
-const mapConclusionImage = require("../../assets/map_conclusion.png");
+
+const mapConclusionImage = require('../assests/John Ruck Strength Hypothesis.png');
 const surveyMap = (
   <div key="conclusion-survey-map-image">
     <p style={{ marginBottom: "3vh" }}></p>
@@ -374,7 +375,7 @@ export default function Survey() {
     surveyQuestions[page],
     answers
   );
-  let questionComponents = buildQuestionComponents(
+  const questionComponents = buildQuestionComponents(
     surveyQuestions[page],
     answers,
     setAnswer,

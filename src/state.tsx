@@ -170,7 +170,7 @@ export enum Action {
   SET_SHOW_NOM_INPUT,
   SET_INTRO_STATUS, // Executed when user completes the introduction agreements
   SET_SUBMITTED_STATUS // Executed when user submits final responses
-};
+}
 
 // For actions that simply replace the corresponding key in state,
 // we register the action with the key here to simplify the code
@@ -230,7 +230,7 @@ const sampleReducer : SubReducer<Sample[]> = (samples, state, action) => {
     default: {
       break;
     }
-  };
+  }
   return samples;
 };
 
