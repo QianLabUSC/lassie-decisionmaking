@@ -3,3 +3,4 @@ dist/*
 .vscode/
 flask/venv/
 flask/figs_test/*
+build/*
