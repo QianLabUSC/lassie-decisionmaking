@@ -4,6 +4,15 @@ import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample, PreS
 import { objectiveOptions } from './constants';
 import { getShearData, getMoistureData } from './util';
 
+// Define the structure of a single sub-path as an array of numbers
+type SubPath = number[];
+
+// Define a path as an array containing two sub-paths
+type Path = [SubPath, SubPath];
+
+// Define the structure for testPath, which is an array of paths
+type TestPath = Path[];
+
 export type ChartSettings = {
   mode: number,
   updateRequired: boolean
@@ -29,6 +38,9 @@ export type Charts = {
 } | null;
 
 export interface IState {
+  newpathstep:number,
+  newpathvalues: TestPath,
+
   // Data fields
   dataVersion: DataVersion, // will be in final output after survey is completed
   fullData: number[][],
@@ -64,6 +76,10 @@ export interface IState {
 
 // Default initial state
 export const initialState : IState = {
+  newpathstep: 0,
+  newpathvalues:[],
+
+
   dataVersion: {
     local: 0, // load alternative hypothesis 0 or 1 randomly for shear data
   },
@@ -119,6 +135,7 @@ export const initialState : IState = {
 
 export type IAction = { type: any, value?: any }
 export enum Action {
+  INCREMENT_STEP_IDX,
   SET_STATE, // For loading previous runs; sets the entire state object.  
   SET_DATA_VERSION,
   SET_FULL_DATA,
@@ -320,20 +337,60 @@ const chartReducer : SubReducer<Charts> = (chart, state, action) => {
   return chart;
 };
 
+
+const newpathreducer = (state: IState, action: IAction): IState => {
+
+  console.log(state,'state at reducer')
+  function generateRandomTestPath(numberOfPaths = 3, dataPoints = 6): TestPath {
+    const testPath: TestPath = [];
+    for (let i = 0; i < numberOfPaths; i++) {
+      const path: Path = [[], []]; // Initialize both sub-paths
+      for (let j = 0; j < 2; j++) {
+        const subPath: SubPath = Array.from({ length: dataPoints }, () =>
+          parseFloat((Math.random() * state.newpathstep* (0.8 - 0.4) + 0.4).toFixed(6))
+        );
+        path[j] = subPath;
+      }
+      testPath.push(path);
+    }
+    return testPath;
+  }
+
+  const testPath = generateRandomTestPath();
+
+  switch (action.type) {
+    case Action.INCREMENT_STEP_IDX:
+      return { ...state, newpathstep: state.newpathstep + 1, newpathvalues:testPath };
+    // Handle other actions as before...
+    default:
+      return state;
+      // Your existing logic to handle other actions...
+  }
+};
+
 export const reducer = (state: IState, action: IAction) : IState => {
   if (action.type === Action.SET_STATE) {
     return action.value as IState;
   } else if (action.type in actionKeyMap) {
     return { ...state, [actionKeyMap[action.type] as string]: action.value };
   }
-  return {
+  const updatedState = {
     ...state,
     currUserStep: currUserStepReducer(state.currUserStep, state, action),
     userSteps: userStepReducer(state.userSteps, state, action),
     samples: sampleReducer(state.samples, state, action),
     chart: chartReducer(state.chart, state, action),
-  }
+    // Assuming newpathstep needs to be updated by newpathreducer; it's handled in the next line
+  };
+
+  return newpathreducer(updatedState, action);
 };
+
+
+
+
+
+
 
 type DispatchType = ((v: IAction) => void);
 

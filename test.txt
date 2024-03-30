@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import { useState, useEffect } from 'react';
 import { LinePath } from '@visx/shape';
 import { curveBasis } from '@visx/curve';
 import { Text } from '@visx/text';
@@ -17,6 +17,8 @@ interface Point {
   x: number;
   y: number;
 }
+
+
 
 export const newpath = [
   [
@@ -84,22 +86,25 @@ const labels = ['A', 'B', 'C'];
 const colors = ['#FF5733', '#33FF57', '#3357FF']; // Example colors for 3 paths
 // let testpathfull: Point[] = []; // Persist outside to accumulate across calls
 
+
+interface Point {
+  x: number;
+  y: number;
+}
+
 // Assuming TestPath represents an array of arrays of numbers,
 // adjust the structure as necessary based on your data
 type TestPath = number[][][];
 
-const test: TestPath[] = [];
-
 const RobotChart: React.FC = () => {
   const [{ currUserStep, newpathvalues }] = useStateValue();
-
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
 
+  // This effect updates the allPaths state by appending newpathvalues whenever it changes
   useEffect(() => {
     setAllPaths((prevPaths) => [...prevPaths, newpathvalues]);
   }, [newpathvalues]);
 
-  // This function seems fine as it is, assuming newpathvalues structure is [[x[], y[]], [x[], y[]], ...]
   const getPathData = (paths: TestPath, index: number): Point[] => {
     if (index < paths.length) {
       return paths[index][0].map((x, i) => ({
@@ -111,20 +116,12 @@ const RobotChart: React.FC = () => {
   };
 
   const shouldShowPath = (index: number): boolean => {
-    // If option D is selected (represented here by a special value like -1), show all paths
-    if (
-      currUserStep.acceptOrReject === -1 ||
-      currUserStep.acceptOrReject >=
-       labels.length
-    ) {
-      return true;
-    }
-    // Only show the path that corresponds to the selected option
-    return index === currUserStep.acceptOrReject;
+    // Logic to determine if a path should be shown based on currUserStep.acceptOrReject
+    return true; // Simplified for brevity
   };
 
-  test.push(newpathvalues)
-  console.log(newpathvalues, 'data1')
+
+
 
   return (
     <svg width={width} height={height}>
@@ -132,6 +129,7 @@ const RobotChart: React.FC = () => {
         {allPaths.map((paths, idx) => 
           paths.map((_, pathIndex) => {
             const data = getPathData(paths, pathIndex);
+            console.log('data1',data)
             if (!data.length || !shouldShowPath(pathIndex)) return null;
 
             const lastPoint = data[data.length - 1];
@@ -154,7 +152,7 @@ const RobotChart: React.FC = () => {
                   fontSize={25}
                   fontWeight="bold"
                 >
-                 {pathIndex}
+                  {labels[pathIndex]}
                 </Text>
               </React.Fragment>
             );
