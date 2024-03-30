@@ -48,6 +48,8 @@ export default function Main() {
     loadingRobotSuggestions, showRobotSuggestions, disableSubmitButton, numSubmitClicks, 
     imgClickEnabled, numImgClicks, transectIdx, } = globalState;
 
+
+    console.log('currSampleIdx', currSampleIdx)
   const { step, userFeedbackState, objectives, objectiveFreeResponse, sampleType,
     robotSuggestions, spatialReward, variableReward, discrepancyReward, acceptOrRejectOptions, acceptOrReject, 
     acceptOrRejectFreeResponse, rejectReasonOptions, rejectReason, rejectReasonFreeResponse, userFreeSelection, 
@@ -503,6 +505,10 @@ export default function Main() {
     return objectivesTemp;
   }
 
+  const newSubmit = async() => {
+    dispatch({ type: Action.INCREMENT_STEP_IDX });
+  }
+
   const onSubmit = async () => {
     dispatch({ type: Action.SET_NUM_SUBMIT_CLICKS, value: numSubmitClicks + 1 });
     switch (userFeedbackState) {
@@ -739,7 +745,6 @@ export default function Main() {
         // If the user selects any option besides the quit screen, then automatically add the data
         // from the current step to the finalized userSteps and reset some of the currUserStep data
         if (transitionAdj !== 3) {
-          dispatch({ type: Action.SET_USER_STEP_IDX, value: step + 1});
           dispatch({ type: Action.SET_OBJECTIVES_FREE_RESPONSE, value: ""});
           dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: -1 });
           dispatch({ type: Action.SET_REJECT_REASON, value: -1 });
@@ -768,7 +773,6 @@ export default function Main() {
             <ClickableImage width={600} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
       </Tooltip> */}
-      {/* <PositionChart /> */}
       <RobotChart/>
       {!loadingRobotSuggestions && (
         <div
@@ -784,9 +788,22 @@ export default function Main() {
               color="secondary"
               onClick={onSubmit}
             >
-              Submit
+              Submit 
+              {/* here  */}
             </Button>
           </div>
+
+          <div className="submit-user-feedback-button">
+            <Button
+              disabled={disableSubmitButton}
+              variant="contained"
+              color="secondary"
+              onClick={newSubmit}
+            >
+              GATHER NEW PATH
+            </Button>
+          </div>
+
         </div>
       )}
       {loadingRobotSuggestions && (
