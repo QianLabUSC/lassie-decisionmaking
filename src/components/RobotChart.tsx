@@ -51,7 +51,61 @@ const test: TestPath[] = [];
 const RobotChart: React.FC = () => {
   const [{ currUserStep, newpathvalues }] = useStateValue();
 
-  const [allPaths, setAllPaths] = useState<TestPath[]>([]);
+
+  const firstPath: TestPath = [
+    [
+        [
+            0.012699544,
+            0.01377393,
+            0.0148343254,
+            0.148540198,
+            0.1889489748,
+        ],
+        [
+            
+            0.01330707,
+            0.13732145,
+            0.14574513,
+            0.14924912,
+            0.1554568,
+        ]
+    ],
+    [
+        [
+            0.012699544,
+            0.0142308,
+            0.01501995,
+            0.1727556,
+            0.17514517,
+        ],
+        [
+            0.01330707,
+            0.01417771,
+            0.161951,
+            0.16915733,
+            0.1737063,
+        ]
+    ],
+    [
+        [
+            0.012699544,
+            0.1339001,
+            0.14742749,
+            0.16707451,
+            0.1682743,
+        ],
+        [
+            0.01330707,
+            0.01474205,
+            0.1509101,
+            0.1752565,
+            0.1793485,
+        ]
+    ]
+  ]
+
+
+  const [allPaths, setAllPaths] = useState<TestPath[]>([firstPath]);
 
   useEffect(() => {
     setAllPaths((prevPaths) => [...prevPaths, newpathvalues]);
@@ -83,6 +137,8 @@ const RobotChart: React.FC = () => {
 
   test.push(newpathvalues)
   console.log(newpathvalues, 'data1')
+
+  console.log(allPaths, 'allpaths')
 
   return (
     <svg width={width} height={height}>

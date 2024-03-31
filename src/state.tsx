@@ -340,27 +340,137 @@ const chartReducer : SubReducer<Charts> = (chart, state, action) => {
 
 const newpathreducer = (state: IState, action: IAction): IState => {
 
-  console.log(state,'state at reducer')
-  function generateRandomTestPath(numberOfPaths = 3, dataPoints = 6): TestPath {
-    const testPath: TestPath = [];
-    for (let i = 0; i < numberOfPaths; i++) {
-      const path: Path = [[], []]; // Initialize both sub-paths
-      for (let j = 0; j < 2; j++) {
-        const subPath: SubPath = Array.from({ length: dataPoints }, () =>
-          parseFloat((Math.random() * state.newpathstep* (0.8 - 0.4) + 0.4).toFixed(6))
-        );
-        path[j] = subPath;
-      }
-      testPath.push(path);
-    }
-    return testPath;
+
+const secondPath: TestPath = [
+  [
+      [
+        0.17514517,
+          0.2377393,
+          0.348343254,
+          0.448540198,
+          0.4889489748,
+      ],
+      [
+          
+        0.1737063,
+          0.23732145,
+          0.34574513,
+          0.44924912,
+          0.5554568,
+      ]
+  ],
+  [
+      [
+        0.17514517,
+          0.2142308,
+          0.21901995,
+          0.31727556,
+          0.517514517,
+      ],
+      [
+        0.1737063,
+          0.31417771,
+          0.4161951,
+          0.516915733,
+          0.51737063,
+      ]
+  ],
+  [
+      [
+        0.17514517,
+          0.31339001,
+          0.414742749,
+          0.516707451,
+          0.561682743,
+      ],
+      [
+        0.1737063,
+          0.31474205,
+          0.41509101,
+          0.451752565,
+          0.51793485,
+      ]
+  ]
+]
+
+
+
+const thirdPath: TestPath = [
+  [
+      [
+        0.561682743,
+          0.59377393,
+          0.648343254,
+          0.748540198,
+          0.8889489748,
+      ],
+      [
+          
+        0.51793485,
+          0.63732145,
+          0.74574513,
+          0.84924912,
+          0.9554568,
+      ]
+  ],
+  [
+      [
+        0.561682743,
+          0.6142308,
+          0.71501995,
+          0.81727556,
+          0.917514517,
+      ],
+      [
+        0.51793485,
+          0.61417771,
+          0.7161951,
+          0.816915733,
+          0.91737063,
+      ]
+  ],
+  [
+      [
+        0.561682743,
+          0.5671339001,
+          0.66714742749,
+          0.77716707451,
+          0.8871682743,
+      ],
+      [
+        0.51793485,
+          0.6531474205,
+          0.7841509101,
+          0.8771752565,
+          0.9981793485,
+      ]
+  ]
+]
+
+
+
+const { newpathstep, newpathvalues } = state;
+
+console.log(newpathstep,newpathvalues, 'newpath values')
+function generateRandomTestPath() {
+  let updatedPath = newpathvalues; // Clone the existing path
+
+  if (newpathstep === 0) {
+    updatedPath = updatedPath.concat(secondPath);
+    console.log(updatedPath, 'newpathstepatstate1')
+  } else if (newpathstep === 1) {
+    updatedPath = updatedPath.concat(thirdPath);
+    console.log(newpathstep, 'newpathstepatstate2')
   }
 
-  const testPath = generateRandomTestPath();
+  return updatedPath;
+}
+
+const testPath = generateRandomTestPath();
 
   switch (action.type) {
     case Action.INCREMENT_STEP_IDX:
-      return { ...state, newpathstep: state.newpathstep + 1, newpathvalues:testPath };
+      return { ...state, newpathstep: state.newpathstep + 1, newpathvalues:testPath};
     // Handle other actions as before...
     default:
       return state;
