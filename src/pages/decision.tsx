@@ -27,6 +27,7 @@ import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints';
 import RobotChart from '../components/RobotChart';
+import MositureScatterPlot from '../components/Charts/MositureStressScatterPlot'
 
 function ImgAlert({ open }) {
   return (
@@ -865,6 +866,7 @@ export default function Main() {
     );
   }
 
+
   return (
     <div id="app" className="decisionPage">
       { helperOpen && <Helper /> }
@@ -886,7 +888,9 @@ export default function Main() {
       <Grid container>
         <Grid container>
           <Grid item xs={12} md={7}>
-            <ChartPanel fullSize={true} mode={"TransectView"}/>
+          <MositureScatterPlot width={1100} height={600} />
+
+            {/* <ChartPanel fullSize={true} mode={"TransectView"}/> */}
           </Grid>
           <Grid item xs={12} md={5} className="rightDecisionPanel">
             <div className="rightDecisionPanelContainer">

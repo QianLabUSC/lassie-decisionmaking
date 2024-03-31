@@ -1,168 +1,55 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { LinePath } from '@visx/shape';
-import { curveBasis } from '@visx/curve';
-import { Text } from '@visx/text';
-import { Group } from '@visx/group';
-import { scaleLinear } from '@visx/scale';
-import { AxisLeft, AxisBottom } from '@visx/axis';
-import { useStateValue } from '../state';
+ const testPath: TestPath = [
+      [
+          [
+              0.12699544,
+              0.1377393,
+              0.148343254,
+              0.148540198,
+              0.1889489748,
+          ],
+          [
+              
+              0.1330707,
+              0.13732145,
+              0.14574513,
+              0.14924912,
+              0.1554568,
+          ]
+      ],
+      [
+          [
+              0.12699544,
+              0.142308,
+              0.1501995,
+              0.1727556,
+              0.17514517,
+          ],
+          [
+              0.1330707,
+              0.1417771,
+              0.161951,
+              0.16915733,
+              0.1737063,
+          ]
+      ],
+      [
+          [
+              0.12699544,
+              0.1339001,
+              0.14742749,
+              0.16707451,
+              0.1682743,
+          ],
+          [
+              0.1330707,
+              0.1474205,
+              0.1509101,
+              0.1752565,
+              0.1793485,
+          ]
+      ]
+  ]
 
-// import { paths } from '../paths';
+THis is my intial test path which is basically array of 3 paths, test[0] being first path , and every path have 2 array each being x & y corrdinates, for example test[0][0] is x cordinate of path 1 & test[0][1] is y cordinate of path 1, similarily test[1][0] is x cordinate of path 2 & test[1][1] is y cordinate of path 2
 
-const width = 1400;
-const height = 700;
-const margin = { top: 20, bottom: 20, left: 50, right: 20 };
-interface Point {
-  x: number;
-  y: number;
-}
-
-
-
-export const newpath = [
-  [
-    [0.1343, 0.12454, 0.345, 0.143545, 0.49],
-    [0.1, 0.115, 0.21, 0.32, 0.45],
-  ],
-  [
-    [0.1, 0.2114, 0.147, 0.479, 0.48],
-    [0.1, 0.365, 0.465, 0.485, 0.49],
-  ],
-  [
-    [0.1, 0.1243, 0.23543, 0.24359, 0.54],
-    [0.1, 0.3225, 0.345, 0.3832, 0.44],
-  ],
-];
-
-const secondpath = [
-  [
-    [
-      0.49, 0.30510220440881763526, 0.310420841683366733, 0.41062124248496994,
-      0.489979959919839678, 0.489999999,
-    ],
-    [
-      0.45, 0.510220440881763526, 0.610420841683366733, 0.671062124248496994,
-      0.689979959919839678, 0.78978,
-    ],
-  ],
-  [
-    [0.48, 0.43499875, 0.43535655, 0.356676, 0.3587989, 0.215686787],
-    [
-      0.49, 0.49879759519038075, 0.519899799599198396, 0.545465, 0.674556,
-      0.7898675,
-    ],
-  ],
-  [
-    [
-      0.54, 0.345501002004008016, 0.34559020040080160321, 0.46503006012024048,
-      0.769989979959919839, 0.871,
-    ],
-    [
-      0.44, 0.5001002004008016032, 0.5250501002004008, 0.6541503006012024,
-      0.73386773547094188, 0.75,
-    ],
-  ],
-];
-// Convert initial path data to the format suitable for LinePath
-const lineData: Point[][] = newpath.map((pathSet) =>
-  pathSet[0].map((x, i) => ({ x, y: pathSet[1][i] }))
-);
-
-// Scales
-const xScale = scaleLinear({
-  domain: [0, 1],
-  range: [margin.left, width - margin.right],
-});
-
-const yScale = scaleLinear({
-  domain: [0, 1],
-  range: [height - margin.bottom, margin.top],
-});
-
-
-// Labels and Colors for each path
-const labels = ['A', 'B', 'C'];
-const colors = ['#FF5733', '#33FF57', '#3357FF']; // Example colors for 3 paths
-// let testpathfull: Point[] = []; // Persist outside to accumulate across calls
-
-
-interface Point {
-  x: number;
-  y: number;
-}
-
-// Assuming TestPath represents an array of arrays of numbers,
-// adjust the structure as necessary based on your data
-type TestPath = number[][][];
-
-const RobotChart: React.FC = () => {
-  const [{ currUserStep, newpathvalues }] = useStateValue();
-  const [allPaths, setAllPaths] = useState<TestPath[]>([]);
-
-  // This effect updates the allPaths state by appending newpathvalues whenever it changes
-  useEffect(() => {
-    setAllPaths((prevPaths) => [...prevPaths, newpathvalues]);
-  }, [newpathvalues]);
-
-  const getPathData = (paths: TestPath, index: number): Point[] => {
-    if (index < paths.length) {
-      return paths[index][0].map((x, i) => ({
-        x,
-        y: paths[index][1][i],
-      }));
-    }
-    return [];
-  };
-
-  const shouldShowPath = (index: number): boolean => {
-    // Logic to determine if a path should be shown based on currUserStep.acceptOrReject
-    return true; // Simplified for brevity
-  };
-
-
-
-
-  return (
-    <svg width={width} height={height}>
-      <Group>
-        {allPaths.map((paths, idx) => 
-          paths.map((_, pathIndex) => {
-            const data = getPathData(paths, pathIndex);
-            console.log('data1',data)
-            if (!data.length || !shouldShowPath(pathIndex)) return null;
-
-            const lastPoint = data[data.length - 1];
-            return (
-              <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
-                <LinePath
-                  data={data}
-                  x={(d: Point) => xScale(d.x)}
-                  y={(d) => yScale(d.y)}
-                  stroke={colors[pathIndex % colors.length]} // Adjust as needed
-                  strokeWidth={4}
-                  curve={curveBasis}
-                />
-                <Text
-                  x={xScale(lastPoint.x)}
-                  y={yScale(lastPoint.y)}
-                  dx={-10}
-                  dy={5}
-                  fill="red"
-                  fontSize={25}
-                  fontWeight="bold"
-                >
-                  {labels[pathIndex]}
-                </Text>
-              </React.Fragment>
-            );
-          })
-        )}
-        <AxisLeft scale={yScale} left={50} />
-        <AxisBottom scale={xScale} top={height - 20} />
-      </Group>
-    </svg>
-  );
-};
-
-export default RobotChart;
+for each path generate 3 new 
