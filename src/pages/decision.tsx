@@ -27,7 +27,8 @@ import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints';
 import RobotChart from '../components/RobotChart';
-import MositureScatterPlot from '../components/Charts/MositureStressScatterPlot'
+import MoistureStressScatterPlot from '../components/Charts/MositureStressScatterPlot'
+import MoistureHeatMap from '../components/Charts/MoistureHeatMap';
 
 function ImgAlert({ open }) {
   return (
@@ -888,7 +889,8 @@ export default function Main() {
       <Grid container>
         <Grid container>
           <Grid item xs={12} md={7}>
-          <MositureScatterPlot width={1100} height={600} />
+          <MoistureStressScatterPlot width={1100} height={600} />
+          <MoistureHeatMap  width={1100} height={600} />
 
             {/* <ChartPanel fullSize={true} mode={"TransectView"}/> */}
           </Grid>
