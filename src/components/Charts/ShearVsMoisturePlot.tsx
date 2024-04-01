@@ -7,7 +7,7 @@ interface ScatterData {
   x: number;
   y: number;
   moisturevalue: number;
-  shearvalue: number
+  shearvalue: number;
 }
 
 interface ScatterPlotProps {
@@ -24,17 +24,20 @@ function generateScatterData(type: 'MOISTURE' | 'SHEARSTRESS'): ScatterData[] {
     const x = Math.floor(Math.random() * maxValue);
     const y = Math.floor(Math.random() * maxValue);
     let moisturevalue, shearvalue;
- 
-      moisturevalue = Math.floor(Math.random() * 5);
- 
-      shearvalue = Math.floor(Math.random() * 100);
-    
+
+    moisturevalue = Math.floor(Math.random() * 5);
+
+    shearvalue = Math.floor(Math.random() * 100);
+
     data.push({ x, y, moisturevalue, shearvalue });
   }
   return data;
 }
 
-const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({ width, height }) => {
+const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
+  width,
+  height,
+}) => {
   const moistureData = generateScatterData('MOISTURE');
   const shearStressData = generateScatterData('SHEARSTRESS');
   const svgRef = useRef(null);
@@ -59,8 +62,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({ width, height }
         .attr('transform', `translate(0,${plotHeight})`)
         .call(d3.axisBottom(xScale));
 
-      g.append('g')
-        .call(d3.axisLeft(yScale));
+      g.append('g').call(d3.axisLeft(yScale));
 
       // // Moisture - Circles
       // g.selectAll('.dot-moisture')
@@ -86,54 +88,56 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({ width, height }
       //   .attr('fill', 'red');
 
       // Moisture - Circles
-g.selectAll('.dot-moisture')
-.data(moistureData)
-.enter()
-.append('circle')
-.attr('class', 'dot-moisture')
-.attr('r', 8)
-.attr('cx', d => xScale(d.x))
-.attr('cy', d => yScale(d.y))
-.attr('fill', 'green')
-.on('mouseover', (event, d) => {
-  d3.select('#tooltip')
-    .style('opacity', 1)
-    .html(`x: ${d.x}, y: ${d.y}, Moisture:${d.moisturevalue}`) // Show moisture value
-    .style('left', `${event.pageX + 10}px`)
-    .style('top', `${event.pageY + 10}px`);
-})
-.on('mouseout', () => {
-  d3.select('#tooltip').style('opacity', 0);
-});
+      g.selectAll('.dot-moisture')
+        .data(moistureData)
+        .enter()
+        .append('circle')
+        .attr('class', 'dot-moisture')
+        .attr('r', 8)
+        .attr('cx', (d) => xScale(d.x))
+        .attr('cy', (d) => yScale(d.y))
+        .attr('fill', 'green')
+        .on('mouseover', (event, d) => {
+          d3.select('#tooltip')
+            .style('opacity', 1)
+            .html(`x: ${d.x}, y: ${d.y}, Moisture:${d.moisturevalue}`) // Show moisture value
+            .style('left', `${event.pageX + 10}px`)
+            .style('top', `${event.pageY + 10}px`);
+        })
+        .on('mouseout', () => {
+          d3.select('#tooltip').style('opacity', 0);
+        });
 
-// Shear Stress - Rectangles
-g.selectAll('.dot-shearstress')
-.data(shearStressData)
-.enter()
-.append('rect')
-.attr('class', 'dot-shearstress')
-.attr('width', 15)
-.attr('height', 15)
-.attr('x', d => xScale(d.x) - 5) // Offset by half the width to center
-.attr('y', d => yScale(d.y) - 5) // Offset by half the height to center
-.attr('fill', 'red')
-.on('mouseover', (event, d) => {
-  d3.select('#tooltip')
-    .style('opacity', 1)
-    .html(`x: ${d.x}, y: ${d.y}, Shear: ${d.shearvalue}`) // Show shear stress value
-    .style('left', `${event.pageX + 10}px`)
-    .style('top', `${event.pageY + 10}px`);
-})
-.on('mouseout', () => {
-  d3.select('#tooltip').style('opacity', 0);
-});
-
+      // Shear Stress - Rectangles
+      g.selectAll('.dot-shearstress')
+        .data(shearStressData)
+        .enter()
+        .append('rect')
+        .attr('class', 'dot-shearstress')
+        .attr('width', 15)
+        .attr('height', 15)
+        .attr('x', (d) => xScale(d.x) - 5) // Offset by half the width to center
+        .attr('y', (d) => yScale(d.y) - 5) // Offset by half the height to center
+        .attr('fill', 'red')
+        .on('mouseover', (event, d) => {
+          d3.select('#tooltip')
+            .style('opacity', 1)
+            .html(`x: ${d.x}, y: ${d.y}, Shear: ${d.shearvalue}`) // Show shear stress value
+            .style('left', `${event.pageX + 10}px`)
+            .style('top', `${event.pageY + 10}px`);
+        })
+        .on('mouseout', () => {
+          d3.select('#tooltip').style('opacity', 0);
+        });
     }
   }, [moistureData, shearStressData, plotWidth, plotHeight]);
 
   return (
     <>
-      <Typography variant="h3" style={{ marginTop: '30px', textAlign: 'center' }}>
+      <Typography
+        variant="h3"
+        style={{ marginTop: '30px', textAlign: 'center' }}
+      >
         Moisture & Shear Stress Scatter Plot
       </Typography>
       <svg ref={svgRef} width={width} height={height} />
