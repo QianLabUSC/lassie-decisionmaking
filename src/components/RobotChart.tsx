@@ -64,6 +64,8 @@ const RobotChart: React.FC = () => {
   }, [newpathvalues]);
 
   // This function seems fine as it is, assuming newpathvalues structure is [[x[], y[]], [x[], y[]], ...]
+ 
+
   const getPathData = (paths: TestPath, index: number): Point[] => {
     if (index < paths.length) {
       return paths[index][0].map((x, i) => ({
@@ -87,10 +89,7 @@ const RobotChart: React.FC = () => {
   };
 
   test.push(newpathvalues);
-  console.log(newpathvalues, 'data1');
-
-  console.log(allPaths, 'allpaths');
-
+  const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
   return (
     <svg width={width} height={height}>
       <Group>
@@ -100,13 +99,15 @@ const RobotChart: React.FC = () => {
             if (!data.length || !shouldShowPath(pathIndex)) return null;
 
             const lastPoint = data[data.length - 1];
+            const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
+            const isLastThreePaths = globalPathIndex >= totalPaths - 3;
             return (
               <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
                 <LinePath
                   data={data}
                   x={(d: Point) => xScale(d.x)}
                   y={(d) => yScale(d.y)}
-                  stroke={colors[pathIndex % colors.length]} // Adjust as needed
+                  stroke={isLastThreePaths ? colors[pathIndex % colors.length] : 'black'}
                   strokeWidth={4}
                   curve={curveBasis}
                 />
