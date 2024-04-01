@@ -19,7 +19,6 @@ interface ScatterPlotProps {
   height: number;
 }
 
-
 function generateScatterData(type: String): ScatterData[] {
   const data: ScatterData[] = [];
 
@@ -36,7 +35,6 @@ function generateScatterData(type: String): ScatterData[] {
       value = Math.floor(Math.random() * 100);
     }
 
- 
     data.push({ x, y, value });
   }
 
@@ -95,22 +93,24 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
         .style('font-size', '15px') // Set the font size here
         .text('Y-Coordinate');
 
+      const lineData = [
+        { x: 3, y: 11 },
+        { x: 90, y: 90 },
+      ];
 
-        const lineData = [{ x: 3, y: 11}, { x: 90, y: 90 }];
+      // Line Generator
+      const lineGenerator = d3
+        .line<ScatterData>()
+        .x((d) => xScale(d.x))
+        .y((d) => yScale(d.y));
 
-        // Line Generator
-        const lineGenerator = d3.line<ScatterData>()
-          .x(d => xScale(d.x))
-          .y(d => yScale(d.y));
-    
-        // Append the line
-        g.append("path")
-          .datum(lineData)
-          .attr("fill", "none")
-          .attr("stroke", "red")
-          .attr("stroke-width", 2)
-          .attr("d", lineGenerator);
-
+      // Append the line
+      g.append('path')
+        .datum(lineData)
+        .attr('fill', 'none')
+        .attr('stroke', 'red')
+        .attr('stroke-width', 2)
+        .attr('d', lineGenerator);
 
       // Points
       g.selectAll('.dot')
@@ -138,10 +138,16 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
   return (
     <>
       <div>
-      <Typography variant="h3"  style={{ minWidth: 200, marginTop: '30px', marginLeft: '400px' }}>
-        Scatter Plot Data Visualization
-      </Typography>
-      <FormControl variant="outlined" style={{ marginLeft: '550px', marginTop:'20px', width: '200px' }}>
+        <Typography
+          variant="h3"
+          style={{ minWidth: 200, marginTop: '30px', marginLeft: '400px' }}
+        >
+          Scatter Plot Data Visualization
+        </Typography>
+        <FormControl
+          variant="outlined"
+          style={{ marginLeft: '550px', marginTop: '20px', width: '200px' }}
+        >
           <InputLabel id="dataSelect-label">Dataset</InputLabel>
           <Select
             labelId="dataSelect-label"
