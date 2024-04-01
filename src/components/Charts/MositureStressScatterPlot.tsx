@@ -19,9 +19,11 @@ interface ScatterPlotProps {
   height: number;
 }
 
+
 function generateScatterData(type: String): ScatterData[] {
   const data: ScatterData[] = [];
-  const numOfPoints = 200;
+
+  const numOfPoints = 50;
   const maxValue = 100;
 
   for (let i = 0; i < numOfPoints; i++) {
@@ -50,7 +52,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
   >('MOISTURE');
   const data = generateScatterData(selectedOption);
   const svgRef = useRef(null);
-  const margin = { top: 100, right: 20, bottom: 50, left: 120 };
+  const margin = { top: 20, right: 20, bottom: 50, left: 120 };
   const plotWidth = width - margin.left;
   const plotHeight = height - margin.top - margin.bottom;
 
@@ -64,16 +66,6 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
 
       const xScale = d3.scaleLinear().domain([0, 100]).range([0, plotWidth]);
       const yScale = d3.scaleLinear().domain([0, 100]).range([plotHeight, 0]);
-
-      // const xScale = d3
-      //   .scaleLinear()
-      //   .domain([0, d3.max(data, (d) => d.x)!])
-      //   .range([0, plotWidth]);
-
-      // const yScale = d3
-      //   .scaleLinear()
-      //   .domain([0, d3.max(data, (d) => d.y)!])
-      //   .range([plotHeight, 0]);
 
       const g = svg
         .append('g')
@@ -146,10 +138,10 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
   return (
     <>
       <div>
-        <FormControl
-          variant="outlined"
-          style={{ minWidth: 200, marginTop: '25px', marginLeft: '500px' }}
-        >
+      <Typography variant="h3"  style={{ minWidth: 200, marginTop: '30px', marginLeft: '400px' }}>
+        Scatter Plot Data Visualization
+      </Typography>
+      <FormControl variant="outlined" style={{ marginLeft: '550px', marginTop:'20px', width: '200px' }}>
           <InputLabel id="dataSelect-label">Dataset</InputLabel>
           <Select
             labelId="dataSelect-label"
