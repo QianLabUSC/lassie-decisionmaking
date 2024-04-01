@@ -118,7 +118,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
         .enter()
         .append('circle')
         .attr('class', 'dot')
-        .attr('r', 5)
+        .attr('r', 8)
         .attr('cx', (d) => xScale(d.x))
         .attr('cy', (d) => yScale(d.y))
         .attr('fill', 'steelblue')

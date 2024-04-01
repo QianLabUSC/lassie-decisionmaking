@@ -29,6 +29,7 @@ import createBreakpoints from '@material-ui/core/styles/createBreakpoints';
 import RobotChart from '../components/RobotChart';
 import MoistureStressScatterPlot from '../components/Charts/MositureStressScatterPlot'
 import MoistureHeatMap from '../components/Charts/MoistureHeatMap';
+import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 
 function ImgAlert({ open }) {
   return (
@@ -889,6 +890,7 @@ export default function Main() {
       <Grid container>
         <Grid container>
           <Grid item xs={12} md={7}>
+          <ShearVsMoisturePlot width={1100} height={600} />
           <MoistureStressScatterPlot width={1100} height={600} />
           <MoistureHeatMap  width={1100} height={600} />
 
