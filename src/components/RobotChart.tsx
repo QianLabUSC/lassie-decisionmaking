@@ -10,8 +10,8 @@ import { useStateValue } from '../state';
 
 // import { paths } from '../paths';
 
-const width = 1400;
-const height = 700;
+const width = 850;
+const height = 850;
 const margin = { top: 20, bottom: 20, left: 50, right: 20 };
 interface Point {
   x: number;
