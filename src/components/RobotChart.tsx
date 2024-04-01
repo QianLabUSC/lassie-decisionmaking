@@ -7,7 +7,6 @@ import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
 import { useStateValue } from '../state';
-
 // import { paths } from '../paths';
 
 const width = 850;
@@ -17,13 +16,6 @@ interface Point {
   x: number;
   y: number;
 }
-
-
-
-// // Convert initial path data to the format suitable for LinePath
-// const lineData: Point[][] = newpath.map((pathSet) =>
-//   pathSet[0].map((x, i) => ({ x, y: pathSet[1][i] }))
-// );
 
 // Scales
 const xScale = scaleLinear({
@@ -35,7 +27,6 @@ const yScale = scaleLinear({
   domain: [0, 1],
   range: [height - margin.bottom, margin.top],
 });
-
 
 // Labels and Colors for each path
 const labels = ['A', 'B', 'C'];
