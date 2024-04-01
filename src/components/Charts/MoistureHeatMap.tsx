@@ -33,6 +33,7 @@ const MoistureHeatMap: React.FC<HeatmapProps> = ({ width, height }) => {
   const [selectedOption, setSelectedOption] = useState<'MOISTURE' | 'SHEARSTRESS'>('MOISTURE');
   const [data, setData] = useState<HeatmapData[]>(generateHeatmapData('MOISTURE'));
   const svgRef = useRef<SVGSVGElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const margin = { top: 20, right: 20, bottom: 150, left: 120 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
@@ -45,6 +46,16 @@ const MoistureHeatMap: React.FC<HeatmapProps> = ({ width, height }) => {
     if (data.length > 0 && svgRef.current) {
       const svg = d3.select(svgRef.current);
       svg.selectAll('*').remove(); // Clear SVG content before redrawing
+
+    // Create tooltip
+    const tooltip = d3.select(tooltipRef.current)
+    .style("opacity", 0)
+    .style("position", "absolute")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "2px")
+    .style("border-radius", "5px")
+    .style("padding", "5px");
 
       // Create scales
       const xScale = d3.scaleBand()
@@ -71,7 +82,19 @@ const MoistureHeatMap: React.FC<HeatmapProps> = ({ width, height }) => {
           .attr('y', d => yScale(d.y.toString()) ?? 0)
           .attr('width', xScale.bandwidth())
           .attr('height', yScale.bandwidth())
-          .style('fill', d => colorScale(d.value));
+          .style('fill', d => colorScale(d.value))
+          .on("mouseover", function(event, d) {
+            tooltip.style("opacity", 1);
+          })
+          .on("mousemove", function(event, d) {
+            tooltip.html(`${selectedOption} <br> value is: ` + d.value)
+              .style("left", (event.pageX + 20) + "px")
+              .style("top", (event.pageY) + "px");
+          })
+          .on("mouseleave", function() {
+            tooltip.style("opacity", 0);
+          });
+  
 
       // Add X axis
       svg.append('g')
@@ -91,7 +114,7 @@ const MoistureHeatMap: React.FC<HeatmapProps> = ({ width, height }) => {
         .style('font-size', '15px') // Set the font size here
         .text('Y-Coordinate');
 
-           // Add X axis
+      // Add X axis
       svg.append('g')
       .attr('transform', `translate(${margin.left},${height - margin.bottom})`)
       .call(d3.axisBottom(xScale).tickSizeOuter(0))
@@ -126,6 +149,7 @@ const MoistureHeatMap: React.FC<HeatmapProps> = ({ width, height }) => {
         </Select>
       </FormControl>
       <svg ref={svgRef} width={width} height={height} />
+      <div ref={tooltipRef} className="tooltip"></div>
     </>
   );
 };
