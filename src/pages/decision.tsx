@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid';
+import { Tab, Tabs } from '@material-ui/core';
+
 import PositionChart from "../components/PositionChart";
 import {INDEX_LENGTH } from '../constants';
 
@@ -869,6 +871,27 @@ export default function Main() {
   }
 
 
+
+
+
+  const [tabValue, setTabValue] = React.useState(0);
+  const handleChangeTab = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
+  const ChartTabs = () => (
+    <Box sx={{ width: '100%' }}>
+      <Tabs value={tabValue} onChange={handleChangeTab} centered>
+        <Tab label="Shear vs. Moisture" />
+        <Tab label="Moisture Stress Scatter" />
+        <Tab label="Moisture Heat Map" />
+      </Tabs>
+      {tabValue === 0 && <ShearVsMoisturePlot width={1100} height={600} />}
+      {tabValue === 1 && <MoistureStressScatterPlot width={1100} height={600} />}
+      {tabValue === 2 && <MoistureHeatMap width={1100} height={600} />}
+    </Box>
+  );
+
   return (
     <div id="app" className="decisionPage">
       { helperOpen && <Helper /> }
@@ -890,9 +913,7 @@ export default function Main() {
       <Grid container>
         <Grid container>
           <Grid item xs={12} md={7}>
-          <ShearVsMoisturePlot width={1100} height={600} />
-          <MoistureStressScatterPlot width={1100} height={600} />
-          <MoistureHeatMap  width={1100} height={600} />
+          <ChartTabs />
 
             {/* <ChartPanel fullSize={true} mode={"TransectView"}/> */}
           </Grid>
