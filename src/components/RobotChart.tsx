@@ -44,16 +44,16 @@ const RobotChart: React.FC = () => {
 
   const firstPath: TestPath = [
     [
-      [0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
-      [0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
+      [0],
+      [0],
     ],
     [
-      [0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-      [0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+      [0],
+      [0],
     ],
     [
-      [0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
-      [0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+      [0],
+      [0],
     ],
   ];
 
@@ -100,6 +100,7 @@ const RobotChart: React.FC = () => {
             if (!data.length || !shouldShowPath(pathIndex)) return null;
             const lastPoint = data[data.length - 1];
             const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
+            console.log(data,'datadata')
             const isLastThreePaths = globalPathIndex >= totalPaths - 3;
             return (
               <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
