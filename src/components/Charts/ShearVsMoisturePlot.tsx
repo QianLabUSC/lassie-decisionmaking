@@ -39,8 +39,8 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
 }) => {
   const data = generateScatterData();
   const svgRef = useRef(null);
-  const margin = { top: 20, right: 20, bottom: 50, left: 50 };
-  const plotWidth = width - margin.left - margin.right;
+  const margin = { top: 20, right: 20, bottom: 50, left: 120 };
+  const plotWidth = width - margin.left;
   const plotHeight = height - margin.top - margin.bottom;
 
   useEffect(() => {
@@ -66,6 +66,29 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
         .call(d3.axisBottom(xScale).ticks(5).tickFormat(d => `${d}`));
 
       g.append('g').call(d3.axisLeft(yScale));
+
+      g.append('g')
+      .attr('transform', `translate(0,${plotHeight})`)
+      .call(d3.axisBottom(xScale))
+      .append('text') // X-axis Label
+      .attr('y', 40)
+      .attr('x', plotWidth / 2)
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'black')
+      .style('font-size', '15px') // Set the font size here
+      .text('Moisture');
+
+    // Y Axis
+    g.append('g')
+      .call(d3.axisLeft(yScale))
+      .append('text') // Y-axis Label
+      .attr('transform', 'rotate(-90)')
+      .attr('y', -45)
+      .attr('x', -plotHeight / 2)
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'black')
+      .style('font-size', '15px') // Set the font size here
+      .text('Shear Stress');
 
       // Data points
       g.selectAll('.dot')
