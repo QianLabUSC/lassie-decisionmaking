@@ -90,6 +90,26 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
       .style('font-size', '15px') // Set the font size here
       .text('Shear Stress');
 
+      const lineData = [
+        { x: 0, y: 11 },
+        { x: 100, y: 85 },
+      ];
+
+      // Line Generator
+      const lineGenerator = d3
+        .line<ScatterData>()
+        .x((d) => xScale(d.x))
+        .y((d) => yScale(d.y));
+
+      // Append the line
+      g.append('path')
+        .datum(lineData)
+        .attr('fill', 'none')
+        .attr('stroke', 'red')
+        .attr('stroke-width', 2)
+        .attr('d', lineGenerator);
+ 
+    
       // Data points
       g.selectAll('.dot')
         .data(data)
