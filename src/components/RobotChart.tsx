@@ -90,6 +90,7 @@ const RobotChart: React.FC = () => {
 
   test.push(newpathvalues);
   const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
+  console.log(currUserStep.acceptOrReject, currUserStep,'acceptorreject')
   return (
     <svg width={width} height={height}>
       <Group>
@@ -97,7 +98,6 @@ const RobotChart: React.FC = () => {
           paths.map((_, pathIndex) => {
             const data = getPathData(paths, pathIndex);
             if (!data.length || !shouldShowPath(pathIndex)) return null;
-
             const lastPoint = data[data.length - 1];
             const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
             const isLastThreePaths = globalPathIndex >= totalPaths - 3;
