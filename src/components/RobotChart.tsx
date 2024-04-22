@@ -6,18 +6,20 @@ import { Text } from '@visx/text';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
+import { Button, Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
 import { useStateValue } from '../state';
 // import { paths } from '../paths';
+import { Action } from '../state';
 
 const width = 850;
 const height = 850;
 const margin = { top: 20, bottom: 20, left: 50, right: 20 };
+
 interface Point {
   x: number;
   y: number;
 }
 
-// Scales
 const xScale = scaleLinear({
   domain: [0, 1],
   range: [margin.left, width - margin.right],
@@ -28,45 +30,50 @@ const yScale = scaleLinear({
   range: [height - margin.bottom, margin.top],
 });
 
-// Labels and Colors for each path
 const labels = ['A', 'B', 'C'];
-const colors = ['#FF5733', '#33FF57', '#3357FF']; // Example colors for 3 paths
-// let testpathfull: Point[] = []; // Persist outside to accumulate across calls
+const colors = ['#FF5733', '#33FF57', '#3357FF'];
 
-// Assuming TestPath represents an array of arrays of numbers,
-// adjust the structure as necessary based on your data
 type TestPath = number[][][];
-
 const test: TestPath[] = [];
 
 const RobotChart: React.FC = () => {
-  const [{ currUserStep, newpathvalues }] = useStateValue();
+  const [{ currUserStep, newpathvalues }, dispatch] = useStateValue();
+  const [selectedPath, setSelectedPath] = useState('');
 
+  // const firstPath: TestPath = [[[0], [0]], [[0], [0]], [[0], [0]]];
   const firstPath: TestPath = [
     [
-      [0],
-      [0],
+      [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
+      [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
     ],
     [
-      [0],
-      [0],
+      [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+      [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
     ],
     [
-      [0],
-      [0],
+      [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
+      [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
     ],
   ];
-
   const [allPaths, setAllPaths] = useState<TestPath[]>([firstPath]);
+
+  console.log(allPaths,'11allpaths')
 
   useEffect(() => {
     setAllPaths((prevPaths) => [...prevPaths, newpathvalues]);
   }, [newpathvalues]);
 
-  // This function seems fine as it is, assuming newpathvalues structure is [[x[], y[]], [x[], y[]], ...]
- 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedPath(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    console.log('Path generated for selection: ', selectedPath);
+    dispatch({ type: Action.INCREMENT_STEP_IDX });
+  };
 
   const getPathData = (paths: TestPath, index: number): Point[] => {
+    console.log(paths,'allpaatgetpaths')
     if (index < paths.length) {
       return paths[index][0].map((x, i) => ({
         x,
@@ -77,61 +84,86 @@ const RobotChart: React.FC = () => {
   };
 
   const shouldShowPath = (index: number): boolean => {
-    // If option D is selected (represented here by a special value like -1), show all paths
-    if (
-      currUserStep.acceptOrReject === -1 ||
-      currUserStep.acceptOrReject >= labels.length
-    ) {
+    if (currUserStep.acceptOrReject === -1 || currUserStep.acceptOrReject >= labels.length) {
       return true;
     }
-    // Only show the path that corresponds to the selected option
     return index === currUserStep.acceptOrReject;
   };
 
   test.push(newpathvalues);
   const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
-  console.log(currUserStep.acceptOrReject, currUserStep,'acceptorreject')
+
+  const newSubmit = async () => {
+    console.log('testtttt')
+    dispatch({ type: Action.INCREMENT_STEP_IDX });
+  };
+
+  const disableSubmitButton = false; // Update logic as needed
+
+  console.log('allpaths', allPaths)
   return (
-    <svg width={width} height={height}>
-      <Group>
-        {allPaths.map((paths, idx) =>
-          paths.map((_, pathIndex) => {
-            const data = getPathData(paths, pathIndex);
-            if (!data.length || !shouldShowPath(pathIndex)) return null;
-            const lastPoint = data[data.length - 1];
-            const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
-            console.log(data,'datadata')
-            const isLastThreePaths = globalPathIndex >= totalPaths - 3;
-            return (
-              <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
-                <LinePath
-                  data={data}
-                  x={(d: Point) => xScale(d.x)}
-                  y={(d) => yScale(d.y)}
-                  stroke={isLastThreePaths ? colors[pathIndex % colors.length] : 'black'}
-                  strokeWidth={4}
-                  curve={curveBasis}
-                />
-                <Text
-                  x={xScale(lastPoint.x)}
-                  y={yScale(lastPoint.y)}
-                  dx={-10}
-                  dy={5}
-                  fill="red"
-                  fontSize={25}
-                  fontWeight="bold"
-                >
-                  {pathIndex}
-                </Text>
-              </React.Fragment>
-            );
-          })
-        )}
-        <AxisLeft scale={yScale} left={50} />
-        <AxisBottom scale={xScale} top={height - 20} />
-      </Group>
-    </svg>
+    <div>
+      <svg width={width} height={height}>
+        <Group>
+          {allPaths.map((paths, idx) =>
+            paths.map((_, pathIndex) => {
+
+              console.log('eachpaths', allPaths)
+              const data = getPathData(allPaths[allPaths.length-1], pathIndex);
+              if (!data.length || !shouldShowPath(pathIndex)) return null;
+              const lastPoint = data[data.length - 1];
+              const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
+              const isLastThreePaths = globalPathIndex >= totalPaths - 3;
+              return (
+                <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
+                  <LinePath
+                    data={data}
+                    x={(d: Point) => xScale(d.x)}
+                    y={(d) => yScale(d.y)}
+                    stroke={isLastThreePaths ? colors[pathIndex % colors.length] : 'black'}
+                    strokeWidth={4}
+                    curve={curveBasis}
+                  />
+                  <Text
+                    x={xScale(lastPoint.x)}
+                    y={yScale(lastPoint.y)}
+                    dx={-10}
+                    dy={5}
+                    fill="red"
+                    fontSize={25}
+                    fontWeight="bold"
+                  >
+                    {pathIndex}
+                  </Text>
+                </React.Fragment>
+              );
+            })
+          )}
+          <AxisLeft scale={yScale} left={50} />
+          <AxisBottom scale={xScale} top={height - 20} />
+        </Group>
+      </svg>
+
+      <RadioGroup row aria-label="path selection" name="path_selection" value={selectedPath} onChange={handleChange}>
+        <FormControlLabel value="A" control={<Radio />} label="Accept suggested location A" />
+        <FormControlLabel value="B" control={<Radio />} label="Accept suggested location B" />
+        <FormControlLabel value="C" control={<Radio />} label="Accept suggested location C" />
+        <FormControlLabel value="reject" control={<Radio />} label="Reject suggestions" />
+      </RadioGroup>
+      <Button
+        disabled={!selectedPath}
+        variant="contained"
+        color="secondary"
+        onClick={handleSubmit}
+      >
+        Generate Path
+      </Button>
+
+    
+    </div>
   );
 };
+
+
 
 export default RobotChart;
