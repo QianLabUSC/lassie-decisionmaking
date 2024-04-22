@@ -342,20 +342,20 @@ const newpathreducer = (state: IState, action: IAction): IState => {
 
 
 
-  const firstPath: TestPath = [
-    [
-      [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
-      [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
-    ],
-    [
-      [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-      [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
-    ],
-    [
-      [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
-      [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
-    ],
-  ];
+  // const firstPath: TestPath = [
+  //   [
+  //     [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
+  //     [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
+  //   ],
+  //   [
+  //     [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+  //     [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+  //   ],
+  //   [
+  //     [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
+  //     [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+  //   ],
+  // ];
 
 
 const secondPath: TestPath = [
@@ -415,7 +415,7 @@ const secondPath: TestPath = [
 const thirdPath: TestPath = [
   [
       [
-        0.561682743,
+        0.517514517,
           0.59377393,
           0.648343254,
           0.748540198,
@@ -423,7 +423,7 @@ const thirdPath: TestPath = [
       ],
       [
           
-        0.51793485,
+        0.51737063,
           0.63732145,
           0.74574513,
           0.84924912,
@@ -432,14 +432,14 @@ const thirdPath: TestPath = [
   ],
   [
       [
-        0.561682743,
+        0.517514517,
           0.6142308,
           0.71501995,
           0.81727556,
           0.917514517,
       ],
       [
-        0.51793485,
+        0.51737063,
           0.61417771,
           0.7161951,
           0.816915733,
@@ -448,14 +448,14 @@ const thirdPath: TestPath = [
   ],
   [
       [
-        0.561682743,
+        0.517514517,
           0.5671339001,
           0.66714742749,
           0.77716707451,
           0.8871682743,
       ],
       [
-        0.51793485,
+        0.51737063,
           0.6531474205,
           0.7841509101,
           0.8771752565,
@@ -464,36 +464,219 @@ const thirdPath: TestPath = [
   ]
 ]
 
+const fouthPath: TestPath = [
+  [
+      [
+        0.8871682743,
+          0.8959377393,
+          0.648343254,
+          0.748540198,
+          0.8889489748,
+      ],
+      [
+          
+        0.9981793485,
+          0.713732145,
+          0.514574513,
+          0.314924912,
+          0.31554568,
+      ]
+  ],
+  [
+      [
+        0.8871682743,
+          0.56142308,
+          0.671501995,
+          0.281727556,
+          0.3917514517,
+      ],
+      [
+        0.9981793485,
+          0.3561417771,
+          0.47161951,
+          0.5816915733,
+          0.691737063,
+      ]
+  ],
+  [
+      [
+        0.8871682743,
+          0.65671339001,
+          0.766714742749,
+          0.877716707451,
+          0.78871682743,
+      ],
+      [
+        0.9981793485,
+          0.46531474205,
+          0.17841509101,
+          0.28771752565,
+          0.39981793485,
+      ]
+  ]
+]
+
+
+
+
+const firstPathSelected: TestPath = [
+  [
+    [],
+    [],
+  ],
+  [
+    [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+    [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+  ],
+  [
+    [],
+    [],
+  ],
+];
+
+
+const secondPathSelected: TestPath = [
+  [
+    [],
+    [],
+  ],
+  [
+      
+      [
+        0.17514517,
+          0.2142308,
+          0.21901995,
+          0.31727556,
+          0.517514517,
+      ],
+      [
+        0.1737063,
+          0.31417771,
+          0.4161951,
+          0.516915733,
+          0.51737063,
+      ]
+  
+  ],
+  [
+    [],
+    []
+  ],
+];
+
+const thirdPathSelected: TestPath = [
+  [
+    [],
+    [],
+  ],
+  [
+    [],
+    [],
+  ],
+  [
+    [
+      0.561682743,
+        0.5671339001,
+        0.66714742749,
+        0.77716707451,
+        0.8871682743,
+    ],
+    [
+      0.51793485,
+        0.6531474205,
+        0.7841509101,
+        0.8771752565,
+        0.9981793485,
+    ]
+  ],
+];
+
 
 
 const { newpathstep, newpathvalues } = state;
-
+// 1
 console.log(newpathstep,newpathvalues, 'newpath values')
-function generateRandomTestPath() {
+function generateRandomTestPath(cuurentpathindex, currentselectepath) {
+  console.log(currentselectepath, cuurentpathindex)
   let updatedPath = newpathvalues; // Clone the existing path
 
-  if (newpathstep === 0) {
-    updatedPath = updatedPath.concat(firstPath);
-    console.log(newpathstep, 'newpathstepatstate2')
-  }
+  console.log(updatedPath,'updatepath')
+  // if (newpathstep === 0) {
+  //   updatedPath = updatedPath.concat(firstPath);
+  //   console.log(newpathstep, 'newpathstepatstate2', updatedPath)
+  // }
   if (newpathstep === 1) {
+
+ updatedPath[0][0]=[]
+ updatedPath[0][1]=[]
+ updatedPath[2][0]=[]
+ updatedPath[2][1]=[]
+
     updatedPath = updatedPath.concat(secondPath);
     console.log(updatedPath, 'newpathstepatstate1')
   } else if (newpathstep === 2) {
+
+
+    updatedPath[3][0]=[]
+    updatedPath[3][1]=[]
+    updatedPath[5][0]=[]
+    updatedPath[5][1]=[]
+
     updatedPath = updatedPath.concat(thirdPath);
+    // updatedPath = updatedPath.concat(thirdPath);
+    console.log(newpathstep, 'newpathstepatstate2')
+  }
+  else if (newpathstep === 3) {
+    updatedPath[6][0]=[]
+    updatedPath[6][1]=[]
+    updatedPath[7][0]=[]
+    updatedPath[7][1]=[]
+
+    updatedPath = updatedPath.concat(fouthPath);
     console.log(newpathstep, 'newpathstepatstate2')
   }
 
   return updatedPath;
 }
 
-const testPath = generateRandomTestPath();
+//you can send te index of path & keeping all the other paths zeros, send the path
+const testPath = generateRandomTestPath( 1, [
+  [
+    [],
+    [],
+  ],
+  [
+    [],
+    [],
+  ],
+  [
+    [
+      0.561682743,
+        0.5671339001,
+        0.66714742749,
+        0.77716707451,
+        0.8871682743,
+    ],
+    [
+      0.51793485,
+        0.6531474205,
+        0.7841509101,
+        0.8771752565,
+        0.9981793485,
+    ]
+  ],
+]);
+
+console.log(testPath,'testpath')
 
   switch (action.type) {
+   
     case Action.INCREMENT_STEP_IDX:
+      console.log(action.type,'fff')
       return { ...state, newpathstep: state.newpathstep + 1, newpathvalues:testPath};
     // Handle other actions as before...
     default:
+      console.log(action.type,'fff2')
       return state;
       // Your existing logic to handle other actions...
   }
