@@ -48,6 +48,7 @@ import MoistureStressScatterPlot from '../components/Charts/MositureStressScatte
 import MoistureHeatMap from '../components/Charts/MoistureHeatMap';
 import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 
+import DiscrepancyChart from '../components/Charts/Discrepancy';
 function ImgAlert({ open }) {
   return (
     <Popbox
@@ -1197,7 +1198,9 @@ export default function Main() {
         <Tab label="Moisture Stress Scatter" />
         <Tab label="Moisture Heat Map" />
       </Tabs>
-      {tabValue === 0 && <ShearVsMoisturePlot width={1100} height={600} />}
+      {/* {tabValue === 0 && <ShearVsMoisturePlot width={1100} height={600} />} */}
+       {tabValue === 0 && <DiscrepancyChart width={1100} height={600} />}
+
       {tabValue === 1 && (
         <MoistureStressScatterPlot width={1100} height={600} />
       )}
