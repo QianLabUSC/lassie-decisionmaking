@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { LinePath } from '@visx/shape';
-import { curveBasis } from '@visx/curve';
+import { curveBasis } from '@visx/curve'
 import { Text } from '@visx/text';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
 import { Button, Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
 import { useStateValue } from '../state';
-// import { paths } from '../paths';
 import { Action } from '../state';
 
 const width = 850;
@@ -34,38 +33,41 @@ const labels = ['A', 'B', 'C'];
 const colors = ['#FF5733', '#33FF57', '#3357FF'];
 
 type TestPath = number[][][];
-const test: TestPath[] = [];
 
 const RobotChart: React.FC = () => {
   const [{ currUserStep, newpathvalues }, dispatch] = useStateValue();
   const [selectedPath, setSelectedPath] = useState('');
-
-  // const firstPath: TestPath = [[[0], [0]], [[0], [0]], [[0], [0]]];
-  const firstPath: TestPath = [
-    [
-      [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
-      [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
-    ],
-    [
-      [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-      [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
-    ],
-    [
-      [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
-      [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
-    ],
-  ];
-  const [allPaths, setAllPaths] = useState<TestPath[]>([firstPath]);
-
-  console.log(allPaths,'11allpaths')
+  const [allPaths, setAllPaths] = useState<TestPath[]>([]);
 
   useEffect(() => {
-    setAllPaths((prevPaths) => [...prevPaths, newpathvalues]);
-  }, [newpathvalues]);
+    // Load initial paths only on component mount
+    const firstPath: TestPath = [
+      [
+        [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
+        [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
+      ],
+      [
+        [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+        [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+      ],
+      [
+        [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
+        [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+      ],
+    ];
+    setAllPaths([firstPath]);  // Set initial path
+  }, []);
 
+// Ensure new path values are also TestPath
+useEffect(() => {
+  if (newpathvalues && Array.isArray(newpathvalues) && newpathvalues.length > 0) {
+    setAllPaths(prevPaths => [...prevPaths, newpathvalues]);  // Ensure newpathvalues is TestPath
+  }
+}, [newpathvalues]);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPath(event.target.value);
   };
+
 
   const handleSubmit = () => {
     console.log('Path generated for selection: ', selectedPath);
@@ -82,6 +84,7 @@ const RobotChart: React.FC = () => {
     }
     return [];
   };
+  
 
   const shouldShowPath = (index: number): boolean => {
     if (currUserStep.acceptOrReject === -1 || currUserStep.acceptOrReject >= labels.length) {
@@ -90,7 +93,6 @@ const RobotChart: React.FC = () => {
     return index === currUserStep.acceptOrReject;
   };
 
-  test.push(newpathvalues);
   const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
 
   const newSubmit = async () => {
@@ -105,7 +107,7 @@ const RobotChart: React.FC = () => {
     <div>
       <svg width={width} height={height}>
         <Group>
-          {allPaths.map((paths, idx) =>
+        {allPaths.map((paths, idx) =>
             paths.map((_, pathIndex) => {
 
               console.log('eachpaths', allPaths)
@@ -158,12 +160,8 @@ const RobotChart: React.FC = () => {
       >
         Generate Path
       </Button>
-
-    
     </div>
   );
 };
-
-
 
 export default RobotChart;
