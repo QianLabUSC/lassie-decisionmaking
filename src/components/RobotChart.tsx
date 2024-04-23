@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { LinePath } from '@visx/shape';
-import { curveBasis } from '@visx/curve'
+import { curveBasis } from '@visx/curve';
 import { Text } from '@visx/text';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
@@ -37,7 +37,7 @@ const colors = ['#FF5733', '#33FF57', '#3357FF'];
 type SubPath = number[];
 
 // Define a path as an array containing two sub-paths
-type Path = [SubPath, SubPath,SubPath, SubPath];
+type Path = [SubPath, SubPath, SubPath, SubPath];
 
 // Define the structure for testPath, which is an array of paths
 type TestPath = Path[];
@@ -54,35 +54,38 @@ const RobotChart: React.FC = () => {
         [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
         [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
         [],
-        []
+        [],
       ],
       [
         [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
         [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
         [],
-        []
+        [],
       ],
       [
         [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
         [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
         [],
-        []
+        [],
       ],
     ];
-    setAllPaths([firstPath]);  // Set initial path
+    setAllPaths([firstPath]); // Set initial path
   }, []);
 
-// Ensure new path values are also TestPath
-useEffect(() => {
-  if (newpathvalues && Array.isArray(newpathvalues) && newpathvalues.length > 0) {
-    setAllPaths(prevPaths => [...prevPaths, newpathvalues]);  // Ensure newpathvalues is TestPath
-  }
-}, [newpathvalues]);
+  // Ensure new path values are also TestPath
+  useEffect(() => {
+    if (
+      newpathvalues &&
+      Array.isArray(newpathvalues) &&
+      newpathvalues.length > 0
+    ) {
+      setAllPaths((prevPaths) => [...prevPaths, newpathvalues]); // Ensure newpathvalues is TestPath
+    }
+  }, [newpathvalues]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPath(event.target.value);
   };
-
 
   const handleSubmit = () => {
     dispatch({ type: Action.INCREMENT_STEP_IDX });
@@ -93,15 +96,16 @@ useEffect(() => {
       return paths[index][0].map((x, i) => ({
         x,
         y: paths[index][1][i],
-      
       }));
     }
     return [];
   };
-  
-  const getHeatMapData = (paths: TestPath, index: number): { points: Point[], heatmapValues: number[] } => {
 
-    console.log('hifirstpathsdata',  selectedPath,'selectedPath', index, paths)
+  const getHeatMapData = (
+    paths: TestPath,
+    index: number
+  ): { points: Point[]; heatmapValues: number[] } => {
+    console.log('hifirstpathsdata', selectedPath, 'selectedPath', index, paths);
     if (index < paths.length) {
       const points = paths[index][0].map((x, i) => ({
         x: x,
@@ -114,7 +118,10 @@ useEffect(() => {
   };
 
   const shouldShowPath = (index: number): boolean => {
-    if (currUserStep.acceptOrReject === -1 || currUserStep.acceptOrReject >= labels.length) {
+    if (
+      currUserStep.acceptOrReject === -1 ||
+      currUserStep.acceptOrReject >= labels.length
+    ) {
       return true;
     }
     return index === currUserStep.acceptOrReject;
@@ -122,15 +129,12 @@ useEffect(() => {
 
   const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
 
-
   const disableSubmitButton = false; // Update logic as needed
 
   const renderHeatMap = (data, heatmapValues) => {
+    console.log(data, 'data');
+    console.log(heatmapValues, 'hifiheatmapvalues');
 
-    console.log(data, 'data')
-    console.log(heatmapValues, 'hifiheatmapvalues')
-
-    
     if (!data.length) return null;
     const startX = xScale(data[0].x);
     const startY = yScale(data[0].y);
@@ -147,23 +151,30 @@ useEffect(() => {
     );
   };
 
-
   return (
     <div>
       <svg width={width} height={height}>
         <Group>
-        {allPaths.map((paths, idx) =>
+          {allPaths.map((paths, idx) =>
             paths.map((_, pathIndex) => {
+              console.log('eachpaths', allPaths);
+              const data = getPathData(
+                allPaths[allPaths.length - 1],
+                pathIndex
+              );
+              const heatMapFullData = getHeatMapData(
+                allPaths[allPaths.length - 1],
+                pathIndex
+              );
 
-              console.log('eachpaths', allPaths)
-              const data = getPathData(allPaths[allPaths.length-1], pathIndex);
-              const heatMapFullData = getHeatMapData(allPaths[allPaths.length-1], pathIndex)
-
-              console.log(data, 'data', heatMapFullData, 'heatmap2')
-             const  heatMapData= heatMapFullData?.heatmapValues
+              console.log(data, 'data', heatMapFullData, 'heatmap2');
+              const heatMapData = heatMapFullData?.heatmapValues;
               if (!data.length || !shouldShowPath(pathIndex)) return null;
               const lastPoint = data[data.length - 1];
-              const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
+              const globalPathIndex =
+                allPaths
+                  .slice(0, idx)
+                  .reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
               const isLastThreePaths = globalPathIndex >= totalPaths - 3;
               return (
                 <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
@@ -171,7 +182,11 @@ useEffect(() => {
                     data={data}
                     x={(d: Point) => xScale(d.x)}
                     y={(d) => yScale(d.y)}
-                    stroke={isLastThreePaths ? colors[pathIndex % colors.length] : 'black'}
+                    stroke={
+                      isLastThreePaths
+                        ? colors[pathIndex % colors.length]
+                        : 'black'
+                    }
                     strokeWidth={4}
                     curve={curveBasis}
                   />
@@ -186,7 +201,7 @@ useEffect(() => {
                   >
                     {pathIndex}
                   </Text>
-                  { renderHeatMap(data, heatMapData)}
+                  {renderHeatMap(data, heatMapData)}
                 </React.Fragment>
               );
             })
@@ -196,11 +211,33 @@ useEffect(() => {
         </Group>
       </svg>
 
-      <RadioGroup row aria-label="path selection" name="path_selection" value={selectedPath} onChange={handleChange}>
-        <FormControlLabel value="A" control={<Radio />} label="Accept suggested location A" />
-        <FormControlLabel value="B" control={<Radio />} label="Accept suggested location B" />
-        <FormControlLabel value="C" control={<Radio />} label="Accept suggested location C" />
-        <FormControlLabel value="reject" control={<Radio />} label="Reject suggestions" />
+      <RadioGroup
+        row
+        aria-label="path selection"
+        name="path_selection"
+        value={selectedPath}
+        onChange={handleChange}
+      >
+        <FormControlLabel
+          value="A"
+          control={<Radio />}
+          label="Accept suggested location A"
+        />
+        <FormControlLabel
+          value="B"
+          control={<Radio />}
+          label="Accept suggested location B"
+        />
+        <FormControlLabel
+          value="C"
+          control={<Radio />}
+          label="Accept suggested location C"
+        />
+        <FormControlLabel
+          value="reject"
+          control={<Radio />}
+          label="Reject suggestions"
+        />
       </RadioGroup>
       <Button
         disabled={!selectedPath}
