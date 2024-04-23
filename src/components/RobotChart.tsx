@@ -6,10 +6,19 @@ import { Text } from '@visx/text';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
-import { Button, Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
+import {
+  Button,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Select,
+  MenuItem,
+  FormControl,
+} from '@material-ui/core';
 import { useStateValue } from '../state';
 import { Action } from '../state';
 import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
+import { FormatAlignCenter } from '@material-ui/icons';
 
 const width = 850;
 const height = 850;
@@ -46,6 +55,13 @@ const RobotChart: React.FC = () => {
   const [{ currUserStep, newpathvalues }, dispatch] = useStateValue();
   const [selectedPath, setSelectedPath] = useState('');
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
+
+  const [heatMapType, setHeatMapType] = useState('infogain');
+  const handleChangeHeatMap = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setHeatMapType(event.target.value as string);
+  };
 
   useEffect(() => {
     // Load initial paths only on component mount
@@ -126,16 +142,17 @@ const RobotChart: React.FC = () => {
   const getHeatMapData = (
     paths: TestPath,
     index: number
-  ): { points: Point[]; heatmapValues: number[] } => {
+  ): { points: Point[]; infogain: number[]; discrepancy: number[] } => {
     if (index < paths.length) {
       const points = paths[index][0].map((x, i) => ({
         x: x,
         y: paths[index][1][i],
       }));
-      const heatmapValues = paths[index][2]; // Assuming the heatmap data is at the third index of each path
-      return { points, heatmapValues };
+      const infogain = paths[index][2]; // Assuming the heatmap data is at the third index of each path
+      const discrepancy = paths[index][3];
+      return { points, infogain, discrepancy };
     }
-    return { points: [], heatmapValues: [] };
+    return { points: [], infogain: [], discrepancy: [] };
   };
 
   const shouldShowPath = (index: number): boolean => {
@@ -158,19 +175,69 @@ const RobotChart: React.FC = () => {
     const startY = yScale(data[0].y);
     const endX = xScale(data[data.length - 1].x);
     const endY = yScale(data[data.length - 1].y);
+
+    const infogain = heatmapValues?.infogain;
+    const discrepancy = heatmapValues?.discrepancy;
     return (
       <InformationGainHeatMap
         width={Math.abs(endX - startX)}
         height={Math.abs(endY - startY)}
-        data={heatmapValues}
+        infogain={infogain}
+        discrepancy={discrepancy}
         x={Math.min(startX, endX)}
         y={Math.min(startY, endY)}
+        type={heatMapType}
       />
     );
   };
 
   return (
     <div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          padding: '20px',
+        }}
+      >
+        <FormControl
+          style={{
+            minWidth: 200,
+          }}
+        >
+          <Select
+            value={heatMapType}
+            onChange={handleChangeHeatMap}
+            displayEmpty
+            style={{
+              background: 'white',
+              color: 'rgba(0, 0.3, 0, 0.87)',
+              padding: '10px 15px',
+            }}
+            inputProps={{
+              'aria-label': 'Without label',
+              style: {
+                paddingTop: '10px',
+                paddingBottom: '10px',
+              },
+            }}
+          >
+            <MenuItem
+              value="infogain"
+              style={{ background: 'white', margin: '5px 0' }}
+            >
+              Information Gain
+            </MenuItem>
+            <MenuItem
+              value="discrepancy"
+              style={{ background: 'white', margin: '5px 0' }}
+            >
+              Discrepancy
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+
       <svg width={width} height={height}>
         <Group>
           {allPaths.map((paths, idx) =>
@@ -183,7 +250,7 @@ const RobotChart: React.FC = () => {
                 allPaths[allPaths.length - 1],
                 pathIndex
               );
-              const heatMapData = heatMapFullData?.heatmapValues;
+              const heatMapData = heatMapFullData;
               if (!data.length || !shouldShowPath(pathIndex)) return null;
               const lastPoint = data[data.length - 1];
               const globalPathIndex =
