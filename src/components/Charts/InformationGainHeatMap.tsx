@@ -12,7 +12,7 @@ const InformationGainHeatMap = ({ x, y, width, height, data }) => {
   });
 
   return (
-    <Group>
+    <Group style={{ pointerEvents: 'none', opacity: 0.5, zIndex: -1 }}>
       {data.map((value, index) => (
         <rect
           key={index}
