@@ -105,7 +105,6 @@ const RobotChart: React.FC = () => {
     paths: TestPath,
     index: number
   ): { points: Point[]; heatmapValues: number[] } => {
-    console.log('hifirstpathsdata', selectedPath, 'selectedPath', index, paths);
     if (index < paths.length) {
       const points = paths[index][0].map((x, i) => ({
         x: x,
@@ -132,9 +131,6 @@ const RobotChart: React.FC = () => {
   const disableSubmitButton = false; // Update logic as needed
 
   const renderHeatMap = (data, heatmapValues) => {
-    console.log(data, 'data');
-    console.log(heatmapValues, 'hifiheatmapvalues');
-
     if (!data.length) return null;
     const startX = xScale(data[0].x);
     const startY = yScale(data[0].y);
@@ -157,7 +153,6 @@ const RobotChart: React.FC = () => {
         <Group>
           {allPaths.map((paths, idx) =>
             paths.map((_, pathIndex) => {
-              console.log('eachpaths', allPaths);
               const data = getPathData(
                 allPaths[allPaths.length - 1],
                 pathIndex
@@ -166,8 +161,6 @@ const RobotChart: React.FC = () => {
                 allPaths[allPaths.length - 1],
                 pathIndex
               );
-
-              console.log(data, 'data', heatMapFullData, 'heatmap2');
               const heatMapData = heatMapFullData?.heatmapValues;
               if (!data.length || !shouldShowPath(pathIndex)) return null;
               const lastPoint = data[data.length - 1];

@@ -57,7 +57,6 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
   useEffect(() => {
     if (data && svgRef.current) {
       const svg = d3.select(svgRef.current);
-      console.log(svg.selectAll('circle').size(), 'size');
 
       // Clear SVG before re-drawing
       svg.selectAll('*').remove();
