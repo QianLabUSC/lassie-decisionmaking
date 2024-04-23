@@ -72,6 +72,7 @@ const RobotChart: React.FC = () => {
     setAllPaths([firstPath]); // Set initial path
   }, []);
 
+  const [pathsubmittedtimes2, setpathsubmittedtimes2] = useState(0);
   // Ensure new path values are also TestPath
   useEffect(() => {
     if (
@@ -81,16 +82,37 @@ const RobotChart: React.FC = () => {
     ) {
       setAllPaths((prevPaths) => [...prevPaths, newpathvalues]); // Ensure newpathvalues is TestPath
     }
-  }, [newpathvalues]);
+  }, [pathsubmittedtimes2]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPath(event.target.value);
   };
 
   const handleSubmit = () => {
-    dispatch({ type: Action.INCREMENT_STEP_IDX });
+    const count = pathsubmittedtimes2 + 1;
+
+    setpathsubmittedtimes2(count);
+
+    if (selectedPath !== null) {
+      let currentindexofpathselectedoutof3;
+      if (selectedPath == 'A') {
+        currentindexofpathselectedoutof3 = 0;
+      } else if (selectedPath == 'B') {
+        currentindexofpathselectedoutof3 = 1;
+      } else if (selectedPath == 'C') {
+        currentindexofpathselectedoutof3 = 2;
+      } else if (selectedPath == 'D') {
+        currentindexofpathselectedoutof3 = 3;
+      }
+
+      dispatch({
+        type: Action.INCREMENT_STEP_IDX,
+        value: [pathsubmittedtimes2, currentindexofpathselectedoutof3], // Passing the selected path as the value
+      });
+    }
   };
 
+  console.log(pathsubmittedtimes2, 'pathsubmittedtimes2');
   const getPathData = (paths: TestPath, index: number): Point[] => {
     if (index < paths.length) {
       return paths[index][0].map((x, i) => ({
@@ -227,7 +249,7 @@ const RobotChart: React.FC = () => {
           label="Accept suggested location C"
         />
         <FormControlLabel
-          value="reject"
+          value="D"
           control={<Radio />}
           label="Reject suggestions"
         />

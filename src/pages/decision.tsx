@@ -375,6 +375,7 @@ export default function Main() {
     </div>
   );
 
+  console.log('robotsuggestion', robotSuggestions) // DEBUG
   useEffect(() => {
     const acceptOrRejectTemp: string[] = robotSuggestions.map(
       (suggestion, index) =>
