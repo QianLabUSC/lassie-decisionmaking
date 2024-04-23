@@ -140,6 +140,20 @@ g.append('g')
 
  
     
+        const colorScale = (moisture) => {
+          if (moisture >= 0 && moisture <= 10) return 'orange';
+          if (moisture > 10 && moisture <= 20) return 'yellow';
+          if (moisture > 20 && moisture <= 30) return 'pink';
+          if (moisture > 30 && moisture <= 40) return 'beige';
+          if (moisture > 30 && moisture <= 50) return 'skyblue';
+          if (moisture > 30 && moisture <= 60) return 'teal';
+          if (moisture > 30 && moisture <= 70) return 'brown';
+          if (moisture > 30 && moisture <= 80) return 'olive';
+          if (moisture > 30 && moisture <= 90) return 'violet';
+          if (moisture > 30 && moisture <= 90) return 'purple';
+          return 'grey';
+        };
+          
       // Data points
       g.selectAll('.dot')
         .data(data)
@@ -149,7 +163,7 @@ g.append('g')
         .attr('r', 8)
         .attr('cx', d => xScale(d.moisture))
         .attr('cy', d => yScale(d.shear))
-        .attr('fill', 'blue')
+        .attr('fill', (d) => colorScale(d.moisture))
         .on('mouseover', (event, d) => {
           d3.select('#tooltip')
             .style('opacity', 1)
