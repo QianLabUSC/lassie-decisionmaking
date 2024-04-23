@@ -8,7 +8,7 @@ import { getShearData, getMoistureData } from './util';
 type SubPath = number[];
 
 // Define a path as an array containing two sub-paths
-type Path = [SubPath, SubPath];
+type Path = [SubPath, SubPath,SubPath, SubPath];
 
 // Define the structure for testPath, which is an array of paths
 type TestPath = Path[];
@@ -341,19 +341,30 @@ const chartReducer : SubReducer<Charts> = (chart, state, action) => {
 const newpathreducer = (state: IState, action: IAction): IState => {
 
 
+  // first array is x corrdinate
+  // second is y cordinate
+  // 3rd is information gain
+  // 4th is discrepancy reward
 
   const firstPath: TestPath = [
     [
       [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
       [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
+      [2,3,4,5,6],
+      []
+      
     ],
     [
       [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
       [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+      [],
+      []
     ],
     [
       [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
       [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+      [],
+      []
     ],
   ];
 
@@ -374,7 +385,9 @@ const secondPath: TestPath = [
           0.34574513,
           0.44924912,
           0.5554568,
-      ]
+      ],
+      [],
+      []
   ],
   [
       [
@@ -390,7 +403,9 @@ const secondPath: TestPath = [
           0.4161951,
           0.516915733,
           0.51737063,
-      ]
+      ],
+      [9,8,5,4,6],
+      []
   ],
   [
       [
@@ -406,7 +421,9 @@ const secondPath: TestPath = [
           0.41509101,
           0.451752565,
           0.51793485,
-      ]
+      ],  
+      [],
+      []
   ]
 ]
 
@@ -428,7 +445,9 @@ const thirdPath: TestPath = [
           0.74574513,
           0.84924912,
           0.9554568,
-      ]
+      ],
+      [],
+      []
   ],
   [
       [
@@ -444,7 +463,9 @@ const thirdPath: TestPath = [
           0.7161951,
           0.816915733,
           0.91737063,
-      ]
+      ],
+      [],
+      []
   ],
   [
       [
@@ -460,7 +481,9 @@ const thirdPath: TestPath = [
           0.7841509101,
           0.8771752565,
           0.9981793485,
-      ]
+      ],
+      [1,8,5,4,6],
+      []
   ]
 ]
 
@@ -480,7 +503,9 @@ const fouthPath: TestPath = [
           0.514574513,
           0.314924912,
           0.31554568,
-      ]
+      ],
+      [],
+      []
   ],
   [
       [
@@ -496,7 +521,9 @@ const fouthPath: TestPath = [
           0.47161951,
           0.5816915733,
           0.691737063,
-      ]
+      ],
+      [],
+      []
   ],
   [
       [
@@ -512,7 +539,9 @@ const fouthPath: TestPath = [
           0.17841509101,
           0.28771752565,
           0.39981793485,
-      ]
+      ],
+      [],
+      []
   ]
 ]
 
@@ -523,14 +552,20 @@ const firstPathSelected: TestPath = [
   [
     [],
     [],
+    [],
+    []
   ],
   [
     [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
     [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+    [2,3,4,5,6],
+    []
   ],
   [
     [],
     [],
+    [],
+    []
   ],
 ];
 
@@ -539,6 +574,8 @@ const secondPathSelected: TestPath = [
   [
     [],
     [],
+    [],
+    []
   ],
   [
       
@@ -555,10 +592,14 @@ const secondPathSelected: TestPath = [
           0.4161951,
           0.516915733,
           0.51737063,
-      ]
+      ],  
+      [9,8,5,4,6],
+      []
   
   ],
   [
+    [],
+    [],
     [],
     []
   ],
@@ -568,10 +609,14 @@ const thirdPathSelected: TestPath = [
   [
     [],
     [],
+    [],
+    []
   ],
   [
     [],
     [],
+    [],
+    []
   ],
   [
     [
@@ -587,35 +632,31 @@ const thirdPathSelected: TestPath = [
         0.7841509101,
         0.8771752565,
         0.9981793485,
-    ]
+    ],
+    [8,6,7,2,1],
+    []
   ],
 ];
 
 
 
 const { newpathstep, newpathvalues } = state;
-// 1
-console.log(newpathstep,newpathvalues, 'newpath values')
+// Select A B C sequence data
 function generateRandomTestPath(cuurentpathindex, currentselectepath) {
   console.log(currentselectepath, cuurentpathindex)
   let updatedPath = newpathvalues; // Clone the existing path
 
-  console.log(updatedPath,'updatepath')
   if (newpathstep === 0) {
     updatedPath = updatedPath.concat(firstPath);
-    console.log(newpathstep, 'newpathstepatstate2', updatedPath)
   }
   if (newpathstep === 1) {
-
- updatedPath[0][0]=[]
- updatedPath[0][1]=[]
- updatedPath[2][0]=[]
- updatedPath[2][1]=[]
+    updatedPath[0][0]=[]
+    updatedPath[0][1]=[]
+    updatedPath[2][0]=[]
+    updatedPath[2][1]=[]
 
     updatedPath = updatedPath.concat(secondPath);
-    console.log(updatedPath, 'newpathstepatstate1')
   } else if (newpathstep === 2) {
-
 
     updatedPath[3][0]=[]
     updatedPath[3][1]=[]
@@ -623,8 +664,6 @@ function generateRandomTestPath(cuurentpathindex, currentselectepath) {
     updatedPath[5][1]=[]
 
     updatedPath = updatedPath.concat(thirdPath);
-    // updatedPath = updatedPath.concat(thirdPath);
-    console.log(newpathstep, 'newpathstepatstate2')
   }
   else if (newpathstep === 3) {
     updatedPath[6][0]=[]
@@ -633,13 +672,14 @@ function generateRandomTestPath(cuurentpathindex, currentselectepath) {
     updatedPath[7][1]=[]
 
     updatedPath = updatedPath.concat(fouthPath);
-    console.log(newpathstep, 'newpathstepatstate2')
   }
 
   return updatedPath;
 }
 
-//you can send te index of path & keeping all the other paths zeros, send the path
+// you can send te index of path & keeping all the other paths zeros, send the path
+
+// this is for reference currently the params are not used, but static values are created but this is how the data should come from frontend/ or api to pass into this func
 const testPath = generateRandomTestPath( 1, [
   [
     [],
@@ -663,7 +703,8 @@ const testPath = generateRandomTestPath( 1, [
         0.7841509101,
         0.8771752565,
         0.9981793485,
-    ]
+    ],
+    [6,2,3,5,6]
   ],
 ]);
 
