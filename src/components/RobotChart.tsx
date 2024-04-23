@@ -245,7 +245,7 @@ const RobotChart: React.FC = () => {
         color="secondary"
         onClick={handleSubmit}
       >
-        Generate Path
+        Submit
       </Button>
     </div>
   );
