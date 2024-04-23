@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { createContext, useContext, useReducer } from 'react';
-import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample, PreSample } from './types';
+import {
+  DialogProps,
+  DataVersion,
+  CurrUserStepData,
+  UserStepsData,
+  Sample,
+  PreSample,
+} from './types';
 import { objectiveOptions } from './constants';
 import { getShearData, getMoistureData } from './util';
 
@@ -8,77 +15,76 @@ import { getShearData, getMoistureData } from './util';
 type SubPath = number[];
 
 // Define a path as an array containing two sub-paths
-type Path = [SubPath, SubPath,SubPath, SubPath];
+type Path = [SubPath, SubPath, SubPath, SubPath];
 
 // Define the structure for testPath, which is an array of paths
 type TestPath = Path[];
 
 export type ChartSettings = {
-  mode: number,
-  updateRequired: boolean
+  mode: number;
+  updateRequired: boolean;
 };
 
 export const ChartDisplayMode = {
   RAW: 0,
-  AVERAGE: 1
-}
+  AVERAGE: 1,
+};
 
 export type Chart = any;
 
 // The charts ending with "Map" are those used on the geo.tsx page.
 export type Charts = {
-  shearChart : Chart | null,
-  moistChart : Chart | null,
-  shearMoistChart : Chart | null,
-  shearChartMap : Chart | null,
-  moistChartMap : Chart | null,
-  shearMoistChartMap : Chart | null,
-  positionChart : Chart | null,
-  positionChartMap : Chart | null,
+  shearChart: Chart | null;
+  moistChart: Chart | null;
+  shearMoistChart: Chart | null;
+  shearChartMap: Chart | null;
+  moistChartMap: Chart | null;
+  shearMoistChartMap: Chart | null;
+  positionChart: Chart | null;
+  positionChartMap: Chart | null;
 } | null;
 
 export interface IState {
-  newpathstep:number,
-  newpathvalues: TestPath,
+  newpathstep: number;
+  newpathvalues: TestPath;
 
   // Data fields
-  dataVersion: DataVersion, // will be in final output after survey is completed
-  fullData: number[][],
-  moistureData: number[][],
-  userStrengthData: number[],
-  userLocationData: number[],
+  dataVersion: DataVersion; // will be in final output after survey is completed
+  fullData: number[][];
+  moistureData: number[][];
+  userStrengthData: number[];
+  userLocationData: number[];
   // Step fields
-  currSampleIdx: number,
-  samples: Sample[] // will be in final output after survey is completed
-  currUserStep: CurrUserStepData,
-  userSteps: UserStepsData[], // will be in final output after survey is completed
+  currSampleIdx: number;
+  samples: Sample[]; // will be in final output after survey is completed
+  currUserStep: CurrUserStepData;
+  userSteps: UserStepsData[]; // will be in final output after survey is completed
   // Hypothesis fields
-  initialHypo: number, // will be in final output after survey is completed
-  initialobjectivePattern: number 
-  finalHypo: number, // will be in final output after survey is completed
+  initialHypo: number; // will be in final output after survey is completed
+  initialobjectivePattern: number;
+  finalHypo: number; // will be in final output after survey is completed
   // Chart fields
-  chart: Charts,
-  chartSettings: ChartSettings,
+  chart: Charts;
+  chartSettings: ChartSettings;
   // Miscellaneous fields
-  transectIdx: number, // single transect version (setting transect index to 0 by default)
-  loadingRobotSuggestions: boolean,
-  showRobotSuggestions: boolean,
-  lastHoverIdx: number,
-  dialogProps: DialogProps | null,
-  disableSubmitButton: boolean,
-  numSubmitClicks: number,
-  imgClickEnabled: boolean, 
-  numImgClicks: number, // controls when the global state's "rows" get loaded into the actual strategy and populated in the charts
-  showNOMInput: boolean,
-  introCompleted: boolean,
-  submitted: boolean
+  transectIdx: number; // single transect version (setting transect index to 0 by default)
+  loadingRobotSuggestions: boolean;
+  showRobotSuggestions: boolean;
+  lastHoverIdx: number;
+  dialogProps: DialogProps | null;
+  disableSubmitButton: boolean;
+  numSubmitClicks: number;
+  imgClickEnabled: boolean;
+  numImgClicks: number; // controls when the global state's "rows" get loaded into the actual strategy and populated in the charts
+  showNOMInput: boolean;
+  introCompleted: boolean;
+  submitted: boolean;
 }
 
 // Default initial state
-export const initialState : IState = {
+export const initialState: IState = {
   newpathstep: 0,
-  newpathvalues:[],
-
+  newpathvalues: [],
 
   dataVersion: {
     local: 0, // load alternative hypothesis 0 or 1 randomly for shear data
@@ -93,7 +99,7 @@ export const initialState : IState = {
     step: 1,
     userFeedbackState: 0,
     objectives: [],
-    objectiveFreeResponse: "",
+    objectiveFreeResponse: '',
     sampleType: null,
     robotSuggestions: [],
     spatialReward: [],
@@ -101,10 +107,10 @@ export const initialState : IState = {
     discrepancyReward: [],
     acceptOrRejectOptions: [],
     acceptOrReject: -1,
-    acceptOrRejectFreeResponse: "",
+    acceptOrRejectFreeResponse: '',
     rejectReasonOptions: [],
     rejectReason: -1,
-    rejectReasonFreeResponse: "",
+    rejectReasonFreeResponse: '',
     userFreeSelection: false,
     userSample: null,
     hypoConfidence: 0,
@@ -112,14 +118,14 @@ export const initialState : IState = {
   },
   userSteps: [],
   initialHypo: 0,
-  initialobjectivePattern: 0, 
+  initialobjectivePattern: 0,
   finalHypo: 0,
   chart: null,
   chartSettings: {
     mode: 0,
-    updateRequired: false
+    updateRequired: false,
   },
-  transectIdx: 0, 
+  transectIdx: 0,
   loadingRobotSuggestions: false,
   showRobotSuggestions: false,
   lastHoverIdx: -1,
@@ -130,13 +136,13 @@ export const initialState : IState = {
   numImgClicks: 0,
   showNOMInput: false,
   introCompleted: false,
-  submitted: false
+  submitted: false,
 };
 
-export type IAction = { type: any, value?: any }
+export type IAction = { type: any; value?: any };
 export enum Action {
   INCREMENT_STEP_IDX,
-  SET_STATE, // For loading previous runs; sets the entire state object.  
+  SET_STATE, // For loading previous runs; sets the entire state object.
   SET_DATA_VERSION,
   SET_FULL_DATA,
   SET_MOISTURE_DATA,
@@ -144,11 +150,11 @@ export enum Action {
   SET_USER_LOCATION_DATA,
   SET_CURR_SAMPLE_IDX,
   SET_SAMPLES,
-  ADD_SAMPLE, 
-  DELETE_SAMPLE, 
+  ADD_SAMPLE,
+  DELETE_SAMPLE,
   SET_CURR_USER_STEP,
   SET_USER_STEPS,
-  ADD_USER_STEP, 
+  ADD_USER_STEP,
   /** START - Actions to update the current user step data */
   SET_USER_STEP_IDX,
   SET_USER_FEEDBACK_STATE,
@@ -186,15 +192,15 @@ export enum Action {
   SET_HOVER, // A table row/figure pos/plot data is hovered
   SET_SHOW_NOM_INPUT,
   SET_INTRO_STATUS, // Executed when user completes the introduction agreements
-  SET_SUBMITTED_STATUS // Executed when user submits final responses
+  SET_SUBMITTED_STATUS, // Executed when user submits final responses
 }
 
 // For actions that simply replace the corresponding key in state,
 // we register the action with the key here to simplify the code
 type ActionKeyMap = {
-  [key in keyof typeof Action]?: keyof IState
+  [key in keyof typeof Action]?: keyof IState;
 };
-const actionKeyMap : ActionKeyMap = {
+const actionKeyMap: ActionKeyMap = {
   [Action.SET_DATA_VERSION]: 'dataVersion',
   [Action.SET_FULL_DATA]: 'fullData',
   [Action.SET_MOISTURE_DATA]: 'moistureData',
@@ -220,10 +226,14 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_SUBMITTED_STATUS]: 'submitted',
 };
 
-type SubReducer<T> = (subState: T, state: Readonly<IState>, action: IAction) => T;
+type SubReducer<T> = (
+  subState: T,
+  state: Readonly<IState>,
+  action: IAction
+) => T;
 
-const sampleReducer : SubReducer<Sample[]> = (samples, state, action) => {
-  switch(action.type) {
+const sampleReducer: SubReducer<Sample[]> = (samples, state, action) => {
+  switch (action.type) {
     case Action.ADD_SAMPLE: {
       samples.push(action.value);
       break;
@@ -235,7 +245,7 @@ const sampleReducer : SubReducer<Sample[]> = (samples, state, action) => {
     case Action.SET_HOVER: {
       const { lastHoverIdx } = state;
       const { isHovered } = action.value;
-      if (lastHoverIdx >= 0 &&  lastHoverIdx < samples.length) {
+      if (lastHoverIdx >= 0 && lastHoverIdx < samples.length) {
         samples[lastHoverIdx].isHovered = false;
       }
       const index = action.value.index;
@@ -256,7 +266,7 @@ const sampleReducer : SubReducer<Sample[]> = (samples, state, action) => {
 type ActionKeyMapCurrUserStep = {
   [key in keyof typeof Action]?: keyof CurrUserStepData;
 };
-const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
+const actionKeyMapCurrUserStep: ActionKeyMapCurrUserStep = {
   [Action.SET_USER_STEP_IDX]: 'step',
   [Action.SET_USER_FEEDBACK_STATE]: 'userFeedbackState',
   [Action.SET_OBJECTIVES]: 'objectives',
@@ -264,7 +274,7 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
 
   [Action.SET_SAMPLE_TYPE]: 'sampleType',
   [Action.SET_ROBOT_SUGGESTIONS]: 'robotSuggestions',
-  [Action.SET_SPATIAL_REWARD]:'spatialReward' ,
+  [Action.SET_SPATIAL_REWARD]: 'spatialReward',
   [Action.SET_VARIABLE_REWARD]: 'variableReward',
   [Action.SET_DISCREPANCY_REWARD]: 'discrepancyReward',
   [Action.SET_ACCEPT_OR_REJECT_OPTIONS]: 'acceptOrRejectOptions',
@@ -279,14 +289,25 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_TRANSITION]: 'transition',
 };
 
-const currUserStepReducer : SubReducer<CurrUserStepData> = (currUserStep, state, action) => {
+const currUserStepReducer: SubReducer<CurrUserStepData> = (
+  currUserStep,
+  state,
+  action
+) => {
   if (action.type in actionKeyMapCurrUserStep) {
-    return { ...currUserStep, [actionKeyMapCurrUserStep[action.type] as string]: action.value };
+    return {
+      ...currUserStep,
+      [actionKeyMapCurrUserStep[action.type] as string]: action.value,
+    };
   }
   return currUserStep;
 };
 
-const userStepReducer : SubReducer<UserStepsData[]> = (userSteps, state, action) => {
+const userStepReducer: SubReducer<UserStepsData[]> = (
+  userSteps,
+  state,
+  action
+) => {
   switch (action.type) {
     case Action.ADD_USER_STEP: {
       userSteps.push(action.value);
@@ -296,27 +317,27 @@ const userStepReducer : SubReducer<UserStepsData[]> = (userSteps, state, action)
   return userSteps;
 };
 
-const chartReducer : SubReducer<Charts> = (chart, state, action) => {
+const chartReducer: SubReducer<Charts> = (chart, state, action) => {
   switch (action.type) {
     case Action.SET_CHART: {
       return action.value;
     }
     case Action.CLEAR_CHART_CURRENT: {
       if (!chart) return chart;
-      Object.values(chart).forEach(c => {
-        c?.data.datasets.forEach(dataset => {
-          dataset.data.forEach(data => data.current = false)
+      Object.values(chart).forEach((c) => {
+        c?.data.datasets.forEach((dataset) => {
+          dataset.data.forEach((data) => (data.current = false));
         });
         c?.update();
-      })
+      });
       return chart;
     }
     case Action.SET_HOVER: {
       if (!chart) return chart;
       const { isHovered, index } = action.value;
       const { lastHoverIdx } = state;
-      const traversalFunc = dataset => {
-        dataset.data.forEach(data => {
+      const traversalFunc = (dataset) => {
+        dataset.data.forEach((data) => {
           if (data.rowIndex === lastHoverIdx) {
             data.hover = false;
           }
@@ -327,20 +348,17 @@ const chartReducer : SubReducer<Charts> = (chart, state, action) => {
           }
         });
       };
-      Object.values(chart).forEach(c => {
+      Object.values(chart).forEach((c) => {
         c?.data.datasets.forEach(traversalFunc);
         c?.update();
-      })
+      });
       return chart;
     }
   }
   return chart;
 };
 
-
 const newpathreducer = (state: IState, action: IAction): IState => {
-
-
   // first array is x corrdinate
   // second is y cordinate
   // 3rd is information gain
@@ -350,380 +368,192 @@ const newpathreducer = (state: IState, action: IAction): IState => {
     [
       [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
       [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
-      [2,3,4,5,6],
-      []
-      
+      [2, 3, 4, 5, 6],
+      [],
     ],
     [
       [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
       [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
       [],
-      []
+      [],
     ],
     [
       [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
       [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
       [],
-      []
+      [],
     ],
   ];
 
-
-const secondPath: TestPath = [
-  [
-      [
-        0.17514517,
-          0.2377393,
-          0.348343254,
-          0.448540198,
-          0.4889489748,
-      ],
-      [
-          
-        0.1737063,
-          0.23732145,
-          0.34574513,
-          0.44924912,
-          0.5554568,
-      ],
-      [],
-      []
-  ],
-  [
-      [
-        0.17514517,
-          0.2142308,
-          0.21901995,
-          0.31727556,
-          0.517514517,
-      ],
-      [
-        0.1737063,
-          0.31417771,
-          0.4161951,
-          0.516915733,
-          0.51737063,
-      ],
-      [9,8,5,4,6],
-      []
-  ],
-  [
-      [
-        0.17514517,
-          0.31339001,
-          0.414742749,
-          0.516707451,
-          0.561682743,
-      ],
-      [
-        0.1737063,
-          0.31474205,
-          0.41509101,
-          0.451752565,
-          0.51793485,
-      ],  
-      [],
-      []
-  ]
-]
-
-
-
-const thirdPath: TestPath = [
-  [
-      [
-        0.517514517,
-          0.59377393,
-          0.648343254,
-          0.748540198,
-          0.8889489748,
-      ],
-      [
-          
-        0.51737063,
-          0.63732145,
-          0.74574513,
-          0.84924912,
-          0.9554568,
-      ],
-      [],
-      []
-  ],
-  [
-      [
-        0.517514517,
-          0.6142308,
-          0.71501995,
-          0.81727556,
-          0.917514517,
-      ],
-      [
-        0.51737063,
-          0.61417771,
-          0.7161951,
-          0.816915733,
-          0.91737063,
-      ],
-      [],
-      []
-  ],
-  [
-      [
-        0.517514517,
-          0.5671339001,
-          0.66714742749,
-          0.77716707451,
-          0.8871682743,
-      ],
-      [
-        0.51737063,
-          0.6531474205,
-          0.7841509101,
-          0.8771752565,
-          0.9981793485,
-      ],
-      [1,8,5,4,6],
-      []
-  ]
-]
-
-const fouthPath: TestPath = [
-  [
-      [
-        0.8871682743,
-          0.8959377393,
-          0.648343254,
-          0.748540198,
-          0.8889489748,
-      ],
-      [
-          
-        0.9981793485,
-          0.713732145,
-          0.514574513,
-          0.314924912,
-          0.31554568,
-      ],
-      [],
-      []
-  ],
-  [
-      [
-        0.8871682743,
-          0.56142308,
-          0.671501995,
-          0.281727556,
-          0.3917514517,
-      ],
-      [
-        0.9981793485,
-          0.3561417771,
-          0.47161951,
-          0.5816915733,
-          0.691737063,
-      ],
-      [],
-      []
-  ],
-  [
-      [
-        0.8871682743,
-          0.65671339001,
-          0.766714742749,
-          0.877716707451,
-          0.78871682743,
-      ],
-      [
-        0.9981793485,
-          0.46531474205,
-          0.17841509101,
-          0.28771752565,
-          0.39981793485,
-      ],
-      [],
-      []
-  ]
-]
-
-
-
-
-const firstPathSelected: TestPath = [
-  [
-    [],
-    [],
-    [],
-    []
-  ],
-  [
-    [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-    [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
-    [2,3,4,5,6],
-    []
-  ],
-  [
-    [],
-    [],
-    [],
-    []
-  ],
-];
-
-
-const secondPathSelected: TestPath = [
-  [
-    [],
-    [],
-    [],
-    []
-  ],
-  [
-      
-      [
-        0.17514517,
-          0.2142308,
-          0.21901995,
-          0.31727556,
-          0.517514517,
-      ],
-      [
-        0.1737063,
-          0.31417771,
-          0.4161951,
-          0.516915733,
-          0.51737063,
-      ],  
-      [9,8,5,4,6],
-      []
-  
-  ],
-  [
-    [],
-    [],
-    [],
-    []
-  ],
-];
-
-const thirdPathSelected: TestPath = [
-  [
-    [],
-    [],
-    [],
-    []
-  ],
-  [
-    [],
-    [],
-    [],
-    []
-  ],
-  [
+  const secondPath: TestPath = [
     [
-      0.561682743,
-        0.5671339001,
-        0.66714742749,
-        0.77716707451,
-        0.8871682743,
+      [0.17514517, 0.2377393, 0.348343254, 0.448540198, 0.4889489748],
+      [0.1737063, 0.23732145, 0.34574513, 0.44924912, 0.5554568],
+      [],
+      [],
     ],
     [
-      0.51793485,
-        0.6531474205,
-        0.7841509101,
-        0.8771752565,
-        0.9981793485,
+      [0.17514517, 0.2142308, 0.21901995, 0.31727556, 0.517514517],
+      [0.1737063, 0.31417771, 0.4161951, 0.516915733, 0.51737063],
+      [9, 8, 5, 4, 6],
+      [],
     ],
-    [8,6,7,2,1],
-    []
-  ],
-];
+    [
+      [0.17514517, 0.31339001, 0.414742749, 0.516707451, 0.561682743],
+      [0.1737063, 0.31474205, 0.41509101, 0.451752565, 0.51793485],
+      [],
+      [],
+    ],
+  ];
 
+  const thirdPath: TestPath = [
+    [
+      [0.517514517, 0.59377393, 0.648343254, 0.748540198, 0.8889489748],
+      [0.51737063, 0.63732145, 0.74574513, 0.84924912, 0.9554568],
+      [],
+      [],
+    ],
+    [
+      [0.517514517, 0.6142308, 0.71501995, 0.81727556, 0.917514517],
+      [0.51737063, 0.61417771, 0.7161951, 0.816915733, 0.91737063],
+      [],
+      [],
+    ],
+    [
+      [0.517514517, 0.5671339001, 0.66714742749, 0.77716707451, 0.8871682743],
+      [0.51737063, 0.6531474205, 0.7841509101, 0.8771752565, 0.9981793485],
+      [1, 8, 5, 4, 6],
+      [],
+    ],
+  ];
 
+  const fouthPath: TestPath = [
+    [
+      [0.8871682743, 0.8959377393, 0.648343254, 0.748540198, 0.8889489748],
+      [0.9981793485, 0.713732145, 0.514574513, 0.314924912, 0.31554568],
+      [],
+      [],
+    ],
+    [
+      [0.8871682743, 0.56142308, 0.671501995, 0.281727556, 0.3917514517],
+      [0.9981793485, 0.3561417771, 0.47161951, 0.5816915733, 0.691737063],
+      [],
+      [],
+    ],
+    [
+      [
+        0.8871682743, 0.65671339001, 0.766714742749, 0.877716707451,
+        0.78871682743,
+      ],
+      [
+        0.9981793485, 0.46531474205, 0.17841509101, 0.28771752565,
+        0.39981793485,
+      ],
+      [],
+      [],
+    ],
+  ];
 
-const { newpathstep, newpathvalues } = state;
-// Select A B C sequence data
-function generateRandomTestPath(cuurentpathindex, currentselectepath) {
-  console.log(currentselectepath, cuurentpathindex)
-  let updatedPath = newpathvalues; // Clone the existing path
+  const firstPathSelected: TestPath = [
+    [[], [], [], []],
+    [
+      [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+      [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+      [2, 3, 4, 5, 6],
+      [],
+    ],
+    [[], [], [], []],
+  ];
 
-  if (newpathstep === 0) {
-    updatedPath = updatedPath.concat(firstPath);
-  }
-  if (newpathstep === 1) {
-    updatedPath[0][0]=[]
-    updatedPath[0][1]=[]
-    updatedPath[2][0]=[]
-    updatedPath[2][1]=[]
+  const secondPathSelected: TestPath = [
+    [[], [], [], []],
+    [
+      [0.17514517, 0.2142308, 0.21901995, 0.31727556, 0.517514517],
+      [0.1737063, 0.31417771, 0.4161951, 0.516915733, 0.51737063],
+      [9, 8, 5, 4, 6],
+      [],
+    ],
+    [[], [], [], []],
+  ];
 
-    updatedPath = updatedPath.concat(secondPath);
-  } else if (newpathstep === 2) {
+  const thirdPathSelected: TestPath = [
+    [[], [], [], []],
+    [[], [], [], []],
+    [
+      [0.561682743, 0.5671339001, 0.66714742749, 0.77716707451, 0.8871682743],
+      [0.51793485, 0.6531474205, 0.7841509101, 0.8771752565, 0.9981793485],
+      [8, 6, 7, 2, 1],
+      [],
+    ],
+  ];
 
-    updatedPath[3][0]=[]
-    updatedPath[3][1]=[]
-    updatedPath[5][0]=[]
-    updatedPath[5][1]=[]
+  const { newpathstep, newpathvalues } = state;
+  // Select A B C sequence data
+  function generateRandomTestPath(cuurentpathindex, currentselectepath) {
+    console.log(currentselectepath, cuurentpathindex);
+    let updatedPath = newpathvalues; // Clone the existing path
 
-    updatedPath = updatedPath.concat(thirdPath);
-  }
-  else if (newpathstep === 3) {
-    updatedPath[6][0]=[]
-    updatedPath[6][1]=[]
-    updatedPath[7][0]=[]
-    updatedPath[7][1]=[]
+    if (newpathstep === 0) {
+      updatedPath = updatedPath.concat(firstPath);
+    }
+    if (newpathstep === 1) {
+      updatedPath[0][0] = [];
+      updatedPath[0][1] = [];
+      updatedPath[2][0] = [];
+      updatedPath[2][1] = [];
 
-    updatedPath = updatedPath.concat(fouthPath);
+      updatedPath = updatedPath.concat(secondPath);
+    } else if (newpathstep === 2) {
+      updatedPath[3][0] = [];
+      updatedPath[3][1] = [];
+      updatedPath[5][0] = [];
+      updatedPath[5][1] = [];
+
+      updatedPath = updatedPath.concat(thirdPath);
+    } else if (newpathstep === 3) {
+      updatedPath[6][0] = [];
+      updatedPath[6][1] = [];
+      updatedPath[7][0] = [];
+      updatedPath[7][1] = [];
+
+      updatedPath = updatedPath.concat(fouthPath);
+    }
+
+    return updatedPath;
   }
 
-  return updatedPath;
-}
+  // you can send te index of path & keeping all the other paths zeros, send the path
 
-// you can send te index of path & keeping all the other paths zeros, send the path
-
-// this is for reference currently the params are not used, but static values are created but this is how the data should come from frontend/ or api to pass into this func
-const testPath = generateRandomTestPath( 1, [
-  [
-    [],
-    [],
-  ],
-  [
-    [],
-    [],
-  ],
-  [
+  // this is for reference currently the params are not used, but static values are created but this is how the data should come from frontend/ or api to pass into this func
+  const testPath = generateRandomTestPath(1, [
+    [[], []],
+    [[], []],
     [
-      0.561682743,
-        0.5671339001,
-        0.66714742749,
-        0.77716707451,
-        0.8871682743,
+      [0.561682743, 0.5671339001, 0.66714742749, 0.77716707451, 0.8871682743],
+      [0.51793485, 0.6531474205, 0.7841509101, 0.8771752565, 0.9981793485],
+      [6, 2, 3, 5, 6],
     ],
-    [
-      0.51793485,
-        0.6531474205,
-        0.7841509101,
-        0.8771752565,
-        0.9981793485,
-    ],
-    [6,2,3,5,6]
-  ],
-]);
+  ]);
 
-console.log(testPath,'testpath')
+  console.log(testPath, 'testpath');
 
   switch (action.type) {
-   
     case Action.INCREMENT_STEP_IDX:
-      console.log(action.type,'fff')
-      return { ...state, newpathstep: state.newpathstep + 1, newpathvalues:testPath};
+      console.log(action.type, 'fff');
+      return {
+        ...state,
+        newpathstep: state.newpathstep + 1,
+        newpathvalues: testPath,
+      };
     // Handle other actions as before...
     default:
-      console.log(action.type,'fff2')
+      console.log(action.type, 'fff2');
       return state;
-      // Your existing logic to handle other actions...
+    // Your existing logic to handle other actions...
   }
 };
 
-export const reducer = (state: IState, action: IAction) : IState => {
+export const reducer = (state: IState, action: IAction): IState => {
   if (action.type === Action.SET_STATE) {
     return action.value as IState;
   } else if (action.type in actionKeyMap) {
@@ -741,13 +571,7 @@ export const reducer = (state: IState, action: IAction) : IState => {
   return newpathreducer(updatedState, action);
 };
 
-
-
-
-
-
-
-type DispatchType = ((v: IAction) => void);
+type DispatchType = (v: IAction) => void;
 
 type ReducerType = [IState, DispatchType];
 
@@ -759,4 +583,4 @@ export const StateProvider = ({ children }) => (
   </StateContext.Provider>
 );
 
-export const useStateValue = () => (useContext(StateContext) as ReducerType);
+export const useStateValue = () => useContext(StateContext) as ReducerType;
