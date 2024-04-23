@@ -46,7 +46,7 @@ export type Charts = {
 
 export interface IState {
   newpathvalues: TestPath;
-  selectedpathsubmittime: [number, number];
+  selectedpathsubmittime: [number, number]; // contains how many time user have selected the path & between 0 A, 1 B, 2C which part did user selectd
 
   // Data fields
   dataVersion: DataVersion; // will be in final output after survey is completed
