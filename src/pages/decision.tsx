@@ -1194,9 +1194,7 @@ export default function Main() {
   const ChartTabs = () => (
     <Box sx={{ width: '100%' }}>
       <Tabs value={tabValue} onChange={handleChangeTab} centered>
-        <Tab label="Shear vs. Moisture" />
-        <Tab label="Moisture Stress Scatter" />
-        <Tab label="Moisture Heat Map" />
+        <Tab label="Information Gain & Discrepency" />
       </Tabs>
       {/* {tabValue === 0 && <ShearVsMoisturePlot width={1100} height={600} />} */}
        {tabValue === 0 && <DiscrepancyChart width={1100} height={600} />}
