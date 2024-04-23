@@ -1196,7 +1196,7 @@ export default function Main() {
       <Tabs value={tabValue} onChange={handleChangeTab} centered>
         <Tab label="Shear VS Mositure" />
       </Tabs>
-      {tabValue === 0 && <ShearVsMoisturePlot width={1300} height={1100} />}
+      {tabValue === 0 && <ShearVsMoisturePlot width={1400} height={1100} />}
        {/* {tabValue === 0 && <DiscrepancyChart width={1100} height={600} />} */}
 
       {/* {tabValue === 1 && (

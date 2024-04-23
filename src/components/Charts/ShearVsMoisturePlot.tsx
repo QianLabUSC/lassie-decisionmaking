@@ -89,6 +89,34 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
       .attr('fill', 'black')
       .style('font-size', '15px') // Set the font size here
       .text('Shear Stress');
+      
+  
+ // Grid lines for the X-axis
+ g.append('g')
+ .attr('class', 'grid')
+ .attr('transform', `translate(0,${plotHeight})`)
+ .call(d3.axisBottom(xScale)
+   .ticks(10)
+   .tickSize(-plotHeight)
+
+   .tickFormat(null)
+   )
+ .attr('stroke', 'lightgrey')
+ .attr('stroke-opacity', 0.7)
+ .selectAll('.tick line').attr('stroke', 'lightgrey');
+
+// Grid lines for the Y-axis
+g.append('g')
+ .attr('class', 'grid')
+ .call(d3.axisLeft(yScale)
+   .ticks(10)
+   .tickSize(-plotWidth)
+   .tickFormat(null)
+  )
+ .attr('stroke', 'lightgrey')
+ .attr('stroke-opacity', 0.7)
+ .selectAll('.tick line').attr('stroke', 'lightgrey');
+
 
       const lineData = [
         { x: 0, y: 11 },
@@ -108,6 +136,8 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
         .attr('stroke', 'red')
         .attr('stroke-width', 2)
         .attr('d', lineGenerator);
+
+
  
     
       // Data points
@@ -145,7 +175,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
       <Typography variant="h6" style={{ marginTop: '20px', textAlign: 'center' }}>
         Shear Strength vs Moisture Percentage
       </Typography>
-      <svg ref={svgRef} width={width} height={height} />
+      <svg ref={svgRef} width={width} height={height} style={{ marginLeft:'25px', border: '1px solid black' }} />
       <div
         id="tooltip"
         style={{
