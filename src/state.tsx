@@ -490,7 +490,6 @@ const newpathreducer = (state: IState, action: IAction): IState => {
   const { newpathstep, newpathvalues } = state;
   // Select A B C sequence data
   function generateRandomTestPath(cuurentpathindex, currentselectepath) {
-    console.log(currentselectepath, cuurentpathindex);
     let updatedPath = newpathvalues; // Clone the existing path
 
     if (newpathstep === 0) {
@@ -535,11 +534,8 @@ const newpathreducer = (state: IState, action: IAction): IState => {
     ],
   ]);
 
-  console.log(testPath, 'testpath');
-
   switch (action.type) {
     case Action.INCREMENT_STEP_IDX:
-      console.log(action.type, 'fff');
       return {
         ...state,
         newpathstep: state.newpathstep + 1,
@@ -547,7 +543,6 @@ const newpathreducer = (state: IState, action: IAction): IState => {
       };
     // Handle other actions as before...
     default:
-      console.log(action.type, 'fff2');
       return state;
     // Your existing logic to handle other actions...
   }
