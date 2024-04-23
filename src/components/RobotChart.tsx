@@ -9,6 +9,7 @@ import { AxisLeft, AxisBottom } from '@visx/axis';
 import { Button, Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
 import { useStateValue } from '../state';
 import { Action } from '../state';
+import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
 
 const width = 850;
 const height = 850;
@@ -32,7 +33,14 @@ const yScale = scaleLinear({
 const labels = ['A', 'B', 'C'];
 const colors = ['#FF5733', '#33FF57', '#3357FF'];
 
-type TestPath = number[][][];
+// Define the structure of a single sub-path as an array of numbers
+type SubPath = number[];
+
+// Define a path as an array containing two sub-paths
+type Path = [SubPath, SubPath,SubPath, SubPath];
+
+// Define the structure for testPath, which is an array of paths
+type TestPath = Path[];
 
 const RobotChart: React.FC = () => {
   const [{ currUserStep, newpathvalues }, dispatch] = useStateValue();
@@ -45,14 +53,20 @@ const RobotChart: React.FC = () => {
       [
         [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
         [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
+        [],
+        []
       ],
       [
         [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
         [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+        [],
+        []
       ],
       [
         [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
         [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+        [],
+        []
       ],
     ];
     setAllPaths([firstPath]);  // Set initial path
@@ -64,27 +78,40 @@ useEffect(() => {
     setAllPaths(prevPaths => [...prevPaths, newpathvalues]);  // Ensure newpathvalues is TestPath
   }
 }, [newpathvalues]);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPath(event.target.value);
   };
 
 
   const handleSubmit = () => {
-    console.log('Path generated for selection: ', selectedPath);
     dispatch({ type: Action.INCREMENT_STEP_IDX });
   };
 
   const getPathData = (paths: TestPath, index: number): Point[] => {
-    console.log(paths,'allpaatgetpaths')
     if (index < paths.length) {
       return paths[index][0].map((x, i) => ({
         x,
         y: paths[index][1][i],
+      
       }));
     }
     return [];
   };
   
+  const getHeatMapData = (paths: TestPath, index: number): { points: Point[], heatmapValues: number[] } => {
+
+    console.log('hifirstpathsdata',  selectedPath,'selectedPath', index, paths)
+    if (index < paths.length) {
+      const points = paths[index][0].map((x, i) => ({
+        x: x,
+        y: paths[index][1][i],
+      }));
+      const heatmapValues = paths[index][2]; // Assuming the heatmap data is at the third index of each path
+      return { points, heatmapValues };
+    }
+    return { points: [], heatmapValues: [] };
+  };
 
   const shouldShowPath = (index: number): boolean => {
     if (currUserStep.acceptOrReject === -1 || currUserStep.acceptOrReject >= labels.length) {
@@ -95,14 +122,32 @@ useEffect(() => {
 
   const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
 
-  const newSubmit = async () => {
-    console.log('testtttt')
-    dispatch({ type: Action.INCREMENT_STEP_IDX });
-  };
 
   const disableSubmitButton = false; // Update logic as needed
 
-  console.log('allpaths', allPaths)
+  const renderHeatMap = (data, heatmapValues) => {
+
+    console.log(data, 'data')
+    console.log(heatmapValues, 'hifiheatmapvalues')
+
+    
+    if (!data.length) return null;
+    const startX = xScale(data[0].x);
+    const startY = yScale(data[0].y);
+    const endX = xScale(data[data.length - 1].x);
+    const endY = yScale(data[data.length - 1].y);
+    return (
+      <InformationGainHeatMap
+        width={Math.abs(endX - startX)}
+        height={Math.abs(endY - startY)}
+        data={heatmapValues}
+        x={Math.min(startX, endX)}
+        y={Math.min(startY, endY)}
+      />
+    );
+  };
+
+
   return (
     <div>
       <svg width={width} height={height}>
@@ -112,6 +157,10 @@ useEffect(() => {
 
               console.log('eachpaths', allPaths)
               const data = getPathData(allPaths[allPaths.length-1], pathIndex);
+              const heatMapFullData = getHeatMapData(allPaths[allPaths.length-1], pathIndex)
+
+              console.log(data, 'data', heatMapFullData, 'heatmap2')
+             const  heatMapData= heatMapFullData?.heatmapValues
               if (!data.length || !shouldShowPath(pathIndex)) return null;
               const lastPoint = data[data.length - 1];
               const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
@@ -137,6 +186,7 @@ useEffect(() => {
                   >
                     {pathIndex}
                   </Text>
+                  { renderHeatMap(data, heatMapData)}
                 </React.Fragment>
               );
             })
