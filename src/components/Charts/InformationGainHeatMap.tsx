@@ -2,29 +2,44 @@ import * as React from 'react';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 
-const InformationGainHeatMap = ({ x, y, width, height, data }) => {
-  const rectWidth = width / data.length;
-  const rectHeight = height; // Single height for all rectangles
+const InformationGainHeatMap = ({
+  x,
+  y,
+  width,
+  height,
+  infogain,
+  discrepancy,
+  type
+}) => {
+  const numCols = infogain.length;
+  const numRows = discrepancy.length;
+
+  const rectWidth = width / numCols;
+  const rectHeight = height / numRows;
+
+
+  const valuesForColor = type === 'infogain' ? infogain : discrepancy;
 
   const colorScale = scaleLinear({
-    domain: [Math.min(...data), Math.max(...data)],
+    domain: [Math.min(...valuesForColor), Math.max(...valuesForColor)],
     range: ['#ffffcc', '#ff7043'] // Yellow to red color range
   });
-
   return (
-    <Group style={{ pointerEvents: 'none', opacity: 0.5, zIndex: -1 }}>
-      {data.map((value, index) => (
+    <Group style={{ pointerEvents: 'none', opacity: 0.5 }}>
+    {discrepancy.map((discrepValue, rowIndex) => (
+      infogain.map((infoValue, colIndex) => (
         <rect
-          key={index}
-          x={x + index * rectWidth}
-          y={y}
+          key={`${rowIndex}-${colIndex}`}
+          x={x + colIndex * rectWidth}
+          y={y + rowIndex * rectHeight}
           width={rectWidth}
           height={rectHeight}
-          fill={colorScale(value)}
+          fill={colorScale(valuesForColor[rowIndex])} // Color based on selected metric
           stroke={'black'}
         />
-      ))}
-    </Group>
+      ))
+    ))}
+  </Group>
   );
 };
 
