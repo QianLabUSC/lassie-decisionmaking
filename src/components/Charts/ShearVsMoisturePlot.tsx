@@ -40,7 +40,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
   const data = generateScatterData();
   const svgRef = useRef(null);
   const margin = { top: 20, right: 20, bottom: 50, left: 120 };
-  const plotWidth = width - margin.left;
+  const plotWidth = width
   const plotHeight = height - margin.top - margin.bottom;
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
       .attr('text-anchor', 'middle')
       .attr('fill', 'black')
       .style('font-size', '15px') // Set the font size here
-      .text('Moisture');
+      .text('Moisture Percentage');
 
     // Y Axis
     g.append('g')
@@ -138,8 +138,12 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
 
   return (
     <>
+     <Typography variant="h5" style={{ marginTop: '20px', textAlign: 'center' }}>
+        Collected Data from the Transect
+      </Typography>
+
       <Typography variant="h6" style={{ marginTop: '20px', textAlign: 'center' }}>
-        Moisture vs. Shear Stress Scatter Plot
+        Shear Strength vs Moisture Percentage
       </Typography>
       <svg ref={svgRef} width={width} height={height} />
       <div
