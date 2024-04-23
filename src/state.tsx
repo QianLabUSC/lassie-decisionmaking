@@ -45,8 +45,8 @@ export type Charts = {
 } | null;
 
 export interface IState {
-  newpathstep: number;
   newpathvalues: TestPath;
+  selectedpathsubmittime: [number, number];
 
   // Data fields
   dataVersion: DataVersion; // will be in final output after survey is completed
@@ -83,8 +83,8 @@ export interface IState {
 
 // Default initial state
 export const initialState: IState = {
-  newpathstep: 0,
   newpathvalues: [],
+  selectedpathsubmittime: [0, 999],
 
   dataVersion: {
     local: 0, // load alternative hypothesis 0 or 1 randomly for shear data
@@ -368,7 +368,7 @@ const newpathreducer = (state: IState, action: IAction): IState => {
     [
       [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
       [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
-      [2, 3, 4, 5, 6],
+      [],
       [],
     ],
     [
@@ -395,7 +395,7 @@ const newpathreducer = (state: IState, action: IAction): IState => {
     [
       [0.17514517, 0.2142308, 0.21901995, 0.31727556, 0.517514517],
       [0.1737063, 0.31417771, 0.4161951, 0.516915733, 0.51737063],
-      [9, 8, 5, 4, 6],
+      [],
       [],
     ],
     [
@@ -420,34 +420,82 @@ const newpathreducer = (state: IState, action: IAction): IState => {
       [],
     ],
     [
-      [0.517514517, 0.5671339001, 0.66714742749, 0.77716707451, 0.8871682743],
-      [0.51737063, 0.6531474205, 0.7841509101, 0.8771752565, 0.9981793485],
-      [1, 8, 5, 4, 6],
+      [0.517514517, 0.5671339001, 0.66714742749, 0.67716707451, 0.68871682743],
+      [0.51737063, 0.5531474205, 0.5841509101, 0.68771752565, 0.69981793485],
+      [],
       [],
     ],
   ];
 
   const fouthPath: TestPath = [
     [
-      [0.8871682743, 0.8959377393, 0.648343254, 0.748540198, 0.8889489748],
-      [0.9981793485, 0.713732145, 0.514574513, 0.314924912, 0.31554568],
-      [],
-      [],
-    ],
-    [
-      [0.8871682743, 0.56142308, 0.671501995, 0.281727556, 0.3917514517],
-      [0.9981793485, 0.3561417771, 0.47161951, 0.5816915733, 0.691737063],
+      [0.68871682743, 0.6959377393, 0.6998343254, 0.7148540198, 0.72889489748],
+      [
+        0.69981793485, 0.716713732145, 0.7269514574513, 0.738314924912,
+        0.7391554568,
+      ],
       [],
       [],
     ],
     [
       [
-        0.8871682743, 0.65671339001, 0.766714742749, 0.877716707451,
-        0.78871682743,
+        0.68871682743, 0.68896142308, 0.71671501995, 0.7281727556,
+        0.73917514517,
       ],
       [
-        0.9981793485, 0.46531474205, 0.17841509101, 0.28771752565,
-        0.39981793485,
+        0.69981793485, 0.713561417771, 0.7247161951, 0.735816915733,
+        0.73691737063,
+      ],
+      [],
+      [],
+    ],
+    [
+      [
+        0.68871682743, 0.71656713, 0.716714742, 0.72877716707451,
+        0.73678871682743,
+      ],
+      [
+        0.69981793485, 0.7146531474205, 0.717841509101, 0.728771752565,
+        0.73639981793485,
+      ],
+      [],
+      [],
+    ],
+  ];
+
+  const fifthPath: TestPath = [
+    [
+      [
+        0.72889489748, 0.8959377393, 0.8998343254, 0.97148540198,
+        0.972889489748,
+      ],
+      [
+        0.7391554568, 0.67916713732145, 0.587269514574513, 0.48738314924912,
+        0.297391554568,
+      ],
+      [],
+      [],
+    ],
+    [
+      [
+        0.72889489748, 0.76959377393, 0.86998343254, 0.97148540198,
+        0.9972889489748,
+      ],
+      [
+        0.7391554568, 0.67716713732145, 0.587269514574513, 0.290738314924912,
+        0.29127391554568,
+      ],
+      [],
+      [],
+    ],
+    [
+      [
+        0.72889489748, 0.816959377393, 0.936998343254, 0.967148540198,
+        0.9872889489748,
+      ],
+      [
+        0.7391554568, 0.892716713732145, 0.6937269514574513, 0.594738314924912,
+        0.4957391554568,
       ],
       [],
       [],
@@ -480,46 +528,106 @@ const newpathreducer = (state: IState, action: IAction): IState => {
     [[], [], [], []],
     [[], [], [], []],
     [
-      [0.561682743, 0.5671339001, 0.66714742749, 0.77716707451, 0.8871682743],
-      [0.51793485, 0.6531474205, 0.7841509101, 0.8771752565, 0.9981793485],
+      [0.517514517, 0.5671339001, 0.66714742749, 0.67716707451, 0.68871682743],
+      [0.51737063, 0.5531474205, 0.5841509101, 0.68771752565, 0.69981793485],
       [8, 6, 7, 2, 1],
       [],
     ],
   ];
 
-  const { newpathstep, newpathvalues } = state;
-  // Select A B C sequence data
+  const fourthPathSelected: TestPath = [
+    [
+      [0.68871682743, 0.6959377393, 0.6998343254, 0.7148540198, 0.72889489748],
+      [
+        0.69981793485, 0.716713732145, 0.7269514574513, 0.738314924912,
+        0.7391554568,
+      ],
+      [3, 5, 7, 2, 1],
+      [],
+    ],
+    [[], [], [], []],
+    [[], [], [], []],
+  ];
+
+  const fifthPathSelected: TestPath = [
+    [[], [], [], []],
+    [
+      [
+        0.72889489748, 0.76959377393, 0.86998343254, 0.97148540198,
+        0.9972889489748,
+      ],
+      [
+        0.7391554568, 0.67716713732145, 0.587269514574513, 0.290738314924912,
+        0.29127391554568,
+      ],
+      [2, 3, 1, 2, 5],
+      [],
+    ],
+    [[], [], [], []],
+  ];
+
+  const { newpathvalues } = state;
+
+  const a1 = firstPathSelected;
+  const a1new = firstPathSelected.concat(secondPath);
+
+  const a2 = a1.concat(secondPathSelected);
+  const a2new = a2.concat(thirdPath);
+
+  const a3 = a2.concat(thirdPathSelected);
+  const a3new = a3.concat(fouthPath);
+
+  const a4 = a3.concat(fourthPathSelected);
+  const a4new = a4.concat(fifthPath);
+
+  const a5 = a4.concat(fifthPathSelected);
+
+  // const a5new=a5.concat()
+
   function generateRandomTestPath(cuurentpathindex, currentselectepath) {
-    let updatedPath = newpathvalues; // Clone the existing path
-
-    if (newpathstep === 0) {
-      updatedPath = updatedPath.concat(firstPath);
+    if (cuurentpathindex[0] === 0 && cuurentpathindex[1] === 0) {
+      return a1new;
+    } else if (cuurentpathindex[0] === 1) {
+      return a2new;
+    } else if (cuurentpathindex[0] === 2) {
+      return a3new;
+    } else if (cuurentpathindex[0] === 3) {
+      return a4new;
     }
-    if (newpathstep === 1) {
-      updatedPath[0][0] = [];
-      updatedPath[0][1] = [];
-      updatedPath[2][0] = [];
-      updatedPath[2][1] = [];
-
-      updatedPath = updatedPath.concat(secondPath);
-    } else if (newpathstep === 2) {
-      updatedPath[3][0] = [];
-      updatedPath[3][1] = [];
-      updatedPath[5][0] = [];
-      updatedPath[5][1] = [];
-
-      updatedPath = updatedPath.concat(thirdPath);
-    } else if (newpathstep === 3) {
-      updatedPath[6][0] = [];
-      updatedPath[6][1] = [];
-      updatedPath[7][0] = [];
-      updatedPath[7][1] = [];
-
-      updatedPath = updatedPath.concat(fouthPath);
-    }
-
-    return updatedPath;
+    return a5;
   }
+
+  // function generateRandomTestPath(cuurentpathindex, currentselectepath) {
+  //   let updatedPath = newpathvalues; // Clone the existing path
+
+  //   if (newpathstep === 0) {
+  //     updatedPath = updatedPath.concat(firstPath);
+  //   }
+  //   if (newpathstep === 1) {
+  //     updatedPath[0][0] = [];
+  //     updatedPath[0][1] = [];
+  //     updatedPath[2][0] = [];
+  //     updatedPath[2][1] = [];
+
+  //     updatedPath = updatedPath.concat(secondPath);
+  //   } else if (newpathstep === 2) {
+  //     updatedPath[3][0] = [];
+  //     updatedPath[3][1] = [];
+  //     updatedPath[5][0] = [];
+  //     updatedPath[5][1] = [];
+
+  //     updatedPath = updatedPath.concat(thirdPath);
+  //   } else if (newpathstep === 3) {
+  //     updatedPath[6][0] = [];
+  //     updatedPath[6][1] = [];
+  //     updatedPath[7][0] = [];
+  //     updatedPath[7][1] = [];
+
+  //     updatedPath = updatedPath.concat(fouthPath);
+  //   }
+
+  //   return updatedPath;
+  // }
 
   // you can send te index of path & keeping all the other paths zeros, send the path
 
@@ -534,12 +642,26 @@ const newpathreducer = (state: IState, action: IAction): IState => {
     ],
   ]);
 
+  const testdata = [
+    [[], []],
+    [[], []],
+    [
+      [0.561682743, 0.5671339001, 0.66714742749, 0.77716707451, 0.8871682743],
+      [0.51793485, 0.6531474205, 0.7841509101, 0.8771752565, 0.9981793485],
+      [6, 2, 3, 5, 6],
+    ],
+  ];
+
   switch (action.type) {
     case Action.INCREMENT_STEP_IDX:
+      console.log(action?.value, 'at value');
+
+      const updatedPathValues = generateRandomTestPath(action?.value, testdata);
+
+      console.log(updatedPathValues, 'imp_end_updatedpath');
       return {
         ...state,
-        newpathstep: state.newpathstep + 1,
-        newpathvalues: testPath,
+        newpathvalues: updatedPathValues,
       };
     // Handle other actions as before...
     default:

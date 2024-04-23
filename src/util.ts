@@ -274,13 +274,13 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
       normOffsetX: 300,
       normOffsetY: 300,
       isHovered: false,
-      path: path,     // Assuming you want to set this to the current path, not path_
+      path: path,     // Assuming you want to set this to the current path, not path_  // DEBUG : HERE 
     }
     return suggestion;
   });
   
 
-  console.log('results',  results);
+  console.log('results',  results); // DEBUG: HERE
   
   return {
     results: results,
