@@ -2,45 +2,33 @@ import * as React from 'react';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 
-const InformationGainHeatMap = ({
-  x,
-  y,
-  width,
-  height,
-  infogain,
-  discrepancy,
-  type
-}) => {
-  const numCols = infogain.length;
-  const numRows = discrepancy.length;
-
-  const rectWidth = width / numCols;
-  const rectHeight = height / numRows;
-
-
-  const valuesForColor = type === 'infogain' ? infogain : discrepancy;
-
-  const colorScale = scaleLinear({
-    domain: [Math.min(...valuesForColor), Math.max(...valuesForColor)],
-    range: ['#ffffcc', '#ff7043'] // Yellow to red color range
+const InformationGainHeatMap = ({ width, height, data, x, y }) => {
+  // Assuming each cell is a square and the component size is fixed to width and height for a 100x100 grid
+  const cellSize = width / 100; // or height / 100, assuming width and height are the same
+  const opacityScale = scaleLinear({
+    domain: [Math.min(...data.flat()), Math.max(...data.flat())],
+    range: [0.02, 0.4], // Adjust opacity range as needed
   });
+
   return (
-    <Group style={{ pointerEvents: 'none', opacity: 0.5 }}>
-    {discrepancy.map((discrepValue, rowIndex) => (
-      infogain.map((infoValue, colIndex) => (
-        <rect
-          key={`${rowIndex}-${colIndex}`}
-          x={x + colIndex * rectWidth}
-          y={y + rowIndex * rectHeight}
-          width={rectWidth}
-          height={rectHeight}
-          fill={colorScale(valuesForColor[rowIndex])} // Color based on selected metric
-          stroke={'black'}
-        />
-      ))
-    ))}
-  </Group>
+
+    <svg width={width} height={height}>
+      {data.map((row, rowIndex) =>
+        row.map((value, colIndex) => (
+          <rect
+            key={`cell-${rowIndex}-${colIndex}`}
+            x={colIndex * cellSize + x}
+            y={rowIndex * cellSize + y}
+            width={cellSize}
+            height={cellSize}
+            fill={`rgba(255,165,100,${opacityScale(value)})`}
+            stroke="#ccc" // Optional, adds border to each cell
+          />
+        ))
+      )}
+    </svg>
   );
 };
+
 
 export default InformationGainHeatMap;

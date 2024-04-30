@@ -51,8 +51,14 @@ type Path = [SubPath, SubPath, SubPath, SubPath];
 // Define the structure for testPath, which is an array of paths
 type TestPath = Path[];
 
+
+
 const RobotChart: React.FC = () => {
-  const [{ currUserStep, newpathvalues, threePaths }, dispatch] = useStateValue();
+  const [{ currUserStep, newpathvalues, threePaths, uncertanity_heat_map_data }, dispatch] = useStateValue();
+
+  console.log('uncertanity_heat_map_data123 ', uncertanity_heat_map_data )
+
+
   const [selectedPath, setSelectedPath] = useState('');
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
 
@@ -170,25 +176,25 @@ const RobotChart: React.FC = () => {
 
   const disableSubmitButton = false; // Update logic as needed
 
-  const renderHeatMap = (data, heatmapValues) => {
-    if (!data.length) return null;
-    const startX = xScale(data[0].x);
-    const startY = yScale(data[0].y);
-    const endX = xScale(data[data.length - 1].x);
-    const endY = yScale(data[data.length - 1].y);
+  const renderHeatMap = () => {
+    const heatmapData = heatMapType === 'infogain' ? uncertanity_heat_map_data : uncertanity_heat_map_data;
 
-    const infogain = heatmapValues?.infogain;
-    const discrepancy = heatmapValues?.discrepancy;
+    if (!heatmapData.length) return null;
+    const startX = xScale(0);
+    const startY = yScale(0);
+    const endX = xScale(10);  // x goes from 0 to 10
+    const endY = yScale(10);  // y goes from 0 to 10  
+
+    console.log(heatmapData)
+    
     return (
-      <InformationGainHeatMap
-        width={Math.abs(endX - startX)}
-        height={Math.abs(endY - startY)}
-        infogain={infogain}
-        discrepancy={discrepancy}
-        x={Math.min(startX, endX)}
-        y={Math.min(startY, endY)}
-        type={heatMapType}
-      />
+      heatmapData  && (<InformationGainHeatMap
+        width={1550}
+        height={2490}
+        data={heatmapData}
+        x={50}
+        y={50}
+      />)
     );
   };
 
@@ -212,7 +218,7 @@ const RobotChart: React.FC = () => {
             displayEmpty
             style={{
               background: 'white',
-              color: 'rgba(0, 0.3, 0, 0.87)',
+              color: 'rgba(0, 0.2, 0, 0.17)',
               padding: '10px 15px',
             }}
             inputProps={{
@@ -241,6 +247,7 @@ const RobotChart: React.FC = () => {
 
       <svg width={width} height={height}>
         <Group>
+        {renderHeatMap()}
           {allPaths.map((paths, idx) =>
             paths.map((_, pathIndex) => {
               const data = getPathData(
@@ -260,7 +267,8 @@ const RobotChart: React.FC = () => {
                   .reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
               const isLastThreePaths = globalPathIndex >= totalPaths - 3;
               return (
-                <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
+                
+                <React.Fragment key={`path-set-${idx}-path-${pathIndex}`} >
                   <LinePath
                     data={data}
                     x={(d: Point) => xScale(d.x)}
@@ -283,8 +291,7 @@ const RobotChart: React.FC = () => {
                     fontWeight="bold"
                   >
                     {pathIndex}
-                  </Text>
-                  {renderHeatMap(data, heatMapData)}
+                  </Text>          
                 </React.Fragment>
               );
             })
