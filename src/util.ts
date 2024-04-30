@@ -209,6 +209,8 @@ export function parseQueryString(query: string) {
 }
 
 // This function calculates the robot's suggested location
+
+// //DEBUG_HERE_TEST
 export async function calculateRobotSuggestions(samples: Sample[], globalState: IState, objectives: Objective[]) {
 
   // Prepare inputs for flask backend calculation
@@ -260,7 +262,11 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
     //   break;
     // }
   }
+
+  //DEBUG_HERE_TEST
   const robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues, objective_repre);
+
+//DEBUG_HERE_TEST
   console.log(robotSuggestions)
   const path_ = robotSuggestions.path
   const spatial_reward = []
@@ -290,6 +296,8 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
   };
 }
 
+
+// //DEBUG_HERE_TEST DEBUG API CALL
 function flaskCalculations(locations: number[], measurements: number[], moistureValues: number[][], shearValues: number[][], objective_repre: number) {
 
   const inputs = {
@@ -323,6 +331,7 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
     });
   });
 }
+
 
 // This function command the robot to collect moisture and shear (data)
 export async function commandRobotCollectData(suggestion: PreSample) {

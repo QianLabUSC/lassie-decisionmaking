@@ -13,31 +13,38 @@ interface ScatterData {
 interface ScatterPlotProps {
   width: number;
   height: number;
+  scatterPlotData:{
+    x:number[],
+    y:number[],
+    moisture:number[],
+    shear:number[]
+  }
+  
 }
 
 
-function generateScatterData(): ScatterData[] {
-  const data: ScatterData[] = [];
-  const numOfPoints = 100;
-  const maxValue = 100;
-
-  for (let i = 0; i < numOfPoints; i++) {
-    const x = Math.floor(Math.random() * maxValue);
-    const y = Math.floor(Math.random() * maxValue);
+function mergeData(scatterPlotData) {
  
-    const moisture = Math.random() * 100; // Moisture value
-    const shear = Math.random() * 100; // Shear stress value
-
-    data.push({ x, y, moisture, shear });
+  const {x, y, moisture, shear} = scatterPlotData
+  const mergedData: ScatterData[] = [];
+  const length = Math.min(x.length, y.length, moisture.length, shear.length);
+  for (let i = 0; i < length; i++) {
+    mergedData.push({
+      x: x[i],
+      y: y[i],
+      moisture: moisture[i],
+      shear: shear[i]
+    });
   }
-  return data;
+  return mergedData;
 }
 
 const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
   width,
   height,
+  scatterPlotData,
 }) => {
-  const data = generateScatterData();
+  const data = mergeData(scatterPlotData);
   const svgRef = useRef(null);
   const margin = { top: 20, right: 20, bottom: 50, left: 120 };
   const plotWidth = width

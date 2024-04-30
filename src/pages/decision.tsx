@@ -16,7 +16,11 @@ import {
   CircularProgress,
   Box,
   Slider,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
 } from '@material-ui/core';
+
 import Popbox from '../components/Popbox';
 import ClickableImage from '../components/ClickableImage';
 import { ConfirmDialog, MultiStepDialog } from '../components/Dialogs';
@@ -25,6 +29,9 @@ import {
   calculateRobotSuggestions,
   commandRobotCollectData,
 } from '../util';
+
+import { firstApiGetThreePaths } from '../ApiCalls/first_api_get_three_paths';
+
 import {
   PopboxTypeEnum,
   confidenceTexts,
@@ -62,6 +69,9 @@ function ImgAlert({ open }) {
 }
 
 export default function Main() {
+  const [selectedBelief, setSelectedBelief] = useState('');
+  const [userBeliefText, setUserBeliefText] = useState('');
+
   const [showImgAlert, setImgAlert] = useState(false);
   const [globalState, dispatch] = useStateValue();
 
@@ -79,8 +89,10 @@ export default function Main() {
     imgClickEnabled,
     numImgClicks,
     transectIdx,
+    initial_human_belief,
   } = globalState;
 
+  console.log('initial_human_belief', initial_human_belief);
   console.log('currSampleIdx', currSampleIdx);
   const {
     step,
@@ -105,19 +117,6 @@ export default function Main() {
   } = currUserStep;
 
   const history = useHistory();
-
-  // Initial page set up
-  useEffect(() => {
-    console.log({ globalState }); // for debugging
-    dispatch({ type: Action.SET_IMG_CLICK_ENABLED, value: false });
-    // Make sure charts are ready for decision page
-    initializeCharts(globalState, dispatch);
-    // Make the charts update on first render
-    dispatch({
-      type: Action.SET_CHART_SETTINGS,
-      value: { ...chartSettings, updateRequired: true },
-    });
-  }, []);
 
   // Function to add next sample to the data plot
   const addDataToPlot = () => {
@@ -206,37 +205,8 @@ export default function Main() {
     dispatch({ type: Action.SET_HYPO_CONFIDENCE, value: value });
   };
 
-  //Disable submit button if the user has selected no objectives during the OBJECTIVE step
-  useEffect(() => {
-    if (userFeedbackState === UserFeedbackState.OBJECTIVE) {
-      dispatch({
-        type: Action.SET_DISABLE_SUBMIT_BUTTON,
-        value: objectives.length === 0,
-      });
-    }
-  }, [objectives]);
-
-  // In the RANK_OBJECTIVES step, automatically disable the submit button until the user fills out a valid set of rankings for each selected objective
-  useEffect(() => {
-    if (userFeedbackState === UserFeedbackState.RANK_OBJECTIVES) {
-      const objectivesRankings: number[] = [];
-      let disable = false;
-      for (let i = 0; i < objectives.length; i++) {
-        if (
-          objectives[i].ranking === -1 ||
-          objectivesRankings.includes(objectives[i].ranking)
-        ) {
-          disable = true;
-          break;
-        } else {
-          objectivesRankings.push(objectives[i].ranking);
-        }
-      }
-      dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: disable });
-    }
-  }, [objectives]);
-
   const searchObjective = (target: string) => {
+    console.log('target123', target);
     for (let obj = 0; obj < objectives.length; obj++) {
       if (objectives[obj].objective === target) {
         return true;
@@ -245,35 +215,65 @@ export default function Main() {
     return false;
   };
 
-  const objectiveOptionsLinked = objectiveOptions.map((obj, i) => {
-    if (i === 1) {
-      return (
-        <span>
-          Gather more data where the data has discrepancy with the{' '}
-          <span
-            style={{
-              color: 'blue',
-              textDecorationLine: 'underline',
-              cursor: 'pointer',
-            }}
-          >
-            <strong>
-              <a onClick={() => setHypothesisOpen(true)}>hypothesis</a>
-            </strong>
-          </span>
-        </span>
-      );
-    } else {
-      return <span>{obj}</span>;
-    }
-  });
 
-  const onObjectiveTextChange = (e) => {
+
+  ////////////////////////////////////////////////////////FIRST BOX ||||||||||||||||||||||||||||||||||||||||||||
+  
+
+  const handleChangeRadioBtn = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedBelief(event.target.value);
+  };
+
+  const onUserTextInputForBelief = (e) => {
+    setUserBeliefText(e.target.value);
+  };
+
+
+  const onSubmitHumanBelief = async () => {
+    console.log('heree123');
+    const initial_human_belief = {
+      human_belief_selected_option: selectedBelief,
+      human_belief_text_description: userBeliefText,
+    };
+
+    console.log(initial_human_belief, 'tfinallll');
+
+    // const input2 = {
+    //       "input1_human_belief": {
+    //           "human_belief_selected_option": 1 ,
+    //           "human_belief_text_description":""
+    //       },
+    //       "input2_human_rank_order": [1,2,3,4],
+    //       "x_origin": 0,
+    //       "y_origin": 0
+    //   }
+
+    const test = await firstApiGetThreePaths(
+      initial_human_belief,
+      [1, 2, 3, 4],
+      0,
+      0
+    );
+    console.log('testtttttttttttttttttt', test);
+
+    // dispatch({
+    //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
+    //   value: initial_human_belief,
+    // });
+
+    // for going to next step this is using previous code
     dispatch({
-      type: Action.SET_OBJECTIVES_FREE_RESPONSE,
-      value: e.target.value,
+      type: Action.SET_USER_FEEDBACK_STATE,
+      value: UserFeedbackState.RANK_OBJECTIVES,
+    });
+
+    // not used
+    dispatch({
+      type: Action.SET_NUM_SUBMIT_CLICKS,
+      value: numSubmitClicks + 1,
     });
   };
+
 
   const objectiveQuestions = (
     <div className="objective-questions">
@@ -282,32 +282,130 @@ export default function Main() {
           During the sampling process, the following objectives are considered.
         </strong>
       </p>
-      <RadioButtonGroupMultipleOptions
-        options={objectiveOptionsLinked}
-        searchObjective={(target) => searchObjective(target)}
-        onChange={(i) => {
-          // let objectivesTemp = [...objectives];
-          // if (searchObjective(objectiveOptions[i])) {
-          //   objectivesTemp = objectivesTemp.filter(obj => obj.objective !== objectiveOptions[i]);
-          // } else {
-          //   let newObjective = {
-          //     objective: objectiveOptions[i],
-          //     ranking: -1,
-          //     addressedRating: 1
-          //   };
-          //   objectivesTemp.push(newObjective);
-          // }
-          // dispatch({ type: Action.SET_OBJECTIVES, value: objectivesTemp });
-        }}
-      />
+
+      <RadioGroup
+        row
+        aria-label="path selection"
+        name="path_selection"
+        value={selectedBelief}
+        onChange={handleChangeRadioBtn}
+      >
+        <FormControlLabel
+          value="1"
+          control={<Radio />}
+          label="Gather more data on unsampled area"
+        />
+        <FormControlLabel
+          value="2"
+          control={<Radio />}
+          label="The risk of robot entrapment"
+        />
+        <FormControlLabel
+          value="3"
+          control={<Radio />}
+          label="Accept suggested location C"
+        />
+        <FormControlLabel value="4" control={<Radio />} label="The time cost" />
+      </RadioGroup>
+
       <p>
         <strong>
           Please describe your additional belief about the data collected so
           far:
         </strong>
       </p>
-      <textarea onChange={onObjectiveTextChange} rows={5} cols={85} />
+      <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} />
+
+      <Button
+        disabled={!selectedBelief}
+        variant="contained"
+        color="secondary"
+        onClick={onSubmitHumanBelief}
+      >
+        Next
+      </Button>
     </div>
+  );
+
+
+
+
+
+
+  //////////////////////////////////////////////////////////////////////////// 2nd step form input////////////////////
+
+  const objectiveOptions2 = [
+    'Gather more data on unsampled area', // Option 0 - spatial coverage algorithm
+    'Gather more data where the data has discrepancy with the hypothesis', // Option 1 - hypo invalidating algorithm
+    'The risk of robot entrapment',
+    'The time cost',
+  ];
+
+  // Initial state for ranking
+  const initialRanking = Array.from(
+    { length: objectiveOptions2.length },
+    (_, i) => i + 1
+  );
+  const [ranking, setRanking] = useState(initialRanking);
+
+  // Handle change in ranking for a specific objective
+  const handleChange = (index, value) => {
+    const newRanking = [...ranking];
+    newRanking[index] = value;
+
+    // Adjust available options for subsequent objectives
+    for (let i = 0; i < index; i++) {
+      if (newRanking[i] === value) {
+        newRanking[i] = ranking[index];
+      }
+    }
+
+    setRanking(newRanking);
+  };
+
+  const onSubmitRanking = async () => {
+    console.log('heree123');
+    console.log('Rankingtest123:', ranking);
+    dispatch({
+      type: Action.SET_USER_FEEDBACK_STATE,
+      value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE,
+    });
+  };
+
+  const ObjectiveRankingFormNew = (
+    <>
+      <table className="dropDownMenuGroup" style={{ marginBottom: '2vh' }}>
+        <tbody>
+          {objectiveOptions2.map((option, index) => (
+            <tr key={option}>
+              <td>
+                <FormControl>
+                  <Select
+                    value={ranking[index]}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                  >
+                    {ranking.map((rank, i) => (
+                      <MenuItem key={i + 1} value={i + 1}>
+                        {i + 1}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </td>
+              <td>{option}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <Button
+        disabled={!selectedBelief}
+        variant="contained"
+        color="secondary"
+        onClick={onSubmitRanking}
+      >
+        Next
+      </Button>
+    </>
   );
 
   const objectivesToRank = (
@@ -348,6 +446,8 @@ export default function Main() {
     </table>
   );
 
+  // 3rd step form input
+
   const objectiveRankings = (
     <div className="objective-rankings">
       <p>
@@ -361,6 +461,14 @@ export default function Main() {
     </div>
   );
 
+
+  const onObjectiveTextChange = (e) => {
+    dispatch({
+      type: Action.SET_OBJECTIVES_FREE_RESPONSE,
+      value: e.target.value,
+    });
+  };
+
   const objectiveFreeResponseQuestion = (
     <div
       className="objective-free-response-question"
@@ -371,11 +479,11 @@ export default function Main() {
           Please describe your belief about the data collected so far:
         </strong>
       </p>
-      <textarea onChange={onObjectiveTextChange} rows={5} cols={85} />
+      {/* <textarea onChange={onObjectiveTextChange} rows={5} cols={85} /> */}
     </div>
   );
 
-  console.log('robotsuggestion', robotSuggestions) // DEBUG
+  console.log('robotsuggestion', robotSuggestions); // DEBUG
   useEffect(() => {
     const acceptOrRejectTemp: string[] = robotSuggestions.map(
       (suggestion, index) =>
@@ -707,9 +815,12 @@ export default function Main() {
   );
 
   // Match the order of UserFeedbackStates in 'constants.ts'
+
   const userFeedbackStateMap = [
     objectiveQuestions,
-    objectiveRankings,
+    ObjectiveRankingFormNew,
+    // objectiveSelectPath,
+
     objectiveFreeResponseQuestion,
     acceptOrRejectQuestions,
     typeInNewData,
@@ -721,6 +832,22 @@ export default function Main() {
     updateHypothesisConfidence,
     transitionQuestions,
   ];
+
+  // DEBUG_HERE_TEST
+  // export enum UserFeedbackState {
+  //   OBJECTIVE,
+  //   RANK_OBJECTIVES,
+  //   OBJECTIVE_FREE_RESPONSE,
+  //   ACCEPT_OR_REJECT_SUGGESTION,
+  //   TYPE_IN_NEW_DATA,
+  //   ACCEPT_FOLLOW_UP,
+  //   REJECT_REASON,
+  //   REJECT_REASON_FREE_RESPONSE,
+  //   USER_LOCATION_SELECTION,
+  //   TYPE_IN_NEW_LOCATION_DATA,
+  //   HYPOTHESIS_CONFIDENCE,
+  //   TRANSITION,
+  // }
 
   useEffect(() => {
     if (userFeedbackState === UserFeedbackState.OBJECTIVE) {
@@ -740,6 +867,8 @@ export default function Main() {
     objectivesTemp.sort((a, b) => (a.ranking > b.ranking ? 1 : -1));
     return objectivesTemp;
   };
+
+  console.log(rankObjectives(), 'objectivesTemp12rankobjectss123');
 
   const newSubmit = async () => {
     dispatch({ type: Action.INCREMENT_STEP_IDX });
@@ -790,11 +919,15 @@ export default function Main() {
         } else {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
 
+          //  DEBUG_HERE_TEST
+          // DEBUG here is the api call
           const robotResults = await calculateRobotSuggestions(
             samples,
             globalState,
             objectivesTemp
           );
+
+          //  DEBUG_HERE_TEST
           const { results, spatialReward, variableReward, discrepancyReward } =
             robotResults;
           dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
@@ -991,6 +1124,8 @@ export default function Main() {
         if (transitionAdj === 0) {
           dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
 
+          //  DEBUG_HERE_TEST
+          // DEBUG here is the api call
           const robotResults = await calculateRobotSuggestions(
             samples,
             globalState,
@@ -1094,7 +1229,9 @@ export default function Main() {
             numSubmitClicks === 0 ? 'user-feedback-flashing' : 'user-feedback'
           }
         >
-          {userFeedbackStateMap[userFeedbackState]}
+          {/* {userFeedbackStateMap[userFeedbackState]} */}
+
+          {}
           <div className="submit-user-feedback-button">
             <Button
               disabled={disableSubmitButton}
@@ -1197,8 +1334,8 @@ export default function Main() {
       <Tabs value={tabValue} onChange={handleChangeTab} centered>
         <Tab label="Shear VS Mositure" />
       </Tabs>
-      {tabValue === 0 && <ShearVsMoisturePlot width={1400} height={1100} />}
-       {/* {tabValue === 0 && <DiscrepancyChart width={1100} height={600} />} */}
+      {/* {tabValue === 0 && <ShearVsMoisturePlot width={1400} height={1100} />} */}
+      {/* {tabValue === 0 && <DiscrepancyChart width={1100} height={600} />} */}
 
       {/* {tabValue === 1 && (
         <MoistureStressScatterPlot width={1100} height={600} />

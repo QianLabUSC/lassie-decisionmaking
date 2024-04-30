@@ -13,6 +13,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 import { StateProvider, useStateValue, Action } from './state';
 import Intro from './pages/intro';
 import Decision from './pages/decision';
+import RightComponent from './pages/RightComponent';
 import Conclusion from './pages/conclusion';
 import Survey from './pages/survey';
 import { SavedProgress } from './pages/savedProgress';
@@ -151,12 +152,20 @@ function RouteWrapper() {
           path="/decision"
           render={(props) =>
             globalState.introCompleted ? (
-              <Decision />
+              <RightComponent />
+              // <Decision />
             ) : (
               <Redirect to={{ pathname: '/' }} />
             )
           }
         />
+         {/* <Route
+          path="/right"
+          render={(props) => (
+              <Decision />
+            ) 
+          }
+        /> */}
         <Route
           path="/conclusion"
           render={(props) =>
