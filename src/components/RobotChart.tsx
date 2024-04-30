@@ -52,7 +52,7 @@ type Path = [SubPath, SubPath, SubPath, SubPath];
 type TestPath = Path[];
 
 const RobotChart: React.FC = () => {
-  const [{ currUserStep, newpathvalues }, dispatch] = useStateValue();
+  const [{ currUserStep, newpathvalues, threePaths }, dispatch] = useStateValue();
   const [selectedPath, setSelectedPath] = useState('');
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
 
@@ -67,20 +67,20 @@ const RobotChart: React.FC = () => {
     // Load initial paths only on component mount
     const firstPath: TestPath = [
       [
-        [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
-        [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
+        [],
+        [],
         [],
         [],
       ],
       [
-        [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-        [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+        [],
+        [],
         [],
         [],
       ],
       [
-        [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
-        [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+        [],
+        [],
         [],
         [],
       ],
@@ -92,13 +92,13 @@ const RobotChart: React.FC = () => {
   // Ensure new path values are also TestPath
   useEffect(() => {
     if (
-      newpathvalues &&
-      Array.isArray(newpathvalues) &&
-      newpathvalues.length > 0
+      threePaths &&
+      Array.isArray(threePaths) &&
+      threePaths.length > 0
     ) {
-      setAllPaths((prevPaths) => [...prevPaths, newpathvalues]); // Ensure newpathvalues is TestPath
+      setAllPaths([threePaths]); // Ensure newpathvalues is TestPath
     }
-  }, [pathsubmittedtimes2]);
+  }, [threePaths]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPath(event.target.value);
@@ -128,7 +128,6 @@ const RobotChart: React.FC = () => {
     }
   };
 
-  console.log(pathsubmittedtimes2, 'pathsubmittedtimes2');
   const getPathData = (paths: TestPath, index: number): Point[] => {
     if (index < paths.length) {
       return paths[index][0].map((x, i) => ({
@@ -143,6 +142,8 @@ const RobotChart: React.FC = () => {
     paths: TestPath,
     index: number
   ): { points: Point[]; infogain: number[]; discrepancy: number[] } => {
+
+    
     if (index < paths.length) {
       const points = paths[index][0].map((x, i) => ({
         x: x,

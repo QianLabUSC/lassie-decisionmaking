@@ -3,6 +3,8 @@ import sys
 sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/site-packages')
 from multiObjectiveDecisionMaking.decision_making import *
 from multiObjectiveDecisionMaking.multi_objective_tools import *
+import json
+from pathplanning import ManuallyEnv, ReactivePlanning, Estimation
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -46,7 +48,9 @@ k_info_high_ = 0.7
 @app.route('/process', methods=['POST'])
 @cross_origin()
 def process():
+   
     inputs = request.json
+    print('here', inputs)
     location = np.array(inputs['locations'])
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
@@ -126,7 +130,8 @@ def process():
     # app.config['ros_node'].publish_gui_information([0.2,0.1,0.1])
     # deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
     return jsonify(output)
-    
+
+  
 @app.route('/dataCollection', methods=['POST'])
 @cross_origin()
 def getVariable():
@@ -140,7 +145,204 @@ def getVariable():
     'moisture': moisture.tolist(),
     }
     return jsonify(output)
+
+@app.route('/first_api/generate_initial_path', methods=['POST'])
+@cross_origin()
+def getFirstApi():
+
+
+    inputs = request.json
+    print(inputs,'inputs')
+
+
+# export const objectiveOptions = [
+#   "Gather more data on unsampled area", // Option 0 - spatial coverage algorithm
+#   "Gather more data where the data has discrepancy with the hypothesis", // Option 1 - hypo invalidating algorithm
+#   "The risk of robot entrapment",
+#   "The time cost"
+# ]
+    # input
+    {
+    "input1_human_belief": {
+        "human_belief_selected_option": 1,
+        "human_belief_text_description":""
+    },
+    "input2_human_rank_order": [1,2,3,4],
+    "x_origin": 0,
+    "y_origin": 0,
+    "selected_outside": {  #intaill these will be empty only for thirs option this 
+        "start_x_cordinate_of_selected_path": 3,
+        "start_y_cordinated_of_selected_path":2,
+        "clicked_x_cordinate": 5,
+        "clicked_y_ordinate": 6
+      }
+    }
+
+
+    # generate 3 intail ordinates
+    firstPath=[
+      [
+        [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
+        [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
+        [], # prior values
+        [], #prior values
+      ],
+      [
+        [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+        [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+        [],
+        [],
+      ],
+      [
+        [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
+        [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+        [],
+        [],
+      ],
+    ]
+
+    return jsonify(firstPath)
+
+
+
+@app.route('/second_api/save_selected_path_json', methods=['POST'])
+@cross_origin()
+def getSecondApi():
+    inputs = request.json
+    print(inputs,'inputs')
+    # inputs1= {
+    #   "step_number":1,
+    #   "selected_path_number":2,
+    #   "inputof_first_time_Path_Selected":  [
+    #     [[], [], [], []],
+    #     [
+    #     [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+    #     [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+        #   [1, 1, 1, 1, 1],
+        #   [1, 1, 1, 1, 1]
+    #     ],
+    #     [[], [], [], []]
+    # ]
+    # }
+
+    file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'
+
+    # Check if the file exists
+    if os.path.exists(file_path):
+        # Load existing JSON data from the file
+        with open(file_path, 'r') as f:
+            existing_data = json.load(f)
+    else:
+        existing_data = []
+
+    # Append the new data to the existing data
+    existing_data.append(inputs)
+
+    # Write the combined data back to the JSON file
+    with open(file_path, 'w') as f:
+        json.dump(existing_data, f)
     
+    return jsonify(inputs["inputof_first_time_Path_Selected"])
+
+@app.route('/third_api/gather_data', methods=['POST'])
+@cross_origin()
+def getThirdApi():
+    
+    inputs = request.json
+    print(inputs,'inputs')
+
+
+# export const objectiveOptions = [
+#   "Gather more data on unsampled area", // Option 0 - spatial coverage algorithm
+#   "Gather more data where the data has discrepancy with the hypothesis", // Option 1 - hypo invalidating algorithm
+#   "The risk of robot entrapment",
+#   "The time cost"
+# ]
+    # input
+    {
+        "step_number":1,
+        "selected_path_number":2,
+        "end_x_cordinate": 0.17514517,
+        "end_y_cordinate": 0.1737063,
+        "selected_path_data": [
+            [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+            [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+            [1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1]
+        ] 
+    }
+
+    result= {
+        "line_data": {
+            "start_cordinate":[2,10],
+            "end_corindate":[3,9]
+        },
+        "scatter_plot_data":{
+           "x": [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+           "y": [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+           "moisture": [2,3,4,5,6],
+           "shear": [6,7,8,4,1]  
+        },
+        "selected_path_data":[
+            [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+            [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+            [2,3,4,5,6],
+            [6,7,8,4,1]
+        ]
+    }
+
+    return jsonify(result)
+
+
+
+#update this
+@app.route('/stop_data_collection_and_survey', methods=['POST'])
+@cross_origin()
+def fouthApi():
+    inputs = request.json
+    path_x = np.array(inputs['path_x'])
+    path_y = np.array(inputs['path_y'])
+    shear = np.linspace(0.5, 1, 500)
+    moisture = np.linspace(0, 1, 500)
+    output = {
+    'shear': shear.tolist(),
+    'moisture': moisture.tolist(),
+    }
+    return jsonify(output)
+
+
+
+
+@app.route('/simulate', methods=['GET'])
+def simulate():
+    iterations = int(request.args.get('iterations', 1))  # Default to 1 if not specified
+    prior_x = np.array([0.5, 0.1])
+    prior_y = np.array([0.1, 0.9])
+    robot_start_point = [0.3, 0.2]
+
+    env = ManuallyEnv(prior_x, prior_y)
+    planner = ReactivePlanning(robot_start_point, 0.02, 5)
+    estimator = Estimation(False, 0.2, 0.15, 4)
+
+    path_x, path_y = [], []
+    for i in range(iterations):
+        # Simulation logic here
+        robot_path_x, robot_path_y = planner.get_robot_path()
+        measured_robot_coordinates, measured_shear, measured_moisture = env.gather_data(robot_path_x, robot_path_y)
+        vals = np.array([[x1_, x2_] for x1_ in np.linspace(0, 1, num=int(1/0.02)) for x2_ in np.linspace(0, 1, num=int(1/0.02))])
+        _, _, _, _ = estimator.estimate(measured_robot_coordinates, measured_shear, vals)
+        F_x, F_y, path_x_new, path_y_new = planner.plan_for_next_horizon(np.random.rand(10, 10))  # Placeholder reward
+        path_x.extend(path_x_new)
+        path_y.extend(path_y_new)
+        measured_robot_coordinates.extend(measured_robot_coordinates)
+        measured_moisture.extend(measured_moisture)
+        measured_shear.extend(measured_shear)
+    
+    return jsonify({'path_x': path_x, 'path_y': path_y, 'measured_robot_coordinates':measured_robot_coordinates, 'measured_moisture' : measured_moisture, 'measured_shear':measured_shear})
+
+
 if __name__ == '__main__':
     
     app.run(debug=True)
+
+

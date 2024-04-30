@@ -44,7 +44,34 @@ export type Charts = {
   positionChartMap: Chart | null;
 } | null;
 
+export type INITIAL_HUMAN_BELIEF = {
+  human_belief_selected_option: number;
+  human_belief_text_description: string;
+};
+
+export type PATH_DATA_TYPE= {
+  lineData:{
+    start_coordinate:[],
+    end_coordinate:[]
+  },
+  scatter_plot_data:{
+    x:number[],
+    y:number[],
+    moisture:number[],
+    shear:number[]
+  },
+  selected_path_data:[[],[],[],[]]
+}
+
 export interface IState {
+  // new states by me
+  input_box_step_btn_click: number;
+  initial_human_belief: INITIAL_HUMAN_BELIEF;
+  threePaths:TestPath;
+  path_full_data:PATH_DATA_TYPE;
+  
+
+  // old states by me
   newpathvalues: TestPath;
   selectedpathsubmittime: [number, number]; // contains how many time user have selected the path & between 0 A, 1 B, 2C which part did user selectd
 
@@ -83,6 +110,30 @@ export interface IState {
 
 // Default initial state
 export const initialState: IState = {
+  // new state by be
+
+  input_box_step_btn_click: 0,
+  initial_human_belief: {
+    human_belief_selected_option: 0,
+    human_belief_text_description: '',
+  },
+  threePaths:[],
+  path_full_data:{
+    lineData:{
+      start_coordinate:[],
+      end_coordinate:[]
+    },
+    scatter_plot_data:{
+      x:[],
+      y:[],
+      moisture:[],
+      shear:[]
+    },
+    selected_path_data:[[],[],[],[]]
+  },
+
+
+  // old state by me
   newpathvalues: [],
   selectedpathsubmittime: [0, 999],
 
@@ -141,6 +192,13 @@ export const initialState: IState = {
 
 export type IAction = { type: any; value?: any };
 export enum Action {
+  // NEW ACTIONS BY ME
+  UPDATE_INPUT_BOX_BTN_CLICK,
+  UPDATE_INITIAL_HUMAN_BELIEF,
+  GENERATE_THREE_PATHS,
+  GENERATE_PATH_FULL_DATA,
+
+
   INCREMENT_STEP_IDX,
   SET_STATE, // For loading previous runs; sets the entire state object.
   SET_DATA_VERSION,
@@ -201,6 +259,11 @@ type ActionKeyMap = {
   [key in keyof typeof Action]?: keyof IState;
 };
 const actionKeyMap: ActionKeyMap = {
+  [Action.UPDATE_INITIAL_HUMAN_BELIEF]: 'initial_human_belief',
+  [Action.UPDATE_INPUT_BOX_BTN_CLICK]: 'input_box_step_btn_click',
+  [Action.GENERATE_THREE_PATHS]:'threePaths',
+  [Action.GENERATE_PATH_FULL_DATA]:'path_full_data',
+
   [Action.SET_DATA_VERSION]: 'dataVersion',
   [Action.SET_FULL_DATA]: 'fullData',
   [Action.SET_MOISTURE_DATA]: 'moistureData',
@@ -656,11 +719,7 @@ const newpathreducer = (state: IState, action: IAction): IState => {
 
   switch (action.type) {
     case Action.INCREMENT_STEP_IDX:
-      console.log(action?.value, 'at value');
-
       const updatedPathValues = generateRandomTestPath(action?.value, testdata);
-
-      console.log(updatedPathValues, 'imp_end_updatedpath');
       return {
         ...state,
         newpathvalues: updatedPathValues,
