@@ -69,6 +69,7 @@ export interface IState {
   initial_human_belief: INITIAL_HUMAN_BELIEF;
   threePaths:TestPath;
   path_full_data:PATH_DATA_TYPE;
+  uncertanity_heat_map_data:number[][];
   
 
   // old states by me
@@ -131,6 +132,7 @@ export const initialState: IState = {
     },
     selected_path_data:[[],[],[],[]]
   },
+  uncertanity_heat_map_data:[],
 
 
   // old state by me
@@ -197,6 +199,7 @@ export enum Action {
   UPDATE_INITIAL_HUMAN_BELIEF,
   GENERATE_THREE_PATHS,
   GENERATE_PATH_FULL_DATA,
+  GATHER_UNCERTANITY,
 
 
   INCREMENT_STEP_IDX,
@@ -263,6 +266,7 @@ const actionKeyMap: ActionKeyMap = {
   [Action.UPDATE_INPUT_BOX_BTN_CLICK]: 'input_box_step_btn_click',
   [Action.GENERATE_THREE_PATHS]:'threePaths',
   [Action.GENERATE_PATH_FULL_DATA]:'path_full_data',
+  [Action.GATHER_UNCERTANITY]:'uncertanity_heat_map_data',
 
   [Action.SET_DATA_VERSION]: 'dataVersion',
   [Action.SET_FULL_DATA]: 'fullData',

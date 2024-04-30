@@ -19,6 +19,7 @@ import { ConfirmDialog } from '../components/Dialogs';
 import { firstApiGetThreePaths } from '../ApiCalls/first_api_get_three_paths';
 import { secondApiCreateJson } from '../ApiCalls/second_api_create_json';
 import { thirdApiCallHeatMapScatterPLot } from '../ApiCalls/third_api_call_heat_map_scatterplot';
+import  { fourthApiCallSimulate } from '../ApiCalls/fourth_api_simulate';
 
 import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
@@ -35,6 +36,8 @@ const RightComponent = () => {
     shear: number[];
   }>({ x: [], y: [], moisture: [], shear: [] });
   const [globalState, dispatch] = useStateValue();
+
+  const [heatMapUncertanity, setHeatMapUncertanity] = useState()
 
   const { input_box_step_btn_click, threePaths, path_full_data } = globalState;
 
@@ -299,7 +302,18 @@ const RightComponent = () => {
       threePaths[int_selected_path_index]
     );
 
+    const heatMapUncertanityData: any = await fourthApiCallSimulate(1);
+    console.log('final_main_heatMapUncertanityData',heatMapUncertanityData)
+
+   
+    dispatch({
+      type: Action.GATHER_UNCERTANITY,
+      value:heatMapUncertanityData?.uncertanity
+    })
     setScatterPlotData(scatterData?.scatter_plot_data);
+    setHeatMapUncertanity(heatMapUncertanityData?.uncertanity)
+    
+   
 
     // dispatch({
     //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
@@ -310,6 +324,8 @@ const RightComponent = () => {
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
     });
+
+    console.log('final_heatMapUncertanity', heatMapUncertanity)
   };
 
   const objectiveGatherData = (
