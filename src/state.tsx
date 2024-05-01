@@ -69,10 +69,9 @@ export type SIMULATION_API_DATA_TYPE = {
   shear_prediction: number[][];
   path_x: number[];
   path_y: number[];
-  measured_moisture: {
+  measured_data: {
     moisture: number[];
-    robot_path_x: number[];
-    robot_path_y: number[];
+    shear: number[];
   };
 };
 export interface IState {
@@ -149,10 +148,9 @@ export const initialState: IState = {
     shear_prediction: [],
     path_x: [],
     path_y: [],
-    measured_moisture: {
+    measured_data: {
       moisture: [],
-      robot_path_x: [],
-      robot_path_y: [],
+      shear: [],
     },
   },
 

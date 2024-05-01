@@ -429,9 +429,6 @@ def update(frame):
     shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
     
     F_x, F_y, path_x, path_y = planner.plan_for_next_horizon(shear_std.T)
-
-    print('path_x',path_x)
-    print('path_y',path_y)
     
 
     '''

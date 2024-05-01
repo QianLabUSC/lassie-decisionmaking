@@ -302,43 +302,6 @@ const RobotChart: React.FC = () => {
           <AxisBottom scale={xScale} top={height - 20} />
         </Group>
       </svg>
-
-      <RadioGroup
-        row
-        aria-label="path selection"
-        name="path_selection"
-        value={selectedPath}
-        onChange={handleChange}
-      >
-        <FormControlLabel
-          value="A"
-          control={<Radio />}
-          label="Accept suggested location A"
-        />
-        <FormControlLabel
-          value="B"
-          control={<Radio />}
-          label="Accept suggested location B"
-        />
-        <FormControlLabel
-          value="C"
-          control={<Radio />}
-          label="Accept suggested location C"
-        />
-        <FormControlLabel
-          value="D"
-          control={<Radio />}
-          label="Reject suggestions"
-        />
-      </RadioGroup>
-      <Button
-        disabled={!selectedPath}
-        variant="contained"
-        color="secondary"
-        onClick={handleSubmit}
-      >
-        Submit
-      </Button>
     </div>
   );
 };

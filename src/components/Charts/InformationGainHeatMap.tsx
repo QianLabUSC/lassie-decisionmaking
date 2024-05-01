@@ -11,7 +11,6 @@ const InformationGainHeatMap = ({ width, height, data, x, y }) => {
   });
 
   return (
-
     <svg width={width} height={height}>
       {data.map((row, rowIndex) =>
         row.map((value, colIndex) => (
@@ -29,6 +28,5 @@ const InformationGainHeatMap = ({ width, height, data, x, y }) => {
     </svg>
   );
 };
-
 
 export default InformationGainHeatMap;

@@ -4,3 +4,7 @@ dist/*
 flask/venv/
 flask/figs_test/*
 build/*
+flask/lassie_env/*
+flask/__pycache__/*
+flask/multiObjectiveDecisionMaking/__pycache__/*
+flask/hypothesisRegulation/__pycache__/*

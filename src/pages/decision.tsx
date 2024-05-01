@@ -51,7 +51,6 @@ import { sampleRobotSuggestion } from '../sampleTemplates';
 import Tooltip from '@material-ui/core/Tooltip';
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints';
 import RobotChart from '../components/RobotChart';
-import MoistureStressScatterPlot from '../components/Charts/MositureStressScatterPlot';
 import MoistureHeatMap from '../components/Charts/MoistureHeatMap';
 import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 
@@ -215,10 +214,7 @@ export default function Main() {
     return false;
   };
 
-
-
   ////////////////////////////////////////////////////////FIRST BOX ||||||||||||||||||||||||||||||||||||||||||||
-  
 
   const handleChangeRadioBtn = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedBelief(event.target.value);
@@ -228,9 +224,9 @@ export default function Main() {
     setUserBeliefText(e.target.value);
   };
 
-
   const onSubmitHumanBelief = async () => {
     console.log('heree123');
+    const iterations = 10;
     const initial_human_belief = {
       human_belief_selected_option: selectedBelief,
       human_belief_text_description: userBeliefText,
@@ -249,6 +245,7 @@ export default function Main() {
     //   }
 
     const test = await firstApiGetThreePaths(
+      iterations,
       initial_human_belief,
       [1, 2, 3, 4],
       0,
@@ -273,7 +270,6 @@ export default function Main() {
       value: numSubmitClicks + 1,
     });
   };
-
 
   const objectiveQuestions = (
     <div className="objective-questions">
@@ -326,11 +322,6 @@ export default function Main() {
       </Button>
     </div>
   );
-
-
-
-
-
 
   //////////////////////////////////////////////////////////////////////////// 2nd step form input////////////////////
 
@@ -460,7 +451,6 @@ export default function Main() {
       {objectivesToRank}
     </div>
   );
-
 
   const onObjectiveTextChange = (e) => {
     dispatch({
