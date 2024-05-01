@@ -49,28 +49,39 @@ export type INITIAL_HUMAN_BELIEF = {
   human_belief_text_description: string;
 };
 
-export type PATH_DATA_TYPE= {
-  lineData:{
-    start_coordinate:[],
-    end_coordinate:[]
-  },
-  scatter_plot_data:{
-    x:number[],
-    y:number[],
-    moisture:number[],
-    shear:number[]
-  },
-  selected_path_data:[[],[],[],[]]
-}
+export type PATH_DATA_TYPE = {
+  lineData: {
+    start_coordinate: [];
+    end_coordinate: [];
+  };
+  scatter_plot_data: {
+    x: number[];
+    y: number[];
+    moisture: number[];
+    shear: number[];
+  };
+  selected_path_data: [[], [], [], []];
+};
 
+export type SIMULATION_API_DATA_TYPE = {
+  info_gain_shear: number[][];
+  uncertainity: number[][];
+  shear_prediction: number[][];
+  path_x: number[];
+  path_y: number[];
+  measured_moisture: {
+    moisture: number[];
+    robot_path_x: number[];
+    robot_path_y: number[];
+  };
+};
 export interface IState {
   // new states by me
   input_box_step_btn_click: number;
   initial_human_belief: INITIAL_HUMAN_BELIEF;
-  threePaths:TestPath;
-  path_full_data:PATH_DATA_TYPE;
-  uncertanity_heat_map_data:number[][];
-  
+  threePaths: TestPath;
+  path_full_data: PATH_DATA_TYPE;
+  simulation_api_full_data: SIMULATION_API_DATA_TYPE;
 
   // old states by me
   newpathvalues: TestPath;
@@ -118,22 +129,32 @@ export const initialState: IState = {
     human_belief_selected_option: 0,
     human_belief_text_description: '',
   },
-  threePaths:[],
-  path_full_data:{
-    lineData:{
-      start_coordinate:[],
-      end_coordinate:[]
+  threePaths: [],
+  path_full_data: {
+    lineData: {
+      start_coordinate: [],
+      end_coordinate: [],
     },
-    scatter_plot_data:{
-      x:[],
-      y:[],
-      moisture:[],
-      shear:[]
+    scatter_plot_data: {
+      x: [],
+      y: [],
+      moisture: [],
+      shear: [],
     },
-    selected_path_data:[[],[],[],[]]
+    selected_path_data: [[], [], [], []],
   },
-  uncertanity_heat_map_data:[],
-
+  simulation_api_full_data: {
+    info_gain_shear: [],
+    uncertainity: [],
+    shear_prediction: [],
+    path_x: [],
+    path_y: [],
+    measured_moisture: {
+      moisture: [],
+      robot_path_x: [],
+      robot_path_y: [],
+    },
+  },
 
   // old state by me
   newpathvalues: [],
@@ -199,8 +220,7 @@ export enum Action {
   UPDATE_INITIAL_HUMAN_BELIEF,
   GENERATE_THREE_PATHS,
   GENERATE_PATH_FULL_DATA,
-  GATHER_UNCERTANITY,
-
+  GATHER_SIMULATION_API_FULL_DATA,
 
   INCREMENT_STEP_IDX,
   SET_STATE, // For loading previous runs; sets the entire state object.
@@ -264,9 +284,9 @@ type ActionKeyMap = {
 const actionKeyMap: ActionKeyMap = {
   [Action.UPDATE_INITIAL_HUMAN_BELIEF]: 'initial_human_belief',
   [Action.UPDATE_INPUT_BOX_BTN_CLICK]: 'input_box_step_btn_click',
-  [Action.GENERATE_THREE_PATHS]:'threePaths',
-  [Action.GENERATE_PATH_FULL_DATA]:'path_full_data',
-  [Action.GATHER_UNCERTANITY]:'uncertanity_heat_map_data',
+  [Action.GENERATE_THREE_PATHS]: 'threePaths',
+  [Action.GENERATE_PATH_FULL_DATA]: 'path_full_data',
+  [Action.GATHER_SIMULATION_API_FULL_DATA]: 'simulation_api_full_data',
 
   [Action.SET_DATA_VERSION]: 'dataVersion',
   [Action.SET_FULL_DATA]: 'fullData',

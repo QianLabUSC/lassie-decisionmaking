@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import { Tab, Tabs } from '@material-ui/core';
 
 import {
   FormControl,
@@ -19,7 +18,7 @@ import { ConfirmDialog } from '../components/Dialogs';
 import { firstApiGetThreePaths } from '../ApiCalls/first_api_get_three_paths';
 import { secondApiCreateJson } from '../ApiCalls/second_api_create_json';
 import { thirdApiCallHeatMapScatterPLot } from '../ApiCalls/third_api_call_heat_map_scatterplot';
-import  { fourthApiCallSimulate } from '../ApiCalls/fourth_api_simulate';
+import { fourthApiCallSimulate } from '../ApiCalls/fourth_api_simulate';
 
 import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
@@ -37,7 +36,7 @@ const RightComponent = () => {
   }>({ x: [], y: [], moisture: [], shear: [] });
   const [globalState, dispatch] = useStateValue();
 
-  const [heatMapUncertanity, setHeatMapUncertanity] = useState()
+  const [heatMapUncertainity, setHeatMapUncertainity] = useState();
 
   const { input_box_step_btn_click, threePaths, path_full_data } = globalState;
 
@@ -224,7 +223,7 @@ const RightComponent = () => {
       inputof_first_time_Path_Selected: threePaths[int_selected_path_index],
     };
 
-    const test = await secondApiCreateJson(
+    const jsonCreationApiResponse = await secondApiCreateJson(
       input_box_step_btn_click,
       int_selected_path_index,
       threePaths[int_selected_path_index]
@@ -232,7 +231,7 @@ const RightComponent = () => {
 
     dispatch({
       type: Action.GENERATE_PATH_FULL_DATA,
-      value: test,
+      value: jsonCreationApiResponse,
     });
 
     dispatch({
@@ -302,18 +301,15 @@ const RightComponent = () => {
       threePaths[int_selected_path_index]
     );
 
-    const heatMapUncertanityData: any = await fourthApiCallSimulate(1);
-    console.log('final_main_heatMapUncertanityData',heatMapUncertanityData)
+    const simulationApiFullData: any = await fourthApiCallSimulate(1);
+    console.log('final_main', simulationApiFullData);
 
-   
     dispatch({
-      type: Action.GATHER_UNCERTANITY,
-      value:heatMapUncertanityData?.uncertanity
-    })
+      type: Action.GATHER_SIMULATION_API_FULL_DATA,
+      value: simulationApiFullData,
+    });
     setScatterPlotData(scatterData?.scatter_plot_data);
-    setHeatMapUncertanity(heatMapUncertanityData?.uncertanity)
-    
-   
+    setHeatMapUncertainity(simulationApiFullData?.uncertainity);
 
     // dispatch({
     //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
@@ -325,7 +321,7 @@ const RightComponent = () => {
       value: input_box_step_btn_click + 1,
     });
 
-    console.log('final_heatMapUncertanity', heatMapUncertanity)
+    console.log('final_heatMapUncertainity', heatMapUncertainity);
   };
 
   const objectiveGatherData = (
@@ -368,11 +364,6 @@ const RightComponent = () => {
       </div>
     </div>
   );
-
-  const [tabValue, setTabValue] = React.useState(0);
-  const handleChangeTab = (event, newValue) => {
-    setTabValue(newValue);
-  };
 
   const ChartTabs = () => (
     <Box sx={{ width: '100%' }}>
