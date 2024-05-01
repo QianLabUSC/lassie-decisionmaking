@@ -54,9 +54,9 @@ type TestPath = Path[];
 
 
 const RobotChart: React.FC = () => {
-  const [{ currUserStep, newpathvalues, threePaths, uncertanity_heat_map_data }, dispatch] = useStateValue();
+  const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data }, dispatch] = useStateValue();
 
-  console.log('uncertanity_heat_map_data123 ', uncertanity_heat_map_data )
+  console.log('uncertanity_heat_map_data123 ', simulation_api_full_data)
 
 
   const [selectedPath, setSelectedPath] = useState('');
@@ -177,8 +177,10 @@ const RobotChart: React.FC = () => {
   const disableSubmitButton = false; // Update logic as needed
 
   const renderHeatMap = () => {
-    const heatmapData = heatMapType === 'infogain' ? uncertanity_heat_map_data : uncertanity_heat_map_data;
+    const heatmapData = heatMapType === 'infogain' ?  simulation_api_full_data?.info_gain_shear: simulation_api_full_data?.uncertainity;
+    console.log(heatMapType, heatmapData, 'hereaaami')
 
+    console.log(heatmapData ,'simulation_api_full_data?.uncertainity',simulation_api_full_data?.uncertainity)
     if (!heatmapData.length) return null;
     const startX = xScale(0);
     const startY = yScale(0);
@@ -188,7 +190,7 @@ const RobotChart: React.FC = () => {
     console.log(heatmapData)
     
     return (
-      heatmapData  && (<InformationGainHeatMap
+      simulation_api_full_data && (<InformationGainHeatMap
         width={1550}
         height={2490}
         data={heatmapData}
