@@ -50,7 +50,6 @@ k_info_high_ = 0.7
 def process():
    
     inputs = request.json
-    print('here', inputs)
     location = np.array(inputs['locations'])
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
@@ -90,14 +89,14 @@ def process():
     # print("final_type: ", final_type)
     # print("final_suggestion: ", final_suggestion)
     # print("suggestion_sets: ", suggestion_sets)
-    print('-----------------------------------------------------------robot algorithm state-----------------------------------------------------------')
-    print('----------------balance type: 0: info focused, 0.25: info hierarchy, 0.5: trade off, 0.75: disp hierarchy, 1: disp focused-----------------')
-    print('user type', multi_objective_pattern)
-    print('current information level:           ', information_level, 'current information threshold: ', [k_info_low_,k_info_high_])
-    print('current information signal strength: ', info_signal, 'current information threshold: ', k_info_signal_)
-    print('current discrepancy signal strength: ', disp_signal, 'current disp signal threshold', k_noise_)
-    print('current balance type', final_type)
-    print('-------------------------------------------------------------------------------------------------------------------------------------------')
+    # print('-----------------------------------------------------------robot algorithm state-----------------------------------------------------------')
+    # print('----------------balance type: 0: info focused, 0.25: info hierarchy, 0.5: trade off, 0.75: disp hierarchy, 1: disp focused-----------------')
+    # print('user type', multi_objective_pattern)
+    # print('current information level:           ', information_level, 'current information threshold: ', [k_info_low_,k_info_high_])
+    # print('current information signal strength: ', info_signal, 'current information threshold: ', k_info_signal_)
+    # print('current discrepancy signal strength: ', disp_signal, 'current disp signal threshold', k_noise_)
+    # print('current balance type', final_type)
+    # print('-------------------------------------------------------------------------------------------------------------------------------------------')
     
     print('-----------------------------------------------------------robot explanation-----------------------------------------------------------')
     print(exception_list[except_index])
@@ -110,9 +109,9 @@ def process():
         print('to:')
         print(reported_balance_type[final_type])
     
-    print('Therefore, the robot suggests sampling at location : ', final_suggestion)
-    print('---------------------------------------------------------------------------------------------------------------------------------------')
-    print(suggestion_sets)
+    # print('Therefore, the robot suggests sampling at location : ', final_suggestion)
+    # print('---------------------------------------------------------------------------------------------------------------------------------------')
+    # print(suggestion_sets)
     output = {
         'final_type': final_type,
         'final_suggestion': final_suggestion,
@@ -146,62 +145,62 @@ def getVariable():
     }
     return jsonify(output)
 
-@app.route('/first_api/generate_initial_path', methods=['POST'])
-@cross_origin()
-def getFirstApi():
+# @app.route('/first_api/generate_initial_path', methods=['POST'])
+# @cross_origin()
+# def getFirstApi():
 
 
-    inputs = request.json
-    print(inputs,'inputs')
+#     inputs = request.json
+#     print(inputs,'inputs')
 
 
-# export const objectiveOptions = [
-#   "Gather more data on unsampled area", // Option 0 - spatial coverage algorithm
-#   "Gather more data where the data has discrepancy with the hypothesis", // Option 1 - hypo invalidating algorithm
-#   "The risk of robot entrapment",
-#   "The time cost"
-# ]
-    # input
-    {
-    "input1_human_belief": {
-        "human_belief_selected_option": 1,
-        "human_belief_text_description":""
-    },
-    "input2_human_rank_order": [1,2,3,4],
-    "x_origin": 0,
-    "y_origin": 0,
-    "selected_outside": {  #intaill these will be empty only for thirs option this 
-        "start_x_cordinate_of_selected_path": 3,
-        "start_y_cordinated_of_selected_path":2,
-        "clicked_x_cordinate": 5,
-        "clicked_y_ordinate": 6
-      }
-    }
+# # export const objectiveOptions = [
+# #   "Gather more data on unsampled area", // Option 0 - spatial coverage algorithm
+# #   "Gather more data where the data has discrepancy with the hypothesis", // Option 1 - hypo invalidating algorithm
+# #   "The risk of robot entrapment",
+# #   "The time cost"
+# # ]
+#     # input
+#     {
+#     "input1_human_belief": {
+#         "human_belief_selected_option": 1,
+#         "human_belief_text_description":""
+#     },
+#     "input2_human_rank_order": [1,2,3,4],
+#     "x_origin": 0,
+#     "y_origin": 0,
+#     "selected_outside": {  #intaill these will be empty only for thirs option this 
+#         "start_x_cordinate_of_selected_path": 3,
+#         "start_y_cordinated_of_selected_path":2,
+#         "clicked_x_cordinate": 5,
+#         "clicked_y_ordinate": 6
+#       }
+#     }
 
 
-    # generate 3 intail ordinates
-    firstPath=[
-      [
-        [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
-        [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
-        [], # prior values
-        [], #prior values
-      ],
-      [
-        [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-        [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
-        [],
-        [],
-      ],
-      [
-        [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
-        [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
-        [],
-        [],
-      ],
-    ]
+#     # generate 3 intail ordinates
+#     firstPath=[
+#       [
+#         [0, 0.012699544, 0.01377393, 0.0148343254, 0.148540198, 0.1889489748],
+#         [0, 0.01330707, 0.13732145, 0.14574513, 0.14924912, 0.1554568],
+#         [], # prior values
+#         [], #prior values
+#       ],
+#       [
+#         [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+#         [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+#         [],
+#         [],
+#       ],
+#       [
+#         [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
+#         [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+#         [],
+#         [],
+#       ],
+#     ]
 
-    return jsonify(firstPath)
+#     return jsonify(firstPath)
 
 
 
@@ -313,12 +312,120 @@ def fouthApi():
 
 
 
-@app.route('/simulate', methods=['GET'])
+def get_matrix_value(matrix, x, y):
+    """
+    Retrieve a value from the matrix at normalized coordinates x, y.
+
+    Parameters:
+    matrix (np.array): A numpy array.
+    x (float): Normalized x coordinate (0 to 1).
+    y (float): Normalized y coordinate (0 to 1).
+
+    Returns:
+    float: Value at the specified coordinates in the matrix.
+    """
+    ix = np.int32(y * (matrix.shape[0] - 1))  
+    iy = np.int32(x * (matrix.shape[1] - 1))
+    return matrix[ix, iy]
+
+def normalize_matrix(matrix):
+    """
+    Normalize a numpy matrix so that the minimum value is mapped to 0 
+    and the maximum value is mapped to 1.
+
+    Parameters:
+    matrix (np.array): A numpy array of any shape.
+
+    Returns:
+    np.array: A normalized numpy array of the same shape as the input.
+    """
+    # Find the minimum and maximum values in the matrix
+    min_val = np.min(matrix)
+    max_val = np.max(matrix)
+    
+    # Perform the normalization
+    normalized_matrix = (matrix - min_val) / (max_val - min_val)
+
+    return normalized_matrix
+
+ROBOT_ESTIMATION_INTERVAL = 0.02 
+estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
+
+
+
+
+@app.route('/first_api/generate_initial_path', methods=['POST'])
+@cross_origin()
+def getFirstApi():
+    inputs = request.json
+    print(inputs,'inputs')
+
+    # input
+    {
+    "iterations":10,
+    "input1_human_belief": {
+        "human_belief_selected_option": 1,
+        "human_belief_text_description":""
+    },
+    "input2_human_rank_order": [1,2,3,4],
+    "x_origin": 0,
+    "y_origin": 0,
+    "selected_outside": {  #intaill these will be empty only for thirs option this 
+        "start_x_cordinate_of_selected_path": 3,
+        "start_y_cordinated_of_selected_path":2,
+        "clicked_x_cordinate": 5,
+        "clicked_y_ordinate": 6
+      }
+    }
+
+    robot_start_point = [0.0, 0.0]
+    path_x, path_y = [], []
+    for i in range(inputs["iterations"]):
+        planner = ReactivePlanning(robot_start_point, 0.02, 5)
+        robot_path_x, robot_path_y = planner.get_robot_path()
+        F_x, F_y, path_x_new, path_y_new = planner.plan_for_next_horizon(np.random.rand(10, 10))  # Placeholder reward
+        path_x.extend(path_x_new)
+        path_y.extend(path_y_new)
+        print('path_x:',path_x)
+        print('path_y:',path_y)
+        
+
+    # generate 3 intail ordinates
+    firstPath=[
+      [
+        path_x,
+        path_y,
+        [], # prior values
+        [], #prior values
+      ],
+      [
+        [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
+        [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+        [],
+        [],
+      ],
+      [
+        [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
+        [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+        [],
+        [],
+      ],
+    ]
+
+    print('firstpath12',firstPath)
+    return jsonify(firstPath)
+
+
+
+@app.route('/fourth_api/simulate', methods=['POST'])
 def simulate():
-    iterations = int(request.args.get('iterations', 1))  # Default to 1 if not specified
-    prior_x = np.array([0.5, 0.1])
-    prior_y = np.array([0.1, 0.9])
-    robot_start_point = [0.3, 0.2]
+    inputs = request.json
+    print('inputs',inputs)
+
+    iterations = inputs['step']  # Default to 1 if not specified
+    prior_x = np.array([0.15, 0.12])
+    prior_y = np.array([0.11, 0.29])
+    robot_start_point = [0.0, 0.0]
 
     env = ManuallyEnv(prior_x, prior_y)
     planner = ReactivePlanning(robot_start_point, 0.02, 5)
@@ -330,15 +437,35 @@ def simulate():
         robot_path_x, robot_path_y = planner.get_robot_path()
         measured_robot_coordinates, measured_shear, measured_moisture = env.gather_data(robot_path_x, robot_path_y)
         vals = np.array([[x1_, x2_] for x1_ in np.linspace(0, 1, num=int(1/0.02)) for x2_ in np.linspace(0, 1, num=int(1/0.02))])
-        _, _, _, _ = estimator.estimate(measured_robot_coordinates, measured_shear, vals)
+        shear_prediction, information_shear, shear_std, gp = estimator.estimate(measured_robot_coordinates, measured_shear, vals)
+       
+        shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
+        information_shear = information_shear.reshape(estimatedNum, estimatedNum)
+        shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
+        # print('shear_prediction, information_shear, shear_std, gp',shear_prediction, information_shear, shear_std, gp )
+        # print('test')
         F_x, F_y, path_x_new, path_y_new = planner.plan_for_next_horizon(np.random.rand(10, 10))  # Placeholder reward
         path_x.extend(path_x_new)
         path_y.extend(path_y_new)
-        measured_robot_coordinates.extend(measured_robot_coordinates)
-        measured_moisture.extend(measured_moisture)
-        measured_shear.extend(measured_shear)
+        print('path_x:',path_x)
+        print('path_y:',path_y)
+
+        #print('measured_robot_coordinates',measured_robot_coordinates, 'measured_moisture' , measured_moisture, 'measured_shear', measured_shear)
     
-    return jsonify({'path_x': path_x, 'path_y': path_y, 'measured_robot_coordinates':measured_robot_coordinates, 'measured_moisture' : measured_moisture, 'measured_shear':measured_shear})
+    return jsonify(
+        {
+            'path_x': path_x, 
+            'path_y': path_y, 
+            'uncertainity': shear_std.tolist(),
+            'shear_prediction': shear_prediction.tolist(),
+            'info_gain_shear':information_shear.tolist(), # Todo: CONFIRM ONCE THIS IS INFO GAIN
+            'measured_data' : 
+                { 
+                    "moisture": measured_moisture.tolist(),
+                    "shear":measured_shear.tolist()
+                }
+        }
+        )
 
 
 if __name__ == '__main__':

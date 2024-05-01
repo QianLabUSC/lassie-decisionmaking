@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 
@@ -24,6 +24,10 @@ import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
 import RobotChart from '../components/RobotChart';
 import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
+import { useHistory } from 'react-router-dom';
+import SelectedPathChart from '../components/SelectedPathChart';
+
+const NO_OF_ITERATION = 5;
 const RightComponent = () => {
   const [selectedBelief, setSelectedBelief] = useState('');
   const [userBeliefText, setUserBeliefText] = useState('');
@@ -34,9 +38,16 @@ const RightComponent = () => {
     moisture: number[];
     shear: number[];
   }>({ x: [], y: [], moisture: [], shear: [] });
-  const [globalState, dispatch] = useStateValue();
 
+  const [selectedTransitionState, setSelectedTransitionState] = useState('');
+  const [updateTransition, setUpdateTransition] = useState(false);
+
+  const [globalState, dispatch] = useStateValue();
+  const [{ simulation_api_full_data }] = useStateValue();
   const [heatMapUncertainity, setHeatMapUncertainity] = useState();
+  const [currentView, setCurrentView] = useState(0);
+
+  const history = useHistory();
 
   const { input_box_step_btn_click, threePaths, path_full_data } = globalState;
 
@@ -55,12 +66,16 @@ const RightComponent = () => {
     //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
     //   value: initial_human_belief,
     // });
-
+    setCurrentView(1);
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
     });
   };
+
+  useEffect(() => {
+    console.log(selectedTransitionState, '1selectedTransitionState after update');
+  }, [selectedTransitionState]);
 
   const objectiveQuestions = (
     <div className="objective-questions">
@@ -154,12 +169,14 @@ const RightComponent = () => {
     };
 
     const threePaths = await firstApiGetThreePaths(
+      NO_OF_ITERATION,
       initial_human_belief,
       ranking,
       0,
       0
     );
 
+    console.log('threepath3', threePaths);
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
@@ -169,6 +186,8 @@ const RightComponent = () => {
       type: Action.GENERATE_THREE_PATHS,
       value: threePaths,
     });
+
+    setCurrentView(2);
   };
 
   const ObjectiveRankingFormNew = (
@@ -216,7 +235,6 @@ const RightComponent = () => {
 
   const onSubmitSelectedPath = async () => {
     const int_selected_path_index = parseInt(selectedPathIndex) - 1;
-
     const api_input = {
       step_number: input_box_step_btn_click,
       selected_path_number: int_selected_path_index,
@@ -238,6 +256,8 @@ const RightComponent = () => {
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
     });
+
+    setCurrentView(3);
   };
 
   const objectiveSelectPath = (
@@ -301,7 +321,10 @@ const RightComponent = () => {
       threePaths[int_selected_path_index]
     );
 
-    const simulationApiFullData: any = await fourthApiCallSimulate(1);
+    const simulationApiFullData: any = await fourthApiCallSimulate(
+      input_box_step_btn_click
+    ); // for now to update the path
+
     console.log('final_main', simulationApiFullData);
 
     dispatch({
@@ -320,7 +343,7 @@ const RightComponent = () => {
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
     });
-
+    setCurrentView(4);
     console.log('final_heatMapUncertainity', heatMapUncertainity);
   };
 
@@ -340,16 +363,110 @@ const RightComponent = () => {
         color="secondary"
         onClick={onGatherData}
       >
-        Submit
+        Gather Data
       </Button>
     </div>
   );
-  ///////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////            STEP 5               ////////////////////////////////////////
+
+  const handleTransitionState = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    console.log(selectedTransitionState,'1selectedTransitionState')
+    setSelectedTransitionState(event.target.value);
+  };
+
+  const onSubmitTransitionState = async () => {
+
+    setUpdateTransition(true)
+    console.log(selectedTransitionState, 'qselectedTransitionState before processing');
+    if (selectedTransitionState === '1') {
+      setCurrentView(1);
+    } else if (selectedTransitionState === '2') {
+      setCurrentView(0);
+    } else if (selectedTransitionState === '3') {
+      setCurrentView(5);
+      setTimeout(() => setCurrentView(1), 3000); // Wait for 3 seconds before redirecting
+    } else {
+      history.push('/survey');
+    }
+
+    // dispatch({
+    //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
+    //   value: initial_human_belief,
+    // });
+
+    dispatch({
+      type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
+      value: input_box_step_btn_click + 1,
+    });
+  };
+
+  const objectiveTranisition = (
+    <div className="objective-questions">
+      <p>
+        <strong>
+          Step 1: During the sampling process, the following objectives are
+          considered.
+        </strong>
+      </p>
+
+      <RadioGroup
+        row
+        aria-label="path selection"
+        name="path_selection"
+        value={selectedTransitionState}
+        onChange={handleTransitionState}
+      >
+        <FormControlLabel
+          value="1"
+          control={<Radio />}
+          label="See RHex's suggestions for where to sample next based on your current belief rankings"
+        />
+        <FormControlLabel
+          value="2"
+          control={<Radio />}
+          label="Update belief rankings to receive new suggestions from RHex of where to sample next"
+        />
+        <FormControlLabel
+          value="3"
+          control={<Radio />}
+          label="Ignore suggestions and select a location for RHex to sample next"
+        />
+        <FormControlLabel
+          value="4"
+          control={<Radio />}
+          label="Stop data collection and make a conclusion about the hypothesis"
+        />
+      </RadioGroup>
+
+      <Button
+        disabled={!selectedBelief}
+        variant="contained"
+        color="secondary"
+        onClick={onSubmitTransitionState}
+      >
+        Submit Transition State
+      </Button>
+    </div>
+  );
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  const comingSoon = (
+    <div className="objective-questions">
+      <h1>This Feature is Coming Soon...</h1>
+      <h2>Taking you to step 1</h2>
+    </div>
+  );
+
   const userFeedbackStateMap = [
     objectiveQuestions,
     ObjectiveRankingFormNew,
     objectiveSelectPath,
     objectiveGatherData,
+    objectiveTranisition,
+    comingSoon,
   ];
 
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -357,23 +474,29 @@ const RightComponent = () => {
   const collectionRightPanel = (
     <div className="collectionRightPanel">
       <RobotChart />
+      {/* <SelectedPathChart/> */}
       <div className="collectionRightPanel">
-        <div className="user-feedback">
-          {userFeedbackStateMap[input_box_step_btn_click]}
-        </div>
+        {!updateTransition && (
+          <div className="user-feedback">
+            {userFeedbackStateMap[input_box_step_btn_click]}
+          </div>
+        )}
+        {updateTransition && (
+          <div className="user-feedback">
+            {userFeedbackStateMap[currentView]}
+          </div>
+        )}
       </div>
     </div>
   );
 
+ 
+
   const ChartTabs = () => (
     <Box sx={{ width: '100%' }}>
-      {
-        <ShearVsMoisturePlot
-          width={1400}
-          height={1100}
-          scatterPlotData={scatter_Plot_Data}
-        />
-      }
+      {simulation_api_full_data && (
+        <ShearVsMoisturePlot width={1400} height={1100} />
+      )}
     </Box>
   );
 
