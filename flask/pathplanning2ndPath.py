@@ -100,7 +100,7 @@ class ManuallyEnv(Env):
         self.shear_strength_map = np.loadtxt('shear_strength_map.csv', delimiter=',')
         self.moisture_map = np.loadtxt('moisture_map.csv', delimiter=',')
 
-class ReactivePlanning:
+class ReactivePlanning2ndPath:
     def __init__(self, start_point, plan_step_interval_, step_per_horizon_):
         # define paramters
         self.plan_step_interval = plan_step_interval_
@@ -252,7 +252,8 @@ class ReactivePlanning:
         # Attractive potential/optional for goal
         # U_attr = k_attr * ((x - x_goal)**2 + (y - y_goal)**2)
         # Attractive potential for high uncertainty/infomation area
-        k_attr = 13
+        k_attr = 15
+      
         U_attr = np.zeros_like(reward)
         for hull in hulls:
             for i in range(reward.shape[0]):
@@ -266,13 +267,13 @@ class ReactivePlanning:
         U_total = U_attr 
         F_x = -np.gradient(U_total, axis=1)
         F_y = -np.gradient(U_total, axis=0)
-    
+
         return hulls, F_x, F_y
 
 
 
-    def calculate_gradient_with_adding(self, reward):
 
+    def calculate_gradient_with_adding(self, reward):
         k_attr = 3
         max_index = np.argmax(reward)
         row_index, col_index = np.unravel_index(max_index, reward.shape)
@@ -372,7 +373,7 @@ PRIOR_MEASUREMENTS_LOC_Y = np.array([0.1, 0.9])
 
 
 env = ManuallyEnv(PRIOR_MEASUREMENTS_LOC_X, PRIOR_MEASUREMENTS_LOC_Y)
-planner = ReactivePlanning(ROBOT_START_POINT, ROBOT_SAMPLING_INTERVAL, 
+planner = ReactivePlanning2ndPath(ROBOT_START_POINT, ROBOT_SAMPLING_INTERVAL, 
                            STEPS_PER_ESTIMTATION_ITERATIONS)
 estimator = Estimation(False, 0.2, 0.15, 4)
 
