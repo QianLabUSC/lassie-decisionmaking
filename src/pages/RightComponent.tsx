@@ -27,7 +27,7 @@ import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 import { useHistory } from 'react-router-dom';
 import SelectedPathChart from '../components/SelectedPathChart';
 
-const NO_OF_ITERATION = 5;
+const NO_OF_ITERATION = 1;
 const RightComponent = () => {
   const [selectedBelief, setSelectedBelief] = useState('');
   const [userBeliefText, setUserBeliefText] = useState('');

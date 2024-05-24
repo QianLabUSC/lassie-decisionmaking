@@ -5,6 +5,8 @@ from multiObjectiveDecisionMaking.decision_making import *
 from multiObjectiveDecisionMaking.multi_objective_tools import *
 import json
 from pathplanning import ManuallyEnv, ReactivePlanning, Estimation
+from pathplanning2ndPath import ReactivePlanning2ndPath
+from pathplanning3rdPath import ReactivePlanning3rdPath
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -224,7 +226,7 @@ def getSecondApi():
     # ]
     # }
 
-    file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'
+    file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/path.json'
 
     # Check if the file exists
     if os.path.exists(file_path):
@@ -380,14 +382,46 @@ def getFirstApi():
 
     robot_start_point = [0.0, 0.0]
     path_x, path_y = [], []
+    path_x_2nd, path_y_2nd = [], []
+    path_x_3rd, path_y_3rd = [], []
+
     for i in range(inputs["iterations"]):
-        planner = ReactivePlanning(robot_start_point, 0.02, 5)
+        planner = ReactivePlanning(robot_start_point, 0.02, 10)
+        planner_2nd= ReactivePlanning2ndPath(robot_start_point, 0.02, 10)
+        planner_3rd= ReactivePlanning3rdPath(robot_start_point, 0.02, 10)
+
+        # 1st path is 3 suggested paths
         robot_path_x, robot_path_y = planner.get_robot_path()
         F_x, F_y, path_x_new, path_y_new = planner.plan_for_next_horizon(np.random.rand(10, 10))  # Placeholder reward
+
         path_x.extend(path_x_new)
         path_y.extend(path_y_new)
-        print('path_x:',path_x)
-        print('path_y:',path_y)
+        print('1st path_x:',path_x)
+        print('1st path_y:',path_y)
+
+        # 2nd path is 3 suggested paths
+        robot_path_x_2nd, robot_path_y_2nd= planner_2nd.get_robot_path()
+        F_x, F_y, path_x_new_2nd, path_y_new_2nd = planner_2nd.plan_for_next_horizon(np.random.rand(10,10))
+
+        path_x_2nd.extend(path_x_new_2nd)
+        path_y_2nd.extend(path_y_new_2nd)
+        print('2nd path_x:',path_x_2nd)
+        print('2nd path_y:',path_y_2nd)
+
+         # 3rd path is 3 suggested paths
+        robot_path_x_3rd, robot_path_y_3rd= planner_3rd.get_robot_path()
+        F_x, F_y, path_x_new_3rd, path_y_new_3rd = planner_3rd.plan_for_next_horizon(np.random.rand(10,10))
+
+        path_x_3rd.extend(path_x_new_3rd)
+        path_y_3rd.extend(path_y_new_3rd)
+        print('3rd path_x:',path_x_3rd)
+        print('3rd path_y:',path_y_3rd)
+
+
+     
+
+     
+
         
 
     # generate 3 intail ordinates
@@ -399,14 +433,14 @@ def getFirstApi():
         [], #prior values
       ],
       [
-        [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-        [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
+        path_x_2nd,
+        path_y_2nd,
         [],
         [],
       ],
       [
-        [0, 0.012699544, 0.1339001, 0.14742749, 0.16707451, 0.1682743],
-        [0, 0.01330707, 0.01474205, 0.1509101, 0.1752565, 0.1793485],
+        path_x_3rd,
+        path_y_3rd,
         [],
         [],
       ],
