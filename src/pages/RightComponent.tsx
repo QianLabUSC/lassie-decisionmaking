@@ -39,6 +39,10 @@ const RightComponent = () => {
     shear: number[];
   }>({ x: [], y: [], moisture: [], shear: [] });
 
+  const [generate3newPaths, setGenerate3newPaths] = useState(false); 
+  const [selectedPathLastXCordinate, setSelectedPathLastXCordinate] = useState(0)
+  const [selectedPathLastYCordinate, setSelectedPathLastYCordinate] = useState(0)
+  
   const [selectedTransitionState, setSelectedTransitionState] = useState('');
   const [updateTransition, setUpdateTransition] = useState(false);
 
@@ -163,15 +167,29 @@ const RightComponent = () => {
       human_belief_text_description: userBeliefText,
     };
 
-    const threePaths = await firstApiGetThreePaths(
-      NO_OF_ITERATION,
-      initial_human_belief,
-      ranking,
-      0,
-      0
-    );
+  let threePaths, selected_path_x_corrdinate, selected_path_y_corrdinate  ;
 
-    console.log('threepath3', threePaths);
+  selected_path_x_corrdinate = path_full_data.selected_path_data
+  selected_path_y_corrdinate = path_full_data.selected_path_data
+
+    if(generate3newPaths == true){
+      threePaths = await firstApiGetThreePaths(
+        NO_OF_ITERATION,
+        initial_human_belief,
+        ranking,
+        selectedPathLastXCordinate,
+        selectedPathLastYCordinate,
+      );
+    }
+    else{
+      threePaths = await firstApiGetThreePaths(
+        NO_OF_ITERATION,
+        initial_human_belief,
+        ranking,
+        0,
+        0
+      );
+    }
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
@@ -235,6 +253,13 @@ const RightComponent = () => {
       selected_path_number: int_selected_path_index,
       inputof_first_time_Path_Selected: threePaths[int_selected_path_index],
     };
+    const selectedPathXs=threePaths[int_selected_path_index][0]
+    const selectedPathYs=threePaths[int_selected_path_index][1]
+    const last_Xcordinate_of_selected_path = selectedPathXs[selectedPathXs.length-1]
+    const last_Ycordinate_of_selected_path = selectedPathYs[selectedPathYs.length-1]
+
+    setSelectedPathLastXCordinate(last_Xcordinate_of_selected_path)
+    setSelectedPathLastYCordinate(last_Ycordinate_of_selected_path)
 
     const jsonCreationApiResponse = await secondApiCreateJson(
       input_box_step_btn_click,
@@ -343,6 +368,8 @@ const RightComponent = () => {
     console.log('final_heatMapUncertainity', heatMapUncertainity);
   };
 
+
+  // TODO MAKE THE SELECTED PATH BLACK HERE
   const objectiveGatherData = (
     <div className="objective-questions">
       <p>
@@ -378,6 +405,7 @@ const RightComponent = () => {
     console.log(selectedTransitionState, 'qselectedTransitionState before processing');
     if (selectedTransitionState === '1') {
       setCurrentView(1);
+      setGenerate3newPaths(true);
     } else if (selectedTransitionState === '2') {
       setCurrentView(0);
     } else if (selectedTransitionState === '3') {
