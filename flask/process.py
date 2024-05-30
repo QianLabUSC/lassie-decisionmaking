@@ -363,7 +363,7 @@ estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
 @cross_origin()
 def getFirstApi():
     inputs = request.json
-    print(inputs,'inputs')
+    print(inputs,'inputs123')
 
     # input
     {
@@ -382,8 +382,8 @@ def getFirstApi():
         "clicked_y_ordinate": 6
       }
     }
-
-    robot_start_point = [0.0, 0.0]
+    print(float(inputs["x_origin"]), "test1234", inputs["y_origin"])
+    robot_start_point = [float(inputs["x_origin"]), float(inputs["y_origin"])] # changing this doesnot changes start cordinates
     path_x, path_y = [], []
     path_x_2nd, path_y_2nd = [], []
     path_x_3rd, path_y_3rd = [], []
