@@ -106,8 +106,8 @@ class ReactivePlanning3rdPath:
         self.plan_step_interval = plan_step_interval_
         self.step_per_horizon = step_per_horizon_
         self.robot_start_point = start_point
-        self.robot_path_x = np.array([ROBOT_START_POINT[0]])
-        self.robot_path_y = np.array([ROBOT_START_POINT[1]])
+        self.robot_path_x = np.array([start_point[0]])
+        self.robot_path_y = np.array([start_point[1]])
 
     def get_robot_path(self):
         return self.robot_path_x, self.robot_path_y
