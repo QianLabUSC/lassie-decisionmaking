@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 
 const InformationGainHeatMap = ({ width, height, data, x, y }) => {
@@ -10,6 +9,7 @@ const InformationGainHeatMap = ({ width, height, data, x, y }) => {
     range: [0.02, 0.4], // Adjust opacity range as needed
   });
 
+  console.log(data,'data123')
   return (
     <svg width={width} height={height}>
       {data.map((row, rowIndex) =>
@@ -17,7 +17,7 @@ const InformationGainHeatMap = ({ width, height, data, x, y }) => {
           <rect
             key={`cell-${rowIndex}-${colIndex}`}
             x={colIndex * cellSize + x}
-            y={rowIndex * cellSize + y}
+            y={765 - rowIndex * cellSize + y}
             width={cellSize}
             height={cellSize}
             fill={`rgba(255,165,100,${opacityScale(value)})`}
