@@ -490,7 +490,7 @@ const RightComponent = () => {
 
   const ChartTabs = () => (
     <Box sx={{ width: '100%' }}>
-      {simulation_api_full_data && (
+      {(
         <ShearVsMoisturePlot width={1400} height={1100} />
       )}
     </Box>
@@ -522,7 +522,7 @@ const RightComponent = () => {
       <Grid container>
         <Grid container>
           <Grid item xs={12} md={7}>
-            {input_box_step_btn_click === 4 && <ChartTabs />}
+            {<ChartTabs />}
           </Grid>
           <Grid item xs={12} md={5} className="rightDecisionPanel">
             <div className="rightDecisionPanelContainer">
