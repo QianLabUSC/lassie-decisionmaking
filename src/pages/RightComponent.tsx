@@ -4,13 +4,13 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 
 import {
-  FormControl,
   Select,
   MenuItem,
   Box,
   Radio,
   RadioGroup,
-  FormControlLabel,
+  Checkbox,
+  FormControl, FormGroup, FormControlLabel 
 } from '@material-ui/core';
 
 import { ConfirmDialog } from '../components/Dialogs';
@@ -27,9 +27,9 @@ import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 import { useHistory } from 'react-router-dom';
 import SelectedPathChart from '../components/SelectedPathChart';
 
-const NO_OF_ITERATION = 5;
+const NO_OF_ITERATION = 1;
 const RightComponent = () => {
-  const [selectedBelief, setSelectedBelief] = useState('');
+  const [selectedBelief, setSelectedBelief] = useState<string[]>([]);
   const [userBeliefText, setUserBeliefText] = useState('');
   const [selectedPathIndex, setSelectedPathIndex] = useState('');
   const [scatter_Plot_Data, setScatterPlotData] = useState<{
@@ -53,15 +53,26 @@ const RightComponent = () => {
 
   ////////////////////////////////////1ST BOX /////////////////
 
-  const handleChangeRadioBtn = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedBelief(event.target.value);
-  };
-
   const onUserTextInputForBelief = (e) => {
     setUserBeliefText(e.target.value);
   };
 
+  const handleChangeCheckbox = (value: string) => {
+    setSelectedBelief(prev => {
+      const currentIndex = prev.indexOf(value);
+      const newChecked = [...prev];
+
+      if (currentIndex === -1) {
+        newChecked.push(value);
+      } else {
+        newChecked.splice(currentIndex, 1);
+      }
+
+      return newChecked;
+    });
+  };
   const onSubmitHumanBelief = async () => {
+    console.log(selectedBelief, 'selectedbelief')
     // dispatch({
     //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
     //   value: initial_human_belief,
@@ -79,48 +90,32 @@ const RightComponent = () => {
 
   const objectiveQuestions = (
     <div className="objective-questions">
-      <p>
-        <strong>
-          Step 1: During the sampling process, the following objectives are
-          considered.
-        </strong>
-      </p>
-
-      <RadioGroup
-        row
-        aria-label="path selection"
-        name="path_selection"
-        value={selectedBelief}
-        onChange={handleChangeRadioBtn}
-      >
-        <FormControlLabel
-          value="1"
-          control={<Radio />}
-          label="Gather more data on unsampled area"
-        />
-        <FormControlLabel
-          value="2"
-          control={<Radio />}
-          label="The risk of robot entrapment"
-        />
-        <FormControlLabel
-          value="3"
-          control={<Radio />}
-          label="Accept suggested location C"
-        />
-        <FormControlLabel value="4" control={<Radio />} label="The time cost" />
-      </RadioGroup>
-
-      <p>
-        <strong>
-          Please describe your additional belief about the data collected so
-          far:
-        </strong>
-      </p>
+      <p><strong>During the sampling process, the following objectives are considered:</strong></p>
+      <FormControl component="fieldset">
+        <FormGroup row>
+          <FormControlLabel
+            control={<Checkbox checked={selectedBelief.includes('1')} onChange={() => handleChangeCheckbox('1')} />}
+            label="Gather more data on unsampled area"
+          />
+          <FormControlLabel
+            control={<Checkbox checked={selectedBelief.includes('2')} onChange={() => handleChangeCheckbox('2')} />}
+            label="The risk of robot entrapment"
+          />
+          <FormControlLabel
+            control={<Checkbox checked={selectedBelief.includes('3')} onChange={() => handleChangeCheckbox('3')} />}
+            label="Accept suggested location C"
+          />
+          <FormControlLabel
+            control={<Checkbox checked={selectedBelief.includes('4')} onChange={() => handleChangeCheckbox('4')} />}
+            label="The time cost"
+          />
+        </FormGroup>
+      </FormControl>
+      <p><strong>Please describe your additional belief about the data collected so far:</strong></p>
       <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} />
-
+     
       <Button
-        disabled={!selectedBelief}
+        disabled={selectedBelief.length === 0}
         variant="contained"
         color="secondary"
         onClick={onSubmitHumanBelief}
@@ -321,6 +316,7 @@ const RightComponent = () => {
       threePaths[int_selected_path_index]
     );
 
+    // API CALL HERE 
     const simulationApiFullData: any = await fourthApiCallSimulate(
       input_box_step_btn_click
     ); // for now to update the path
