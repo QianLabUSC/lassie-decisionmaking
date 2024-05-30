@@ -1,13 +1,16 @@
 import numpy as np
-# import matplotlib.pyplot as plt
-# from matplotlib.animation import FuncAnimation
-# import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import matplotlib.animation as animation
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel as C
 import numpy as np
+import matplotlib.pyplot as plt
 import warnings
 # Configure warnings to always be triggered
 warnings.simplefilter("always")
+
+# Import required backend for interactive plotting
 
 # ==============================
 #      Utility Functions
@@ -358,16 +361,16 @@ Initialization
 
 ROBOT_SAMPLING_INTERVAL = 0.02       # this corresponds to the different gaits, e.g. walking/troting/running
 ROBOT_ESTIMATION_INTERVAL = 0.02      # this corresonding the density of gaussian estimation.
-STEPS_PER_ESTIMTATION_ITERATIONS = 50
+STEPS_PER_ESTIMTATION_ITERATIONS = 5
 ROBOT_SPEED = 1 
-ROBOT_START_POINT = [0.0,0.0]
-ITERATIONS = 1 # Number of simulation steps
+ROBOT_START_POINT = [0.3,0.2]
+ITERATIONS = 200  # Number of simulation steps
 # PRIOR_MEASUREMENTS_LOC_X = np.array([0.1, 0.1, 0.1, 0.5, 0.5, 0.5, 0.9, 0.9, 0.9])
 # PRIOR_MEASUREMENTS_LOC_Y = np.array([0.1, 0.5, 0.9, 0.1, 0.5, 0.9, 0.1, 0.5, 0.9])
 PRIOR_MEASUREMENTS_LOC_X = np.array([0.5, 0.1])
 PRIOR_MEASUREMENTS_LOC_Y = np.array([0.1, 0.9])
 
-# fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 
 
 env = ManuallyEnv(PRIOR_MEASUREMENTS_LOC_X, PRIOR_MEASUREMENTS_LOC_Y)
@@ -394,15 +397,15 @@ shear_prediction, information_shear, shear_std, gp = \
 shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
 information_shear = information_shear.reshape(estimatedNum, estimatedNum)
 shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
-# Information_image = ax[0].imshow(shear_std, cmap='Blues', extent=[0, 1, 0, 1], origin='lower')
-# ax[0].set_title('Uncertainty Map')
-# cb_info = fig.colorbar(Information_image, ax=ax[0], label='Information')
-# shear_strength_image = ax[1].imshow(shear_prediction, cmap='viridis', 
-#                                     extent=[0, 1, 0, 1], origin='lower')
-# ax[1].set_title('Shear Strength Predicted')
-# cb_strength = fig.colorbar(shear_strength_image, ax=ax[1], label='Shear Strength')
-# ax[0].set_xlim([-0.1, 1.1])
-# ax[0].set_ylim([-0.1, 1.1])
+Information_image = ax[0].imshow(shear_std, cmap='Blues', extent=[0, 1, 0, 1], origin='lower')
+ax[0].set_title('Uncertainty Map')
+cb_info = fig.colorbar(Information_image, ax=ax[0], label='Information')
+shear_strength_image = ax[1].imshow(shear_prediction, cmap='viridis', 
+                                    extent=[0, 1, 0, 1], origin='lower')
+ax[1].set_title('Shear Strength Predicted')
+cb_strength = fig.colorbar(shear_strength_image, ax=ax[1], label='Shear Strength')
+ax[0].set_xlim([-0.1, 1.1])
+ax[0].set_ylim([-0.1, 1.1])
 
 
 
@@ -414,7 +417,6 @@ def update(frame):
 
     measured_robot_coordinates, measured_shear, measured_moisture = \
         env.gather_data(robot_path_x, robot_path_y)
-    
 
     # create estimated denstiy
     estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
@@ -429,27 +431,25 @@ def update(frame):
     shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
     
     F_x, F_y, path_x, path_y = planner.plan_for_next_horizon(shear_std.T)
-    print('path_x', path_x)
-    print('path_y', path_y)
     
 
     '''
     Visualize and update the figure
     '''
-    # # Clear previous content in axes
-    # ax[0].cla()
-    # ax[1].cla()
-    # realpath = ax[0].plot(path_x, path_y, '-', color='r')
-    # Information_image = ax[0].imshow(shear_std.T, cmap='Blues', 
-    #                                  extent=[0, 1, 0, 1], origin='lower')
-    # ax[0].set_title('Uncertainty Map')
-    # shear_strength_image = ax[1].imshow(shear_prediction.T, cmap='viridis', 
-    #                                     extent=[0, 1, 1, 0], origin='lower')
-    # ax[1].set_title('Shear Strength Predicted')
-    # ax[0].set_xlim([-0.1, 1.1])
-    # ax[0].set_ylim([-0.1, 1.1])
-    # fieldplot = ax[0].quiver(xv, yv, F_x, F_y, alpha=1, scale=3, scale_units='inches')
-    # # ax[0].streamplot(xv, yv, F_x, F_y, color='r', start_points=[[current_x, current_y]], integration_direction='forward', linewidth=0.5, density=1, maxlength=0.5)
+    # Clear previous content in axes
+    ax[0].cla()
+    ax[1].cla()
+    realpath = ax[0].plot(path_x, path_y, '-', color='r')
+    Information_image = ax[0].imshow(shear_std.T, cmap='Blues', 
+                                     extent=[0, 1, 0, 1], origin='lower')
+    ax[0].set_title('Uncertainty Map')
+    shear_strength_image = ax[1].imshow(shear_prediction.T, cmap='viridis', 
+                                        extent=[0, 1, 1, 0], origin='lower')
+    ax[1].set_title('Shear Strength Predicted')
+    ax[0].set_xlim([-0.1, 1.1])
+    ax[0].set_ylim([-0.1, 1.1])
+    fieldplot = ax[0].quiver(xv, yv, F_x, F_y, alpha=1, scale=3, scale_units='inches')
+    # ax[0].streamplot(xv, yv, F_x, F_y, color='r', start_points=[[current_x, current_y]], integration_direction='forward', linewidth=0.5, density=1, maxlength=0.5)
     
 if __name__ == "__main__":
     '''
@@ -457,14 +457,14 @@ if __name__ == "__main__":
     Call function update to debug
     '''
     # Create animation
-    # ani = FuncAnimation(fig, update, frames=ITERATIONS, blit=False)
+    ani = FuncAnimation(fig, update, frames=ITERATIONS, blit=False)
     for i in range(ITERATIONS):
         update(i)
 
     '''
     Use plt.show() to update the figure for each step. 
     '''
-    # plt.show()
+    plt.show()
 
     '''
     Save to video file

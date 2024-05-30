@@ -428,7 +428,7 @@ def simulate():
     robot_start_point = [0.0, 0.0]
 
     env = ManuallyEnv(prior_x, prior_y)
-    planner = ReactivePlanning(robot_start_point, 0.02, 5)
+    planner = ReactivePlanning(robot_start_point, 0.02, 50)
     estimator = Estimation(False, 0.2, 0.15, 4)
 
     path_x, path_y = [], []
