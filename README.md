@@ -1,4 +1,4 @@
-# RHEX Decision Making Scenario    
+# Robot Decision Making Scenario    
 
 This repo is a fork of Shenyue Chen's original work, which I contributed to and am now forking as the new developer takes over. This web application simulates a geo-scientist's decision making process when conducting an experiment, recording their actions for research.
 
