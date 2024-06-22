@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import './rating.css'; // Import the CSS for styling
-
+import Button from '@material-ui/core/Button';
 const labels = [
     "1-\nUnsure",
     "2-Did Not\nAddress",
@@ -68,9 +68,21 @@ const RatingComponent = () => {
                     ))}
                 </div>
             </div>
-            <button type="submit">Submit</button>
+
+            <Button
+              
+                variant="contained"
+                color="primary"
+                type="submit" // Ensure type="submit" for form submission
+            >
+                Submit
+            </Button>
+
+       
         </form>
     );
 };
 
 export default RatingComponent;
+
+
