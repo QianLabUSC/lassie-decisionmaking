@@ -57,7 +57,10 @@ const RightComponent = () => {
   const { input_box_step_btn_click, threePaths, path_full_data } = globalState;
 
   ////////////////////////////////////1ST BOX /////////////////
-
+              
+  const onContinueClick = () => {
+    history.push('/survey');
+  };
   const onUserTextInputForBelief = (e) => {
     setUserBeliefText(e.target.value);
   };
@@ -94,8 +97,9 @@ const RightComponent = () => {
   }, [selectedTransitionState]);
 
   const objectiveQuestions = (
+    <>
     <div className="objective-questions">
-      <RatingComponent />
+  
       <p><strong>During the sampling process, the following objectives are considered:</strong></p>
       <FormControl component="fieldset">
         <FormGroup row>
@@ -128,7 +132,20 @@ const RightComponent = () => {
       >
         Next
       </Button>
+
+      <br/>
+      <br/>
+      <Button
+      className="continueButton"
+      variant="contained"
+      color="primary"
+      onClick={onContinueClick}>
+        End Collection Transect
+    </Button>
     </div>
+
+<RatingComponent />
+</>
   );
 
   //////////////////////////////////////////////////////////////////////////// 2nd step form input////////////////////
@@ -239,6 +256,16 @@ const RightComponent = () => {
       >
         Next
       </Button>
+
+      <br/>
+      <br/>
+      <Button
+      className="continueButton"
+      variant="contained"
+      color="primary"
+      onClick={onContinueClick}>
+        End Collection Transect
+    </Button>
     </>
   );
 
@@ -319,6 +346,16 @@ const RightComponent = () => {
       >
         Submit
       </Button>
+
+      <br/>
+      <br/>
+      <Button
+      className="continueButton"
+      variant="contained"
+      color="primary"
+      onClick={onContinueClick}>
+        End Collection Transect
+    </Button>
     </div>
   );
 
@@ -390,6 +427,15 @@ const RightComponent = () => {
       >
         Gather Data
       </Button>
+      <br/>
+      <br/>
+      <Button
+      className="continueButton"
+      variant="contained"
+      color="primary"
+      onClick={onContinueClick}>
+        End Collection Transect
+    </Button>
     </div>
   );
   ///////////////////////////////////////////////////            STEP 5               ////////////////////////////////////////
@@ -474,6 +520,16 @@ const RightComponent = () => {
       >
         Submit Transition State
       </Button>
+
+      <br/>
+      <br/>
+      <Button
+      className="continueButton"
+      variant="contained"
+      color="primary"
+      onClick={onContinueClick}>
+        End Collection Transect
+    </Button>
     </div>
   );
 
