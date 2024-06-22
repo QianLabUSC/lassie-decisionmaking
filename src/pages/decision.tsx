@@ -498,7 +498,7 @@ export default function Main() {
     <div className="accept-or-reject-questions">
       <p>
         <strong>
-          Based on your belief rankings, RHex suggests sampling from one of the
+          Based on your belief rankings, Robot suggests sampling from one of the
           lettered locations marked on the dune cross-section above.
         </strong>
       </p>
@@ -692,7 +692,7 @@ export default function Main() {
   const rejectReasonQuestions = (
     <div className="reject-reason-questions">
       <p>
-        <strong>Why did you reject RHex's suggested locations?</strong>
+        <strong>Why did you reject Robot's suggested locations?</strong>
       </p>
       <RadioButtonGroup
         options={rejectReasonOptions}
@@ -1250,7 +1250,7 @@ export default function Main() {
         <div className="loading-screen">
           <div className="loading-section">
             <i>
-              RHex is determining where to sample from next. This should take at
+              Robot is determining where to sample from next. This should take at
               most 5-10 seconds...
             </i>
           </div>
@@ -1282,9 +1282,9 @@ export default function Main() {
       allowCancel={false}
       steps={[
         [
-          'RHex will always take 3 measurements of moisture and strength at each location visited.',
-          'The dune cross-section on the right displays the locations where RHex has already sampled and the charts on the left display the corresponding data.',
-          'You will be asked a few questions to determine where RHex should sample next.',
+          'Robot will always take 3 measurements of moisture and strength at each location visited.',
+          'The dune cross-section on the right displays the locations where Robot has already sampled and the charts on the left display the corresponding data.',
+          'You will be asked a few questions to determine where Robot should sample next.',
           'If at any point you feel you have collected enough data to make a judgment about the hypothesis, select "End Collection at Transect."',
         ],
       ]}

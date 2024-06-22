@@ -749,8 +749,8 @@ export const acceptFollowUpOptions = [
 ]
 
 export const transitionOptions = [
-  "See RHex's suggestions for where to sample next based on your current belief rankings", 
-  "Update belief rankings to receive new suggestions from RHex of where to sample next",
-  "Ignore suggestions and select a location for RHex to sample next",
+  "See Robot's suggestions for where to sample next based on your current belief rankings", 
+  "Update belief rankings to receive new suggestions from Robot of where to sample next",
+  "Ignore suggestions and select a location for Robot to sample next",
   "Stop data collection and make a conclusion about the hypothesis",
 ]

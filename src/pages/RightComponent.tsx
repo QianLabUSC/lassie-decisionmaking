@@ -447,17 +447,17 @@ const RightComponent = () => {
         <FormControlLabel
           value="1"
           control={<Radio />}
-          label="See RHex's suggestions for where to sample next based on your current belief rankings"
+          label="See Robot's suggestions for where to sample next based on your current belief rankings"
         />
         <FormControlLabel
           value="2"
           control={<Radio />}
-          label="Update belief rankings to receive new suggestions from RHex of where to sample next"
+          label="Update belief rankings to receive new suggestions from Robot of where to sample next"
         />
         <FormControlLabel
           value="3"
           control={<Radio />}
-          label="Ignore suggestions and select a location for RHex to sample next"
+          label="Ignore suggestions and select a location for Robot to sample next"
         />
         <FormControlLabel
           value="4"
