@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import RatingComponent from './rating';
 
 import {
   Select,
@@ -94,6 +95,7 @@ const RightComponent = () => {
 
   const objectiveQuestions = (
     <div className="objective-questions">
+      <RatingComponent />
       <p><strong>During the sampling process, the following objectives are considered:</strong></p>
       <FormControl component="fieldset">
         <FormGroup row>

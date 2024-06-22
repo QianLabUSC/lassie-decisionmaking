@@ -227,8 +227,8 @@ def getSecondApi():
     # }
 
     # TODO: CUSTOMISE THIS TO DETECT AUTOMATICALLY THE json_paths FOLDER to save the paths
-    # file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/path.json' #for Harshita
-    file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'
+    file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/path.json' #for Harshita
+    #file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'
 
 
     # Check if the file exists
@@ -247,6 +247,50 @@ def getSecondApi():
         json.dump(existing_data, f)
     
     return jsonify(inputs["inputof_first_time_Path_Selected"])
+
+
+@app.route('/submit', methods=['POST'])
+@cross_origin()
+def submit_ratings():
+    inputs = request.json
+    print('Received ratings:', inputs)
+
+    # Extract the ratings from the JSON payload
+    rating1 = inputs.get('first')
+    rating2 = inputs.get('second')
+
+    # Prepare the data to be saved
+    result = {
+        'first': rating1,
+        'second': rating2
+    }
+
+    
+
+
+
+
+    # TODO: CUSTOMISE THIS TO DETECT AUTOMATICALLY THE json_paths FOLDER to save the paths
+    
+    # Specify the file path to save the ratings
+    file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/hypothesis.json' #for Harshita
+    #file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'  #for shrutika
+    # Check if the file exists
+    if os.path.exists(file_path):
+        # Load existing JSON data from the file
+        with open(file_path, 'r') as f:
+            existing_data = json.load(f)
+    else:
+        existing_data = []
+
+    # Append the new data to the existing data
+    existing_data.append(result)
+
+    # Write the combined data back to the JSON file
+    with open(file_path, 'w') as f:
+        json.dump(existing_data, f)
+
+    return jsonify({'status': 'success', 'message': 'Ratings saved successfully.'})
 
 @app.route('/third_api/gather_data', methods=['POST'])
 @cross_origin()
