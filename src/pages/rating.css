@@ -1,0 +1,57 @@
+.slider-container {
+    margin: 20px 0;
+}
+
+.slider {
+    position: relative;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.slider-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: green;
+    z-index: 0;
+    transform: translateY(-50%);
+}
+
+.slider-point {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: green;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+    margin-left: -10px; /* Adjust this to center the point */
+    margin-right: -10px; /* Adjust this to center the point */
+}
+
+.slider-point.selected {
+    background-color: lightgreen;
+}
+
+.slider-label {
+    position: absolute;
+    top: 30px; /* Adjust this value as needed to space the label further down */
+    white-space: nowrap;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: black;
+    text-align: center;
+    max-width: 80px; /* Adjust the width to fit the text properly */
+    line-height: 1.2; /* Adjust line height for better spacing */
+    word-wrap: break-word;
+}
