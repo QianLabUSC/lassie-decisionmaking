@@ -144,6 +144,7 @@ function RouteWrapper() {
     );
   }
 
+
   return (
     <div>
       <Switch>
@@ -152,7 +153,10 @@ function RouteWrapper() {
           path="/decision"
           render={(props) =>
             globalState.introCompleted ? (
-              <RightComponent />
+              <>
+               <RightComponent />
+            </>
+             
               // <Decision />
             ) : (
               <Redirect to={{ pathname: '/' }} />
