@@ -91,8 +91,6 @@ export default function Main() {
     initial_human_belief,
   } = globalState;
 
-  console.log('initial_human_belief', initial_human_belief);
-  console.log('currSampleIdx', currSampleIdx);
   const {
     step,
     userFeedbackState,
@@ -197,7 +195,6 @@ export default function Main() {
       });
     }
     history.push('/conclusion');
-    console.log({ globalState });
   };
 
   const handleHypoResponse = (value: any) => {
@@ -205,7 +202,6 @@ export default function Main() {
   };
 
   const searchObjective = (target: string) => {
-    console.log('target123', target);
     for (let obj = 0; obj < objectives.length; obj++) {
       if (objectives[obj].objective === target) {
         return true;
@@ -225,14 +221,11 @@ export default function Main() {
   };
 
   const onSubmitHumanBelief = async () => {
-    console.log('heree123');
     const iterations = 10;
     const initial_human_belief = {
       human_belief_selected_option: selectedBelief,
       human_belief_text_description: userBeliefText,
     };
-
-    console.log(initial_human_belief, 'tfinallll');
 
     // const input2 = {
     //       "input1_human_belief": {
@@ -251,7 +244,6 @@ export default function Main() {
       0,
       0
     );
-    console.log('testtttttttttttttttttt', test);
 
     // dispatch({
     //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
@@ -355,8 +347,6 @@ export default function Main() {
   };
 
   const onSubmitRanking = async () => {
-    console.log('heree123');
-    console.log('Rankingtest123:', ranking);
     dispatch({
       type: Action.SET_USER_FEEDBACK_STATE,
       value: UserFeedbackState.OBJECTIVE_FREE_RESPONSE,
@@ -472,8 +462,6 @@ export default function Main() {
       {/* <textarea onChange={onObjectiveTextChange} rows={5} cols={85} /> */}
     </div>
   );
-
-  console.log('robotsuggestion', robotSuggestions); // DEBUG
   useEffect(() => {
     const acceptOrRejectTemp: string[] = robotSuggestions.map(
       (suggestion, index) =>
@@ -487,7 +475,6 @@ export default function Main() {
   }, [robotSuggestions]);
 
   const onAcceptOrRejectTextChange = (e) => {
-    console.log('acceptOrRejectFreeResponse: ', e.target.value);
     dispatch({
       type: Action.SET_ACCEPT_OR_REJECT_FREE_RESPONSE,
       value: e.target.value,
@@ -546,7 +533,6 @@ export default function Main() {
 
   //New data Type in page
   const onObjectiveTextChangeStrength1 = (e1) => {
-    console.log('Shear Strength Input1: ' + e1.target.value);
     dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e1.target.value });
   };
 
@@ -573,11 +559,9 @@ export default function Main() {
 
   //New data Type with User Location in page
   const onObjectiveTextChangeStrength2 = (e2) => {
-    console.log('Shear Strength Input2: ' + e2.target.value);
     dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e2.target.value });
   };
   const onObjectiveTextChangeLocation3 = (e3) => {
-    console.log('Distance Input: ' + e3.target.value);
     dispatch({ type: Action.SET_USER_LOCATION_DATA, value: e3.target.value });
   };
 
@@ -858,8 +842,6 @@ export default function Main() {
     return objectivesTemp;
   };
 
-  console.log(rankObjectives(), 'objectivesTemp12rankobjectss123');
-
   const newSubmit = async () => {
     dispatch({ type: Action.INCREMENT_STEP_IDX });
   };
@@ -876,7 +858,6 @@ export default function Main() {
         //   objectiveOptions.push(objectiveFreeResponse)
         //   console.log(objectiveOptions)
         // }
-        console.log(samples);
         dispatch({ type: Action.SET_DISABLE_SUBMIT_BUTTON, value: true });
         dispatch({
           type: Action.SET_USER_FEEDBACK_STATE,
@@ -939,7 +920,6 @@ export default function Main() {
             value: false,
           });
         }
-        console.log({ globalState }); // for debugging
         return;
       }
       case UserFeedbackState.OBJECTIVE_FREE_RESPONSE: {
@@ -951,7 +931,6 @@ export default function Main() {
           value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA,
         });
         // dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
-        console.log({ globalState }); // for debugging
         return;
       }
       case UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION: {
@@ -991,7 +970,6 @@ export default function Main() {
         const robotSample = robotSuggestions[acceptOrReject];
         const { userStrengthData } = globalState;
         const stringStrengthData = String(userStrengthData);
-        console.log('stringStrengthData', stringStrengthData);
         var splittedStrength = stringStrengthData.split(' ');
         const strengthNumArr = splittedStrength.map(Number);
         // const { shearValues, moistureValues } = getMeasurements(globalState, transectIdx, robotSample.index, robotSample.measurements);
@@ -1035,7 +1013,6 @@ export default function Main() {
             value: UserFeedbackState.REJECT_REASON_FREE_RESPONSE,
           });
         }
-        console.log({ globalState }); // for debugging
         return;
       }
       case UserFeedbackState.REJECT_REASON_FREE_RESPONSE: {
@@ -1047,20 +1024,16 @@ export default function Main() {
           value: UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA,
         });
         // dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
-        console.log({ globalState }); // for debugging
-        console.log('test');
         return;
       }
 
       case UserFeedbackState.TYPE_IN_NEW_LOCATION_DATA: {
         const { userStrengthData, userLocationData } = globalState;
         const stringStrengthData = String(userStrengthData);
-        console.log('stringStrengthData', stringStrengthData);
         var splittedStrength = stringStrengthData.split(' ');
         const strengthNumArr = splittedStrength.map(Number);
 
         const newLocationData = Number(userLocationData);
-        console.log('newLocationData:', newLocationData);
 
         const newSample: Sample = {
           index: newLocationData,
@@ -1086,7 +1059,6 @@ export default function Main() {
           value: UserFeedbackState.HYPOTHESIS_CONFIDENCE,
         });
         dispatch({ type: Action.SET_NUM_IMG_CLICKS, value: 0 });
-        console.log({ globalState });
         return;
       }
       // case UserFeedbackState.USER_LOCATION_SELECTION: {
@@ -1107,7 +1079,6 @@ export default function Main() {
       }
       case UserFeedbackState.TRANSITION: {
         const transitionAdj = !userFreeSelection ? transition : transition + 1;
-        console.log({ globalState, transitionAdj });
 
         // Move to the next round with the same objectives as the previous round and automatically run
         // the robot calculation
@@ -1121,7 +1092,6 @@ export default function Main() {
             globalState,
             objectives
           );
-          console.log(robotResults);
           const { results, spatialReward, variableReward, discrepancyReward } =
             robotResults;
           dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
@@ -1191,7 +1161,6 @@ export default function Main() {
           dispatch({ type: Action.SET_TRANSITION, value: 0 });
           updateUserSteps();
         }
-        console.log({ globalState }); // for debugging
         return;
       }
     }

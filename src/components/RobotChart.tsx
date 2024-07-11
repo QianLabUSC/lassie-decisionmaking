@@ -54,7 +54,6 @@ interface RobotChartProps {
   currentselectedpath: string;
 }
 const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
-  console.log('here2 currentselectedpath', currentselectedpath)
   const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data }, dispatch] = useStateValue();
 
   const [selectedPath, setSelectedPath] = useState('');
@@ -191,16 +190,13 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
 
   const renderHeatMap = () => {
     const heatmapData = heatMapType === 'infogain' ?  simulation_api_full_data?.info_gain_shear: simulation_api_full_data?.uncertainity;
-    console.log(heatMapType, heatmapData, 'hereaaami')
 
-    console.log(heatmapData ,'simulation_api_full_data?.uncertainity',simulation_api_full_data?.uncertainity)
     if (!heatmapData.length) return null;
     const startX = xScale(0);
     const startY = yScale(0);
     const endX = xScale(10);  // x goes from 0 to 10
     const endY = yScale(10);  // y goes from 0 to 10  
 
-    console.log(heatmapData)
     
     return (
       simulation_api_full_data && (<InformationGainHeatMap
@@ -292,8 +288,6 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
                 select = 3
               }
               const isSelectedPath = currentselectedpath == select;
-
-              console.log('isSelectedPath, ',isSelectedPath, currentselectedpath,select )
               return (
                 <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
                   <LinePath

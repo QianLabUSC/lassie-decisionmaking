@@ -9,7 +9,6 @@ const InformationGainHeatMap = ({ width, height, data, x, y }) => {
     range: [0.02, 0.4], // Adjust opacity range as needed
   });
 
-  console.log(data,'data123')
   return (
     <svg width={width} height={height}>
       {data.map((row, rowIndex) =>

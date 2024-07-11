@@ -266,8 +266,6 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
   //DEBUG_HERE_TEST
   const robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues, objective_repre);
 
-//DEBUG_HERE_TEST
-  console.log(robotSuggestions)
   const path_ = robotSuggestions.path
   const spatial_reward = []
   const variable_reward = []
@@ -284,9 +282,6 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
     }
     return suggestion;
   });
-  
-
-  console.log('results',  results); // DEBUG: HERE
   
   return {
     results: results,
@@ -323,7 +318,6 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
       res => res.json()
     ).then(
       data => {
-        console.log({data});
         resolve(data);
       }
     ).catch((err) => {
@@ -345,7 +339,6 @@ export async function commandRobotCollectData(suggestion: PreSample) {
   path_y = suggestion.path[1]
 
   const collected_data : any = await flaskCollections(path_x, path_y);
-  console.log(collected_data)
   
   
   // Creating a new Sample from PreSample
@@ -354,11 +347,7 @@ export async function commandRobotCollectData(suggestion: PreSample) {
     moisture: collected_data.moisture, // Adding moisture data
     shear: collected_data.shear // Adding shear data
   };
- 
-  
 
-  console.log('dataSample',  dataSample);
-  
   return {
     dataSample: dataSample,
   };
@@ -390,7 +379,6 @@ function flaskCollections(path_x: number[], path_y: number[]) {
       res => res.json()
     ).then(
       data => {
-        console.log({data});
         resolve(data);
       }
     ).catch((err) => {

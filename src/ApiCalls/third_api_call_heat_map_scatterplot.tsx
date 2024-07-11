@@ -42,7 +42,6 @@ export function thirdApiCallHeatMapScatterPLot(
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log({ data });
         resolve(data);
       })
       .catch((err) => {

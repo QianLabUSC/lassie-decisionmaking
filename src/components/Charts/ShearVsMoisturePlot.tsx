@@ -33,7 +33,6 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
       })
     ) || [];
 
-  console.log('main123data', data);
   const svgRef = useRef<SVGSVGElement>(null);
   const margin = { top: 20, right: 20, bottom: 50, left: 120 };
   const plotWidth = width;
