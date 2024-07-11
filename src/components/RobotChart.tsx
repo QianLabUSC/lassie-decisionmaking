@@ -53,52 +53,32 @@ type TestPath = Path[];
 interface RobotChartProps {
   currentselectedpath: string;
 }
-const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
-  const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data }, dispatch] = useStateValue();
+const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
+  const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data, all_single_curve_selected_black_path }, dispatch] = useStateValue();
 
+  console.log('here chart selected_black', all_single_curve_selected_black_path);
   const [selectedPath, setSelectedPath] = useState('');
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
-
   const [heatMapType, setHeatMapType] = useState('infogain');
-  const handleChangeHeatMap = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
+
+  const handleChangeHeatMap = (event: React.ChangeEvent<{ value: unknown }>) => {
     setHeatMapType(event.target.value as string);
   };
 
   useEffect(() => {
     // Load initial paths only on component mount
     const firstPath: TestPath = [
-      [
-        [],
-        [],
-        [],
-        [],
-      ],
-      [
-        [],
-        [],
-        [],
-        [],
-      ],
-      [
-        [],
-        [],
-        [],
-        [],
-      ],
+      [[], [], [], []],
+      [[], [], [], []],
+      [[], [], [], []],
     ];
     setAllPaths([firstPath]); // Set initial path
   }, []);
 
   const [pathsubmittedtimes2, setpathsubmittedtimes2] = useState(0);
-  // Ensure new path values are also TestPath
+
   useEffect(() => {
-    if (
-      threePaths &&
-      Array.isArray(threePaths) &&
-      threePaths.length > 0
-    ) {
+    if (threePaths && Array.isArray(threePaths) && threePaths.length > 0) {
       setAllPaths([threePaths]); // Ensure newpathvalues is TestPath
     }
   }, [threePaths]);
@@ -109,18 +89,17 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
 
   const handleSubmit = () => {
     const count = pathsubmittedtimes2 + 1;
-
     setpathsubmittedtimes2(count);
 
     if (selectedPath !== null) {
       let currentindexofpathselectedoutof3;
-      if (selectedPath == 'A') {
+      if (selectedPath === 'A') {
         currentindexofpathselectedoutof3 = 0;
-      } else if (selectedPath == 'B') {
+      } else if (selectedPath === 'B') {
         currentindexofpathselectedoutof3 = 1;
-      } else if (selectedPath == 'C') {
+      } else if (selectedPath === 'C') {
         currentindexofpathselectedoutof3 = 2;
-      } else if (selectedPath == 'D') {
+      } else if (selectedPath === 'D') {
         currentindexofpathselectedoutof3 = 3;
       }
 
@@ -145,7 +124,6 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
     paths: TestPath,
     index: number
   ): { points: Point[]; infogain: number[]; discrepancy: number[] } => {
-
     if (index < paths.length) {
       const points = paths[index][0].map((x, i) => ({
         x: x,
@@ -159,10 +137,7 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
   };
 
   const shouldShowPath = (index: number): boolean => {
-    if (
-      currUserStep.acceptOrReject === -1 ||
-      currUserStep.acceptOrReject >= labels.length
-    ) {
+    if (currUserStep.acceptOrReject === -1 || currUserStep.acceptOrReject >= labels.length) {
       return true;
     }
     return index === currUserStep.acceptOrReject;
@@ -188,24 +163,41 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
     </svg>
   );
 
+  const getSelectedPathData = (): Point[] => {
+    const selectedXs = all_single_curve_selected_black_path?.selectedPath?.selectedXs_path_cordinates.flat();
+    const selectedYs = all_single_curve_selected_black_path?.selectedPath?.selectedYs_path_cordinates.flat();
+  
+    if (selectedXs && selectedYs) {
+      return selectedXs.map((x: number, i: number) => ({
+        x,
+        y: selectedYs[i],
+      }));
+    }
+    return [];
+  };
+
+  const selectedPathData = getSelectedPathData();
+  console.log('Selected Path Data:', selectedPathData);
+
   const renderHeatMap = () => {
-    const heatmapData = heatMapType === 'infogain' ?  simulation_api_full_data?.info_gain_shear: simulation_api_full_data?.uncertainity;
+    const heatmapData = heatMapType === 'infogain' ? simulation_api_full_data?.info_gain_shear : simulation_api_full_data?.uncertainity;
 
     if (!heatmapData.length) return null;
     const startX = xScale(0);
     const startY = yScale(0);
-    const endX = xScale(10);  // x goes from 0 to 10
-    const endY = yScale(10);  // y goes from 0 to 10  
+    const endX = xScale(10); // x goes from 0 to 10
+    const endY = yScale(10); // y goes from 0 to 10
 
-    
     return (
-      simulation_api_full_data && (<InformationGainHeatMap
-        width={1550}
-        height={2490}
-        data={heatmapData}
-        x={50}
-        y={50}
-      />)
+      simulation_api_full_data && (
+        <InformationGainHeatMap
+          width={1550}
+          height={2490}
+          data={heatmapData}
+          x={50}
+          y={50}
+        />
+      )
     );
   };
 
@@ -261,31 +253,21 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
           {renderHeatMap()}
           {allPaths.map((paths, idx) =>
             paths.map((_, pathIndex) => {
-              const data = getPathData(
-                allPaths[allPaths.length - 1],
-                pathIndex
-              );
-              const heatMapFullData = getHeatMapData(
-                allPaths[allPaths.length - 1],
-                pathIndex
-              );
+              const data = getPathData(allPaths[allPaths.length - 1], pathIndex);
+              const heatMapFullData = getHeatMapData(allPaths[allPaths.length - 1], pathIndex);
               const heatMapData = heatMapFullData;
               if (!data.length || !shouldShowPath(pathIndex)) return null;
               const lastPoint = data[data.length - 1];
-              const globalPathIndex =
-                allPaths
-                  .slice(0, idx)
-                  .reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
+              const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
               const isLastThreePaths = globalPathIndex >= totalPaths - 3;
 
               let select;
-              if(labels[pathIndex] == 'A'){
-                select = 1
-              }
-              else if(labels[pathIndex] == 'B'){
-                select = 2
-              }else if(labels[pathIndex] == 'C'){
-                select = 3
+              if (labels[pathIndex] === 'A') {
+                select = 1;
+              } else if (labels[pathIndex] === 'B') {
+                select = 2;
+              } else if (labels[pathIndex] === 'C') {
+                select = 3;
               }
               const isSelectedPath = currentselectedpath == select;
               return (
@@ -298,6 +280,7 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
                     strokeWidth={4}
                     curve={curveBasis}
                   />
+
                   <Text
                     x={xScale(lastPoint.x)}
                     y={yScale(lastPoint.y)}
@@ -310,10 +293,7 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
                     {pathIndex}
                   </Text>
                   {isSelectedPath && (
-                    <RobotIcon
-                      x={xScale(lastPoint.x)}
-                      y={yScale(lastPoint.y)}
-                    />
+                    <RobotIcon x={xScale(lastPoint.x)} y={yScale(lastPoint.y)} />
                   )}
                 </React.Fragment>
               );
@@ -321,6 +301,16 @@ const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
           )}
           <AxisLeft scale={yScale} left={50} />
           <AxisBottom scale={xScale} top={height - 20} />
+          {selectedPathData.length > 0 && (
+            <LinePath
+              data={selectedPathData}
+              x={(d: Point) => xScale(d.x)}
+              y={(d) => yScale(d.y)}
+              stroke="black"
+              strokeWidth={4}
+              curve={curveBasis}
+            />
+          )}
         </Group>
       </svg>
     </div>

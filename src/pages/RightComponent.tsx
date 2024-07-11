@@ -54,7 +54,7 @@ const RightComponent = () => {
 
   const history = useHistory();
 
-  const { input_box_step_btn_click, threePaths, path_full_data } = globalState;
+  const { input_box_step_btn_click, threePaths, all_single_curve_selected_black_path  } = globalState;
 
   ////////////////////////////////////1ST BOX /////////////////
               
@@ -80,7 +80,6 @@ const RightComponent = () => {
     });
   };
   const onSubmitHumanBelief = async () => {
-    console.log(selectedBelief, 'selectedbelief')
     // dispatch({
     //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
     //   value: initial_human_belief,
@@ -93,7 +92,6 @@ const RightComponent = () => {
   };
 
   useEffect(() => {
-    console.log(selectedTransitionState, '1selectedTransitionState after update');
   }, [selectedTransitionState]);
 
   const objectiveQuestions = (
@@ -186,11 +184,7 @@ const RightComponent = () => {
       human_belief_text_description: userBeliefText,
     };
 
-  let threePaths, selected_path_x_corrdinate, selected_path_y_corrdinate  ;
-
-  selected_path_x_corrdinate = path_full_data.selected_path_data
-  selected_path_y_corrdinate = path_full_data.selected_path_data
-
+  let threePaths;
     if(generate3newPaths == true){
       threePaths = await firstApiGetThreePaths(
         NO_OF_ITERATION,
@@ -275,6 +269,7 @@ const RightComponent = () => {
     setSelectedPathIndex(event.target.value);
   };
 
+  let selectedpathsblackx = []
   const onSubmitSelectedPath = async () => {
     const int_selected_path_index = parseInt(selectedPathIndex) - 1;
     const api_input = {
@@ -296,11 +291,34 @@ const RightComponent = () => {
       int_selected_path_index,
       threePaths[int_selected_path_index]
     );
+    
+    console.log('balck12 old paths ', all_single_curve_selected_black_path)
+    
+    let testX = all_single_curve_selected_black_path?.selectedPath?.selectedXs_path_cordinates
+    ? [...all_single_curve_selected_black_path.selectedPath.selectedXs_path_cordinates]
+    : [];
+  let testY = all_single_curve_selected_black_path?.selectedPath?.selectedYs_path_cordinates
+    ? [...all_single_curve_selected_black_path.selectedPath.selectedYs_path_cordinates]
+    : [];
+    testX.push(selectedPathXs);
+    testY.push(selectedPathYs);
+
+    console.log('balck12 new path textX ', testX)
+    dispatch({
+      type: Action.ALL_SELECTED_BLACK_PATH,
+      value:{
+        selectedPath:{
+          selectedXs_path_cordinates: testX,
+          selectedYs_path_cordinates: testY
+        }
+      }
+    })
 
     dispatch({
       type: Action.GENERATE_PATH_FULL_DATA,
       value: jsonCreationApiResponse,
     });
+
 
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
@@ -387,8 +405,6 @@ const RightComponent = () => {
       input_box_step_btn_click
     ); // for now to update the path
 
-    console.log('final_main', simulationApiFullData);
-
     dispatch({
       type: Action.GATHER_SIMULATION_API_FULL_DATA,
       value: simulationApiFullData,
@@ -406,7 +422,6 @@ const RightComponent = () => {
       value: input_box_step_btn_click + 1,
     });
     setCurrentView(4);
-    console.log('final_heatMapUncertainity', heatMapUncertainity);
   };
 
 
@@ -445,7 +460,6 @@ const RightComponent = () => {
   const handleTransitionState = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    console.log(selectedTransitionState,'1selectedTransitionState')
     setSelectedTransitionState(event.target.value);
   };
 
@@ -591,7 +605,6 @@ const RightComponent = () => {
     console.log({ globalState });
   };
 
-  console.log('hereee selectedPathIndexselectedPathIndex',selectedPathIndex)
   return (
     <div id="app" className="decisionPage">
       <ConfirmDialog
