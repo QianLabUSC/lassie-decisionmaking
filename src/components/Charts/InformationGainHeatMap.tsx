@@ -16,7 +16,7 @@ const InformationGainHeatMap = ({ width, height, data, x, y }) => {
           <rect
             key={`cell-${rowIndex}-${colIndex}`}
             x={colIndex * cellSize + x}
-            y={765 - rowIndex * cellSize + y}
+            y={765 - rowIndex * cellSize -200}
             width={cellSize}
             height={cellSize}
             fill={`rgba(255,165,100,${opacityScale(value)})`}
