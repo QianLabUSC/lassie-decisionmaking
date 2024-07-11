@@ -4,12 +4,7 @@ export function secondApiCreateJson(
   selected_path_index,
   inputof_first_time_Path_Selected
 ) {
-  console.log(
-    step_number,
-    selected_path_index,
-    inputof_first_time_Path_Selected,
-    'at1 api '
-  );
+ 
   //     {
   //         "step_number":1,
   //         "selected_path_number":2,
@@ -46,7 +41,6 @@ export function secondApiCreateJson(
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log({ data });
         resolve(data);
       })
       .catch((err) => {

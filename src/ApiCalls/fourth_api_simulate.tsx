@@ -34,7 +34,6 @@ export function fourthApiCallSimulate(step_number) {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log({ data });
         resolve(data);
       })
       .catch((err) => {

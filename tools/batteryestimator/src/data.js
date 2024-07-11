@@ -59,6 +59,5 @@ for (let i = 0; i < startPoints.length; i++) {
     distances.push(Math.sqrt(Math.pow(startPoints[i][0] - endPoints[i][0], 2) + Math.pow(startPoints[i][1] - endPoints[i][1], 2)));
 }
 let average = distances.reduce((x, a) => x + a, 0) / distances.length;
-console.log(distances);
-console.log(average);
+
 export { distances };

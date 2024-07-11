@@ -24,8 +24,6 @@ export function firstApiGetThreePaths(
     y_origin: y_origin,
   };
 
-  console.log('heree12345', inputs);
-
   return new Promise((resolve, reject) => {
     // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
     fetch('http://127.0.0.1:5000/first_api/generate_initial_path', {
@@ -41,7 +39,6 @@ export function firstApiGetThreePaths(
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log({ data });
         resolve(data);
       })
       .catch((err) => {

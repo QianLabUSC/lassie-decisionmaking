@@ -38,9 +38,7 @@ export const updateCharts = (globalState: IState, dispatch: any) => {
     const xVal = row.index/INDEX_LENGTH;
     // const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
     const xPos = row.index / 22; // 22 indexes per transect
-    console.log("Current Index: ", row.index);
-    console.log("Current xVal: ", xVal);
-    console.log("\n");
+
     // const xVal = (row.normOffsetX - NORMALIZED_CREST_RANGE.min) / (NORMALIZED_CREST_RANGE.max - NORMALIZED_CREST_RANGE.min);
     //const { shearValues, moistureValues, shearMoistureValues } = getMeasurements(globalState, transectIdx, index, measurements);
     const averageShearValue = mean(shear);
