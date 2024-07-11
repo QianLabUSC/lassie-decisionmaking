@@ -227,9 +227,10 @@ def getSecondApi():
     # }
 
     # TODO: CUSTOMISE THIS TO DETECT AUTOMATICALLY THE json_paths FOLDER to save the paths
-    file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/path.json' #for Harshita
+    #file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/path.json' #for Harshita
     #file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'
-
+    #mac
+    file_path='/Users/206819985/Documents/robo/lassie-decisionmaking/flask/json_paths/path.json'
 
     # Check if the file exists
     if os.path.exists(file_path):
