@@ -38,3 +38,7 @@ The `tools` directory contains a few files that I have created to help speed up 
 - Color Generator - `colors.html` contains an HTML page with a script that generates a series of colors and outputs the JavaScript code already formatted. This saves on copy-paste time if you want `x` number of hard-coded color values.
 - Sample Data - `loader.R` contains an R script that I am using to read in the MATLAB file I am given and convert it to a JSON file. This has been more convenient to work with in the application, and converts it to a more sensible format than the automatic JSON generators could.
 - Sample Locations - `transectDiagramPoints.html` contains an HTML file that takes the transect diagram the users click and generates the 22 points evenly spaced along the slope that the samples are mapped to. To find these points, you need to color the slope to be sampled from in red. The image `tools\diagram_scalebar.png` is the current working version with this coloring scheme. If the diagram changes, a copy of the new image will need to be created.
+
+- ## Link To Documentation
+- https://drive.google.com/file/d/1Z7QIjeN_CXY6AEtVP5Gdsa4BUFvNoQoP/view?usp=sharing
+- 
