@@ -19,8 +19,10 @@ import { useStateValue } from '../state';
 import { Action } from '../state';
 import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
 
-const width = 850;
-const height = 850;
+// these are for robot chart borders rectangle
+const width = 550;
+const height = 600;
+// const margin = { top: 20, bottom: 60, left: 70, right: 20 }; // Adjusted margins for labels
 const margin = { top: 20, bottom: 20, left: 50, right: 20 };
 
 interface Point {
@@ -28,6 +30,7 @@ interface Point {
   y: number;
 }
 
+// these are for path
 const xScale = scaleLinear({
   domain: [0, 1],
   range: [margin.left, width - margin.right],
@@ -203,8 +206,8 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
     return (
       simulation_api_full_data && (
         <InformationGainHeatMap
-          width={1550}
-          height={2490}
+          width={1500}
+          height={580}
           data={heatmapData}
           x={50}
           y={50}
@@ -219,7 +222,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
         style={{
           display: 'flex',
           justifyContent: 'center',
-          padding: '20px',
+          padding: '5px',
         }}
       >
         <FormControl
@@ -312,7 +315,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
             })
           )}
           <AxisLeft scale={yScale} left={50} />
-          <AxisBottom scale={xScale} top={height - 20} />
+          <AxisBottom scale={xScale} top={height-20} />
           {selectedPathData.length > 0 && (
             <LinePath
               data={selectedPathData}
@@ -333,6 +336,23 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
             />
           ))}
         </Group>
+        <Text
+          x={width / 2}
+          y={height-1}
+          fontSize={14}
+          textAnchor="middle"
+        >
+          X
+        </Text>
+        <Text
+          x={-height / 2}
+          y={15}
+          fontSize={14}
+          textAnchor="middle"
+          transform="rotate(-90)"
+        >
+          Y
+        </Text>
       </svg>
     </div>
   );
