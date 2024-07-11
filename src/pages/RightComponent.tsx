@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import RatingComponent from './rating';
-
 import {
   Select,
   MenuItem,
@@ -13,14 +12,11 @@ import {
   Checkbox,
   FormControl, FormGroup, FormControlLabel 
 } from '@material-ui/core';
-
 import { ConfirmDialog } from '../components/Dialogs';
-
 import { firstApiGetThreePaths } from '../ApiCalls/first_api_get_three_paths';
 import { secondApiCreateJson } from '../ApiCalls/second_api_create_json';
 import { thirdApiCallHeatMapScatterPLot } from '../ApiCalls/third_api_call_heat_map_scatterplot';
 import { fourthApiCallSimulate } from '../ApiCalls/fourth_api_simulate';
-
 import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
 import RobotChart from '../components/RobotChart';
@@ -41,8 +37,8 @@ const RightComponent = () => {
   }>({ x: [], y: [], moisture: [], shear: [] });
 
   const [generate3newPaths, setGenerate3newPaths] = useState(false); 
-  const [selectedPathLastXCordinate, setSelectedPathLastXCordinate] = useState(0)
-  const [selectedPathLastYCordinate, setSelectedPathLastYCordinate] = useState(0)
+  const [selectedPathLastXCordinate, setSelectedPathLastXCordinate] = useState(0);
+  const [selectedPathLastYCordinate, setSelectedPathLastYCordinate] = useState(0);
   
   const [selectedTransitionState, setSelectedTransitionState] = useState('');
   const [updateTransition, setUpdateTransition] = useState(false);
@@ -54,13 +50,14 @@ const RightComponent = () => {
 
   const history = useHistory();
 
-  const { input_box_step_btn_click, threePaths, all_single_curve_selected_black_path  } = globalState;
+  const { input_box_step_btn_click, threePaths, all_single_curve_selected_black_path } = globalState;
 
   ////////////////////////////////////1ST BOX /////////////////
               
   const onContinueClick = () => {
     history.push('/survey');
   };
+
   const onUserTextInputForBelief = (e) => {
     setUserBeliefText(e.target.value);
   };
@@ -79,11 +76,12 @@ const RightComponent = () => {
       return newChecked;
     });
   };
+
   const onSubmitHumanBelief = async () => {
-    // dispatch({
+       // dispatch({
     //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
     //   value: initial_human_belief,
-    // });
+    // });    
     setCurrentView(1);
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
@@ -91,61 +89,55 @@ const RightComponent = () => {
     });
   };
 
-  useEffect(() => {
-  }, [selectedTransitionState]);
+  useEffect(() => {}, [selectedTransitionState]);
 
   const objectiveQuestions = (
     <>
-    <div className="objective-questions">
-  
-      <p><strong>During the sampling process, the following objectives are considered:</strong></p>
-      <FormControl component="fieldset">
-        <FormGroup row>
-          <FormControlLabel
-            control={<Checkbox checked={selectedBelief.includes('1')} onChange={() => handleChangeCheckbox('1')} />}
-            label="Gather more data on unsampled area"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={selectedBelief.includes('2')} onChange={() => handleChangeCheckbox('2')} />}
-            label="The risk of robot entrapment"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={selectedBelief.includes('3')} onChange={() => handleChangeCheckbox('3')} />}
-            label="Accept suggested location C"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={selectedBelief.includes('4')} onChange={() => handleChangeCheckbox('4')} />}
-            label="The time cost"
-          />
-        </FormGroup>
-      </FormControl>
-      <p><strong>Please describe your additional belief about the data collected so far:</strong></p>
-      <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} />
-     
-      <Button
-        disabled={selectedBelief.length === 0}
-        variant="contained"
-        color="secondary"
-        onClick={onSubmitHumanBelief}
-      >
-        Next
-      </Button>
-
-      <br/>
-      <br/>
-      <Button
-      className="continueButton"
-      variant="contained"
-      color="primary"
-      onClick={onContinueClick}>
-        End Collection Transect
-    </Button>
-    </div>
-
-<RatingComponent />
-</>
+      <div className="objective-questions">
+        <p><strong>During the sampling process, the following objectives are considered:</strong></p>
+        <FormControl component="fieldset">
+          <FormGroup row>
+            <FormControlLabel
+              control={<Checkbox checked={selectedBelief.includes('1')} onChange={() => handleChangeCheckbox('1')} />}
+              label="Gather more data on unsampled area"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={selectedBelief.includes('2')} onChange={() => handleChangeCheckbox('2')} />}
+              label="The risk of robot entrapment"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={selectedBelief.includes('3')} onChange={() => handleChangeCheckbox('3')} />}
+              label="Accept suggested location C"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={selectedBelief.includes('4')} onChange={() => handleChangeCheckbox('4')} />}
+              label="The time cost"
+            />
+          </FormGroup>
+        </FormControl>
+        <p><strong>Please describe your additional belief about the data collected so far:</strong></p>
+        <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} />
+        <Button
+          disabled={selectedBelief.length === 0}
+          variant="contained"
+          color="secondary"
+          onClick={onSubmitHumanBelief}
+        >
+          Next
+        </Button>
+        <br/>
+        <br/>
+        <Button
+          className="continueButton"
+          variant="contained"
+          color="primary"
+          onClick={onContinueClick}>
+          End Collection Transect
+        </Button>
+      </div>
+      <RatingComponent />
+    </>
   );
-
   //////////////////////////////////////////////////////////////////////////// 2nd step form input////////////////////
 
   const objectives = [
@@ -155,7 +147,6 @@ const RightComponent = () => {
     'The time cost',
   ];
 
-  // Initial state for ranking
   const initialRanking = Array.from(
     { length: objectives.length },
     (_, i) => i + 1
@@ -163,12 +154,10 @@ const RightComponent = () => {
 
   const [ranking, setRanking] = useState(initialRanking);
 
-  // Handle change in ranking for a specific objective
   const handleChange = (index, value) => {
     const newRanking = [...ranking];
     newRanking[index] = value;
 
-    // Adjust available options for subsequent objectives
     for (let i = 0; i < index; i++) {
       if (newRanking[i] === value) {
         newRanking[i] = ranking[index];
@@ -184,8 +173,8 @@ const RightComponent = () => {
       human_belief_text_description: userBeliefText,
     };
 
-  let threePaths;
-    if(generate3newPaths == true){
+    let threePaths;
+    if (generate3newPaths) {
       threePaths = await firstApiGetThreePaths(
         NO_OF_ITERATION,
         initial_human_belief,
@@ -193,8 +182,7 @@ const RightComponent = () => {
         selectedPathLastXCordinate,
         selectedPathLastYCordinate,
       );
-    }
-    else{
+    } else {
       threePaths = await firstApiGetThreePaths(
         NO_OF_ITERATION,
         initial_human_belief,
@@ -250,26 +238,23 @@ const RightComponent = () => {
       >
         Next
       </Button>
-
       <br/>
       <br/>
       <Button
-      className="continueButton"
-      variant="contained"
-      color="primary"
-      onClick={onContinueClick}>
+        className="continueButton"
+        variant="contained"
+        color="primary"
+        onClick={onContinueClick}>
         End Collection Transect
-    </Button>
+      </Button>
     </>
   );
-
   //////////////////////////////////////////////////////////////////////////3RD INPUT BOX ///////////////////////
 
   const handleSelectPath = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPathIndex(event.target.value);
   };
 
-  let selectedpathsblackx = []
   const onSubmitSelectedPath = async () => {
     const int_selected_path_index = parseInt(selectedPathIndex) - 1;
     const api_input = {
@@ -277,55 +262,63 @@ const RightComponent = () => {
       selected_path_number: int_selected_path_index,
       inputof_first_time_Path_Selected: threePaths[int_selected_path_index],
     };
-    const selectedPathXs=threePaths[int_selected_path_index][0]
-    const selectedPathYs=threePaths[int_selected_path_index][1]
+    const selectedPathXs = threePaths[int_selected_path_index][0];
+    const selectedPathYs = threePaths[int_selected_path_index][1];
 
-    const last_Xcordinate_of_selected_path = selectedPathXs[selectedPathXs.length-1]
-    const last_Ycordinate_of_selected_path = selectedPathYs[selectedPathYs.length-1]
+    const last_Xcordinate_of_selected_path = selectedPathXs[selectedPathXs.length - 1];
+    const last_Ycordinate_of_selected_path = selectedPathYs[selectedPathYs.length - 1];
 
-    setSelectedPathLastXCordinate(last_Xcordinate_of_selected_path)
-    setSelectedPathLastYCordinate(last_Ycordinate_of_selected_path)
+    setSelectedPathLastXCordinate(last_Xcordinate_of_selected_path);
+    setSelectedPathLastYCordinate(last_Ycordinate_of_selected_path);
 
     const jsonCreationApiResponse = await secondApiCreateJson(
       input_box_step_btn_click,
       int_selected_path_index,
       threePaths[int_selected_path_index]
     );
-    
-    console.log('balck12 old paths ', all_single_curve_selected_black_path)
-    
+
     let testX = all_single_curve_selected_black_path?.selectedPath?.selectedXs_path_cordinates
-    ? [...all_single_curve_selected_black_path.selectedPath.selectedXs_path_cordinates]
-    : [];
-  let testY = all_single_curve_selected_black_path?.selectedPath?.selectedYs_path_cordinates
-    ? [...all_single_curve_selected_black_path.selectedPath.selectedYs_path_cordinates]
-    : [];
+      ? [...all_single_curve_selected_black_path.selectedPath.selectedXs_path_cordinates]
+      : [];
+    let testY = all_single_curve_selected_black_path?.selectedPath?.selectedYs_path_cordinates
+      ? [...all_single_curve_selected_black_path.selectedPath.selectedYs_path_cordinates]
+      : [];
     testX.push(selectedPathXs);
     testY.push(selectedPathYs);
 
-    console.log('balck12 new path textX ', testX)
+    let endX = all_single_curve_selected_black_path?.selectedPathEndCoordinates?.selectedXs_path_end_corinates
+      ? [...all_single_curve_selected_black_path.selectedPathEndCoordinates.selectedXs_path_end_corinates]
+      : [];
+    let endY = all_single_curve_selected_black_path?.selectedPathEndCoordinates?.selectedYs_path_end_corinates
+      ? [...all_single_curve_selected_black_path.selectedPathEndCoordinates.selectedYs_path_end_corinates]
+      : [];
+    endX.push(last_Xcordinate_of_selected_path);
+    endY.push(last_Ycordinate_of_selected_path);
+
     dispatch({
       type: Action.ALL_SELECTED_BLACK_PATH,
-      value:{
-        selectedPath:{
+      value: {
+        selectedPath: {
           selectedXs_path_cordinates: testX,
           selectedYs_path_cordinates: testY
+        },
+        selectedPathEndCoordinates: {
+          selectedXs_path_end_corinates: endX,
+          selectedYs_path_end_corinates: endY
         }
       }
-    })
+    });
 
     dispatch({
       type: Action.GENERATE_PATH_FULL_DATA,
       value: jsonCreationApiResponse,
     });
 
-
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
     });
 
-    
     setCurrentView(3);
   };
 
@@ -366,20 +359,17 @@ const RightComponent = () => {
       >
         Submit
       </Button>
-
       <br/>
       <br/>
       <Button
-      className="continueButton"
-      variant="contained"
-      color="primary"
-      onClick={onContinueClick}>
+        className="continueButton"
+        variant="contained"
+        color="primary"
+        onClick={onContinueClick}>
         End Collection Transect
-    </Button>
+      </Button>
     </div>
   );
-
-  ////////////////////////////////////////////////////////////////STEP 4 ///////////////////////
 
   const onGatherData = async () => {
     const int_selected_path_index = parseInt(selectedPathIndex) - 1;
@@ -400,10 +390,9 @@ const RightComponent = () => {
       threePaths[int_selected_path_index]
     );
 
-    // API CALL HERE 
     const simulationApiFullData: any = await fourthApiCallSimulate(
       input_box_step_btn_click
-    ); // for now to update the path
+    );
 
     dispatch({
       type: Action.GATHER_SIMULATION_API_FULL_DATA,
@@ -412,11 +401,6 @@ const RightComponent = () => {
     setScatterPlotData(scatterData?.scatter_plot_data);
     setHeatMapUncertainity(simulationApiFullData?.uncertainity);
 
-    // dispatch({
-    //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
-    //   value: initial_human_belief,
-    // });
-
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
@@ -424,8 +408,6 @@ const RightComponent = () => {
     setCurrentView(4);
   };
 
-
-  // TODO MAKE THE SELECTED PATH BLACK HERE
   const objectiveGatherData = (
     <div className="objective-questions">
       <p>
@@ -447,15 +429,14 @@ const RightComponent = () => {
       <br/>
       <br/>
       <Button
-      className="continueButton"
-      variant="contained"
-      color="primary"
-      onClick={onContinueClick}>
+        className="continueButton"
+        variant="contained"
+        color="primary"
+        onClick={onContinueClick}>
         End Collection Transect
-    </Button>
+      </Button>
     </div>
   );
-  ///////////////////////////////////////////////////            STEP 5               ////////////////////////////////////////
 
   const handleTransitionState = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -464,7 +445,6 @@ const RightComponent = () => {
   };
 
   const onSubmitTransitionState = async () => {
-
     setUpdateTransition(true)
     console.log(selectedTransitionState, 'qselectedTransitionState before processing');
     if (selectedTransitionState === '1') {
@@ -478,11 +458,6 @@ const RightComponent = () => {
     } else {
       history.push('/survey');
     }
-
-    // dispatch({
-    //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
-    //   value: initial_human_belief,
-    // });
 
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
@@ -527,7 +502,6 @@ const RightComponent = () => {
           label="Stop data collection and make a conclusion about the hypothesis"
         />
       </RadioGroup>
-
       <Button
         disabled={!selectedBelief}
         variant="contained"
@@ -536,21 +510,18 @@ const RightComponent = () => {
       >
         Submit Transition State
       </Button>
-
       <br/>
       <br/>
       <Button
-      className="continueButton"
-      variant="contained"
-      color="primary"
-      onClick={onContinueClick}>
+        className="continueButton"
+        variant="contained"
+        color="primary"
+        onClick={onContinueClick}>
         End Collection Transect
-    </Button>
+      </Button>
     </div>
   );
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
   const comingSoon = (
     <div className="objective-questions">
       <h1>This Feature is Coming Soon...</h1>
@@ -567,12 +538,9 @@ const RightComponent = () => {
     comingSoon,
   ];
 
-  ////////////////////////////////////////////////////////////////////////////////////////
-
   const collectionRightPanel = (
     <div className="collectionRightPanel">
-      <RobotChart currentselectedpath={selectedPathIndex}/>
-      {/* <SelectedPathChart/> */}
+      <RobotChart currentselectedpath={selectedPathIndex} />
       <div className="collectionRightPanel">
         {!updateTransition && (
           <div className="user-feedback">
@@ -588,20 +556,15 @@ const RightComponent = () => {
     </div>
   );
 
- 
-
   const ChartTabs = () => (
     <Box sx={{ width: '100%' }}>
-      {(
-        <ShearVsMoisturePlot width={1400} height={1100} />
-      )}
+      <ShearVsMoisturePlot width={1400} height={1100} />
     </Box>
   );
 
   const [confirmConcludeOpen, setConfirmConcludeOpen] = useState(false);
 
   const onQuit = () => {
-    // history.push('/conclusion');
     console.log({ globalState });
   };
 
