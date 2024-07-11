@@ -147,17 +147,17 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
   const disableSubmitButton = false; // Update logic as needed
   const RobotIcon = ({ x, y }) => (
     <svg
-      x={x - 15}
-      y={y - 15}
-      width="30"
+      x={x - 12}
+      y={y - 20}
+      width="50"
       height="30"
       viewBox="0 0 24 24"
-      fill="none"
+      fill="yellow"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
         d="M12 2C13.1046 2 14 2.89543 14 4H10C10 2.89543 10.8954 2 12 2ZM18 8H20C21.1046 8 22 8.89543 22 10V18C22 19.1046 21.1046 20 20 20H18V22H16V20H8V22H6V20H4C2.89543 20 2 19.1046 2 18V10C2 8.89543 2.89543 8 4 8H6V6H8V8H16V6H18V8ZM4 10V18H20V10H4ZM7 11H9V13H7V11ZM15 11H17V13H15V11Z"
-        fill="black"
+        fill="#ff0066"
       />
     </svg>
   );
