@@ -314,11 +314,39 @@ const RightComponent = () => {
       value: jsonCreationApiResponse,
     });
 
+    const int_selected_path_index_2 = parseInt(selectedPathIndex) - 1;
+
+    const api_input_2 = {
+      step_number: input_box_step_btn_click,
+      selected_path_number: int_selected_path_index_2,
+      end_x_cordinate: 1,
+      end_y_cordinate: 1,
+      selected_path_data: threePaths[int_selected_path_index_2],
+    };
+
+    const scatterData: any = await thirdApiCallHeatMapScatterPLot(
+      input_box_step_btn_click,
+      int_selected_path_index_2,
+      1,
+      1,
+      threePaths[int_selected_path_index_2]
+    );
+
+    const simulationApiFullData: any = await fourthApiCallSimulate(
+      input_box_step_btn_click
+    );
+
+    dispatch({
+      type: Action.GATHER_SIMULATION_API_FULL_DATA,
+      value: simulationApiFullData,
+    });
+    setScatterPlotData(scatterData?.scatter_plot_data);
+    setHeatMapUncertainity(simulationApiFullData?.uncertainity);
+
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
     });
-
     setCurrentView(3);
   };
 
@@ -371,72 +399,6 @@ const RightComponent = () => {
     </div>
   );
 
-  const onGatherData = async () => {
-    const int_selected_path_index = parseInt(selectedPathIndex) - 1;
-
-    const api_input = {
-      step_number: input_box_step_btn_click,
-      selected_path_number: int_selected_path_index,
-      end_x_cordinate: 1,
-      end_y_cordinate: 1,
-      selected_path_data: threePaths[int_selected_path_index],
-    };
-
-    const scatterData: any = await thirdApiCallHeatMapScatterPLot(
-      input_box_step_btn_click,
-      int_selected_path_index,
-      1,
-      1,
-      threePaths[int_selected_path_index]
-    );
-
-    const simulationApiFullData: any = await fourthApiCallSimulate(
-      input_box_step_btn_click
-    );
-
-    dispatch({
-      type: Action.GATHER_SIMULATION_API_FULL_DATA,
-      value: simulationApiFullData,
-    });
-    setScatterPlotData(scatterData?.scatter_plot_data);
-    setHeatMapUncertainity(simulationApiFullData?.uncertainity);
-
-    dispatch({
-      type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
-      value: input_box_step_btn_click + 1,
-    });
-    setCurrentView(4);
-  };
-
-  const objectiveGatherData = (
-    <div className="objective-questions">
-      <p>
-        <strong>
-          Step4: CLICK GATHER DATA BUTOON PROCESS: 1- SHEAR STRESS AND MOISTURE
-          APPEARS 2- Robot Marker should go from 0,0 to end of selected path 3-
-          selected path black 4- update the left figure 5- update heat map 7 -
-          update line
-        </strong>
-      </p>
-      <Button
-        disabled={!selectedBelief}
-        variant="contained"
-        color="secondary"
-        onClick={onGatherData}
-      >
-        Gather Data
-      </Button>
-      <br/>
-      <br/>
-      <Button
-        className="continueButton"
-        variant="contained"
-        color="primary"
-        onClick={onContinueClick}>
-        End Collection Transect
-      </Button>
-    </div>
-  );
 
   const handleTransitionState = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -446,14 +408,14 @@ const RightComponent = () => {
 
   const onSubmitTransitionState = async () => {
     setUpdateTransition(true)
-    console.log(selectedTransitionState, 'qselectedTransitionState before processing');
+  
     if (selectedTransitionState === '1') {
       setCurrentView(1);
       setGenerate3newPaths(true);
     } else if (selectedTransitionState === '2') {
       setCurrentView(0);
     } else if (selectedTransitionState === '3') {
-      setCurrentView(5);
+      setCurrentView(4);
       setTimeout(() => setCurrentView(1), 3000); // Wait for 3 seconds before redirecting
     } else {
       history.push('/survey');
@@ -469,7 +431,7 @@ const RightComponent = () => {
     <div className="objective-questions">
       <p>
         <strong>
-          Step 1: During the sampling process, the following objectives are
+          Step 4: During the sampling process, the following objectives are
           considered.
         </strong>
       </p>
@@ -533,7 +495,7 @@ const RightComponent = () => {
     objectiveQuestions,
     ObjectiveRankingFormNew,
     objectiveSelectPath,
-    objectiveGatherData,
+    // objectiveGatherData,
     objectiveTranisition,
     comingSoon,
   ];
