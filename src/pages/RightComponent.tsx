@@ -284,6 +284,7 @@ const RightComponent = () => {
     };
     const selectedPathXs=threePaths[int_selected_path_index][0]
     const selectedPathYs=threePaths[int_selected_path_index][1]
+
     const last_Xcordinate_of_selected_path = selectedPathXs[selectedPathXs.length-1]
     const last_Ycordinate_of_selected_path = selectedPathYs[selectedPathYs.length-1]
 
@@ -306,6 +307,7 @@ const RightComponent = () => {
       value: input_box_step_btn_click + 1,
     });
 
+    
     setCurrentView(3);
   };
 
@@ -555,7 +557,7 @@ const RightComponent = () => {
 
   const collectionRightPanel = (
     <div className="collectionRightPanel">
-      <RobotChart />
+      <RobotChart currentselectedpath={selectedPathIndex}/>
       {/* <SelectedPathChart/> */}
       <div className="collectionRightPanel">
         {!updateTransition && (
@@ -589,6 +591,7 @@ const RightComponent = () => {
     console.log({ globalState });
   };
 
+  console.log('hereee selectedPathIndexselectedPathIndex',selectedPathIndex)
   return (
     <div id="app" className="decisionPage">
       <ConfirmDialog

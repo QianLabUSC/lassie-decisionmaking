@@ -1212,7 +1212,7 @@ export default function Main() {
             <ClickableImage width={600} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
       </Tooltip> */}
-      <RobotChart />
+      {/* <RobotChart /> */}
       {!loadingRobotSuggestions && (
         <div
           className={
