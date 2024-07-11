@@ -49,6 +49,17 @@ export type INITIAL_HUMAN_BELIEF = {
   human_belief_text_description: string;
 };
 
+export type ALL_SELECTED_BLACK_PATH_TYPE = {
+  selectedPath:{
+    selectedXs_path_cordinates: SubPath[];
+    selectedYs_path_cordinates: SubPath[];
+  }
+  selectedPathEndCoordinates:{
+    selectedXs_path_end_corinates: number[];
+    selectedYs_path_end_corinates: number[];
+  }
+};
+
 export type PATH_DATA_TYPE = {
   lineData: {
     start_coordinate: [];
@@ -62,6 +73,7 @@ export type PATH_DATA_TYPE = {
   };
   selected_path_data: [[], [], [], []];
 };
+
 
 export type SIMULATION_API_DATA_TYPE = {
   info_gain_shear: number[][];
@@ -79,7 +91,9 @@ export interface IState {
   input_box_step_btn_click: number;
   initial_human_belief: INITIAL_HUMAN_BELIEF;
   threePaths: TestPath;
+  all_single_curve_selected_black_path:ALL_SELECTED_BLACK_PATH_TYPE;
   path_full_data: PATH_DATA_TYPE;
+  
   simulation_api_full_data: SIMULATION_API_DATA_TYPE;
 
   // old states by me
@@ -129,6 +143,19 @@ export const initialState: IState = {
     human_belief_text_description: '',
   },
   threePaths: [],
+  
+  all_single_curve_selected_black_path:{
+    selectedPath:{
+      selectedXs_path_cordinates: [],
+      selectedYs_path_cordinates: [],
+    },
+    selectedPathEndCoordinates:{
+      selectedXs_path_end_corinates: [],
+      selectedYs_path_end_corinates: [],
+    }
+  },
+  
+
   path_full_data: {
     lineData: {
       start_coordinate: [],
@@ -142,6 +169,7 @@ export const initialState: IState = {
     },
     selected_path_data: [[], [], [], []],
   },
+  
   simulation_api_full_data: {
     info_gain_shear: [],
     uncertainity: [],
@@ -219,6 +247,7 @@ export enum Action {
   GENERATE_THREE_PATHS,
   GENERATE_PATH_FULL_DATA,
   GATHER_SIMULATION_API_FULL_DATA,
+  ALL_SELECTED_BLACK_PATH,
 
   INCREMENT_STEP_IDX,
   SET_STATE, // For loading previous runs; sets the entire state object.
@@ -284,6 +313,7 @@ const actionKeyMap: ActionKeyMap = {
   [Action.UPDATE_INPUT_BOX_BTN_CLICK]: 'input_box_step_btn_click',
   [Action.GENERATE_THREE_PATHS]: 'threePaths',
   [Action.GENERATE_PATH_FULL_DATA]: 'path_full_data',
+  [Action.ALL_SELECTED_BLACK_PATH]: 'all_single_curve_selected_black_path',
   [Action.GATHER_SIMULATION_API_FULL_DATA]: 'simulation_api_full_data',
 
   [Action.SET_DATA_VERSION]: 'dataVersion',

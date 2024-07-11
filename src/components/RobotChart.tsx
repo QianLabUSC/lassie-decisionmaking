@@ -56,7 +56,6 @@ interface RobotChartProps {
 const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
   const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data, all_single_curve_selected_black_path }, dispatch] = useStateValue();
 
-  console.log('here chart selected_black', all_single_curve_selected_black_path);
   const [selectedPath, setSelectedPath] = useState('');
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
   const [heatMapType, setHeatMapType] = useState('infogain');
@@ -176,8 +175,21 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
     return [];
   };
 
+  const getEndCoordinates = (): Point[] => {
+    const selectedEndXs = all_single_curve_selected_black_path?.selectedPathEndCoordinates?.selectedXs_path_end_corinates;
+    const selectedEndYs = all_single_curve_selected_black_path?.selectedPathEndCoordinates?.selectedYs_path_end_corinates;
+
+    if (selectedEndXs && selectedEndYs) {
+      return selectedEndXs.map((x: number, i: number) => ({
+        x,
+        y: selectedEndYs[i],
+      }));
+    }
+    return [];
+  };
+
   const selectedPathData = getSelectedPathData();
-  console.log('Selected Path Data:', selectedPathData);
+  const endCoordinates = getEndCoordinates();
 
   const renderHeatMap = () => {
     const heatmapData = heatMapType === 'infogain' ? simulation_api_full_data?.info_gain_shear : simulation_api_full_data?.uncertainity;
@@ -311,6 +323,15 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
               curve={curveBasis}
             />
           )}
+          {endCoordinates.map((point, index) => (
+            <circle
+              key={index}
+              cx={xScale(point.x)}
+              cy={yScale(point.y)}
+              r={5}
+              fill="blue"
+            />
+          ))}
         </Group>
       </svg>
     </div>
