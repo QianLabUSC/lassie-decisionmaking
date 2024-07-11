@@ -111,7 +111,7 @@ const RightComponent = () => {
             />
             <FormControlLabel
               control={<Checkbox checked={selectedBelief.includes('4')} onChange={() => handleChangeCheckbox('4')} />}
-              label="The time cost"
+              label="None of the Above"
             />
           </FormGroup>
         </FormControl>
