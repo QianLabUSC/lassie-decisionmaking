@@ -793,7 +793,7 @@ export default function Main() {
   const userFeedbackStateMap = [
     objectiveQuestions,
     ObjectiveRankingFormNew,
-    // objectiveSelectPath,
+    //objectiveSelectPath,
 
     objectiveFreeResponseQuestion,
     acceptOrRejectQuestions,
