@@ -18,7 +18,6 @@ import {
 import { useStateValue } from '../state';
 import { Action } from '../state';
 import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
-import { FormatAlignCenter } from '@material-ui/icons';
 
 const width = 850;
 const height = 850;
@@ -51,13 +50,12 @@ type Path = [SubPath, SubPath, SubPath, SubPath];
 // Define the structure for testPath, which is an array of paths
 type TestPath = Path[];
 
-
-
-const RobotChart: React.FC = () => {
+interface RobotChartProps {
+  currentselectedpath: string;
+}
+const RobotChart: React.FC<RobotChartProps>= ({currentselectedpath}) => {
+  console.log('here2 currentselectedpath', currentselectedpath)
   const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data }, dispatch] = useStateValue();
-
-  console.log('uncertanity_heat_map_data123 ', simulation_api_full_data)
-
 
   const [selectedPath, setSelectedPath] = useState('');
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
@@ -149,7 +147,6 @@ const RobotChart: React.FC = () => {
     index: number
   ): { points: Point[]; infogain: number[]; discrepancy: number[] } => {
 
-    
     if (index < paths.length) {
       const points = paths[index][0].map((x, i) => ({
         x: x,
@@ -175,6 +172,22 @@ const RobotChart: React.FC = () => {
   const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
 
   const disableSubmitButton = false; // Update logic as needed
+  const RobotIcon = ({ x, y }) => (
+    <svg
+      x={x - 15}
+      y={y - 15}
+      width="30"
+      height="30"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 2C13.1046 2 14 2.89543 14 4H10C10 2.89543 10.8954 2 12 2ZM18 8H20C21.1046 8 22 8.89543 22 10V18C22 19.1046 21.1046 20 20 20H18V22H16V20H8V22H6V20H4C2.89543 20 2 19.1046 2 18V10C2 8.89543 2.89543 8 4 8H6V6H8V8H16V6H18V8ZM4 10V18H20V10H4ZM7 11H9V13H7V11ZM15 11H17V13H15V11Z"
+        fill="black"
+      />
+    </svg>
+  );
 
   const renderHeatMap = () => {
     const heatmapData = heatMapType === 'infogain' ?  simulation_api_full_data?.info_gain_shear: simulation_api_full_data?.uncertainity;
@@ -249,7 +262,7 @@ const RobotChart: React.FC = () => {
 
       <svg width={width} height={height}>
         <Group>
-        {renderHeatMap()}
+          {renderHeatMap()}
           {allPaths.map((paths, idx) =>
             paths.map((_, pathIndex) => {
               const data = getPathData(
@@ -268,18 +281,26 @@ const RobotChart: React.FC = () => {
                   .slice(0, idx)
                   .reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
               const isLastThreePaths = globalPathIndex >= totalPaths - 3;
+
+              let select;
+              if(labels[pathIndex] == 'A'){
+                select = 1
+              }
+              else if(labels[pathIndex] == 'B'){
+                select = 2
+              }else if(labels[pathIndex] == 'C'){
+                select = 3
+              }
+              const isSelectedPath = currentselectedpath == select;
+
+              console.log('isSelectedPath, ',isSelectedPath, currentselectedpath,select )
               return (
-                
-                <React.Fragment key={`path-set-${idx}-path-${pathIndex}`} >
+                <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
                   <LinePath
                     data={data}
                     x={(d: Point) => xScale(d.x)}
                     y={(d) => yScale(d.y)}
-                    stroke={
-                      isLastThreePaths
-                        ? colors[pathIndex % colors.length]
-                        : 'black'
-                    }
+                    stroke={isSelectedPath ? 'black' : colors[pathIndex % colors.length]}
                     strokeWidth={4}
                     curve={curveBasis}
                   />
@@ -293,7 +314,13 @@ const RobotChart: React.FC = () => {
                     fontWeight="bold"
                   >
                     {pathIndex}
-                  </Text>          
+                  </Text>
+                  {isSelectedPath && (
+                    <RobotIcon
+                      x={xScale(lastPoint.x)}
+                      y={yScale(lastPoint.y)}
+                    />
+                  )}
                 </React.Fragment>
               );
             })
