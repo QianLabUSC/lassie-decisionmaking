@@ -412,6 +412,7 @@ const rankingEvaluationPanel_Step4 = (
   <div className="objective-questions">
     <h1>Step4: Ranking Evaluation  Panel</h1>
     <RatingComponent/>
+    
     <Button
           className="continueButton"
           variant="contained"
@@ -445,7 +446,6 @@ const confidenceTexts = ['Very Low', 'Low', 'Neutral', 'High', 'Very High']; // 
 const HypothesisConfidencePanel_Step5 = (
   <div className="objective-questions">
     <h1>Step 5: Your Hypothesis Confidence</h1>
-
     <HypothesisConfidencePanel
       open={hypothesisOpen}
       hypoConfidence={hypoConfidence}
@@ -453,7 +453,6 @@ const HypothesisConfidencePanel_Step5 = (
       setHypothesisOpen={setHypothesisOpen}
       handleHypoResponse={handleHypoResponse}
     />
-    
     <Button
       className="continueButton"
       variant="contained"
