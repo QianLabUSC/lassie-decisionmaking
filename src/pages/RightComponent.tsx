@@ -378,7 +378,6 @@ const RightComponent = () => {
           control={<Radio />}
           label="Accept suggested location C"
         />
-        <FormControlLabel value="4" control={<Radio />} label="The time cost" />
       </RadioGroup>
       <Button
         disabled={!selectedBelief}
@@ -399,7 +398,51 @@ const RightComponent = () => {
       </Button>
     </div>
   );
+//////      4th step 
+const onSubmitRankingEvaluation = () => {
+  dispatch({
+    type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
+    value: input_box_step_btn_click + 1,
+  });
+  setCurrentView(4);
+};
 
+const rankingEvaluationPanel_Step4 = (
+  <div className="objective-questions">
+    <h1>Step4: ranking  Evaluation  Panel_</h1>
+    <Button
+          className="continueButton"
+          variant="contained"
+          color="primary"
+          onClick={onSubmitRankingEvaluation}>
+              Sumbit ranking
+        </Button>
+  </div>
+);
+
+/////////////// 5th step ////////
+const onSubmitHypothesisConfidence = () => {
+  dispatch({
+    type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
+    value: input_box_step_btn_click + 1,
+  });
+  setCurrentView(5);
+};
+
+const HypothesisConfidencePanel_Step5 = (
+  <div className="objective-questions">
+    <h1>Step 5: Your Hypothesis Confidence</h1>
+    <Button
+          className="continueButton"
+          variant="contained"
+          color="primary"
+          onClick={onSubmitHypothesisConfidence}>
+              Submit Hypothesis
+        </Button>
+  </div>
+);
+
+///////////////////////////////// 6th step
 
   const handleTransitionState = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -416,7 +459,7 @@ const RightComponent = () => {
     } else if (selectedTransitionState === '2') {
       setCurrentView(0);
     } else if (selectedTransitionState === '3') {
-      setCurrentView(4);
+      setCurrentView(6);
       setTimeout(() => setCurrentView(1), 3000); // Wait for 3 seconds before redirecting
     } else {
       history.push('/survey');
@@ -497,7 +540,9 @@ const RightComponent = () => {
     objectiveQuestions,
     ObjectiveRankingFormNew,
     objectiveSelectPath,
+    rankingEvaluationPanel_Step4,
     // objectiveGatherData,
+    HypothesisConfidencePanel_Step5,
     objectiveTranisition,
     comingSoon,
   ];
