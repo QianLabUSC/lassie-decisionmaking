@@ -68,17 +68,6 @@ const RatingComponent = () => {
                     ))}
                 </div>
             </div>
-
-            <Button
-              
-                variant="contained"
-                color="primary"
-                type="submit" // Ensure type="submit" for form submission
-            >
-                Submit
-            </Button>
-
-       
         </form>
     );
 };
