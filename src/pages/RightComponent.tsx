@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import RatingComponent from './rating';
+import HypothesisConfidencePanel from './hypothesisConfidence';
 import {
   Select,
   MenuItem,
@@ -417,11 +418,12 @@ const rankingEvaluationPanel_Step4 = (
           color="primary"
           onClick={onSubmitRankingEvaluation}>
               Sumbit ranking
-        </Button> 
+        </Button>
+      
   </div>
 );
 
-/////////////// 5th step ////////
+/////////////// 5th step  TODO: CHANGE WHOLE OF THIS ////////
 const onSubmitHypothesisConfidence = () => {
   dispatch({
     type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
@@ -430,16 +432,44 @@ const onSubmitHypothesisConfidence = () => {
   setCurrentView(5);
 };
 
+const [hypoConfidence, setHypoConfidence] = useState<number>(0);
+const [hypothesisOpen, setHypothesisOpen] = useState<boolean>(false);
+
+const handleHypoResponse = (confidence: number, texts: string[]) => {
+  setHypoConfidence(confidence);
+  setHypothesisOpen(false); // Close the HypothesisConfidencePanel
+};
+
+const confidenceTexts = ['Very Low', 'Low', 'Neutral', 'High', 'Very High']; // Example array, replace with actual texts
+
 const HypothesisConfidencePanel_Step5 = (
   <div className="objective-questions">
     <h1>Step 5: Your Hypothesis Confidence</h1>
+
+    <HypothesisConfidencePanel
+      open={hypothesisOpen}
+      hypoConfidence={hypoConfidence}
+      confidenceTexts={confidenceTexts}
+      setHypothesisOpen={setHypothesisOpen}
+      handleHypoResponse={handleHypoResponse}
+    />
+    
     <Button
-          className="continueButton"
-          variant="contained"
-          color="primary"
-          onClick={onSubmitHypothesisConfidence}>
-              Submit Hypothesis
-        </Button>
+      className="continueButton"
+      variant="contained"
+      color="primary"
+      onClick={onSubmitHypothesisConfidence}>
+        Submit Hypothesis
+      </Button>
+      <br/>
+      <br/>
+      <Button
+        className="continueButton"
+        variant="contained"
+        color="primary"
+        onClick={onContinueClick}>
+        End Collection Transect
+      </Button>
   </div>
 );
 
