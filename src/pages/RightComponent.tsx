@@ -94,24 +94,24 @@ const RightComponent = () => {
   const objectiveQuestions = (
     <>
       <div className="objective-questions">
-        <p><strong>During the sampling process, the following objectives are considered:</strong></p>
+        <p><strong>Based on the data collected so far, select which of the following beliefs you currently hold, you may select multiple</strong></p>
         <FormControl component="fieldset">
           <FormGroup row>
             <FormControlLabel
               control={<Checkbox checked={selectedBelief.includes('1')} onChange={() => handleChangeCheckbox('1')} />}
-              label="Gather more data on unsampled area"
+              label="There are areas along the dune transect (between crest and interdune) where data is needed "
             />
             <FormControlLabel
               control={<Checkbox checked={selectedBelief.includes('2')} onChange={() => handleChangeCheckbox('2')} />}
-              label="The risk of robot entrapment"
+              label="There is a discrepancy between the data and the hypothesis that needs additional evaluation"
             />
             <FormControlLabel
               control={<Checkbox checked={selectedBelief.includes('3')} onChange={() => handleChangeCheckbox('3')} />}
-              label="Accept suggested location C"
+              label="The data seems to be supporting the hypothesis so far but additional evaluation is needed"
             />
             <FormControlLabel
               control={<Checkbox checked={selectedBelief.includes('4')} onChange={() => handleChangeCheckbox('4')} />}
-              label="None of the Above"
+              label="I hold a different belief that is not described here"
             />
           </FormGroup>
         </FormControl>
@@ -141,10 +141,11 @@ const RightComponent = () => {
   //////////////////////////////////////////////////////////////////////////// 2nd step form input////////////////////
 
   const objectives = [
-    'Gather more data on unsampled area', // Option 0 - spatial coverage algorithm
-    'Gather more data where the data has discrepancy with the hypothesis', // Option 1 - hypo invalidating algorithm
-    'The risk of robot entrapment',
-    'The time cost',
+    'There are areas along the dune transect (between crest and interdune) where data is needed', // Option 0 - spatial coverage algorithm
+    'There are portions of the dynamic range of the moisture variable (x axis of the data plot) where data is needed', // Option 1 - hypo invalidating algorithm
+    'There is a discrepancy between the data and the hypothesis that needs additional evaluation',
+    'The data seems to be supporting the hypothesis so far but additional evaluation is needed',
+    'I hold a different belief that is not described here'
   ];
 
   const initialRanking = Array.from(
@@ -206,7 +207,7 @@ const RightComponent = () => {
 
   const ObjectiveRankingFormNew = (
     <>
-      Step2:
+      Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement. You must assign a unique number to each belief:
       <table className="dropDownMenuGroup" style={{ marginBottom: '2vh' }}>
         <tbody>
           {objectives.map((option, index) => (
@@ -426,6 +427,7 @@ const RightComponent = () => {
       value: input_box_step_btn_click + 1,
     });
   };
+
 
   const objectiveTranisition = (
     <div className="objective-questions">
