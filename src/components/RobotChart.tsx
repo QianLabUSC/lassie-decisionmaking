@@ -262,8 +262,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
           </Select>
         </FormControl>
       </div>
-
-      <svg width={width} height={height}>
+      <svg width={width} height={height} style={{ border: '1px solid black' }}>
         <Group>
           {renderHeatMap()}
           {allPaths.map((paths, idx) =>
