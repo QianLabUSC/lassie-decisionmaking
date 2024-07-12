@@ -245,7 +245,7 @@ export enum RowType {
   DEVIATE = 'Deviate',
   DISCARDED = 'Discarded',
   ROBOT_SUGGESTION = 'Robot_Suggestion'
-};
+}
 
 export const PopboxTypeEnum = {
   INFO: 'info',
@@ -676,8 +676,8 @@ export const batteryWarningLevels: number[] = [0.75, 0.90, 0.95];
 Chart.pluginService.register({
   beforeDraw: function (chart: any, easing) {
     if (chart.config.options.chartArea && chart.config.options.chartArea.backgroundColor) {
-      var ctx = chart.chart.ctx;
-      var chartArea = chart.chartArea;
+      const ctx = chart.chart.ctx;
+      const chartArea = chart.chartArea;
 
       ctx.save();
       ctx.fillStyle = chart.config.options.chartArea.backgroundColor;
@@ -730,7 +730,7 @@ export enum UserFeedbackState {
   TYPE_IN_NEW_LOCATION_DATA,
   HYPOTHESIS_CONFIDENCE,
   TRANSITION,
-};
+}
 
 export const objectiveOptions = [
   "Gather more data on unsampled area", // Option 0 - spatial coverage algorithm
@@ -749,8 +749,8 @@ export const acceptFollowUpOptions = [
 ]
 
 export const transitionOptions = [
-  "See RHex's suggestions for where to sample next based on your current belief rankings", 
-  "Update belief rankings to receive new suggestions from RHex of where to sample next",
-  "Ignore suggestions and select a location for RHex to sample next",
+  "See Robot's suggestions for where to sample next based on your current belief rankings", 
+  "Update belief rankings to receive new suggestions from Robot of where to sample next",
+  "Ignore suggestions and select a location for Robot to sample next",
   "Stop data collection and make a conclusion about the hypothesis",
 ]

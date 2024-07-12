@@ -1,57 +1,36 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { LinePath } from '@visx/shape';
 import { curveBasis } from '@visx/curve';
 import { Text } from '@visx/text';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
+import {
+  Button,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Select,
+  MenuItem,
+  FormControl,
+} from '@material-ui/core';
 import { useStateValue } from '../state';
+import { Action } from '../state';
+import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
 
-// import { paths } from '../paths';
-
-const width = 1400;
-const height = 700;
+// these are for robot chart borders rectangle
+const width = 550;
+const height = 600;
+// const margin = { top: 20, bottom: 60, left: 70, right: 20 }; // Adjusted margins for labels
 const margin = { top: 20, bottom: 20, left: 50, right: 20 };
+
 interface Point {
   x: number;
   y: number;
 }
 
-export const newpath = [
-  [
-    [0.1343, 0.12454, 0.345, 0.143545, 0.49],
-    [0.1,  0.115, 0.21, 0.32, 0.45]
-  ],
-  [
-      [0.1, 0.2114, 0.147, 0.479, 0.48],
-      [0.1,  0.365, 0.465, 0.485, 0.49]
-  ],
-  [
-      [0.1, 0.1243, 0.23543, 0.24359, 0.54],
-      [0.1,  0.3225, 0.345, 0.3832, 0.44]
-  ]
-];
-
-const secondpath = [
-  [
-    [0.49, 0.30510220440881763526, 0.310420841683366733, 0.41062124248496994, 0.489979959919839678, 0.489999999],
-    [0.45, 0.510220440881763526, 0.610420841683366733, 0.671062124248496994, 0.689979959919839678, 0.78978]
-  ],
-  [
-    [0.48, 0.43499875, 0.43535655, 0.356676, 0.3587989, 0.215686787],
-    [0.49, 0.49879759519038075, 0.519899799599198396, 0.545465, 0.674556, 0.7898675]
-  ],
-  [
-    [0.54, 0.345501002004008016, 0.34559020040080160321, 0.46503006012024048, 0.769989979959919839, 0.871],
-    [0.44, 0.5001002004008016032, 0.5250501002004008, 0.6541503006012024, 0.73386773547094188, 0.75]
-  ]
-];
-// Convert initial path data to the format suitable for LinePath
-const lineData: Point[][] = newpath.map((pathSet) =>
-  pathSet[0].map((x, i) => ({ x, y: pathSet[1][i] }))
-);
-
-// Scales
+// these are for path
 const xScale = scaleLinear({
   domain: [0, 1],
   range: [margin.left, width - margin.right],
@@ -62,86 +41,321 @@ const yScale = scaleLinear({
   range: [height - margin.bottom, margin.top],
 });
 
-// Labels and Colors for each path
 const labels = ['A', 'B', 'C'];
-const colors = ['#FF5733', '#33FF57', '#3357FF']; // Example colors for 3 paths
+const colors = ['#FF5733', '#33FF57', '#3357FF'];
 
-const RobotChart: React.FC = () => {
-  const [{ currUserStep }] = useStateValue();
+// Define the structure of a single sub-path as an array of numbers
+type SubPath = number[];
 
-  const getPathData = (index: number): Point[] => {
-    if (index < secondpath.length) {
-      return secondpath[index][0].map((x, i) => ({ x, y: secondpath[index][1][i] }));
+// Define a path as an array containing two sub-paths
+type Path = [SubPath, SubPath, SubPath, SubPath];
+
+// Define the structure for testPath, which is an array of paths
+type TestPath = Path[];
+
+interface RobotChartProps {
+  currentselectedpath: string;
+}
+const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
+  const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data, all_single_curve_selected_black_path }, dispatch] = useStateValue();
+
+  const [selectedPath, setSelectedPath] = useState('');
+  const [allPaths, setAllPaths] = useState<TestPath[]>([]);
+  const [heatMapType, setHeatMapType] = useState('infogain');
+
+  const handleChangeHeatMap = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setHeatMapType(event.target.value as string);
+  };
+
+  useEffect(() => {
+    // Load initial paths only on component mount
+    const firstPath: TestPath = [
+      [[], [], [], []],
+      [[], [], [], []],
+      [[], [], [], []],
+    ];
+    setAllPaths([firstPath]); // Set initial path
+  }, []);
+
+  const [pathsubmittedtimes2, setpathsubmittedtimes2] = useState(0);
+
+  useEffect(() => {
+    if (threePaths && Array.isArray(threePaths) && threePaths.length > 0) {
+      setAllPaths([threePaths]); // Ensure newpathvalues is TestPath
+    }
+  }, [threePaths]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedPath(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    const count = pathsubmittedtimes2 + 1;
+    setpathsubmittedtimes2(count);
+
+    if (selectedPath !== null) {
+      let currentindexofpathselectedoutof3;
+      if (selectedPath === 'A') {
+        currentindexofpathselectedoutof3 = 0;
+      } else if (selectedPath === 'B') {
+        currentindexofpathselectedoutof3 = 1;
+      } else if (selectedPath === 'C') {
+        currentindexofpathselectedoutof3 = 2;
+      } else if (selectedPath === 'D') {
+        currentindexofpathselectedoutof3 = 3;
+      }
+
+      dispatch({
+        type: Action.INCREMENT_STEP_IDX,
+        value: [pathsubmittedtimes2, currentindexofpathselectedoutof3], // Passing the selected path as the value
+      });
+    }
+  };
+
+  const getPathData = (paths: TestPath, index: number): Point[] => {
+    if (index < paths.length) {
+      return paths[index][0].map((x, i) => ({
+        x,
+        y: paths[index][1][i],
+      }));
     }
     return [];
   };
 
+  const getHeatMapData = (
+    paths: TestPath,
+    index: number
+  ): { points: Point[]; infogain: number[]; discrepancy: number[] } => {
+    if (index < paths.length) {
+      const points = paths[index][0].map((x, i) => ({
+        x: x,
+        y: paths[index][1][i],
+      }));
+      const infogain = paths[index][2]; // Assuming the heatmap data is at the third index of each path
+      const discrepancy = paths[index][3];
+      return { points, infogain, discrepancy };
+    }
+    return { points: [], infogain: [], discrepancy: [] };
+  };
+
   const shouldShowPath = (index: number): boolean => {
-    // If option D is selected (represented here by a special value like -1), show all paths
     if (currUserStep.acceptOrReject === -1 || currUserStep.acceptOrReject >= labels.length) {
       return true;
     }
-    // Only show the path that corresponds to the selected option
     return index === currUserStep.acceptOrReject;
   };
 
-  return (
-    <svg width={width} height={height}>
-      <Group>
-        {lineData.map((data, index) => {
-          if (!shouldShowPath(index)) return null;  // Do not render the path if it should not be shown
-        
-          const lastPoint = data[data.length - 1];
+  const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
 
-          let pathsToRender = [
-            <React.Fragment key={`fragment-${index}`}>
-              <LinePath
-                key={`line-${index}`}
-                data={data}
-                x={(d) => xScale(d.x)}
-                y={(d) => yScale(d.y)}
-                stroke={colors[index % colors.length]} // Use fixed color based on index
-                strokeWidth={4}
-                curve={curveBasis} // Apply the curve function here
-              />
-              <Text
-                key={`text-${index}`}
-                x={xScale(lastPoint.x)}
-                y={yScale(lastPoint.y)}
-                dx={-10} // Offset a bit to the right
-                dy={5} // Offset a bit up
-                fill="red"
-                fontSize={25}
-                fontWeight="bold"
-              >
-                {labels[index]}
-              </Text>
-            </React.Fragment>
-          ];
-
-          // If the current path is selected, append the new path from secondpath
-          if (index === currUserStep.acceptOrReject) {
-            const newPathData = getPathData(index);
-            pathsToRender.push(
-              <LinePath
-                key={`line-new-${index}`}
-                data={newPathData}
-                x={(d) => xScale(d.x)}
-                y={(d) => yScale(d.y)}
-                stroke={colors[index % colors.length]} // Use the same fixed color for the new path
-                strokeWidth={4}
-                strokeDasharray="4,4" // Optional: makes the new path dashed
-                curve={curveBasis} // Apply the curve function here
-              />
-            );
-          }
-
-          return pathsToRender;
-        })}
-        <AxisLeft scale={yScale} left={margin.left} />
-        <AxisBottom scale={xScale} top={height - margin.bottom} />
-      </Group>
+  const disableSubmitButton = false; // Update logic as needed
+  const RobotIcon = ({ x, y }) => (
+    <svg
+      x={x - 12}
+      y={y - 20}
+      width="50"
+      height="30"
+      viewBox="0 0 24 24"
+      fill="yellow"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 2C13.1046 2 14 2.89543 14 4H10C10 2.89543 10.8954 2 12 2ZM18 8H20C21.1046 8 22 8.89543 22 10V18C22 19.1046 21.1046 20 20 20H18V22H16V20H8V22H6V20H4C2.89543 20 2 19.1046 2 18V10C2 8.89543 2.89543 8 4 8H6V6H8V8H16V6H18V8ZM4 10V18H20V10H4ZM7 11H9V13H7V11ZM15 11H17V13H15V11Z"
+        fill="#ff0066"
+      />
     </svg>
+  );
+
+  const getSelectedPathData = (): Point[] => {
+    const selectedXs = all_single_curve_selected_black_path?.selectedPath?.selectedXs_path_cordinates.flat();
+    const selectedYs = all_single_curve_selected_black_path?.selectedPath?.selectedYs_path_cordinates.flat();
+  
+    if (selectedXs && selectedYs) {
+      return selectedXs.map((x: number, i: number) => ({
+        x,
+        y: selectedYs[i],
+      }));
+    }
+    return [];
+  };
+
+  const getEndCoordinates = (): Point[] => {
+    const selectedEndXs = all_single_curve_selected_black_path?.selectedPathEndCoordinates?.selectedXs_path_end_corinates;
+    const selectedEndYs = all_single_curve_selected_black_path?.selectedPathEndCoordinates?.selectedYs_path_end_corinates;
+
+    if (selectedEndXs && selectedEndYs) {
+      return selectedEndXs.map((x: number, i: number) => ({
+        x,
+        y: selectedEndYs[i],
+      }));
+    }
+    return [];
+  };
+
+  const selectedPathData = getSelectedPathData();
+  const endCoordinates = getEndCoordinates();
+
+  const renderHeatMap = () => {
+    const heatmapData = heatMapType === 'infogain' ? simulation_api_full_data?.info_gain_shear : simulation_api_full_data?.uncertainity;
+
+    if (!heatmapData.length) return null;
+    const startX = xScale(0);
+    const startY = yScale(0);
+    const endX = xScale(10); // x goes from 0 to 10
+    const endY = yScale(10); // y goes from 0 to 10
+
+    return (
+      simulation_api_full_data && (
+        <InformationGainHeatMap
+          width={1500}
+          height={580}
+          data={heatmapData}
+          x={50}
+          y={50}
+        />
+      )
+    );
+  };
+
+  return (
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          padding: '5px',
+        }}
+      >
+        <FormControl
+          style={{
+            minWidth: 200,
+          }}
+        >
+          <Select
+            value={heatMapType}
+            onChange={handleChangeHeatMap}
+            displayEmpty
+            style={{
+              background: 'white',
+              color: 'rgba(0, 0.2, 0, 0.17)',
+              padding: '10px 15px',
+            }}
+            inputProps={{
+              'aria-label': 'Without label',
+              style: {
+                paddingTop: '10px',
+                paddingBottom: '10px',
+              },
+            }}
+          >
+            <MenuItem
+              value="infogain"
+              style={{ background: 'white', margin: '5px 0' }}
+            >
+              Information Gain
+            </MenuItem>
+            <MenuItem
+              value="discrepancy"
+              style={{ background: 'white', margin: '5px 0' }}
+            >
+              Discrepancy
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <svg width={width} height={height} style={{ border: '1px solid black' }}>
+      {/* For showing intila robot icon to 00 */}
+      {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
+        <Group>
+          {renderHeatMap()}
+          {allPaths.map((paths, idx) =>
+            paths.map((_, pathIndex) => {
+              const data = getPathData(allPaths[allPaths.length - 1], pathIndex);
+              const heatMapFullData = getHeatMapData(allPaths[allPaths.length - 1], pathIndex);
+              const heatMapData = heatMapFullData;
+              if (!data.length || !shouldShowPath(pathIndex)) return null;
+              const lastPoint = data[data.length - 1];
+              const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
+              const isLastThreePaths = globalPathIndex >= totalPaths - 3;
+
+              let select;
+              if (labels[pathIndex] === 'A') {
+                select = 1;
+              } else if (labels[pathIndex] === 'B') {
+                select = 2;
+              } else if (labels[pathIndex] === 'C') {
+                select = 3;
+              }
+              const isSelectedPath = currentselectedpath == select;
+              return (
+                <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
+                  <LinePath
+                    data={data}
+                    x={(d: Point) => xScale(d.x)}
+                    y={(d) => yScale(d.y)}
+                    stroke={isSelectedPath ? 'black' : colors[pathIndex % colors.length]}
+                    strokeWidth={4}
+                    curve={curveBasis}
+                  />
+
+                  <Text
+                    x={xScale(lastPoint.x)}
+                    y={yScale(lastPoint.y)}
+                    dx={-10}
+                    dy={5}
+                    fill="red"
+                    fontSize={25}
+                    fontWeight="bold"
+                  >
+                    {pathIndex}
+                  </Text>
+                  {isSelectedPath && (
+                    <RobotIcon x={xScale(lastPoint.x)} y={yScale(lastPoint.y)} />
+                  )}
+                </React.Fragment>
+              );
+            })
+          )}
+          <AxisLeft scale={yScale} left={50} />
+          <AxisBottom scale={xScale} top={height-20} />
+          {selectedPathData.length > 0 && (
+            <LinePath
+              data={selectedPathData}
+              x={(d: Point) => xScale(d.x)}
+              y={(d) => yScale(d.y)}
+              stroke="black"
+              strokeWidth={4}
+              curve={curveBasis}
+            />
+          )}
+          {endCoordinates.map((point, index) => (
+            <circle
+              key={index}
+              cx={xScale(point.x)}
+              cy={yScale(point.y)}
+              r={5}
+              fill="blue"
+            />
+          ))}
+        </Group>
+        <Text
+          x={width / 2}
+          y={height-1}
+          fontSize={14}
+          textAnchor="middle"
+        >
+          X
+        </Text>
+        <Text
+          x={-height / 2}
+          y={15}
+          fontSize={14}
+          textAnchor="middle"
+          transform="rotate(-90)"
+        >
+          Y
+        </Text>
+      </svg>
+    </div>
   );
 };
 

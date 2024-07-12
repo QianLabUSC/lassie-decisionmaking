@@ -13,7 +13,7 @@ export type SurveyQuestion = {
     }
 };
 
-let multipleBeliefsFollowUp =  {
+const multipleBeliefsFollowUp =  {
     type: QuestionType.MultipleChoice,
     text: "When you held multiple beliefs, how did you resolve them?",
     responses: [

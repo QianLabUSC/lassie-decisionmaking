@@ -62,7 +62,7 @@ export default function Conclusion() {
           {/* <div className="text">
               <p>
                   Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
-                  crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
+                  crest. Robot is testing the hypothesis that strength will increase as moisture increases until 
                   sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
                   as moisture continues to increase.
               </p>

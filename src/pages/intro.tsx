@@ -13,9 +13,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
-const robotDesertGif = require('../../assets/robot_desert_horizontal.gif');
+const robotDesertGif1 = require('../assests/robot_desert_horizontal.gif');
 // const singleTransectNullHypothesis = require('../../assets/hypo_kent.png');
-const singleTransectNullHypothesis = require('../../assets/hypo_ryan.png');
+const singleTransectNullHypothesis = require('../assests/hypo_ryan.png');
 // const singleTransectNullHypothesis = require('../../assets/hypo_doug.png');
 // const singleTransectNullHypothesis = require('../../assets/hypo_ben.png');
 export default function Intro(props) {
@@ -89,11 +89,11 @@ export default function Intro(props) {
                     {/* <img src={robotDesertGif} className="robotGif"/> */}
                     {/* <div className="text">
                         <p>
-                            The mobile hexapod robot RHex needs your help testing a hypothesis about the relationship 
+                            The mobile hexapod robot Robot needs your help testing a hypothesis about the relationship 
                             between sand strength and moisture at White Sands National Monument in New Mexico.
                         </p>
                         <p>
-                            RHex has already collected some strength and moisture data at a dune. Strength was measured 
+                            Robot has already collected some strength and moisture data at a dune. Strength was measured 
                             by mechanical resistance to shear (dragging) during robot leg-soil interactions and moisture 
                             was measured using a probe attached to the robot.
                         </p>
@@ -104,7 +104,7 @@ export default function Intro(props) {
                     {/* <div className="text">
                         <p>
                             Sand moisture should be highest (most wet) in the interdune and lowest (most dry) at the dune 
-                            crest. RHex is testing the hypothesis that strength will increase as moisture increases until 
+                            crest. Robot is testing the hypothesis that strength will increase as moisture increases until 
                             sand is saturated (somewhere along the stoss slope), at which point strength will be constant 
                             as moisture continues to increase.
                         </p>
