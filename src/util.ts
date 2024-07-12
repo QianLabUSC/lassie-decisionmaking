@@ -85,7 +85,7 @@ export function getRandomMeasurements(isAlternativeHypo = false) {
       const temp = data[loc][i];
       data[loc][i] = data[loc][rand];
       data[loc][rand] = temp;
-    };
+    }
   }
   return data;
 }
@@ -133,7 +133,7 @@ function xmur3(str) {
 // Mulberry32 random number generator
 function mulberry32(a) {
   return function() {
-    var t = a += 0x6D2B79F5;
+    let t = a += 0x6D2B79F5;
     t = Math.imul(t ^ t >>> 15, t | 1);
     t ^= t + Math.imul(t ^ t >>> 7, t | 61);
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
@@ -198,7 +198,7 @@ export function parseQueryString(query: string) {
   if (!query || !query.length) return {};
   if (query.startsWith('?')) query = query.substring(1);
   const blocks = query.split('&');
-  let queryParams = {};
+  const queryParams = {};
   blocks.forEach(block => {
     const i = block.indexOf('=');
     if (i === -1) queryParams[block] = null;
@@ -209,13 +209,15 @@ export function parseQueryString(query: string) {
 }
 
 // This function calculates the robot's suggested location
+
+// //DEBUG_HERE_TEST
 export async function calculateRobotSuggestions(samples: Sample[], globalState: IState, objectives: Objective[]) {
 
   // Prepare inputs for flask backend calculation
-  let locations : number[] = [];
-  let measurements : number[] = [];
-  let moistureValues : number[][] = [];
-  let shearValues : number[][] = [];
+  const locations : number[] = [];
+  const measurements : number[] = [];
+  const moistureValues : number[][] = [];
+  const shearValues : number[][] = [];
 
   for (let i = 0; i < samples.length; i++) {
     locations.push(samples[i].index);
@@ -225,7 +227,7 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
   }
 
   //console.log({locations, measurements, moistureValues, shearValues});
-  let objective_pattern = globalState.initialobjectivePattern;
+  const objective_pattern = globalState.initialobjectivePattern;
   // Compute the robot suggestions based on each objective (limit to 3 suggestions)
 
   let objective_repre;
@@ -260,27 +262,26 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
     //   break;
     // }
   }
-  let robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues, objective_repre);
-  console.log(robotSuggestions)
-  let path_ = robotSuggestions.path
-  let spatial_reward = []
-  let variable_reward = []
-  let discrepancy_reward = []
-  let results: PreSample[] = path_.map((path, index) => {
-    let suggestion: PreSample = {
+
+  //DEBUG_HERE_TEST
+  const robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues, objective_repre);
+
+  const path_ = robotSuggestions.path
+  const spatial_reward = []
+  const variable_reward = []
+  const discrepancy_reward = []
+  const results: PreSample[] = path_.map((path, index) => {
+    const suggestion: PreSample = {
       index: index,   // Setting the index of the current path
       type: 'robot',
       measurements: NUM_MEASUREMENTS,
       normOffsetX: 300,
       normOffsetY: 300,
       isHovered: false,
-      path: path,     // Assuming you want to set this to the current path, not path_
+      path: path,     // Assuming you want to set this to the current path, not path_  // DEBUG : HERE 
     }
     return suggestion;
   });
-  
-
-  console.log('results',  results);
   
   return {
     results: results,
@@ -290,9 +291,11 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
   };
 }
 
+
+// //DEBUG_HERE_TEST DEBUG API CALL
 function flaskCalculations(locations: number[], measurements: number[], moistureValues: number[][], shearValues: number[][], objective_repre: number) {
 
-  let inputs = {
+  const inputs = {
     locations : locations,
     measurements: measurements,
     moistureValues: moistureValues,
@@ -315,7 +318,6 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
       res => res.json()
     ).then(
       data => {
-        console.log({data});
         resolve(data);
       }
     ).catch((err) => {
@@ -323,6 +325,7 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
     });
   });
 }
+
 
 // This function command the robot to collect moisture and shear (data)
 export async function commandRobotCollectData(suggestion: PreSample) {
@@ -335,21 +338,16 @@ export async function commandRobotCollectData(suggestion: PreSample) {
   path_x = suggestion.path[0]
   path_y = suggestion.path[1]
 
-  let collected_data : any = await flaskCollections(path_x, path_y);
-  console.log(collected_data)
+  const collected_data : any = await flaskCollections(path_x, path_y);
   
   
   // Creating a new Sample from PreSample
-  let dataSample: Sample = {
+  const dataSample: Sample = {
     ...suggestion, // This spreads all properties of preSample into the new object
     moisture: collected_data.moisture, // Adding moisture data
     shear: collected_data.shear // Adding shear data
   };
- 
-  
 
-  console.log('dataSample',  dataSample);
-  
   return {
     dataSample: dataSample,
   };
@@ -361,7 +359,7 @@ export async function commandRobotCollectData(suggestion: PreSample) {
 
 function flaskCollections(path_x: number[], path_y: number[]) {
 
-  let inputs = {
+  const inputs = {
     path_x : path_x,
     path_y: path_y
   }
@@ -381,7 +379,6 @@ function flaskCollections(path_x: number[], path_y: number[]) {
       res => res.json()
     ).then(
       data => {
-        console.log({data});
         resolve(data);
       }
     ).catch((err) => {

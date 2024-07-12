@@ -222,13 +222,13 @@ export default function ClickableImage({
           return null;
         }
 
-        let path_x = sample.path[0];
-        let path_y = sample.path[1];
+        const path_x = sample.path[0];
+        const path_y = sample.path[1];
       
         const indicators = path_x.map((x, index) => {
-          let xPoint = x;
-          let yPoint = path_y[index];
-          let key_index = `${sampleIdx}-${index}`;
+          const xPoint = x;
+          const yPoint = path_y[index];
+          const key_index = `${sampleIdx}-${index}`;
       
           return (
             <PathpointIndicator
@@ -287,13 +287,13 @@ export default function ClickableImage({
       {showRobotSuggestions &&
         robotSuggestions &&
         robotSuggestions.map((suggestion, rowIndex) => {
-          let path_x = suggestion.path[0];
-          let path_y = suggestion.path[1];
+          const path_x = suggestion.path[0];
+          const path_y = suggestion.path[1];
         
           const indicators = path_x.map((x, index) => {
-            let xPoint = x;
-            let yPoint = path_y[index];
-            let key_index = `${rowIndex}-${index}`;
+            const xPoint = x;
+            const yPoint = path_y[index];
+            const key_index = `${rowIndex}-${index}`;
         
             return (
               <PathpointIndicator

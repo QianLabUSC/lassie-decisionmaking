@@ -71,7 +71,7 @@ export default function Popup(props) {
   }
 
   const handleChange = ev => {
-    let val = ev.target.value;
+    const val = ev.target.value;
     checkVal(val);
     setValue(val);
   };
