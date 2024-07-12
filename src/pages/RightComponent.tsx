@@ -409,14 +409,15 @@ const onSubmitRankingEvaluation = () => {
 
 const rankingEvaluationPanel_Step4 = (
   <div className="objective-questions">
-    <h1>Step4: ranking  Evaluation  Panel_</h1>
+    <h1>Step4: Ranking Evaluation  Panel</h1>
+    <RatingComponent/>
     <Button
           className="continueButton"
           variant="contained"
           color="primary"
           onClick={onSubmitRankingEvaluation}>
               Sumbit ranking
-        </Button>
+        </Button> 
   </div>
 );
 
