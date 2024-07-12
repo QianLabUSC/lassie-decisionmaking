@@ -353,7 +353,7 @@ const RightComponent = () => {
   const objectiveSelectPath = (
     <div className="objective-questions">
       <p>
-        <strong>Step3: Your input is saved in json</strong>
+        Step3: Your inputs and Data Gathered Till Now Will be saved in json
       </p>
       <RadioGroup
         row
