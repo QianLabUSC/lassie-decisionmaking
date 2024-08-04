@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import RatingComponent from './rating';
+import { Typography } from '@material-ui/core';
 import HypothesisConfidencePanel from './hypothesisConfidence';
 import {
   Select,
@@ -21,6 +22,7 @@ import { fourthApiCallSimulate } from '../ApiCalls/fourth_api_simulate';
 import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
 import RobotChart from '../components/RobotChart';
+import UpperLeftRobotChart from '../components/UpperLeftRobotChart';
 import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 import { useHistory } from 'react-router-dom';
 import SelectedPathChart from '../components/SelectedPathChart';
@@ -598,7 +600,28 @@ const HypothesisConfidencePanel_Step5 = (
 
   const ChartTabs = () => (
     <Box sx={{ width: '100%' }}>
-      <ShearVsMoisturePlot width={1400} height={1100} />
+        <Typography
+        variant="h6"
+        style={{ marginTop: '10px', textAlign: 'center' }}
+      >
+       World Map With Robot Actual Trajectory
+      </Typography>
+   
+      {/* <ShearVsMoisturePlot width={550} height={550} /> */}
+
+      <UpperLeftRobotChart />
+      <Typography
+        variant="h6"
+        style={{ marginTop: '10px', textAlign: 'center' }}
+      >
+        Collected Data from the Transect
+      </Typography>
+      <Typography
+        style={{ marginTop: '1px', textAlign: 'center' }}
+      >
+        Shear strength
+      </Typography>
+      <ShearVsMoisturePlot width={550} height={550} />
     </Box>
   );
 
