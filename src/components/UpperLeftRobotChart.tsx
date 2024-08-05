@@ -113,12 +113,13 @@ const UpperLeftRobotChart = () => {
 
   return (
     <div>
-      <svg width={width} height={height} style={{marginLeft:'50px'}}>
+      <svg width={width} height={height} style={{marginLeft:'150px'}}>
       <defs>
           <filter id="blurFilter" x="0" y="0">
             <feGaussianBlur in="SourceGraphic" stdDeviation="1" />
           </filter>
         </defs>
+        
       <image href={patchyEnivironmentImage} x={50} y={22} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
         <Group left={margin.left} top={margin.top}>
           {/* For showing initial robot icon at (0,0) */}
