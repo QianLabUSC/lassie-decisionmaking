@@ -24,19 +24,19 @@ interface ChartProps {
   };
 }
 
-const generateInitialChartData = ( ): ChartData[] => {
-    const initialdata: ChartData[] = [];
-    const numOfPoints = 50; // Adjust for a denser or sparser grid
-  
-    for (let x = 0; x < numOfPoints; x++) {
-      for (let y = 0; y < numOfPoints; y++) {
-        const value = 0;
-        initialdata.push({ x, y, value });
-      }
+const generateInitialChartData = (): ChartData[] => {
+  const initialdata: ChartData[] = [];
+  const numOfPoints = 50; // Adjust for a denser or sparser grid
+
+  for (let x = 0; x < numOfPoints; x++) {
+    for (let y = 0; y < numOfPoints; y++) {
+      const value = 0;
+      initialdata.push({ x, y, value });
     }
-  
-    return initialdata;
-  };
+  }
+
+  return initialdata;
+};
 
 const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, shearPlotdata }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -135,46 +135,51 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, she
       svg.append('g')
         .attr('transform', `translate(${margin.left},${height - margin.bottom})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.format(".1f")).tickValues(d3.range(0.0, 1.0, 0.1)))
-        .append('text') // X-axis Label
-        .attr('y', 40)
-        .attr('x', plotWidth / 2)
+        .selectAll('text')
+        .style('font-size', '15px'); // Increase font size for x-axis tick labels
+
+      svg.append('text') // X-axis Label
+        .attr('y', height - margin.bottom + 45)
+        .attr('x', plotWidth / 2 )
         .attr('text-anchor', 'middle')
         .attr('fill', 'black')
-        .style('font-size', '25px')
+        .style('font-size', '20px')
         .text('X-Coordinates');
 
       // Add Y axis
       svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`)
         .call(d3.axisLeft(yScale).tickFormat(d3.format(".1f")).tickValues(d3.range(0.1, 1.0, 0.1)))
-        .append('text') // Y-axis Label
+        .selectAll('text')
+        .style('font-size', '15px'); // Increase font size for y-axis tick labels
+
+      svg.append('text') // Y-axis Label
         .attr('transform', 'rotate(-90)')
-        .attr('y', -30)
-        .attr('x', -plotHeight / 2)
+        .attr('y', margin.left - 37)
+        .attr('x', -plotHeight / 2 )
         .attr('text-anchor', 'middle')
         .attr('fill', 'black')
-        .style('font-size', '25px') // Set the font size here
+        .style('font-size', '20px') // Increase the font size here
         .text('Y-Coordinates');
-    
-    // Add  top borders to the chart area
-    svg.append('line')
-      .attr('x1', margin.left)
-      .attr('x2', width - margin.right)
-      .attr('y1', margin.top)
-      .attr('y2', margin.top)
-      .attr('stroke', 'black')
-      .attr('stroke-width', '1');
 
-        // Add  right borders to the chart area
+      // Add top borders to the chart area
       svg.append('line')
-      .attr('x1', width - margin.right)
-      .attr('x2', width - margin.right)
-      .attr('y1', margin.top)
-      .attr('y2', height - margin.bottom)
-      .attr('stroke', 'black')
-      .attr('stroke-width', '1');
-  }
+        .attr('x1', margin.left)
+        .attr('x2', width - margin.right)
+        .attr('y1', margin.top)
+        .attr('y2', margin.top)
+        .attr('stroke', 'black')
+        .attr('stroke-width', '1');
 
+      // Add right borders to the chart area
+      svg.append('line')
+        .attr('x1', width - margin.right)
+        .attr('x2', width - margin.right)
+        .attr('y1', margin.top)
+        .attr('y2', height - margin.bottom)
+        .attr('stroke', 'black')
+        .attr('stroke-width', '1');
+    }
   }, [data, plotWidth, plotHeight]);
 
   return (
