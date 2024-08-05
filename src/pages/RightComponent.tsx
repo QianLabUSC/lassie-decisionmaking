@@ -602,7 +602,7 @@ const HypothesisConfidencePanel_Step5 = (
     <Box sx={{ width: '100%' }}>
         <Typography
         variant="h6"
-        style={{ marginTop: '30px', textAlign: 'center' }}
+        style={{ marginTop: '50px', textAlign: 'center' }}
       >
        World Map With Robot Actual Trajectory
       </Typography>
@@ -619,8 +619,7 @@ const HypothesisConfidencePanel_Step5 = (
     
       {/* Height and Width of the image in the background is provided via prop */}
       <ShearStrengthOnWorldMapChart width={650} height={650} shearPlotdata={scatter_Plot_Data}/>
-         
-      <ShearVsMoisturePlot width={650} height={650} />
+
     </Box>
   );
 
