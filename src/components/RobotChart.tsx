@@ -262,7 +262,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
           </Select>
         </FormControl>
       </div>
-      <svg width={width} height={height} style={{ border: '1px solid black' }}>
+      <svg width={width} height={height} style={{ border: '1px solid black', marginLeft: '50px' }}>
       {/* For showing intila robot icon to 00 */}
       {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
         <Group>

@@ -138,7 +138,7 @@ const RightComponent = () => {
           End Collection Transect
         </Button>
       </div>
-      <RatingComponent />
+    
     </>
   );
   //////////////////////////////////////////////////////////////////////////// 2nd step form input////////////////////
