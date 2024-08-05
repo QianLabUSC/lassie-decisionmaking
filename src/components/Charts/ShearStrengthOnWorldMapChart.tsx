@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import * as React from 'react'
+import  { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import {
-  Typography,
-} from '@material-ui/core';
+import { Typography } from '@material-ui/core';
+import ChartColourLegendPanel from './ChartColourLegendPanel';
+import '../Charts/ShearStrengthOnWorldMapChart.css';  // Ensure to import your custom styles
 
 const graduallyChangingEnivironmentImage = require('../../assests/Gradually_Changing_Env.png');
 
@@ -36,12 +36,8 @@ const generateChartData = (
 };
 
 const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) => {
-  const [selectedOption, setSelectedOption] = useState<
-    'MOISTURE' | 'SHEAR-STRENGTH'
-  >('SHEAR-STRENGTH');
-  const [data, setData] = useState<ChartData[]>(
-    generateChartData('SHEAR-STRENGTH')
-  );
+  const [selectedOption, setSelectedOption] = useState<'MOISTURE' | 'SHEAR-STRENGTH'>('SHEAR-STRENGTH');
+  const [data, setData] = useState<ChartData[]>(generateChartData('SHEAR-STRENGTH'));
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const margin = { top: 20, right: 20, bottom: 50, left: 50 };
@@ -63,11 +59,10 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
         .attr('width', plotWidth)
         .attr('height', plotHeight)
         .attr('x', margin.left)
-        .attr('y', margin.top+12);
+        .attr('y', margin.top + 12);
 
       // Create tooltip
-      const tooltip = d3
-        .select(tooltipRef.current)
+      const tooltip = d3.select(tooltipRef.current)
         .style('opacity', 0)
         .style('position', 'absolute')
         .style('background-color', 'white')
@@ -77,20 +72,18 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
         .style('padding', '5px');
 
       // Create scales
-      const xScale = d3
-        .scaleBand()
+      const xScale = d3.scaleBand()
         .domain(data.map((d) => d.x.toString()))
-        .range([0, plotWidth])
-   
+        .range([0, plotWidth]);
 
-      const yScale = d3
-        .scaleBand()
+      const yScale = d3.scaleBand()
         .domain(data.map((d) => d.y.toString()))
-        .range([plotHeight, 0]) // Inverted to make y-axis start from bottom
-      
+        .range([plotHeight, 0]); // Inverted to make y-axis start from bottom
 
-      const colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
-        .domain([0, d3.max(data, d => d.value) ?? 0]);
+      // Create custom color scale
+      const colorScale = d3.scaleLinear<string>()
+        .domain([0, d3.max(data, d => d.value) ?? 0])
+        .range(['orange', 'blue', 'darkblue']);
 
       const arrowLengthScale = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.value) ?? 0])
@@ -114,8 +107,7 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
           tooltip.style('opacity', 1);
         })
         .on('mousemove', function (event, d) {
-          tooltip
-            .html(`${selectedOption} <br> value is: ` + d.value)
+          tooltip.html(`${selectedOption} <br> value is: ` + d.value)
             .style('left', event.pageX + 20 + 'px')
             .style('top', event.pageY + 'px');
         })
@@ -152,33 +144,26 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
 
   return (
     <>
-      <Typography
-        variant="h3"
-        style={{ minWidth: 200, marginTop: '30px', marginLeft: '400px' }}
-      >
-       Shear Strength  Visualization
-      </Typography>
-      {/* <FormControl
-        variant="outlined"
-        style={{ marginLeft: '550px', marginTop: '20px', width: '200px' }}
-      >
-        <InputLabel id="dataset-select-label">Dataset</InputLabel>
-        <Select
-          labelId="dataset-select-label"
-          id="dataset-select"
-          value={selectedOption}
-          onChange={(e) =>
-            setSelectedOption( 'MOISTURE')
-          }
-          label="Dataset"
-        >
-           <MenuItem value="MOISTURE">Moisture</MenuItem>
-          <MenuItem value="SHEARSTRESS">Shear Stress</MenuItem>
-        </Select>
-      </FormControl> */}
-      <svg ref={svgRef} width={width} height={height}  style={{marginLeft:'50px'}} >
-        </svg>
-      <div ref={tooltipRef} className="tooltip"></div>
+      <div className="chart-container">
+        <div className="chart">
+          <Typography
+            variant="h3"
+            style={{ minWidth: 200, marginTop: '30px' }}
+          >
+            Shear Strength Visualization
+          </Typography>
+          <svg ref={svgRef} width={width} height={height} />
+          <div ref={tooltipRef} className="tooltip"></div>
+        </div>
+        <div className="legend">
+          <ChartColourLegendPanel
+            width={300}
+            height={50}
+            colorFrom="#bf7c40"
+            colorTo="#0000ff"
+          />
+        </div>
+      </div>
     </>
   );
 };
