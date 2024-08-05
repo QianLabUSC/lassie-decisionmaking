@@ -6,8 +6,8 @@ import { Text } from '@visx/text';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
-import { useStateValue } from '../state';
-const patchyEnivironmentImage = require('../assests/Patchy_Env.png');
+import { useStateValue } from '../../state';
+const patchyEnivironmentImage = require('../../assests/Patchy_Env.png');
 // Constants for chart dimensions and margins
 const width = 650;
 const height = 650;
