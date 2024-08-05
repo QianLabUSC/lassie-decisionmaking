@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { Typography } from '@material-ui/core';
 import ChartColourLegendPanel from './ChartColourLegendPanel';
 import '../Charts/ShearStrengthOnWorldMapChart.css'; // Ensure to import your custom styles
 
@@ -141,8 +140,8 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, she
         .attr('x', plotWidth / 2)
         .attr('text-anchor', 'middle')
         .attr('fill', 'black')
-        .style('font-size', '15px')
-        .text('X-Coordinate');
+        .style('font-size', '25px')
+        .text('X-Coordinates');
 
       // Add Y axis
       svg.append('g')
@@ -150,12 +149,12 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, she
         .call(d3.axisLeft(yScale).tickFormat(d3.format(".1f")).tickValues(d3.range(0.1, 1.0, 0.1)))
         .append('text') // Y-axis Label
         .attr('transform', 'rotate(-90)')
-        .attr('y', -25)
+        .attr('y', -30)
         .attr('x', -plotHeight / 2)
         .attr('text-anchor', 'middle')
         .attr('fill', 'black')
         .style('font-size', '15px') // Set the font size here
-        .text('Y-Coordinate');
+        .text('Y-Coordinates');
     }
   }, [data, plotWidth, plotHeight]);
 
@@ -163,11 +162,11 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, she
     <>
       <div className="chart-container">
         <div className="chart">
-          <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '10px' }} />
+          <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '50px' }} />
           <div ref={tooltipRef} className="tooltip"></div>
         </div>
         <div className="legend">
-          <ChartColourLegendPanel width={50} height={600} colorFrom="#bf7c40" colorTo="#0000ff" />
+          <ChartColourLegendPanel width={100} height={600} colorFrom="#bf7c40" colorTo="#0000ff" />
         </div>
       </div>
     </>
