@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { Typography } from '@material-ui/core';
 import { useStateValue } from '../../state';
+const graduallyChangingEnivironmentImage = require('../../assests/Gradually_Changing_Env.png');
 
 interface ScatterData {
   moisture: number;
   shear: number;
 }
+
 
 interface LineData {
   x: number;
@@ -18,10 +19,7 @@ interface ScatterPlotProps {
   height: number;
 }
 
-const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
-  width,
-  height,
-}) => {
+const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({ width, height }) => {
   const [{ simulation_api_full_data }] = useStateValue();
 
   // Transform the separate moisture and shear arrays into an array of ScatterData objects
@@ -35,18 +33,33 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
 
   const svgRef = useRef<SVGSVGElement>(null);
   const margin = { top: 20, right: 20, bottom: 50, left: 120 };
-  const plotWidth = 500;
-  const plotHeight = 500;
+  const plotWidth = 600;
+  const plotHeight = 600;
 
   useEffect(() => {
     if (svgRef.current) {
       const svg = d3.select(svgRef.current);
       svg.selectAll('*').remove(); // Clear SVG
 
-      const xScale = d3.scaleLinear().domain([0.0, 1]).range([0, plotWidth]);
+      // Define the blur filter
+      svg.append('defs')
+        .append('filter')
+        .attr('id', 'blurFilter')
+        .append('feGaussianBlur')
+        .attr('in', 'SourceGraphic')
+        .attr('stdDeviation', '5'); // Adjust the stdDeviation for more/less blur
 
+      // Add the background image with blur filter
+      svg.append('image')
+        .attr('xlink:href', graduallyChangingEnivironmentImage)
+        .attr('x', 40)
+        .attr('y', 19)
+        .attr('width', width-50)
+        .attr('height', height)
+        .attr('filter', 'url(#blurFilter)');
+
+      const xScale = d3.scaleLinear().domain([0, 1]).range([0, plotWidth]);
       const yScale = d3.scaleLinear().domain([0, 1]).range([plotHeight, 0]);
-
       const g = svg
         .append('g')
         .attr('transform', `translate(${margin.left-80},${margin.top+10})`);
@@ -60,24 +73,24 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
             .axisBottom(xScale)
             .ticks(10)
             .tickSize(-plotHeight)
-
             .tickFormat(null)
         )
-        .attr('stroke', 'lightgrey')
-        .attr('stroke-opacity', 0.7)
+        .attr('stroke', 'black')
+        .attr('stroke-opacity', 0.9)
         .selectAll('.tick line')
-        .attr('stroke', 'lightgrey');
+        .attr('stroke', 'black');
 
       g.append('g')
         .attr('class', 'grid')
         .call(
           d3.axisLeft(yScale).ticks(10).tickSize(-plotWidth).tickFormat(null)
         )
-        .attr('stroke', 'lightgrey')
+        .attr('stroke', 'black')
         .attr('stroke-opacity', 0.7)
         .selectAll('.tick line')
-        .attr('stroke', 'lightgrey');
+        .attr('stroke', 'black');
 
+        
       const lineData = [
         { x: 0, y: 11 },
         { x: 100, y: 85 },
@@ -96,6 +109,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
       //   .attr('stroke', 'red')
       //   .attr('stroke-width', 2)
       //   .attr('d', lineGenerator);
+
 
       const colorScale = (moisture) => {
         if (moisture >= 0.0 && moisture <= 0.1) return 'orange';
@@ -125,7 +139,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
           d3.select('#tooltip')
             .style('opacity', 1)
             .html(
-              `x: ${d.moisture}, y: ${d.shear}, Shear:${d.shear} Moisture:${d.moisture}`
+              `x: ${d.moisture}, y: ${d.shear}, Shear: ${d.shear}, Moisture: ${d.moisture}`
             )
             .style('left', `${event.pageX + 10}px`)
             .style('top', `${event.pageY + 10}px`);
@@ -138,10 +152,8 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({
 
   return (
     <>
-   
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center',  }}>
-        
-        <svg ref={svgRef} width={width} height={height} />
+      <div>
+        <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '150px' }} />
       </div>
       <div
         id="tooltip"

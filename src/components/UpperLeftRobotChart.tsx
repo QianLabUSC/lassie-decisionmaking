@@ -7,19 +7,23 @@ import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
 import { useStateValue } from '../state';
-
+const patchyEnivironmentImage = require('../assests/Patchy_Env.png');
 // Constants for chart dimensions and margins
 const width = 650;
 const height = 650;
-const margin = { top: 20, bottom: 60, left: 70, right: 100 };
+const margin = { top: 20, right: 20, bottom: 50, left: 50 };
+
+const innerWidth = width - margin.left - margin.right;
+const innerHeight = height - margin.top - margin.bottom;
 
 // Define the structure of a single sub-path as an array of numbers
 type SubPath = number[];
 
 interface Point {
-    x: number;
-    y: number;
-  }
+  x: number;
+  y: number;
+}
+
 // Define a path as an array containing sub-paths
 type Path = [SubPath, SubPath, SubPath, SubPath];
 
@@ -32,12 +36,12 @@ interface UpperLeftRobotChartProps {
 
 const xScale = scaleLinear({
   domain: [0, 1],
-  range: [margin.left, width - margin.right],
+  range: [0, innerWidth],
 });
 
 const yScale = scaleLinear({
   domain: [0, 1],
-  range: [height - margin.bottom, margin.top],
+  range: [innerHeight, 0],
 });
 
 const UpperLeftRobotChart = () => {
@@ -67,7 +71,7 @@ const UpperLeftRobotChart = () => {
       y={y - 20}
       width="50"
       height="30"
-   
+      viewBox="0 0 24 24"
       fill="yellow"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -109,18 +113,24 @@ const UpperLeftRobotChart = () => {
 
   return (
     <div>
-      <svg width={width} height={height}>
-        {/* For showing initial robot icon at (0,0) */}
-        {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
-        <Group>
-          <AxisLeft scale={yScale} left={margin.left} />
-          <AxisBottom scale={xScale} top={height - margin.bottom}  />
+      <svg width={width} height={height} style={{marginLeft:'150px'}}>
+      <defs>
+          <filter id="blurFilter" x="0" y="0">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1" />
+          </filter>
+        </defs>
+      <image href={patchyEnivironmentImage} x={50} y={22} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
+        <Group left={margin.left} top={margin.top}>
+          {/* For showing initial robot icon at (0,0) */}
+          {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
+          <AxisLeft scale={yScale} numTicks={10} />
+          <AxisBottom top={innerHeight} scale={xScale} numTicks={10} />
           {selectedPathData.length > 0 && (
             <LinePath
               data={selectedPathData}
               x={(d: Point) => xScale(d.x)}
               y={(d) => yScale(d.y)}
-              stroke="black"
+              stroke="yellow"
               strokeWidth={4}
               curve={curveBasis}
             />
@@ -135,11 +145,11 @@ const UpperLeftRobotChart = () => {
             />
           ))}
         </Group>
-        <Text x={width / 2} y={height - margin.bottom + 40} fontSize={14} textAnchor="middle">
-          X
+        <Text x={width / 2} y={height - 5} fontSize={14} textAnchor="middle">
+          X Axis
         </Text>
-        <Text x={-height / 2} y={margin.left / 2} fontSize={14} textAnchor="middle" transform="rotate(-90)">
-          Y
+        <Text x={-height / 2}  y={margin.left-70/ 2} fontSize={14} textAnchor="middle" transform="rotate(-90)">
+          Y Axis 
         </Text>
       </svg>
     </div>

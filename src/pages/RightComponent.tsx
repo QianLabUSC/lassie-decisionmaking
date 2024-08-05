@@ -612,16 +612,12 @@ const HypothesisConfidencePanel_Step5 = (
       <UpperLeftRobotChart />
       <Typography
         variant="h6"
-        style={{ marginTop: '10px', textAlign: 'center' }}
+        style={{ marginTop: '50px', textAlign: 'center' }}
       >
-        Collected Data from the Transect
+        Collected Shear Data from the Transect
       </Typography>
-      <Typography
-        style={{ marginTop: '1px', textAlign: 'center' }}
-      >
-        Shear strength
-      </Typography>
-      <ShearVsMoisturePlot width={550} height={550} />
+    
+      <ShearVsMoisturePlot width={650} height={650} />
     </Box>
   );
 
