@@ -88,11 +88,11 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, she
 
       // Create scales
       const xScale = d3.scaleLinear()
-        .domain([0.0, 1])
+        .domain([0.0, 1.0])
         .range([0, plotWidth]);
 
       const yScale = d3.scaleLinear()
-        .domain([0.0, 1])
+        .domain([0.0, 1.0])
         .range([plotHeight, 0]); // Inverted to make y-axis start from bottom
 
       // Create custom color scale
@@ -102,7 +102,7 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, she
 
       const arrowLengthScale = d3.scaleLinear()
         .domain([0, d3.max(data, (d) => d.value) ?? 0])
-        .range([1, 30]);
+        .range([3, 30]);
 
       const arrow = d3.symbol().type(d3.symbolTriangle).size(100);
 
@@ -163,11 +163,11 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, she
     <>
       <div className="chart-container">
         <div className="chart">
-          <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '50px' }} />
+          <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '10px' }} />
           <div ref={tooltipRef} className="tooltip"></div>
         </div>
         <div className="legend">
-          <ChartColourLegendPanel width={300} height={50} colorFrom="#bf7c40" colorTo="#0000ff" />
+          <ChartColourLegendPanel width={50} height={600} colorFrom="#bf7c40" colorTo="#0000ff" />
         </div>
       </div>
     </>

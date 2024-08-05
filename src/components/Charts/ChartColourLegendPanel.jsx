@@ -3,24 +3,24 @@ import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 const ChartColourLegendPanel = ({ width, height, colorFrom, colorTo }) => {
-  const svgRef = useRef();
+  const svgRef = useRef(null);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current)
       .attr('width', width)
       .attr('height', height);
 
-    const legendWidth = width - 20;
-    const legendHeight = height - 20;
+    const legendWidth = width -13;
+    const legendHeight = height -11 ;
 
     // Create gradient
     const defs = svg.append('defs');
     const gradient = defs.append('linearGradient')
       .attr('id', 'legend-gradient')
       .attr('x1', '0%')
-      .attr('y1', '0%')
-      .attr('x2', '100%')
-      .attr('y2', '0%');
+      .attr('y1', '100%')
+      .attr('x2', '0%')
+      .attr('y2', '0%'); // Change gradient direction to vertical
 
     gradient.append('stop')
       .attr('offset', '0%')
@@ -41,14 +41,15 @@ const ChartColourLegendPanel = ({ width, height, colorFrom, colorTo }) => {
     // Add legend axis
     const legendScale = d3.scaleLinear()
       .domain([0, 1]) // Adjust domain as needed
-      .range([0, legendWidth]);
+      .range([legendHeight, 0]);
 
-    const legendAxis = d3.axisBottom(legendScale)
+    const legendAxis = d3.axisRight(legendScale)
       .ticks(5)
-      .tickSize(-legendHeight);
+      .tickValues([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+      .tickSize(-legendWidth);
 
     svg.append('g')
-      .attr('transform', `translate(10, ${10 + legendHeight})`)
+      .attr('transform', `translate(${10}, 10)`)
       .call(legendAxis)
       .select('.domain').remove();
 
