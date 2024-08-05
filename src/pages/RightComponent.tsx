@@ -22,7 +22,7 @@ import { fourthApiCallSimulate } from '../ApiCalls/fourth_api_simulate';
 import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
 import RobotChart from '../components/RobotChart';
-import UpperLeftRobotChart from '../components/UpperLeftRobotChart';
+import UpperLeftRobotChart from '../components/Charts/UpperLeftRobotChart';
 import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 import { useHistory } from 'react-router-dom';
 import SelectedPathChart from '../components/SelectedPathChart';
