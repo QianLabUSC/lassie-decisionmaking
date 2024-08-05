@@ -113,7 +113,7 @@ const UpperLeftRobotChart = () => {
 
   return (
     <div>
-      <svg width={width} height={height} style={{marginLeft:'150px'}}>
+      <svg width={width} height={height} style={{marginLeft:'50px'}}>
       <defs>
           <filter id="blurFilter" x="0" y="0">
             <feGaussianBlur in="SourceGraphic" stdDeviation="1" />
