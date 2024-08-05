@@ -146,11 +146,11 @@ const UpperLeftRobotChart = () => {
             />
           ))}
         </Group>
-        <Text x={width / 2} y={height - 5} fontSize={14} textAnchor="middle">
-          X Axis
+        <Text x={width / 2} y={height - 5} fontSize={20} textAnchor="middle">
+          X Coordinates
         </Text>
-        <Text x={-height / 2}  y={margin.left-70/ 2} fontSize={14} textAnchor="middle" transform="rotate(-90)">
-          Y Axis 
+        <Text x={-height / 2}  y={margin.left-70/ 2} fontSize={20} textAnchor="middle" transform="rotate(-90)">
+          Y Coordinates
         </Text>
       </svg>
     </div>
