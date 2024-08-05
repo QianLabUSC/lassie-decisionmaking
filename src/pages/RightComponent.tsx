@@ -26,7 +26,7 @@ import UpperLeftRobotChart from '../components/UpperLeftRobotChart';
 import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 import { useHistory } from 'react-router-dom';
 import SelectedPathChart from '../components/SelectedPathChart';
-
+import ShearStrengthOnWorldMapChart from '../components/Charts/ShearStrengthOnWorldMapChart';
 const NO_OF_ITERATION = 1;
 const RightComponent = () => {
   const [selectedBelief, setSelectedBelief] = useState<string[]>([]);
@@ -618,6 +618,7 @@ const HypothesisConfidencePanel_Step5 = (
       </Typography>
     
       <ShearVsMoisturePlot width={650} height={650} />
+      <ShearStrengthOnWorldMapChart width={650} height={650} />
     </Box>
   );
 
