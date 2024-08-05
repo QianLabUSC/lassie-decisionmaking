@@ -299,6 +299,17 @@ def getThirdApi():
     inputs = request.json
     print(inputs,'inputs')
 
+   # Generate random data points
+    num_points = 50
+
+    scatter_plot_data = {
+        "x": [random.random() for _ in range(num_points)],
+        "y": [random.random() for _ in range(num_points)],
+        "moisture": [random.random() for _ in range(num_points)],
+        "shear": [random.random() for _ in range(num_points)]
+    }
+
+
 
 # export const objectiveOptions = [
 #   "Gather more data on unsampled area", // Option 0 - spatial coverage algorithm
@@ -320,16 +331,17 @@ def getThirdApi():
         ] 
     }
 
+    
     result= {
         "line_data": {
             "start_cordinate":[2,10],
             "end_corindate":[3,9]
         },
         "scatter_plot_data":{
-           "x": [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-           "y": [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
-           "moisture": [2,3,4,5,6],
-           "shear": [6,7,8,4,1]  
+           "x": scatter_plot_data["x"],
+           "y": scatter_plot_data["y"],
+           "moisture": scatter_plot_data["moisture"],
+           "shear": scatter_plot_data["shear"]  
         },
         "selected_path_data":[
             [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
