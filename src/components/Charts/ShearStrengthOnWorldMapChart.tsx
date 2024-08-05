@@ -1,11 +1,11 @@
-import * as React from 'react'
-import  { useEffect, useRef, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Typography } from '@material-ui/core';
 import ChartColourLegendPanel from './ChartColourLegendPanel';
-import '../Charts/ShearStrengthOnWorldMapChart.css';  // Ensure to import your custom styles
+import '../Charts/ShearStrengthOnWorldMapChart.css'; // Ensure to import your custom styles
 
-const graduallyChangingEnivironmentImage = require('../../assests/Gradually_Changing_Env.png');
+const graduallyChangingEnivironmentImage = require('../../assests/Gradually_changing_square_env.png');
 
 interface ChartData {
   x: number;
@@ -16,37 +16,52 @@ interface ChartData {
 interface ChartProps {
   width: number;
   height: number;
+
+  shearPlotdata: {
+    x: number[];
+    y: number[];
+    moisture: number[];
+    shear: number[];
+  };
 }
 
-const generateChartData = (
-  type: 'MOISTURE' | 'SHEAR-STRENGTH'
-): ChartData[] => {
-  const data: ChartData[] = [];
-  const numOfPoints = 10; // Adjust for a denser or sparser grid
-  const maxValue = type === 'MOISTURE' ? 100 : 5;
-
-  for (let x = 0; x < numOfPoints; x++) {
-    for (let y = 0; y < numOfPoints; y++) {
-      const value = Math.floor(Math.random() * maxValue);
-      data.push({ x, y, value });
+const generateInitialChartData = ( ): ChartData[] => {
+    const initialdata: ChartData[] = [];
+    const numOfPoints = 50; // Adjust for a denser or sparser grid
+  
+    for (let x = 0; x < numOfPoints; x++) {
+      for (let y = 0; y < numOfPoints; y++) {
+        const value = 0;
+        initialdata.push({ x, y, value });
+      }
     }
-  }
+  
+    return initialdata;
+  };
 
-  return data;
-};
-
-const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) => {
-  const [selectedOption, setSelectedOption] = useState<'MOISTURE' | 'SHEAR-STRENGTH'>('SHEAR-STRENGTH');
-  const [data, setData] = useState<ChartData[]>(generateChartData('SHEAR-STRENGTH'));
+const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, shearPlotdata }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const margin = { top: 20, right: 20, bottom: 50, left: 50 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
 
+  const processData = () => {
+    if (!shearPlotdata || shearPlotdata.x.length === 0) {
+      return generateInitialChartData(); // Generate default data with 10x10 grid
+    }
+    return shearPlotdata?.x.map((x, i) => ({
+      x: x,
+      y: shearPlotdata.y[i],
+      value: shearPlotdata.shear[i],
+    }));
+  };
+
+  const [data, setData] = useState<ChartData[]>(processData());
+
   useEffect(() => {
-    setData(generateChartData(selectedOption));
-  }, [selectedOption]);
+    setData(processData());
+  }, [shearPlotdata]);
 
   useEffect(() => {
     if (data.length > 0 && svgRef.current) {
@@ -59,7 +74,7 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
         .attr('width', plotWidth)
         .attr('height', plotHeight)
         .attr('x', margin.left)
-        .attr('y', margin.top + 12);
+        .attr('y', margin.top);
 
       // Create tooltip
       const tooltip = d3.select(tooltipRef.current)
@@ -72,42 +87,44 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
         .style('padding', '5px');
 
       // Create scales
-      const xScale = d3.scaleBand()
-        .domain(data.map((d) => d.x.toString()))
+      const xScale = d3.scaleLinear()
+        .domain([0.0, 1])
         .range([0, plotWidth]);
 
-      const yScale = d3.scaleBand()
-        .domain(data.map((d) => d.y.toString()))
+      const yScale = d3.scaleLinear()
+        .domain([0.0, 1])
         .range([plotHeight, 0]); // Inverted to make y-axis start from bottom
 
       // Create custom color scale
       const colorScale = d3.scaleLinear<string>()
-        .domain([0, d3.max(data, d => d.value) ?? 0])
+        .domain([0, d3.max(data, (d) => d.value) ?? 0])
         .range(['orange', 'blue', 'darkblue']);
 
       const arrowLengthScale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.value) ?? 0])
+        .domain([0, d3.max(data, (d) => d.value) ?? 0])
         .range([1, 30]);
 
       const arrow = d3.symbol().type(d3.symbolTriangle).size(100);
 
       svg.selectAll('path')
         .data(data)
-        .enter().append('path')
+        .enter()
+        .append('path')
         .attr('d', arrow)
-        .attr('transform', d => {
-          const x = xScale(d.x.toString())! + xScale.bandwidth() / 2 + margin.left;
-          const y = yScale(d.y.toString())! + yScale.bandwidth() / 2 + margin.top;
+        .attr('transform', (d) => {
+          const x = xScale(d.x) + margin.left;
+          const y = yScale(d.y) + margin.top;
           const length = arrowLengthScale(d.value);
           return `translate(${x},${y}) rotate(90) scale(${length / 15})`; // Adjust the rotation as needed
         })
-        .attr('fill', d => colorScale(d.value))
+        .attr('fill', (d) => colorScale(d.value))
         .attr('stroke', '#fff')
         .on('mouseover', function (event, d) {
           tooltip.style('opacity', 1);
         })
         .on('mousemove', function (event, d) {
-          tooltip.html(`${selectedOption} <br> value is: ` + d.value)
+          tooltip
+            .html(`Shear Strength : ${d.value}`)
             .style('left', event.pageX + 20 + 'px')
             .style('top', event.pageY + 'px');
         })
@@ -118,7 +135,7 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
       // Add X axis
       svg.append('g')
         .attr('transform', `translate(${margin.left},${height - margin.bottom})`)
-        .call(d3.axisBottom(xScale).tickSizeOuter(0))
+        .call(d3.axisBottom(xScale).tickFormat(d3.format(".1f")).tickValues(d3.range(0.0, 1.0, 0.1)))
         .append('text') // X-axis Label
         .attr('y', 40)
         .attr('x', plotWidth / 2)
@@ -130,7 +147,7 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
       // Add Y axis
       svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`)
-        .call(d3.axisLeft(yScale).tickSizeOuter(0))
+        .call(d3.axisLeft(yScale).tickFormat(d3.format(".1f")).tickValues(d3.range(0.1, 1.0, 0.1)))
         .append('text') // Y-axis Label
         .attr('transform', 'rotate(-90)')
         .attr('y', -25)
@@ -140,28 +157,17 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
         .style('font-size', '15px') // Set the font size here
         .text('Y-Coordinate');
     }
-  }, [data, plotWidth, plotHeight, selectedOption]);
+  }, [data, plotWidth, plotHeight]);
 
   return (
     <>
       <div className="chart-container">
         <div className="chart">
-          <Typography
-            variant="h3"
-            style={{ minWidth: 200, marginTop: '30px' }}
-          >
-            Shear Strength Visualization
-          </Typography>
-          <svg ref={svgRef} width={width} height={height} />
+          <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '50px' }} />
           <div ref={tooltipRef} className="tooltip"></div>
         </div>
         <div className="legend">
-          <ChartColourLegendPanel
-            width={300}
-            height={50}
-            colorFrom="#bf7c40"
-            colorTo="#0000ff"
-          />
+          <ChartColourLegendPanel width={300} height={50} colorFrom="#bf7c40" colorTo="#0000ff" />
         </div>
       </div>
     </>

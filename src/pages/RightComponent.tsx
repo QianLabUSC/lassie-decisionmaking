@@ -616,9 +616,10 @@ const HypothesisConfidencePanel_Step5 = (
       >
         Collected Shear Data from the Transect
       </Typography>
-    
+ 
+      <ShearStrengthOnWorldMapChart width={650} height={650} shearPlotdata={scatter_Plot_Data}/>
+         
       <ShearVsMoisturePlot width={650} height={650} />
-      <ShearStrengthOnWorldMapChart width={650} height={650} />
     </Box>
   );
 
