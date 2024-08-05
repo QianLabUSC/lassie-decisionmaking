@@ -10,8 +10,8 @@ const ChartColourLegendPanel = ({ width, height, colorFrom, colorTo }) => {
       .attr('width', width)
       .attr('height', height);
 
-    const legendWidth = width -13;
-    const legendHeight = height -11 ;
+    const legendWidth = width -55;
+    const legendHeight = height - 11;
 
     // Create gradient
     const defs = svg.append('defs');
@@ -30,7 +30,7 @@ const ChartColourLegendPanel = ({ width, height, colorFrom, colorTo }) => {
       .attr('stop-color', colorTo);
 
     svg.append('rect')
-      .attr('x', 10)
+      .attr('x', 50)
       .attr('y', 10)
       .attr('width', legendWidth)
       .attr('height', legendHeight)
@@ -40,18 +40,23 @@ const ChartColourLegendPanel = ({ width, height, colorFrom, colorTo }) => {
 
     // Add legend axis
     const legendScale = d3.scaleLinear()
-      .domain([0, 1]) // Adjust domain as needed
+      .domain([0.0, 1.0]) // Adjust domain as needed
       .range([legendHeight, 0]);
 
-    const legendAxis = d3.axisRight(legendScale)
+    const legendAxis = d3.axisLeft(legendScale)
       .ticks(5)
       .tickValues([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
-      .tickSize(-legendWidth);
+      .tickFormat(d3.format(".1f")) // Ensure one decimal place
+      .tickSize(-60);
 
     svg.append('g')
-      .attr('transform', `translate(${10}, 10)`)
+      .attr('transform', `translate(${35}, 10)`) // Move the axis to the left of the color panel
       .call(legendAxis)
       .select('.domain').remove();
+
+    // Increase font size
+    svg.selectAll('.tick text')
+      .style('font-size', '15px'); // Adjust font size as needed
 
   }, [width, height, colorFrom, colorTo]);
 
