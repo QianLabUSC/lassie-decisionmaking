@@ -63,7 +63,7 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
         .attr('width', plotWidth)
         .attr('height', plotHeight)
         .attr('x', margin.left)
-        .attr('y', margin.top);
+        .attr('y', margin.top+12);
 
       // Create tooltip
       const tooltip = d3
@@ -81,20 +81,20 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
         .scaleBand()
         .domain(data.map((d) => d.x.toString()))
         .range([0, plotWidth])
-        .padding(0.05);
+   
 
       const yScale = d3
         .scaleBand()
         .domain(data.map((d) => d.y.toString()))
         .range([plotHeight, 0]) // Inverted to make y-axis start from bottom
-        .padding(0.05);
+      
 
       const colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
         .domain([0, d3.max(data, d => d.value) ?? 0]);
 
       const arrowLengthScale = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.value) ?? 0])
-        .range([5, 20]);
+        .range([1, 30]);
 
       const arrow = d3.symbol().type(d3.symbolTriangle).size(100);
 
@@ -106,7 +106,7 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
           const x = xScale(d.x.toString())! + xScale.bandwidth() / 2 + margin.left;
           const y = yScale(d.y.toString())! + yScale.bandwidth() / 2 + margin.top;
           const length = arrowLengthScale(d.value);
-          return `translate(${x},${y}) rotate(0) scale(${length / 12})`; // Adjust the rotation as needed
+          return `translate(${x},${y}) rotate(90) scale(${length / 15})`; // Adjust the rotation as needed
         })
         .attr('fill', d => colorScale(d.value))
         .attr('stroke', '#fff')
@@ -176,7 +176,7 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height }) =
           <MenuItem value="SHEARSTRESS">Shear Stress</MenuItem>
         </Select>
       </FormControl> */}
-      <svg ref={svgRef} width={width} height={height}  style={{marginLeft:'150px'}} >
+      <svg ref={svgRef} width={width} height={height}  style={{marginLeft:'50px'}} >
         </svg>
       <div ref={tooltipRef} className="tooltip"></div>
     </>
