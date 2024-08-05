@@ -153,7 +153,7 @@ const MoistureStressScatterPlot: React.FC<ScatterPlotProps> = ({ width, height }
   return (
     <>
       <div>
-        <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '50px' }} />
+        <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '150px' }} />
       </div>
       <div
         id="tooltip"
