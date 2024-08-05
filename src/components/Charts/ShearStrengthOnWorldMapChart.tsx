@@ -153,16 +153,35 @@ const ShearStrengthOnWorldMapChart: React.FC<ChartProps> = ({ width, height, she
         .attr('x', -plotHeight / 2)
         .attr('text-anchor', 'middle')
         .attr('fill', 'black')
-        .style('font-size', '15px') // Set the font size here
+        .style('font-size', '25px') // Set the font size here
         .text('Y-Coordinates');
-    }
+    
+    // Add  top borders to the chart area
+    svg.append('line')
+      .attr('x1', margin.left)
+      .attr('x2', width - margin.right)
+      .attr('y1', margin.top)
+      .attr('y2', margin.top)
+      .attr('stroke', 'black')
+      .attr('stroke-width', '1');
+
+        // Add  right borders to the chart area
+      svg.append('line')
+      .attr('x1', width - margin.right)
+      .attr('x2', width - margin.right)
+      .attr('y1', margin.top)
+      .attr('y2', height - margin.bottom)
+      .attr('stroke', 'black')
+      .attr('stroke-width', '1');
+  }
+
   }, [data, plotWidth, plotHeight]);
 
   return (
     <>
       <div className="chart-container">
         <div className="chart">
-          <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '50px' }} />
+          <svg ref={svgRef} width={width} height={height} style={{ marginLeft: '150px' }} />
           <div ref={tooltipRef} className="tooltip"></div>
         </div>
         <div className="legend">
