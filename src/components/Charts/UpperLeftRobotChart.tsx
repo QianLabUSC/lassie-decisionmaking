@@ -120,7 +120,7 @@ const UpperLeftRobotChart = () => {
           </filter>
         </defs>
         
-      <image href={patchyEnivironmentImage} x={50} y={22} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
+      <image href={patchyEnivironmentImage} x={50} y={20} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
         <Group left={margin.left} top={margin.top}>
           {/* For showing initial robot icon at (0,0) */}
           {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
@@ -145,6 +145,25 @@ const UpperLeftRobotChart = () => {
               fill="blue"
             />
           ))}
+          {/* Add top border */}
+          <line
+            x1={0}
+            x2={innerWidth}
+            y1={0}
+            y2={0}
+            stroke="black"
+            strokeWidth={1}
+          />
+
+          {/* Add right border */}
+          <line
+            x1={innerWidth}
+            x2={innerWidth}
+            y1={0}
+            y2={innerHeight}
+            stroke="black"
+            strokeWidth={1}
+          />
         </Group>
         <Text x={width / 2} y={height - 5} fontSize={20} textAnchor="middle">
           X Coordinates
