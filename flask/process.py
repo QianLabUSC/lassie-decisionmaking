@@ -8,6 +8,7 @@ from pathplanning import ManuallyEnv, ReactivePlanning, Estimation
 from pathplanning2ndPath import ReactivePlanning2ndPath
 from pathplanning3rdPath import ReactivePlanning3rdPath
 
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import numpy as np
@@ -17,6 +18,11 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 # node_web_gui = Ros2NodeWebGui()
 # app.config['ros_node'] = node_web_gui
+
+
+
+# Load environment variables from .env file
+load_dotenv()
 
 reported_objecitve_type = dict()
 reported_objecitve_type[0] = 'increasing information coverage'
@@ -230,7 +236,8 @@ def getSecondApi():
     #file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/path.json' #for Harshita
     #file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'
 
-    file_path='/Users/shrut/Desktop/roboland/lassie-decisionmaking/flask/json_paths/path.json'
+    # file_path='/Users/shrut/Desktop/roboland/lassie-decisionmaking/flask/json_paths/path.json'
+    file_path = os.getenv('LOG_FILE_LOCATION')
     # Check if the file exists
     if os.path.exists(file_path):
         # Load existing JSON data from the file
