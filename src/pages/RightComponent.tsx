@@ -586,7 +586,7 @@ const HypothesisConfidencePanel_Step5 = (
         variant="h6"
         style={{ marginTop: '10px', textAlign: 'center' }}
       >
-      INFORMATION GAIN HEAT MAO
+      INFORMATION GAIN HEAT MAP
       </Typography>
       <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='INFO_GAIN'/>
       <Typography
