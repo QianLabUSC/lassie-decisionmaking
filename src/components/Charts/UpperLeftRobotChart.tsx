@@ -8,6 +8,7 @@ import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
 import { useStateValue } from '../../state';
 const patchyEnivironmentImage = require('../../assests/Patchy_Env.png');
+const graduallyChangingEnivironmentImage = require('../../assests/Gradually_changing_square_env.png');
 // Constants for chart dimensions and margins
 const width = 650;
 const height = 650;
@@ -130,6 +131,19 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
   const labels = ['A', 'B', 'C'];
   const colors = ['#FF5733', '#33FF57', '#3357FF'];
   
+  let backgoundImg;
+
+  let chartBackgroundImg = process.env.REACT_APP_EXPERIMENT_LOCATION_FOR_BACKGROUND_IMAGES;
+  console.log(chartBackgroundImg, 'chartBackgroundImg');
+  
+  if (chartBackgroundImg === 'PATCHY') {
+    backgoundImg = patchyEnivironmentImage;
+  } else if (chartBackgroundImg === 'GRADUALLY_CHANGING') {
+    backgoundImg = graduallyChangingEnivironmentImage;
+  } else {
+    backgoundImg = '';
+  }
+
   return (
     <div>
       <svg width={width} height={height} style={{marginLeft:'150px'}}>
@@ -139,7 +153,7 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
           </filter>
         </defs>
         
-      <image href={patchyEnivironmentImage} x={50} y={20} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
+      <image href={backgoundImg} x={50} y={20} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
         <Group left={margin.left} top={margin.top}>
           {/* For showing initial robot icon at (0,0) */}
           {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
