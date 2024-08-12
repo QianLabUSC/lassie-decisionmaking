@@ -582,19 +582,20 @@ const HypothesisConfidencePanel_Step5 = (
 
   const collectionRightPanel = (
     <div className="collectionRightPanel">
-      <RobotChart currentselectedpath={selectedPathIndex} />
-      <div className="collectionRightPanel">
-        {!updateTransition && (
-          <div className="user-feedback">
-            {userFeedbackStateMap[input_box_step_btn_click]}
-          </div>
-        )}
-        {updateTransition && (
-          <div className="user-feedback">
-            {userFeedbackStateMap[currentView]}
-          </div>
-        )}
-      </div>
+         <Typography
+        variant="h6"
+        style={{ marginTop: '10px', textAlign: 'center' }}
+      >
+      INFORMATION GAIN HEAT MAO
+      </Typography>
+      <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='INFO_GAIN'/>
+      <Typography
+        variant="h6"
+        style={{ marginTop: '50px', textAlign: 'center' }}
+      >
+       DISCREPANCY REWARD HEAT MAP
+      </Typography>
+      <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='DISCREPANCY_REWARD'/>
     </div>
   );
 

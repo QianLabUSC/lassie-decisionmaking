@@ -55,17 +55,15 @@ type TestPath = Path[];
 
 interface RobotChartProps {
   currentselectedpath: string;
+  heatMapType: string;
 }
-const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
+const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapType}) => {
   const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data, all_single_curve_selected_black_path }, dispatch] = useStateValue();
 
   const [selectedPath, setSelectedPath] = useState('');
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
-  const [heatMapType, setHeatMapType] = useState('infogain');
+  
 
-  const handleChangeHeatMap = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setHeatMapType(event.target.value as string);
-  };
 
   useEffect(() => {
     // Load initial paths only on component mount
@@ -195,7 +193,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
   const endCoordinates = getEndCoordinates();
 
   const renderHeatMap = () => {
-    const heatmapData = heatMapType === 'infogain' ? simulation_api_full_data?.info_gain_shear : simulation_api_full_data?.uncertainity;
+    const heatmapData = heatMapType === 'DISCREPANCY_REWARD' ?  simulation_api_full_data?.uncertainity : simulation_api_full_data?.info_gain_shear;
 
     if (!heatmapData.length) return null;
     const startX = xScale(0);
@@ -225,42 +223,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
           padding: '5px',
         }}
       >
-        <FormControl
-          style={{
-            minWidth: 200,
-          }}
-        >
-          <Select
-            value={heatMapType}
-            onChange={handleChangeHeatMap}
-            displayEmpty
-            style={{
-              background: 'white',
-              color: 'rgba(0, 0.2, 0, 0.17)',
-              padding: '10px 15px',
-            }}
-            inputProps={{
-              'aria-label': 'Without label',
-              style: {
-                paddingTop: '10px',
-                paddingBottom: '10px',
-              },
-            }}
-          >
-            <MenuItem
-              value="infogain"
-              style={{ background: 'white', margin: '5px 0' }}
-            >
-              Information Gain
-            </MenuItem>
-            <MenuItem
-              value="discrepancy"
-              style={{ background: 'white', margin: '5px 0' }}
-            >
-              Discrepancy
-            </MenuItem>
-          </Select>
-        </FormControl>
+
       </div>
       <svg width={width} height={height} style={{ border: '1px solid black', marginLeft: '50px' }}>
       {/* For showing intila robot icon to 00 */}
