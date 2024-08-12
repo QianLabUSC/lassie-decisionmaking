@@ -609,16 +609,43 @@ const HypothesisConfidencePanel_Step5 = (
    
       {/* <ShearVsMoisturePlot width={550} height={550} /> */}
 
-      <UpperLeftRobotChart />
-      <Typography
+      <UpperLeftRobotChart currentselectedpath={selectedPathIndex} />
+
+ 
+      <div className="collectionRightPanel" 
+       style={{
+        marginLeft: '30px',
+        marginRight: '30px',
+        backgroundColor: '#f3f3f3' ,// Sets the background color to grey
+        boxShadow:' 0px 2px 6px rgba(0, 0, 0, 0.3)'
+      }}>
+        {!updateTransition && (
+          <div className="user-feedback" style={{    marginLeft: '50px',
+            marginRight: '50px',}}>
+            {userFeedbackStateMap[input_box_step_btn_click]}
+          </div>
+        )}
+        {updateTransition && (
+          <div className="user-feedback" style={{    marginLeft: '50px',
+            marginRight: '50px',}}>
+            {userFeedbackStateMap[currentView]}
+          </div>
+        )}
+      </div>
+   
+
+
+      
+      {/* <Typography
         variant="h6"
         style={{ marginTop: '50px', textAlign: 'center' }}
       >
-        Collected Shear Data from the Transect
+      
+     Collected Shear Data from the Transect
       </Typography>
     
-      {/* Height and Width of the image in the background is provided via prop */}
-      <ShearStrengthOnWorldMapChart width={650} height={650} shearPlotdata={scatter_Plot_Data}/>
+      Height and Width of the image in the background is provided via prop 
+      <ShearStrengthOnWorldMapChart width={650} height={650} shearPlotdata={scatter_Plot_Data}/>  */}
 
     </Box>
   );
