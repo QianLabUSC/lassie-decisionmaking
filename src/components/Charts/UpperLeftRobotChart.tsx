@@ -44,7 +44,11 @@ const yScale = scaleLinear({
   range: [innerHeight, 0],
 });
 
-const UpperLeftRobotChart = () => {
+interface RobotChartProps {
+  currentselectedpath: string;
+}
+
+const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath }) => {
   const [{ threePaths, all_single_curve_selected_black_path }, dispatch] = useStateValue();
 
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
@@ -82,6 +86,18 @@ const UpperLeftRobotChart = () => {
     </svg>
   );
 
+  const getPathData = (paths: TestPath, index: number): Point[] => {
+    if (index < paths.length) {
+      return paths[index][0].map((x, i) => ({
+        x,
+        y: paths[index][1][i],
+      }));
+    }
+    return [];
+  };
+
+
+
   const getSelectedPathData = (): Point[] => {
     const selectedXs = all_single_curve_selected_black_path?.selectedPath?.selectedXs_path_cordinates.flat();
     const selectedYs = all_single_curve_selected_black_path?.selectedPath?.selectedYs_path_cordinates.flat();
@@ -110,7 +126,10 @@ const UpperLeftRobotChart = () => {
 
   const selectedPathData = getSelectedPathData();
   const endCoordinates = getEndCoordinates();
-
+  const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
+  const labels = ['A', 'B', 'C'];
+  const colors = ['#FF5733', '#33FF57', '#3357FF'];
+  
   return (
     <div>
       <svg width={width} height={height} style={{marginLeft:'150px'}}>
@@ -124,6 +143,52 @@ const UpperLeftRobotChart = () => {
         <Group left={margin.left} top={margin.top}>
           {/* For showing initial robot icon at (0,0) */}
           {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
+          {allPaths.map((paths, idx) =>
+            paths.map((_, pathIndex) => {
+              const data = getPathData(allPaths[allPaths.length - 1], pathIndex);
+              if (!data.length ) return null;
+              const lastPoint = data[data.length - 1];
+              const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
+              const isLastThreePaths = globalPathIndex >= totalPaths - 3;
+
+              let select;
+              if (labels[pathIndex] === 'A') {
+                select = 1;
+              } else if (labels[pathIndex] === 'B') {
+                select = 2;
+              } else if (labels[pathIndex] === 'C') {
+                select = 3;
+              }
+              const isSelectedPath = currentselectedpath == select;
+              return (
+                <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
+                  <LinePath
+                    data={data}
+                    x={(d: Point) => xScale(d.x)}
+                    y={(d) => yScale(d.y)}
+                    stroke={isSelectedPath ? 'black' : colors[pathIndex % colors.length]}
+                    strokeWidth={4}
+                    curve={curveBasis}
+                  />
+
+                  <Text
+                    x={xScale(lastPoint.x)}
+                    y={yScale(lastPoint.y)}
+                    dx={-10}
+                    dy={5}
+                    fill="red"
+                    fontSize={25}
+                    fontWeight="bold"
+                  >
+                    {pathIndex}
+                  </Text>
+                  {isSelectedPath && (
+                    <RobotIcon x={xScale(lastPoint.x)} y={yScale(lastPoint.y)} />
+                  )}
+                </React.Fragment>
+              );
+            })
+          )}
           <AxisLeft scale={yScale} numTicks={10} />
           <AxisBottom top={innerHeight} scale={xScale} numTicks={10} />
           {selectedPathData.length > 0 && (
