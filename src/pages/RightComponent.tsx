@@ -617,6 +617,7 @@ const HypothesisConfidencePanel_Step5 = (
        style={{
         marginLeft: '30px',
         marginRight: '30px',
+        marginTop:'50px',
         backgroundColor: '#f3f3f3' ,// Sets the background color to grey
         boxShadow:' 0px 2px 6px rgba(0, 0, 0, 0.3)'
       }}>
