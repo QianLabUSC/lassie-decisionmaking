@@ -6,31 +6,16 @@ import { Text } from '@visx/text';
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { AxisLeft, AxisBottom } from '@visx/axis';
-import {
-  Button,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  Select,
-  MenuItem,
-  FormControl,
-} from '@material-ui/core';
 import { useStateValue } from '../state';
 import { Action } from '../state';
 import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
-
-// these are for robot chart borders rectangle
-const width = 550;
-const height = 600;
-// const margin = { top: 20, bottom: 60, left: 70, right: 20 }; // Adjusted margins for labels
+import ChartColourLegendPanel from '../components/Charts/ChartColourLegendPanel' 
+// Dimensions and margins
+const width = 400;
+const height = 400;
 const margin = { top: 20, bottom: 20, left: 50, right: 20 };
 
-interface Point {
-  x: number;
-  y: number;
-}
-
-// these are for path
+// Scales
 const xScale = scaleLinear({
   domain: [0, 1],
   range: [margin.left, width - margin.right],
@@ -41,45 +26,40 @@ const yScale = scaleLinear({
   range: [height - margin.bottom, margin.top],
 });
 
+// Labels and colors
 const labels = ['A', 'B', 'C'];
 const colors = ['#FF5733', '#33FF57', '#3357FF'];
 
-// Define the structure of a single sub-path as an array of numbers
+// Types
+type Point = { x: number; y: number };
 type SubPath = number[];
-
-// Define a path as an array containing two sub-paths
 type Path = [SubPath, SubPath, SubPath, SubPath];
-
-// Define the structure for testPath, which is an array of paths
 type TestPath = Path[];
 
 interface RobotChartProps {
   currentselectedpath: string;
   heatMapType: string;
 }
-const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapType}) => {
-  const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data, all_single_curve_selected_black_path }, dispatch] = useStateValue();
 
+const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapType }) => {
+  const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data, all_single_curve_selected_black_path }, dispatch] = useStateValue();
+  
   const [selectedPath, setSelectedPath] = useState('');
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
-  
-
+  const [pathsubmittedtimes2, setpathsubmittedtimes2] = useState(0);
 
   useEffect(() => {
-    // Load initial paths only on component mount
     const firstPath: TestPath = [
       [[], [], [], []],
       [[], [], [], []],
       [[], [], [], []],
     ];
-    setAllPaths([firstPath]); // Set initial path
+    setAllPaths([firstPath]);
   }, []);
-
-  const [pathsubmittedtimes2, setpathsubmittedtimes2] = useState(0);
 
   useEffect(() => {
     if (threePaths && Array.isArray(threePaths) && threePaths.length > 0) {
-      setAllPaths([threePaths]); // Ensure newpathvalues is TestPath
+      setAllPaths([threePaths]);
     }
   }, [threePaths]);
 
@@ -105,7 +85,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapTy
 
       dispatch({
         type: Action.INCREMENT_STEP_IDX,
-        value: [pathsubmittedtimes2, currentindexofpathselectedoutof3], // Passing the selected path as the value
+        value: [pathsubmittedtimes2, currentindexofpathselectedoutof3],
       });
     }
   };
@@ -126,10 +106,10 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapTy
   ): { points: Point[]; infogain: number[]; discrepancy: number[] } => {
     if (index < paths.length) {
       const points = paths[index][0].map((x, i) => ({
-        x: x,
+        x,
         y: paths[index][1][i],
       }));
-      const infogain = paths[index][2]; // Assuming the heatmap data is at the third index of each path
+      const infogain = paths[index][2];
       const discrepancy = paths[index][3];
       return { points, infogain, discrepancy };
     }
@@ -145,7 +125,8 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapTy
 
   const totalPaths = allPaths.reduce((acc, paths) => acc + paths.length, 0);
 
-  const disableSubmitButton = false; // Update logic as needed
+  const disableSubmitButton = false;
+  
   const RobotIcon = ({ x, y }) => (
     <svg
       x={x - 12}
@@ -193,42 +174,33 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapTy
   const endCoordinates = getEndCoordinates();
 
   const renderHeatMap = () => {
-    const heatmapData = heatMapType === 'DISCREPANCY_REWARD' ?  simulation_api_full_data?.uncertainity : simulation_api_full_data?.info_gain_shear;
+    const heatmapData = heatMapType === 'DISCREPANCY_REWARD' ? simulation_api_full_data?.uncertainity : simulation_api_full_data?.info_gain_shear;
 
     if (!heatmapData.length) return null;
-    const startX = xScale(0);
-    const startY = yScale(0);
-    const endX = xScale(10); // x goes from 0 to 10
-    const endY = yScale(10); // y goes from 0 to 10
 
     return (
-      simulation_api_full_data && (
-        <InformationGainHeatMap
-          width={1500}
-          height={580}
-          data={heatmapData}
-          x={50}
-          y={50}
-        />
-      )
+      <InformationGainHeatMap
+        width={380}
+        height={410}
+        data={heatmapData}
+        x={50}
+        y={-30}
+      />
     );
   };
 
   return (
     <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          padding: '5px',
-        }}
-      >
+      
+      <div style={{ display: 'flex', justifyContent: 'center', }}>
+      <div className="legend">
+      <ChartColourLegendPanel width={70} height={393} colorFrom="#ffffff" colorTo="#ff8731" />
+     
 
-      </div>
-      <svg width={width} height={height} style={{ border: '1px solid black', marginLeft: '50px' }}>
-      {/* For showing intila robot icon to 00 */}
-      {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
+      <svg width={width} height={height} >
+        {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
         <Group>
+     
           {renderHeatMap()}
           {allPaths.map((paths, idx) =>
             paths.map((_, pathIndex) => {
@@ -248,7 +220,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapTy
               } else if (labels[pathIndex] === 'C') {
                 select = 3;
               }
-              const isSelectedPath = currentselectedpath == select;
+              const isSelectedPath = currentselectedpath === select;
               return (
                 <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
                   <LinePath
@@ -278,8 +250,8 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapTy
               );
             })
           )}
-          <AxisLeft scale={yScale} left={50} />
-          <AxisBottom scale={xScale} top={height-20} />
+          <AxisLeft scale={yScale} left={margin.left} />
+          <AxisBottom scale={xScale} top={height - margin.bottom} />
           {selectedPathData.length > 0 && (
             <LinePath
               data={selectedPathData}
@@ -302,7 +274,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapTy
         </Group>
         <Text
           x={width / 2}
-          y={height-1}
+          y={height - 10}
           fontSize={14}
           textAnchor="middle"
         >
@@ -318,6 +290,8 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath , heatMapTy
           Y
         </Text>
       </svg>
+    </div>
+    </div>
     </div>
   );
 };

@@ -620,14 +620,14 @@ const HypothesisConfidencePanel_Step5 = (
     <div className="collectionRightPanel">
          <Typography
         variant="h6"
-        style={{ marginTop: '10px', textAlign: 'center' }}
+        style={{ marginTop: '1px', textAlign: 'center' }}
       >
       INFORMATION GAIN HEAT MAP
       </Typography>
       <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='INFO_GAIN'/>
       <Typography
         variant="h6"
-        style={{ marginTop: '50px', textAlign: 'center' }}
+        style={{ marginTop: '10px', textAlign: 'center' }}
       >
        DISCREPANCY REWARD HEAT MAP
       </Typography>
@@ -639,7 +639,7 @@ const HypothesisConfidencePanel_Step5 = (
     <Box sx={{ width: '100%' }}>
         <Typography
         variant="h6"
-        style={{ marginTop: '50px', textAlign: 'center' }}
+        style={{ marginTop: '20px', marginLeft:'200px' }}
       >
        World Map With Robot Actual Trajectory
       </Typography>
