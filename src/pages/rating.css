@@ -1,14 +1,14 @@
 .slider-container {
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 .slider {
     position: relative;
-    height: 70px;
+    height: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 10px 0;
+    margin: 5px 0;
 }
 
 .slider-line {
@@ -16,7 +16,7 @@
     top: 50%;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 3px;
     background-color: green;
     z-index: 0;
     transform: translateY(-50%);
@@ -24,8 +24,8 @@
 
 .slider-point {
     position: relative;
-    width: 20px;
-    height: 20px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background-color: green;
     display: flex;
@@ -35,23 +35,22 @@
     color: white;
     font-weight: bold;
     z-index: 1;
-    margin-left: -10px; /* Adjust this to center the point */
-    margin-right: -10px; /* Adjust this to center the point */
+   
 }
 
 .slider-point.selected {
-    background-color: lightgreen;
+    background-color: orange;
 }
 
 .slider-label {
     position: absolute;
-    top: 30px; /* Adjust this value as needed to space the label further down */
+    top: 20px; /* Adjust this value as needed to space the label further down */
     white-space: nowrap;
-    transform: translateX(-50%);
-    font-size: 12px;
+    transform: translateX(20%);
+    font-size: 11px;
     color: black;
-    text-align: center;
-    max-width: 80px; /* Adjust the width to fit the text properly */
-    line-height: 1.2; /* Adjust line height for better spacing */
+    margin-left:10px;
+    max-width: 40px; /* Adjust the width to fit the text properly */
+    line-height: 1; /* Adjust line height for better spacing */
     word-wrap: break-word;
 }
