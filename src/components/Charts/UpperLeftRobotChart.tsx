@@ -71,20 +71,8 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
   }, [threePaths]);
 
   const RobotIcon = ({ x, y }) => (
-    <svg
-      x={x - 12}
-      y={y - 20}
-      width="50"
-      height="30"
-      viewBox="0 0 24 24"
-      fill="yellow"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M12 2C13.1046 2 14 2.89543 14 4H10C10 2.89543 10.8954 2 12 2ZM18 8H20C21.1046 8 22 8.89543 22 10V18C22 19.1046 21.1046 20 20 20H18V22H16V20H8V22H6V20H4C2.89543 20 2 19.1046 2 18V10C2 8.89543 2.89543 8 4 8H6V6H8V8H16V6H18V8ZM4 10V18H20V10H4ZM7 11H9V13H7V11ZM15 11H17V13H15V11Z"
-        fill="#ff0066"
-      />
-    </svg>
+    <svg x={x-10}
+    y={y-15} xmlns="http://www.w3.org/2000/svg"  viewBox="0,0,256,256" width="24px" height="24px"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" ><g transform="scale(10.66667,10.66667)"><path d="M17,10h-10c-0.552,0 -1,-0.448 -1,-1v-1c0,-3.314 2.686,-6 6,-6v0c3.314,0 6,2.686 6,6v1c0,0.552 -0.448,1 -1,1z" fill="#000000"></path><path d="M13,21h-2c-2.761,0 -5,-2.239 -5,-5v-4c0,-1.105 0.895,-2 2,-2h8c1.105,0 2,0.895 2,2v4c0,2.761 -2.239,5 -5,5z" fill="#ff7a0f" opacity="0.35"></path><path d="M6,20.092v-8.592c0,-0.829 -0.671,-1.5 -1.5,-1.5c-0.829,0 -1.5,0.671 -1.5,1.5v8.592c-0.581,0.207 -1,0.756 -1,1.408c0,0.829 0.671,1.5 1.5,1.5h2c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.652 -0.419,-1.202 -1,-1.408z" fill="#ff7a0f"></path><path d="M21,20.092v-8.592c0,-0.829 -0.671,-1.5 -1.5,-1.5c-0.829,0 -1.5,0.671 -1.5,1.5v8.592c-0.581,0.207 -1,0.756 -1,1.408c0,0.829 0.671,1.5 1.5,1.5h2c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.652 -0.419,-1.202 -1,-1.408z" fill="#ff7a0f"></path><path d="M14.5,12h-5c-0.829,0 -1.5,0.671 -1.5,1.5c0,0.829 0.671,1.5 1.5,1.5h5c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.829 -0.671,-1.5 -1.5,-1.5z" fill="#ff7a0f"></path><circle cx="13.5" cy="6.5" r="1.5" fill="#b3b3b3"></circle></g></g></svg>
   );
 
   const getPathData = (paths: TestPath, index: number): Point[] => {
