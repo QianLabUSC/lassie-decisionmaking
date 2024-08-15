@@ -54,7 +54,7 @@ def normalize_matrix(matrix):
 # ==============================
 
 class Env:
-    def __init__(self, prior_x, prior_y) -> None:
+    def __init__(self) -> None:
         """
         Initialize the environment with empty maps for shear strength, moisture, and robot path. 
         These maps are to be populated in derived classes or with specific methods.
@@ -62,8 +62,6 @@ class Env:
         self.shear_strength_map = []
         self.moisture_map = []
         self.robot_path = []
-        self.prior_x = prior_x
-        self.prior_y = prior_y
 
     def gather_data(self, robot_x, robot_y):
         """
@@ -76,8 +74,8 @@ class Env:
         Returns:
         tuple: A tuple containing the sampled shear strength and moisture values.
         """
-        self.data_x_coordinate = np.append(self.prior_x, robot_x)
-        self.data_y_coordinate = np.append(self.prior_y, robot_y)
+        self.data_x_coordinate =  robot_x
+        self.data_y_coordinate =  robot_y
         robot_measured_points = np.array([self.data_x_coordinate, 
                                           self.data_y_coordinate]).T
         sampled_shear = get_matrix_value(self.shear_strength_map, 
@@ -90,82 +88,94 @@ class Env:
     
 
 class ManuallyEnv(Env):
-    def __init__(self, prior_x, prior_y) -> None:
+    def __init__(self) -> None:
         """
         Create an environment where the shear strength and moisture maps
         are loaded from CSV files. 
         Inherits from the Env class and populates the environmental maps with actual data.
         """
-        super().__init__(prior_x, prior_y)
+        super().__init__()
         self.shear_strength_map = np.loadtxt('shear_strength_map.csv', delimiter=',')
         self.moisture_map = np.loadtxt('moisture_map.csv', delimiter=',')
 
 class ReactivePlanning:
-    def __init__(self, start_point, plan_step_interval_, step_per_horizon_):
+    def __init__(self, plan_step_interval_, step_per_horizon_):
         # define paramters
         self.plan_step_interval = plan_step_interval_
         self.step_per_horizon = step_per_horizon_
-        self.robot_start_point = start_point
-        self.robot_path_x = np.array([start_point[0]])
-        self.robot_path_y = np.array([start_point[1]])
+        self.robot_path_x = np.array([])
+        self.robot_path_y = np.array([])
 
     def get_robot_path(self):
         return self.robot_path_x, self.robot_path_y
-    
+    def update_robot_path(self, path_x, path_y):
+        self.robot_path_x = path_x
+        self.robot_path_y = path_y
     def plan_for_next_horizon(self, reward):
         ## now generate field vector to guide with the path selection. 
         # directly apply the information reward as vector to guide with reactive path
-        # F_x = np.gradient(shear_std.T, axis=1)
-        # F_y = np.gradient(shear_std.T, axis=0)
-        # applying some threshold for the information reward to better generate reactive path
-        # hulls, F_x, F_y = calculate_gradient(shear_std)
+        # check if the path is empty:
+        assert(len(self.robot_path_x) > 0 and len(self.robot_path_y) > 0)
+
         F_x, F_y = self.calculate_gradient_with_adding(reward)
         # Determine the direction of the highest gradient
         current_x, current_y = self.robot_path_x[-1], self.robot_path_y[-1]
         path_x, path_y = self.integrate_path(current_x, current_y, F_x, F_y,
                                                 self.plan_step_interval, 
                                                 self.step_per_horizon)
-        self.robot_path_x = np.append(self.robot_path_x, path_x)
-        self.robot_path_y = np.append(self.robot_path_y, path_y)
         return F_x, F_y, path_x, path_y
 
     def integrate_path(self, start_x, start_y, vector_field_x, vector_field_y, 
                        step_length, num_steps):
         # Initialize arrays to store the x and y coordinates
-        path_x = [start_x]
-        path_y = [start_y]
+        path_x = np.zeros(num_steps * 2 + 1)  # Pre-allocate for performance
+        path_y = np.zeros(num_steps * 2 + 1)
+        
+        # Set initial positions
+        path_x[0] = start_x
+        path_y[0] = start_y
         
         # Current position
         x, y = start_x, start_y
         x_len, y_len = vector_field_x.shape
         substep = 2
+        
+        # Pre-compute indices multipliers for faster access
+        idx_multiplier_x = x_len - 1
+        idx_multiplier_y = y_len - 1
+        
         # Perform the integration
-        # *10 to give more smooth curve
-        for _ in range(num_steps * substep):
-            # Evaluate the vector field at the current position
-            idx_x = min(int(x * x_len), x_len - 1)  # Prevent going out of bounds
-            idx_y = min(int(y * y_len), y_len - 1)  # Prevent going out of bounds
-
-            u = vector_field_x[idx_y, idx_x]  # Ensure correct order of indices
-            v = vector_field_y[idx_y, idx_x]  # Ensure correct order of indices
+        for i in range(1, num_steps * substep + 1):
+            # Calculate indices and clip them to stay within bounds
+            idx_x = min(int(x * idx_multiplier_x), idx_multiplier_x)
+            idx_y = min(int(y * idx_multiplier_y), idx_multiplier_y)
             
-            # Compute the norm of the vector to normalize it
-            norm = np.sqrt(u**2 + v**2)
+            # Get vector components from the field
+            u = vector_field_x[idx_y, idx_x]
+            v = vector_field_y[idx_y, idx_x]
             
-            # Update the position only if norm is non-zero to avoid division by zero
+            # Compute the norm
+            norm = np.hypot(u, v)  # Equivalent to sqrt(u**2 + v**2)
+            
+            # Update position if norm is non-zero
             if norm > 0:
-                x += (u / norm) * step_length/substep
-                y += (v / norm) * step_length/substep
+                x += (u / norm) * step_length / substep
+                y += (v / norm) * step_length / substep
             else:
-                # Optionally handle zero vector case, e.g., stop moving
                 break
             
-            # Append the new position to the path
+            # Clip positions and store in the path arrays
             x = np.clip(x, 0, 1)
             y = np.clip(y, 0, 1)
-            path_x.append(x)
-            path_y.append(y)
-        return path_x, path_y
+            path_x[i] = x
+            path_y[i] = y
+        
+        # Convert to JSON serializable lists
+        path_x_list = path_x[:i+1].tolist()
+        path_y_list = path_y[:i+1].tolist()
+        
+    
+        return path_x_list, path_y_list
         
     
     ### after consideration, this function should be used for avoiding high risk area
@@ -353,126 +363,126 @@ class Estimation:
 
 
 
-'''
-Initialization
-'''
+# '''
+# Initialization
+# '''
 
-ROBOT_SAMPLING_INTERVAL = 0.02       # this corresponds to the different gaits, e.g. walking/troting/running
-ROBOT_ESTIMATION_INTERVAL = 0.02      # this corresonding the density of gaussian estimation.
-STEPS_PER_ESTIMTATION_ITERATIONS = 50
-ROBOT_SPEED = 1 
-ROBOT_START_POINT = [0.0,0.0]
-ITERATIONS = 1 # Number of simulation steps
-# PRIOR_MEASUREMENTS_LOC_X = np.array([0.1, 0.1, 0.1, 0.5, 0.5, 0.5, 0.9, 0.9, 0.9])
-# PRIOR_MEASUREMENTS_LOC_Y = np.array([0.1, 0.5, 0.9, 0.1, 0.5, 0.9, 0.1, 0.5, 0.9])
-PRIOR_MEASUREMENTS_LOC_X = np.array([0.5, 0.1])
-PRIOR_MEASUREMENTS_LOC_Y = np.array([0.1, 0.9])
+# ROBOT_SAMPLING_INTERVAL = 0.02       # this corresponds to the different gaits, e.g. walking/troting/running
+# ROBOT_ESTIMATION_INTERVAL = 0.02      # this corresonding the density of gaussian estimation.
+# STEPS_PER_ESTIMTATION_ITERATIONS = 50
+# ROBOT_SPEED = 1 
+# ROBOT_START_POINT = [0.0,0.0]
+# ITERATIONS = 1 # Number of simulation steps
+# # PRIOR_MEASUREMENTS_LOC_X = np.array([0.1, 0.1, 0.1, 0.5, 0.5, 0.5, 0.9, 0.9, 0.9])
+# # PRIOR_MEASUREMENTS_LOC_Y = np.array([0.1, 0.5, 0.9, 0.1, 0.5, 0.9, 0.1, 0.5, 0.9])
+# PRIOR_MEASUREMENTS_LOC_X = np.array([0.5, 0.1])
+# PRIOR_MEASUREMENTS_LOC_Y = np.array([0.1, 0.9])
 
-# fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-
-
-env = ManuallyEnv(PRIOR_MEASUREMENTS_LOC_X, PRIOR_MEASUREMENTS_LOC_Y)
-planner = ReactivePlanning(ROBOT_START_POINT, ROBOT_SAMPLING_INTERVAL, 
-                           STEPS_PER_ESTIMTATION_ITERATIONS)
-estimator = Estimation(False, 0.2, 0.15, 4)
+# # fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 
 
-'''
-Calculate all the first frame to make it
-'''
-# create x, y robot path dependent variable
-robot_path_x, robot_path_y = planner.get_robot_path()
-# calculate information and discrepancy
-measured_robot_coordinates, measured_shear, measured_moisture = \
-        env.gather_data(robot_path_x, robot_path_y)
-# create estimated denstiy
-estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
-xx1, xx2 = np.linspace(0, 1, num=estimatedNum), np.linspace(0, 1, num=estimatedNum)
-vals = np.array([[x1_, x2_] for x1_ in xx1 for x2_ in xx2])
-xv, yv = np.meshgrid(xx1, xx2)
-shear_prediction, information_shear, shear_std, gp = \
-            estimator.estimate(measured_robot_coordinates,  measured_shear, vals)
-shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
-information_shear = information_shear.reshape(estimatedNum, estimatedNum)
-shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
-# Information_image = ax[0].imshow(shear_std, cmap='Blues', extent=[0, 1, 0, 1], origin='lower')
-# ax[0].set_title('Uncertainty Map')
-# cb_info = fig.colorbar(Information_image, ax=ax[0], label='Information')
-# shear_strength_image = ax[1].imshow(shear_prediction, cmap='viridis', 
-#                                     extent=[0, 1, 0, 1], origin='lower')
-# ax[1].set_title('Shear Strength Predicted')
-# cb_strength = fig.colorbar(shear_strength_image, ax=ax[1], label='Shear Strength')
-# ax[0].set_xlim([-0.1, 1.1])
-# ax[0].set_ylim([-0.1, 1.1])
+# env = ManuallyEnv(PRIOR_MEASUREMENTS_LOC_X, PRIOR_MEASUREMENTS_LOC_Y)
+# planner = ReactivePlanning(ROBOT_START_POINT, ROBOT_SAMPLING_INTERVAL, 
+#                            STEPS_PER_ESTIMTATION_ITERATIONS)
+# estimator = Estimation(False, 0.2, 0.15, 4)
 
 
+# '''
+# Calculate all the first frame to make it
+# '''
+# # create x, y robot path dependent variable
+# robot_path_x, robot_path_y = planner.get_robot_path()
+# # calculate information and discrepancy
+# measured_robot_coordinates, measured_shear, measured_moisture = \
+#         env.gather_data(robot_path_x, robot_path_y)
+# # create estimated denstiy
+# estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
+# xx1, xx2 = np.linspace(0, 1, num=estimatedNum), np.linspace(0, 1, num=estimatedNum)
+# vals = np.array([[x1_, x2_] for x1_ in xx1 for x2_ in xx2])
+# xv, yv = np.meshgrid(xx1, xx2)
+# shear_prediction, information_shear, shear_std, gp = \
+#             estimator.estimate(measured_robot_coordinates,  measured_shear, vals)
+# shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
+# information_shear = information_shear.reshape(estimatedNum, estimatedNum)
+# shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
+# # Information_image = ax[0].imshow(shear_std, cmap='Blues', extent=[0, 1, 0, 1], origin='lower')
+# # ax[0].set_title('Uncertainty Map')
+# # cb_info = fig.colorbar(Information_image, ax=ax[0], label='Information')
+# # shear_strength_image = ax[1].imshow(shear_prediction, cmap='viridis', 
+# #                                     extent=[0, 1, 0, 1], origin='lower')
+# # ax[1].set_title('Shear Strength Predicted')
+# # cb_strength = fig.colorbar(shear_strength_image, ax=ax[1], label='Shear Strength')
+# # ax[0].set_xlim([-0.1, 1.1])
+# # ax[0].set_ylim([-0.1, 1.1])
 
 
 
-def update(frame):
-    # calculate information and discrepancy
-    robot_path_x, robot_path_y = planner.get_robot_path()
 
-    measured_robot_coordinates, measured_shear, measured_moisture = \
-        env.gather_data(robot_path_x, robot_path_y)
+
+# def update(frame):
+#     # calculate information and discrepancy
+#     robot_path_x, robot_path_y = planner.get_robot_path()
+
+#     measured_robot_coordinates, measured_shear, measured_moisture = \
+#         env.gather_data(robot_path_x, robot_path_y)
     
 
-    # create estimated denstiy
-    estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
-    xx1, xx2 = np.linspace(0, 1, num=estimatedNum), np.linspace(0, 1, num=estimatedNum)
-    vals = np.array([[x1_, x2_] for x1_ in xx1 for x2_ in xx2])
-    xv, yv = np.meshgrid(xx1, xx2)
+#     # create estimated denstiy
+#     estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
+#     xx1, xx2 = np.linspace(0, 1, num=estimatedNum), np.linspace(0, 1, num=estimatedNum)
+#     vals = np.array([[x1_, x2_] for x1_ in xx1 for x2_ in xx2])
+#     xv, yv = np.meshgrid(xx1, xx2)
 
-    shear_prediction, information_shear, shear_std, gp = \
-        estimator.estimate(measured_robot_coordinates,  measured_shear, vals)
-    shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
-    information_shear = information_shear.reshape(estimatedNum, estimatedNum)
-    shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
+#     shear_prediction, information_shear, shear_std, gp = \
+#         estimator.estimate(measured_robot_coordinates,  measured_shear, vals)
+#     shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
+#     information_shear = information_shear.reshape(estimatedNum, estimatedNum)
+#     shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
     
-    F_x, F_y, path_x, path_y = planner.plan_for_next_horizon(shear_std.T)
-    print('path_x', path_x)
-    print('path_y', path_y)
+#     F_x, F_y, path_x, path_y = planner.plan_for_next_horizon(shear_std.T)
+#     print('path_x', path_x)
+#     print('path_y', path_y)
     
 
-    '''
-    Visualize and update the figure
-    '''
-    # # Clear previous content in axes
-    # ax[0].cla()
-    # ax[1].cla()
-    # realpath = ax[0].plot(path_x, path_y, '-', color='r')
-    # Information_image = ax[0].imshow(shear_std.T, cmap='Blues', 
-    #                                  extent=[0, 1, 0, 1], origin='lower')
-    # ax[0].set_title('Uncertainty Map')
-    # shear_strength_image = ax[1].imshow(shear_prediction.T, cmap='viridis', 
-    #                                     extent=[0, 1, 1, 0], origin='lower')
-    # ax[1].set_title('Shear Strength Predicted')
-    # ax[0].set_xlim([-0.1, 1.1])
-    # ax[0].set_ylim([-0.1, 1.1])
-    # fieldplot = ax[0].quiver(xv, yv, F_x, F_y, alpha=1, scale=3, scale_units='inches')
-    # # ax[0].streamplot(xv, yv, F_x, F_y, color='r', start_points=[[current_x, current_y]], integration_direction='forward', linewidth=0.5, density=1, maxlength=0.5)
+#     '''
+#     Visualize and update the figure
+#     '''
+#     # # Clear previous content in axes
+#     # ax[0].cla()
+#     # ax[1].cla()
+#     # realpath = ax[0].plot(path_x, path_y, '-', color='r')
+#     # Information_image = ax[0].imshow(shear_std.T, cmap='Blues', 
+#     #                                  extent=[0, 1, 0, 1], origin='lower')
+#     # ax[0].set_title('Uncertainty Map')
+#     # shear_strength_image = ax[1].imshow(shear_prediction.T, cmap='viridis', 
+#     #                                     extent=[0, 1, 1, 0], origin='lower')
+#     # ax[1].set_title('Shear Strength Predicted')
+#     # ax[0].set_xlim([-0.1, 1.1])
+#     # ax[0].set_ylim([-0.1, 1.1])
+#     # fieldplot = ax[0].quiver(xv, yv, F_x, F_y, alpha=1, scale=3, scale_units='inches')
+#     # # ax[0].streamplot(xv, yv, F_x, F_y, color='r', start_points=[[current_x, current_y]], integration_direction='forward', linewidth=0.5, density=1, maxlength=0.5)
     
-if __name__ == "__main__":
-    '''
-    Use animation to create video
-    Call function update to debug
-    '''
-    # Create animation
-    # ani = FuncAnimation(fig, update, frames=ITERATIONS, blit=False)
-    for i in range(ITERATIONS):
-        update(i)
+# if __name__ == "__main__":
+#     '''
+#     Use animation to create video
+#     Call function update to debug
+#     '''
+#     # Create animation
+#     # ani = FuncAnimation(fig, update, frames=ITERATIONS, blit=False)
+#     for i in range(ITERATIONS):
+#         update(i)
 
-    '''
-    Use plt.show() to update the figure for each step. 
-    '''
-    # plt.show()
+#     '''
+#     Use plt.show() to update the figure for each step. 
+#     '''
+#     # plt.show()
 
-    '''
-    Save to video file
-    '''
-    # FFMpegWriter = animation.writers['ffmpeg']
-    # writer = FFMpegWriter(fps=2)
-    # ani.save('robot_path_simulation.mp4', writer=writer)
+#     '''
+#     Save to video file
+#     '''
+#     # FFMpegWriter = animation.writers['ffmpeg']
+#     # writer = FFMpegWriter(fps=2)
+#     # ani.save('robot_path_simulation.mp4', writer=writer)
 
 
     

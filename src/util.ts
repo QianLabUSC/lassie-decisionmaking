@@ -305,7 +305,7 @@ function flaskCalculations(locations: number[], measurements: number[], moisture
   
   return new Promise((resolve, reject) => {
     // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
-    fetch('http://127.0.0.1:5000/process', { //local development URL
+    fetch('http://127.0.0.1:8090/process', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -366,7 +366,7 @@ function flaskCollections(path_x: number[], path_y: number[]) {
   
   return new Promise((resolve, reject) => {
     // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/dataCollection', { //production URL
-    fetch('http://127.0.0.1:5000/dataCollection', { //local development URL
+    fetch('http://127.0.0.1:8090/dataCollection', { //local development URL
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',

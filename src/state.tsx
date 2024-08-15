@@ -12,13 +12,14 @@ import { objectiveOptions } from './constants';
 import { getShearData, getMoistureData } from './util';
 
 // Define the structure of a single sub-path as an array of numbers
-type SubPath = number[];
+export type SubPath = number[];
 
 // Define a path as an array containing two sub-paths
 type Path = [SubPath, SubPath, SubPath, SubPath];
 
 // Define the structure for testPath, which is an array of paths
 type TestPath = Path[];
+
 
 export type ChartSettings = {
   mode: number;
@@ -50,6 +51,10 @@ export type INITIAL_HUMAN_BELIEF = {
 };
 
 export type ALL_SELECTED_BLACK_PATH_TYPE = {
+  initial_path:{
+    initial_path_x: number[];
+    initial_path_y: number[];
+  }
   selectedPath:{
     selectedXs_path_cordinates: SubPath[];
     selectedYs_path_cordinates: SubPath[];
@@ -142,9 +147,17 @@ export const initialState: IState = {
     human_belief_selected_option: 0,
     human_belief_text_description: '',
   },
-  threePaths: [],
+  threePaths: [
+    [[], [], [], []], // First Path
+    [[], [], [], []], // Second Path
+    [[], [], [], []]  // Third Path
+  ],
   
   all_single_curve_selected_black_path:{
+    initial_path:{
+      initial_path_x: [],
+      initial_path_y: [],
+    },
     selectedPath:{
       selectedXs_path_cordinates: [],
       selectedYs_path_cordinates: [],

@@ -28,6 +28,9 @@ export const DOMINANT_WIND_DIRECTION = 50;
 export const MOISTURE_BINS = 19;
 // Milliseconds within which progress is automatically loaded on page load.
 export const AUTO_LOAD_MS = 1000;
+export const prior_samples_trajectories_x = [0]
+export const prior_samples_trajectories_y = [0]
+
 
 export const sampleLocations = [
   [196.900000, 17.570000],

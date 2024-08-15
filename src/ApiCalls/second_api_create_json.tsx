@@ -28,7 +28,7 @@ export function secondApiCreateJson(
 
   return new Promise((resolve, reject) => {
     // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
-    fetch('http://127.0.0.1:5000/second_api/save_selected_path_json', {
+    fetch('http://127.0.0.1:8090/second_api/save_selected_path_json', {
       //local development URL
       method: 'POST',
       mode: 'cors',

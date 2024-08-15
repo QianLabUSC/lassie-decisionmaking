@@ -18,7 +18,8 @@ import { ConfirmDialog } from '../components/Dialogs';
 import { firstApiGetThreePaths } from '../ApiCalls/first_api_get_three_paths';
 import { secondApiCreateJson } from '../ApiCalls/second_api_create_json';
 import { thirdApiCallHeatMapScatterPLot } from '../ApiCalls/third_api_call_heat_map_scatterplot';
-import { fourthApiCallSimulate } from '../ApiCalls/fourth_api_simulate';
+import { pathsuggestion } from '../ApiCalls/pathsuggestion';
+import { gatherDataAndUpdate } from '../ApiCalls/gatherDataAndUpdate';
 import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
 import RobotChart from '../components/RobotChart';
@@ -27,6 +28,11 @@ import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 import { useHistory } from 'react-router-dom';
 import SelectedPathChart from '../components/SelectedPathChart';
 import ShearStrengthOnWorldMapChart from '../components/Charts/ShearStrengthOnWorldMapChart';
+import { prior_samples_trajectories_x } from '../constants';
+import { prior_samples_trajectories_y } from '../constants';
+import { SubPath } from '../state';
+
+
 const NO_OF_ITERATION = 1;
 const RightComponent = () => {
   const [selectedBelief, setSelectedBelief] = useState<string[]>([]);
@@ -55,6 +61,33 @@ const RightComponent = () => {
 
   const { input_box_step_btn_click, threePaths, all_single_curve_selected_black_path } = globalState;
 
+
+
+
+  useEffect(() => {
+    // Initialize the arrays with prior trajectories as SubPath arrays
+    let initX: number[] = prior_samples_trajectories_x;
+    let initY: number[] = prior_samples_trajectories_y;
+    // Dispatch the updated state
+    dispatch({
+      type: Action.ALL_SELECTED_BLACK_PATH,
+      value: {
+        initial_path: {
+          initial_path_x: initX,
+          initial_path_y: initY,
+        },
+        selectedPath:{
+          selectedXs_path_cordinates: [],
+          selectedYs_path_cordinates: [],
+        },
+        selectedPathEndCoordinates:{
+          selectedXs_path_end_corinates: [],
+          selectedYs_path_end_corinates: [],
+        }
+      }
+    });
+  }, []); // Empty dependency array ensures this runs once after the component mounts
+  
   ////////////////////////////////////1ST BOX /////////////////
               
   const onContinueClick = () => {
@@ -177,24 +210,16 @@ const RightComponent = () => {
       human_belief_text_description: userBeliefText,
     };
 
+
+
     let threePaths;
-    if (generate3newPaths) {
-      threePaths = await firstApiGetThreePaths(
-        NO_OF_ITERATION,
-        initial_human_belief,
-        ranking,
-        selectedPathLastXCordinate,
-        selectedPathLastYCordinate,
-      );
-    } else {
-      threePaths = await firstApiGetThreePaths(
-        NO_OF_ITERATION,
-        initial_human_belief,
-        ranking,
-        0,
-        0
-      );
-    }
+    threePaths = await pathsuggestion(
+      NO_OF_ITERATION,
+      initial_human_belief,
+      ranking,
+      all_single_curve_selected_black_path,  
+    );
+    console.log(threePaths)
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
@@ -298,19 +323,23 @@ const RightComponent = () => {
       : [];
     endX.push(last_Xcordinate_of_selected_path);
     endY.push(last_Ycordinate_of_selected_path);
-
+    console.log('testx', testX)
+    // instead of waiting for dispatch update, directly use the updated one
+    const updatedAllSingleCurveSelectedBlackPath = {
+      ...all_single_curve_selected_black_path,
+      selectedPath: {
+        selectedXs_path_cordinates: testX,
+        selectedYs_path_cordinates: testY,
+      },
+      selectedPathEndCoordinates: {
+        selectedXs_path_end_corinates: endX,
+        selectedYs_path_end_corinates: endY,
+      }
+    };
+    // Dispatch the action with the updated state
     dispatch({
       type: Action.ALL_SELECTED_BLACK_PATH,
-      value: {
-        selectedPath: {
-          selectedXs_path_cordinates: testX,
-          selectedYs_path_cordinates: testY
-        },
-        selectedPathEndCoordinates: {
-          selectedXs_path_end_corinates: endX,
-          selectedYs_path_end_corinates: endY
-        }
-      }
+      value: updatedAllSingleCurveSelectedBlackPath,
     });
 
     dispatch({
@@ -327,24 +356,31 @@ const RightComponent = () => {
       end_y_cordinate: 1,
       selected_path_data: threePaths[int_selected_path_index_2],
     };
+    // need to add the full path here 
+    // no need to call api any more. 
+    // const scatterData: any = await thirdApiCallHeatMapScatterPLot(
+    //   input_box_step_btn_click,
+    //   int_selected_path_index_2,
+    //   1,
+    //   1,
+    //   threePaths[int_selected_path_index_2]
+    // );
 
-    const scatterData: any = await thirdApiCallHeatMapScatterPLot(
+    // const simulationApiFullData: any = await fourthApiCallSimulate(
+    //   input_box_step_btn_click
+    // );
+    // check what is returned here. 
+    
+    
+    const simulationApiFullData: any = await gatherDataAndUpdate(
       input_box_step_btn_click,
-      int_selected_path_index_2,
-      1,
-      1,
-      threePaths[int_selected_path_index_2]
-    );
-
-    const simulationApiFullData: any = await fourthApiCallSimulate(
-      input_box_step_btn_click
-    );
-
+      updatedAllSingleCurveSelectedBlackPath
+    )
     dispatch({
       type: Action.GATHER_SIMULATION_API_FULL_DATA,
       value: simulationApiFullData,
     });
-    setScatterPlotData(scatterData?.scatter_plot_data);
+    // setScatterPlotData(scatterData?.scatter_plot_data);
     setHeatMapUncertainity(simulationApiFullData?.uncertainity);
 
     dispatch({
@@ -369,17 +405,17 @@ const RightComponent = () => {
         <FormControlLabel
           value="1"
           control={<Radio />}
-          label="Accept suggested location A"
+          label="Accept suggested path A"
         />
         <FormControlLabel
           value="2"
           control={<Radio />}
-          label="Accept suggested location B"
+          label="Accept suggested path B"
         />
         <FormControlLabel
           value="3"
           control={<Radio />}
-          label="Accept suggested location C"
+          label="Accept suggested path C"
         />
       </RadioGroup>
       <Button

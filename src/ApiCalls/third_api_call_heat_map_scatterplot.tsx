@@ -29,7 +29,7 @@ export function thirdApiCallHeatMapScatterPLot(
 
   return new Promise((resolve, reject) => {
     // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
-    fetch('http://127.0.0.1:5000/third_api/gather_data', {
+    fetch('http://127.0.0.1:8090/third_api/gather_data', {
       //local development URL
       method: 'POST',
       mode: 'cors',
