@@ -419,7 +419,7 @@ const RightComponent = () => {
         />
       </RadioGroup>
       <Button
-        disabled={!selectedBelief}
+        disabled={!selectedPathIndex}
         variant="contained"
         color="secondary"
         onClick={onSubmitSelectedPath}
