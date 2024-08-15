@@ -61,13 +61,12 @@
         height: 100%;
 
         .rightDecisionPanelContainer {
-            background-color: $lightGray;
-            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+     
             height: 100%;
             width: 100%;
 
             .collectionRightPanel {
-                padding-top: 2vh;
+                
 
                 .middleRow {
                     padding: 20px;
@@ -87,7 +86,7 @@
                         display: inline-block;
                         height: 100%;
                         width: 60%;
-                        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+                      
                         background-color: white;
                         border-radius: 4px;
                         padding-left: 1%;
@@ -139,7 +138,7 @@
                                 }
                                 
                                 .text {
-                                    color: #aaa;
+                                   
                                     font-size: 1.5vh;
                                 }
                                 
