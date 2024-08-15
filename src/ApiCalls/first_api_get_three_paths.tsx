@@ -26,7 +26,7 @@ export function firstApiGetThreePaths(
 
   return new Promise((resolve, reject) => {
     // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
-    fetch('http://127.0.0.1:5000/first_api/generate_initial_path', {
+    fetch('http://127.0.0.1:8090/first_api/generate_initial_path', {
       //local development URL
       method: 'POST',
       mode: 'cors',

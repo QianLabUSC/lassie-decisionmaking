@@ -1,5 +1,5 @@
 // //DEBUG_HERE_TEST DEBUG API CALL
-export function fourthApiCallSimulate(step_number) {
+export function gatherDataAndUpdate(step_number, selected_path_data) {
   // fourthApiCallSimulate(step_number, selected_path_index, end_x_cordinate, end_y_cordinate,selected_path_data){
 
   // {
@@ -17,11 +17,12 @@ export function fourthApiCallSimulate(step_number) {
 
   const inputs = {
     step: step_number,
+    selected_path_data: selected_path_data,
   };
 
   return new Promise((resolve, reject) => {
     // fetch('https://fling.seas.upenn.edu/~foraging/cgi-bin/application.cgi/process', { //production URL
-    fetch('http://127.0.0.1:8090/fourth_api/simulate', {
+    fetch('http://127.0.0.1:8090/gatherDataAndUpdate', {
       //local development URL
       method: 'POST',
       mode: 'cors',
