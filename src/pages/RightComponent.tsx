@@ -23,6 +23,7 @@ import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
 import RobotChart from '../components/RobotChart';
 import UpperLeftRobotChart from '../components/Charts/UpperLeftRobotChart';
+import UpperRightRobotInfoGainChart from '../components/Charts/UpperRightRobotInfoGainChart';
 import ShearVsMoisturePlot from '../components/Charts/ShearVsMoisturePlot';
 import { useHistory } from 'react-router-dom';
 import SelectedPathChart from '../components/SelectedPathChart';
@@ -588,6 +589,8 @@ const HypothesisConfidencePanel_Step5 = (
       >
       INFORMATION GAIN HEAT MAP
       </Typography>
+
+      <UpperRightRobotInfoGainChart currentselectedpath={selectedPathIndex} />
       <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='INFO_GAIN'/>
       <Typography
         variant="h6"
