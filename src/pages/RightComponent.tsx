@@ -453,8 +453,9 @@ const rankingEvaluationPanel_Step4 = (
           className="continueButton"
           variant="contained"
           color="primary"
+          style={{"marginTop":"35px"}}
           onClick={onSubmitRankingEvaluation}>
-              Sumbit ranking
+              Submit ranking
         </Button>
       
   </div>
