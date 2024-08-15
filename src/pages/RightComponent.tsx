@@ -130,7 +130,7 @@ const RightComponent = () => {
   const objectiveQuestions = (
     <>
       <div className="objective-questions">
-        <p><strong>Based on the data collected so far, select which of the following beliefs you currently hold, you may select multiple</strong></p>
+        <p style={{"paddingTop":"25px"}}><strong>Based on the data collected so far, select which of the following beliefs you currently hold, you may select multiple</strong></p>
         <FormControl component="fieldset">
           <FormGroup row>
             <FormControlLabel
@@ -235,7 +235,8 @@ const RightComponent = () => {
 
   const ObjectiveRankingFormNew = (
     <>
-      Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement. You must assign a unique number to each belief:
+      <p style={{"paddingTop":"25px"}}><strong> Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement. You must assign a unique number to each belief:</strong></p>
+
       <table className="dropDownMenuGroup" style={{ marginBottom: '2vh' }}>
         <tbody>
           {objectives.map((option, index) => (
@@ -392,9 +393,7 @@ const RightComponent = () => {
 
   const objectiveSelectPath = (
     <div className="objective-questions">
-      <p>
-        Step3: Your inputs and Data Gathered Till Now Will be saved in json
-      </p>
+      <p style={{"paddingTop":"25px"}}><strong>  Step3: Your inputs and Data Gathered Till Now Will be saved in json</strong></p>
       <RadioGroup
         row
         aria-label="path selection"
@@ -448,7 +447,7 @@ const onSubmitRankingEvaluation = () => {
 
 const rankingEvaluationPanel_Step4 = (
   <div className="objective-questions">
-    <h1>Step4: Ranking Evaluation  Panel</h1>
+    <p style={{"paddingTop":"25px"}}><strong>  Step 4: Ranking Evaluation  Panel</strong></p>
     <RatingComponent/>
     <Button
           className="continueButton"
@@ -482,8 +481,7 @@ const confidenceTexts = ['Very Low', 'Low', 'Neutral', 'High', 'Very High']; // 
 
 const HypothesisConfidencePanel_Step5 = (
   <div className="objective-questions">
-    <h1>Step 5: Your Hypothesis Confidence</h1>
-
+    <p style={{"paddingTop":"25px"}}><strong>  Step 5: Provide Your Hypothesis Confidence</strong></p>
     <HypothesisConfidencePanel
       open={hypothesisOpen}
       hypoConfidence={hypoConfidence}
@@ -491,11 +489,12 @@ const HypothesisConfidencePanel_Step5 = (
       setHypothesisOpen={setHypothesisOpen}
       handleHypoResponse={handleHypoResponse}
     />
-    
+   
     <Button
       className="continueButton"
       variant="contained"
       color="primary"
+      style={{"marginTop":'10px'}}
       onClick={onSubmitHypothesisConfidence}>
         Submit Hypothesis
       </Button>
@@ -543,12 +542,7 @@ const HypothesisConfidencePanel_Step5 = (
 
   const objectiveTranisition = (
     <div className="objective-questions">
-      <p>
-        <strong>
-          Step 4: During the sampling process, the following objectives are
-          considered.
-        </strong>
-      </p>
+       <p style={{"paddingTop":"25px"}}><strong>   Step 6: During the sampling process, the following objectives are considered.</strong></p>
 
       <RadioGroup
         row
