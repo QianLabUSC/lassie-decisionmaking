@@ -152,17 +152,22 @@ def gatherDataAndUpdate():
     shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
     information_shear = information_shear.reshape(estimatedNum, estimatedNum)
     shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.imshow(shear_prediction.T, extent=[0,1,0,1], origin='lower')
+    plt.plot(robot_path_x, robot_path_y)
+    plt.savefig("./json_paths/test.png", format="png")
     return jsonify(
     {
         'path_x': robot_path_x.tolist(), 
         'path_y': robot_path_y.tolist(), 
-        'uncertainity': shear_std.tolist(),
-        'shear_prediction': shear_prediction.tolist(),
-        'info_gain_shear':information_shear.tolist(), # Todo: CONFIRM ONCE THIS IS INFO GAIN
+        'uncertainity': shear_std.T[::-1, :].tolist(),
+        'shear_prediction': shear_prediction.T[::-1, :].tolist(),
+        'info_gain_shear':information_shear.T[::-1, :].tolist(), # Todo: CONFIRM ONCE THIS IS INFO GAIN
         'measured_data' : 
             { 
-                "moisture": measured_moisture.tolist(),
-                "shear":measured_shear.tolist()
+                "moisture": measured_moisture.T[::-1, :].tolist(),
+                "shear":measured_shear.T[::-1, :].tolist()
             }
     }
     )
