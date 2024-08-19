@@ -183,7 +183,7 @@ export const initialConfidenceTexts = [
   'I am highly certain this hypothesis will be refuted',
   'I am certain this hypothesis will be refuted',
   'I am somewhat certain this hypothesis will be refuted',
-  'I am unsure',
+  // 'I am unsure', //DELETED 
   'I am somewhat certain this hypothesis will be supported',
   'I am certain this hypothesis will be supported',
   'I am highly certain this hypothesis will be supported'
@@ -193,11 +193,16 @@ export const confidenceTexts = [
   'I am highly certain this hypothesis is refuted',
   'I am certain this hypothesis is refuted',
   'I am somewhat certain this hypothesis is refuted',
-  'I am unsure',
   'I am somewhat certain this hypothesis is supported',
   'I am certain this hypothesis is supported',
   'I am highly certain this hypothesis is supported'
 ];
+
+export const resolutionTexts = [
+  'One-at-a-time',
+  'Even weighting',
+  'Weighted hierarchy'
+]
 
 export const experimentTitles = {
   soil: "Soil Strength vs. Soil Moisture",
@@ -627,17 +632,17 @@ export enum UserFeedbackState {
   ACCEPT_FOLLOW_UP,
   REJECT_REASON,
   REJECT_REASON_FREE_RESPONSE,
-  USER_LOCATION_SELECTION,
+  USER_LOCATION_SELECTION, //TODO: remove this?
   HYPOTHESIS_CONFIDENCE,
   TRANSITION,
 };
 
 export const objectiveOptions = [
-  "There are areas along the dune transect (between crest and interdune) where data is needed", // Option 0 - spatial coverage algorithm
-  "There are portions of the dynamic range of the moisture variable (x axis of the data plot) where data is needed", // Option 1 - variable coverage algorithm
-  "There is a discrepancy between the data and the hypothesis that needs additional evaluation", // Option 2 - hypo invalidating algorithm
-  "The data seems to be supporting the hypothesis so far but additional evaluation is needed", // Option 3 - hypo validating algorithm
-  "I hold a different belief that is not described here" // Option 4 - free response
+  "INFO COVERAGE There are areas along the dune transect (between crest and interdune) where data is needed", // Option 0 - spatial coverage algorithm
+  //"There are portions of the dynamic range of the moisture variable (x axis of the data plot) where data is needed", // Option 1 old - variable coverage algorithm
+  "DISCREPANCY There is either a discrepancy or a correlation between the data and the hypothesis that needs additional evaluation", // Option 1 - hypo invalidating algorithm -- changed to general hypothesis evaluation
+  //"The data seems to be supporting the hypothesis so far but additional evaluation is needed", // Option 3 old - hypo validating algorithm
+  // "I hold a different belief that is not described here" // Option 2 - free response
 ]
 
 export const acceptFollowUpOptions = [

@@ -2,7 +2,6 @@ import { getMeasurements, mean } from '../util';
 import { shearChartOption, moistChartOption, shearMoistChartOption, NORMALIZED_CREST_RANGE } from '../constants';
 import { IState, Action, Charts, ChartDisplayMode } from '../state';
 import * as Chart from 'chart.js';
-
 export enum ChartLocation { Field, Transect }
 
 export const updateCharts = (globalState: IState, dispatch: any) => {
@@ -195,4 +194,3 @@ var resetCanvas = function(){
   canvasShearMoist.id = 'shearMoistChart';
   document.getElementById('shearMoistChartParent')?.appendChild(canvasShearMoist);
 };
-

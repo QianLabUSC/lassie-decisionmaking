@@ -63,7 +63,7 @@
         .rightDecisionPanelContainer {
             background-color: $lightGray;
             box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
-            height: 95vh;
+            height: 50vh;
             width: 47vw;
 
             .collectionRightPanel {
@@ -209,9 +209,13 @@
             }
 
             .user-feedback {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
                 width: 90%;
-                height: 50vh;
-                max-height: 50vh;
+                height: 40vh;
+                max-height: 40vh;
                 padding-left: 2vh;
                 padding-right: 2vh;
                 padding-top: 1vh;
@@ -254,6 +258,46 @@
                     }
                 }
 
+                .resolutionMethodTitle {
+                    font-size: 2.5vh;
+                    color: #114B5F;
+                    font-family: Helvetic, sans-serif;
+                    margin-bottom: 2px;
+                    animation: blinker 3s linear infinite;
+                }
+                .objectiveRankingTitle {
+                    font-size: 2.5vh;
+                    color: #114B5F;
+                    font-family: Helvetic, sans-serif;
+                    margin-bottom: 2px;
+                    animation: blinker 3s linear infinite;
+                }
+                .resolutionMethodBlock {
+                    text-align: left;
+                    clear: both;
+                    width: 100%;
+                    padding-top: 1vh;
+                    margin-bottom: 2vh;
+                    .resolutionMethodTitle {
+                        font-size: 2.5vh;
+                        color: #114B5F;
+                        font-family: Helvetic, sans-serif;
+                        margin-bottom: 2px;
+                        animation: blinker 3s linear infinite;
+                    }
+                    @keyframes blinker {
+                        50% {
+                            border-color: #fff;
+                        }
+                    }
+                    .resolutionMethodText {
+                        margin-top: 1vh;
+                        margin-bottom: 1vh;
+                        font-size: 2vh;
+                    }
+                }
+
+
                 .slider-box {
                     padding-left: 3%;
                     max-width: 80%;
@@ -261,9 +305,13 @@
                 }
             }
             .user-feedback-flashing {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
                 width: 90%;
-                height: 50vh;
-                max-height: 50vh;
+                height: 40vh;
+                max-height: 40vh;
                 padding-left: 2vh;
                 padding-right: 2vh;
                 padding-top: 1vh;

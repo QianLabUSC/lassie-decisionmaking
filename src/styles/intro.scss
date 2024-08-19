@@ -101,6 +101,77 @@
             .hypothesisBlock:last-child { margin: 0; }
 
         }
+        .page2 {
+            .contentContainer {
+                height: 100%;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .text {
+                font-size: 1.8vh;
+                text-align: left;
+                clear: both;
+                margin: auto;
+                margin-top: 20px;
+                width: 80%;
+                vertical-align: top;
+                p:nth-of-type(1) {
+                    margin-top: 0;
+                }
+                
+            }
+
+            .objectiveBlock {
+                text-align: left;
+                clear: both;
+                width: 80%;
+                padding-top: 1vh;
+                padding-left: 10%;
+                margin-bottom: 5vh;
+                .objectiveTitle {
+                    font-size: 2vh;
+                    color: #114B5F;
+                    font-family: Helvetic, sans-serif;
+                    margin-bottom: 2px;
+                    animation: blinker 3s linear infinite;
+                }
+                @keyframes blinker {
+                    50% {
+                        border-color: #fff;
+                    }
+                }
+                .objectiveText {
+                    font-size: 1.8vh;
+                }
+            }
+           
+            .resolutionMethodBlock {
+                text-align: left;
+                clear: both;
+                width: 80%;
+                padding-top: 1vh;
+                padding-left: 10%;
+                margin-bottom: 5vh;
+                .resolutionMethodTitle {
+                    font-size: 2vh;
+                    color: #114B5F;
+                    font-family: Helvetic, sans-serif;
+                    margin-bottom: 2px;
+                    animation: blinker 3s linear infinite;
+                }
+                @keyframes blinker {
+                    50% {
+                        border-color: #fff;
+                    }
+                }
+                .resolutionMethodText {
+                    font-size: 1.8vh;
+                }
+            }
+            
+
+        }
 
         .buttonRow {
             // margin-top: 30px;

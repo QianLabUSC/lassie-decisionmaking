@@ -40,6 +40,8 @@ export interface IState {
   initialHypo: number, // will be in final output after survey is completed
   finalHypo: number, // will be in final output after survey is completed
   conclusionFreeResponse: string,
+   //LUCKY resolution method
+  initialResolutionMethod: number,
   // Chart fields
   chart: Charts,
   chartSettings: ChartSettings,
@@ -69,8 +71,17 @@ export const initialState : IState = {
   samples: [],
   currUserStep: {
     step: 1,
-    userFeedbackState: 0,
-    objectives: [],
+    userFeedbackState: 1,
+    objectives: [{
+      objective: objectiveOptions[0],
+      ranking: 1,
+      addressedRating: 1
+    },
+    {
+      objective: objectiveOptions[1],
+      ranking: 2,
+      addressedRating: 1
+    }],
     objectiveFreeResponse: "",
     sampleType: null,
     robotSuggestions: [],
@@ -86,13 +97,17 @@ export const initialState : IState = {
     rejectReasonFreeResponse: "",
     userFreeSelection: false,
     userSample: null,
+    acceptExplanationRating: 0,
+    rejectExplanationRating: 0,
     hypoConfidence: 0,
-    transition: 1, // previous: 0 Set the option from 0 to 1 by default. - Zeyu, 5/17/2022
+    resolutionMethod: 0,
+    transition: 0, // previous: 0 Set the option from 0 to 1 by default. - Zeyu, 5/17/2022
   },
   userSteps: [],
   initialHypo: 0,
   finalHypo: 0,
   conclusionFreeResponse: "", //Add by Zeyu 6/13/2022
+  initialResolutionMethod: 0,
   chart: null,
   chartSettings: {
     mode: 0,
@@ -146,7 +161,10 @@ export enum Action {
     SET_REJECT_REASON_FREE_RESPONSE,
     SET_USER_FREE_SELECTION,
     SET_USER_SAMPLE,
+    SET_ACCEPT_EXPLANATION_RATING,
+    SET_REJECT_EXPLANATION_RATING,
     SET_HYPO_CONFIDENCE,
+    SET_RES_METHOD,
     SET_TRANSITION,
     SET_DISABLE_SUBMIT_BUTTON,
     SET_NUM_SUBMIT_CLICKS,
@@ -154,6 +172,7 @@ export enum Action {
     SET_INIT_HYPO_CONFIDENCE,
     SET_FINAL_HYPO_CONFIDENCE,
     SET_CONCLUSION_FREE_RESPONSE,
+    SET_INITIAL_RESOLUTION_METHOD,
     SET_CHART,
     SET_CHART_SETTINGS,
     CLEAR_CHART_CURRENT,
@@ -182,6 +201,7 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
   [Action.SET_FINAL_HYPO_CONFIDENCE]: 'finalHypo',
   [Action.SET_CONCLUSION_FREE_RESPONSE]: 'conclusionFreeResponse',
+  [Action.SET_INITIAL_RESOLUTION_METHOD]:'initialResolutionMethod',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
   [Action.SET_LOADING_ROBOT_SUGGESTIONS]: 'loadingRobotSuggestions',
@@ -251,7 +271,10 @@ const actionKeyMapCurrUserStep : ActionKeyMapCurrUserStep = {
   [Action.SET_REJECT_REASON_FREE_RESPONSE]: 'rejectReasonFreeResponse',
   [Action.SET_USER_FREE_SELECTION]: 'userFreeSelection',
   [Action.SET_USER_SAMPLE]: 'userSample',
+  [Action.SET_ACCEPT_EXPLANATION_RATING]: 'acceptExplanationRating',
+  [Action.SET_REJECT_EXPLANATION_RATING]: 'rejectExplanationRating',
   [Action.SET_HYPO_CONFIDENCE]: 'hypoConfidence',
+  [Action.SET_RES_METHOD]: 'resolutionMethod',
   [Action.SET_TRANSITION]: 'transition',
 };
 

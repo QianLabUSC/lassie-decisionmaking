@@ -79,7 +79,10 @@ export interface CurrUserStepData {
   rejectReasonFreeResponse: string, // stores user's free response for the reason for rejecting the robot's suggestion
   userFreeSelection: boolean
   userSample: Sample | null,
-  hypoConfidence : number // stores user's updated hypothesis confidence
+  acceptExplanationRating: number, //0-100
+  rejectExplanationRating: number,
+  hypoConfidence : number, // stores user's updated hypothesis confidence,
+  resolutionMethod: number,
   transition : number, // stores user's choice for the next data collection step
 }
 
@@ -97,7 +100,10 @@ export interface UserStepsData {
   rejectReasonsOptions: string[],
   rejectReasonFreeResponse: string | null, 
   userFreeSample: Sample | null,
-  hypoConfidence : string 
+  acceptExplanationRating: number,
+  rejectExplanationRating: number,
+  hypoConfidence : string,
+  resolutionMethod: string, 
   samples: Sample[],
   transition : string,
   spatialReward: number[],
