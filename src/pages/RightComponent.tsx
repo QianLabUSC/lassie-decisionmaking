@@ -20,6 +20,7 @@ import { secondApiCreateJson } from '../ApiCalls/second_api_create_json';
 import { thirdApiCallHeatMapScatterPLot } from '../ApiCalls/third_api_call_heat_map_scatterplot';
 import { pathsuggestion } from '../ApiCalls/pathsuggestion';
 import { gatherDataAndUpdate } from '../ApiCalls/gatherDataAndUpdate';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
 import RobotChart from '../components/RobotChart';
@@ -33,8 +34,10 @@ import { prior_samples_trajectories_y } from '../constants';
 import { SubPath } from '../state';
 
 
+
 const NO_OF_ITERATION = 1;
 const RightComponent = () => {
+  const [loading, setLoading] = useState(false);
   const [selectedBelief, setSelectedBelief] = useState<string[]>([]);
   const [userBeliefText, setUserBeliefText] = useState('');
   const [selectedPathIndex, setSelectedPathIndex] = useState('');
@@ -113,16 +116,27 @@ const RightComponent = () => {
     });
   };
 
+
+
   const onSubmitHumanBelief = async () => {
-       // dispatch({
+    setLoading(true); // Start loading spinner
+    try {
+          // dispatch({
     //   type: Action.UPDATE_INITIAL_HUMAN_BELIEF,
     //   value: initial_human_belief,
     // });    
-    setCurrentView(1);
-    dispatch({
-      type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
-      value: input_box_step_btn_click + 1,
-    });
+      dispatch({
+        type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
+        value: input_box_step_btn_click + 1,
+      });
+     // Move to the next view or handle logic
+    } catch (error) {
+      console.error("Error during dispatch:", error);
+    } finally {
+      console.error("loading step1", loading);
+      setLoading(false); // Stop loading spinner
+      setCurrentView(1); 
+    }
   };
 
   useEffect(() => {}, [selectedTransitionState]);
@@ -153,23 +167,25 @@ const RightComponent = () => {
         </FormControl>
         <p><strong>Please describe your additional belief about the data collected so far:</strong></p>
         <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} />
-        <Button
+       {!loading && <Button
+        style={{"marginTop":"15px"}}
           disabled={selectedBelief.length === 0}
           variant="contained"
           color="secondary"
           onClick={onSubmitHumanBelief}
         >
-          Next
-        </Button>
-        <br/>
-        <br/>
+          Next  
+        </Button>}
+        {loading && <CircularProgress size={24} /> }
         <Button
+          style={{"marginBottom":"15px"}}
           className="continueButton"
           variant="contained"
           color="primary"
           onClick={onContinueClick}>
           End Collection Transect
         </Button>
+        <br/>
       </div>
     
     </>
@@ -205,12 +221,16 @@ const RightComponent = () => {
   };
 
   const onSubmitRanking = async () => {
-    const initial_human_belief = {
+    setLoading(true); // Start loading spinner
+    
+    try{
+      
+     const initial_human_belief = {
       human_belief_selected_option: selectedBelief,
       human_belief_text_description: userBeliefText,
     };
 
-
+    
 
     let threePaths;
     threePaths = await pathsuggestion(
@@ -230,7 +250,14 @@ const RightComponent = () => {
       value: threePaths,
     });
 
+   
+  }catch (error) {
+    console.error("Error during dispatch:", error);
+  } finally {
+    console.error("loading Error during dispatch:212", loading);
+    setLoading(false); // Stop loading spinner
     setCurrentView(2);
+  }
   };
 
   const ObjectiveRankingFormNew = (
@@ -260,17 +287,19 @@ const RightComponent = () => {
           ))}
         </tbody>
       </table>
-      <Button
+      {!loading && <Button
         disabled={!selectedBelief}
         variant="contained"
         color="secondary"
         onClick={onSubmitRanking}
       >
         Next
-      </Button>
+      </Button>}
+      {loading && <CircularProgress size={24} /> }
       <br/>
       <br/>
       <Button
+        style={{"marginBottom":"15px"}}
         className="continueButton"
         variant="contained"
         color="primary"
@@ -286,6 +315,10 @@ const RightComponent = () => {
   };
 
   const onSubmitSelectedPath = async () => {
+
+    setLoading(true); // Start loading spinner
+    
+    try{
     const int_selected_path_index = parseInt(selectedPathIndex) - 1;
     const api_input = {
       step_number: input_box_step_btn_click,
@@ -389,8 +422,14 @@ const RightComponent = () => {
       value: input_box_step_btn_click + 1,
     });
     setCurrentView(3);
+  }catch (error) {
+    console.error("Error during dispatch:", error);
+  } finally {
+    setLoading(false); // Stop loading spinner
+  }
   };
 
+  console.log('loading', loading)
   const objectiveSelectPath = (
     <div className="objective-questions">
       <p style={{"paddingTop":"25px"}}><strong>  Step3: Your inputs and Data Gathered Till Now Will be saved in json</strong></p>
@@ -417,17 +456,19 @@ const RightComponent = () => {
           label="Accept suggested path C"
         />
       </RadioGroup>
-      <Button
+     {!loading &&  <Button
         disabled={!selectedPathIndex}
         variant="contained"
         color="secondary"
         onClick={onSubmitSelectedPath}
       >
         Submit
-      </Button>
+      </Button>}
+      {loading && <CircularProgress size={24} /> }
       <br/>
       <br/>
       <Button
+        style={{"marginBottom":"15px"}}
         className="continueButton"
         variant="contained"
         color="primary"
@@ -463,11 +504,19 @@ const rankingEvaluationPanel_Step4 = (
 
 /////////////// 5th step  TODO: CHANGE WHOLE OF THIS ////////
 const onSubmitHypothesisConfidence = () => {
-  dispatch({
+  setLoading(true); // Start loading spinner
+    
+  try{
+    dispatch({
     type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
     value: input_box_step_btn_click + 1,
   });
   setCurrentView(5);
+}catch (error) {
+  console.error("Error during dispatch:", error);
+} finally {
+  setLoading(false); // Stop loading spinner
+}
 };
 
 const [hypoConfidence, setHypoConfidence] = useState<number>(0);
@@ -491,17 +540,19 @@ const HypothesisConfidencePanel_Step5 = (
       handleHypoResponse={handleHypoResponse}
     />
    
-    <Button
+  {!loading &&  <Button
       className="continueButton"
       variant="contained"
       color="primary"
       style={{"marginTop":'10px'}}
       onClick={onSubmitHypothesisConfidence}>
         Submit Hypothesis
-      </Button>
+      </Button> }
+      {loading && <CircularProgress size={24} /> }
       <br/>
       <br/>
       <Button
+        style={{"marginBottom":"15px"}}
         className="continueButton"
         variant="contained"
         color="primary"
@@ -520,6 +571,9 @@ const HypothesisConfidencePanel_Step5 = (
   };
 
   const onSubmitTransitionState = async () => {
+    setLoading(true); // Start loading spinner
+    
+    try{
     setUpdateTransition(true)
   
     if (selectedTransitionState === '1') {
@@ -538,6 +592,11 @@ const HypothesisConfidencePanel_Step5 = (
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
     });
+  }catch (error) {
+    console.error("Error during dispatch:", error);
+  } finally {
+    setLoading(false); // Stop loading spinner
+  }
   };
 
 
@@ -573,17 +632,19 @@ const HypothesisConfidencePanel_Step5 = (
           label="Stop data collection and make a conclusion about the hypothesis"
         />
       </RadioGroup>
-      <Button
+      {!loading && <Button
         disabled={!selectedBelief}
         variant="contained"
         color="secondary"
         onClick={onSubmitTransitionState}
       >
         Submit Transition State
-      </Button>
+      </Button>}
+      {loading && <CircularProgress size={24} /> }
       <br/>
       <br/>
       <Button
+        style={{"marginBottom":"15px"}}
         className="continueButton"
         variant="contained"
         color="primary"

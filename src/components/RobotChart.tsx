@@ -183,7 +183,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapTyp
       
       <div style={{ display: 'flex', justifyContent: 'center', }}>
       <div className="legend">
-      <ChartColourLegendPanel width={70} height={393} colorFrom="#ffffff" colorTo="#ff8731" />
+      <ChartColourLegendPanel width={70} height={300} colorFrom="#ffffff" colorTo="#ff8731" />
      
 
       <svg width={width} height={height} >
