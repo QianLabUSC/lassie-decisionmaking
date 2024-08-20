@@ -11,8 +11,8 @@ const patchyEnivironmentImage = require('../../assests/Patchy_Env.png');
 const graduallyChangingEnivironmentImage = require('../../assests/Picture1.png');
 import ChartColourLegendPanel from './ChartColourLegendPanel';
 // Constants for chart dimensions and margins
-const width = 790;
-const height = 390;
+const width = 740;
+const height = 370;
 const margin = { top: 20, right: 20, bottom: 50, left: 50 };
 
 const innerWidth = width - margin.left - margin.right;
@@ -135,9 +135,9 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
 
   return (
   <div>
-    <div className="legend" style={{marginLeft:'50px'}}>
+    <div className="legend"  style={{marginLeft:'5px'}}>
       <ChartColourLegendPanel width={70} height={300} colorFrom="#ffffff" colorTo="#ff8731" />
-      <svg width={width} height={height} style={{marginLeft:'20px'}}>      
+      <svg width={width} height={height}  style={{marginLeft:'15px'}}>      
       <image href={backgoundImg} x={50} y={20} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
         <Group left={margin.left} top={margin.top}>
           {/* For showing initial robot icon at (0,0) */}

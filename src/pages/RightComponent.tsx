@@ -766,10 +766,10 @@ const HypothesisConfidencePanel_Step5 = (
 
       <Grid container>
         <Grid container>
-          <Grid item xs={12} md={7}>
+          <Grid item xs={12} md={6}>
             {<ChartTabs />}
           </Grid>
-          <Grid item xs={12} md={5} className="rightDecisionPanel">
+          <Grid item xs={12} md={6} className="rightDecisionPanel">
             <div className="rightDecisionPanelContainer">
               {collectionRightPanel}
             </div>
