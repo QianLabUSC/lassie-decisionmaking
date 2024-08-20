@@ -160,11 +160,11 @@ def gatherDataAndUpdate():
         'uncertainity': shear_std.T[::-1, :].tolist(),
         'shear_prediction': shear_prediction.T[::-1, :].tolist(),
         'info_gain_shear':information_shear.T[::-1, :].tolist(), # Todo: CONFIRM ONCE THIS IS INFO GAIN
-        # 'measured_data' : 
-        #     { 
-        #         "moisture": measured_moisture.T[::-1, :].tolist(),
-        #         "shear":measured_shear.T[::-1, :].tolist()
-        #     }
+        'measured_data' : 
+            { 
+                "moisture": measured_moisture.T.tolist(),
+                "shear":measured_shear.T.tolist()
+            }
     }
     )
 
