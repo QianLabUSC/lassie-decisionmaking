@@ -260,6 +260,26 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapTyp
               fill="blue"
             />
           ))}
+          {/* Add Top border */}
+          <line
+            x1={50}
+            x2={583}
+            y1={1}
+            y2={1}
+            stroke="black"
+            strokeWidth={1}
+          />
+
+          {/* Add right border */}
+          <line
+            x1={583}  // This is the x-coordinate for the right side of the SVG
+            x2={583}  // Same x-coordinate to make the line vertical
+            y1={1}    // Start at the top of the SVG
+            y2={400}  // End at the bottom of the SVG (adjust according to your height)
+            stroke="black"
+            strokeWidth={1}
+          />
+
         </Group>
         <Text
           x={width / 2}
