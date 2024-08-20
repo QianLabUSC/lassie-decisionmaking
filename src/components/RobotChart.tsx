@@ -11,8 +11,8 @@ import { Action } from '../state';
 import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
 import ChartColourLegendPanel from '../components/Charts/ChartColourLegendPanel' ;
 // Dimensions and margins
-const width = 400;
-const height = 400;
+const width = 603;
+const height = 420;
 const margin = { top: 20, bottom: 20, left: 50, right: 20 };
 
 // Scales
@@ -23,7 +23,7 @@ const xScale = scaleLinear({
 
 const yScale = scaleLinear({
   domain: [0, 1],
-  range: [height - margin.bottom, margin.top],
+  range: [height - margin.bottom, margin.top-19],
 });
 
 // Labels and colors
@@ -169,11 +169,11 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapTyp
     return (
 
       <InformationGainHeatMap
-        width={380}
-        height={410}
+        width={583}
+        height={400}
         data={heatmapData}
         x={50}
-        y={-30}
+        y={0}
       />
     );
   };
@@ -181,8 +181,8 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapTyp
   return (
     <div>
       
-      <div style={{ display: 'flex', justifyContent: 'center', }}>
-      <div className="legend">
+      <div>
+      <div className="legend" >
       <ChartColourLegendPanel width={70} height={300} colorFrom="#ffffff" colorTo="#ff8731" />
      
 
