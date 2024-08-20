@@ -494,7 +494,7 @@ const rankingEvaluationPanel_Step4 = (
           className="continueButton"
           variant="contained"
           color="primary"
-          style={{"marginTop":"35px"}}
+          style={{"marginTop":"35px", "marginBottom":"15px"}}
           onClick={onSubmitRankingEvaluation}>
               Submit ranking
         </Button>
