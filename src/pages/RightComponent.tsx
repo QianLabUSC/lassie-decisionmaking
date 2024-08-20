@@ -673,17 +673,17 @@ const HypothesisConfidencePanel_Step5 = (
   ];
 
   const collectionRightPanel = (
-    <div className="collectionRightPanel">
+    <div className="collectionRightPanel" style={{marginLeft:'80px'}}>
          <Typography
         variant="h6"
-        style={{ marginTop: '0px', textAlign: 'center' }}
+        style={{ textAlign: 'center' }}
       >
       Information Gain 
       </Typography>
       <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='INFO_GAIN'/>
       <Typography
         variant="h6"
-        style={{ marginTop: '12px', textAlign: 'center' }}
+        style={{  textAlign: 'center' }}
       >
        Discrepancy Reward
       </Typography>
@@ -695,7 +695,7 @@ const HypothesisConfidencePanel_Step5 = (
     <Box sx={{ width: '100%' }}>
         <Typography
         variant="h6"
-        style={{ marginTop: '20px', marginLeft:'300px' }}
+        style={{ marginTop: '10px', marginLeft:'300px' }}
       >
        World Map With Robot Actual Trajectory
       </Typography>
@@ -766,10 +766,10 @@ const HypothesisConfidencePanel_Step5 = (
 
       <Grid container>
         <Grid container>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} style={{padding:'0px'}}>
             {<ChartTabs />}
           </Grid>
-          <Grid item xs={12} md={6} className="rightDecisionPanel">
+          <Grid item xs={12} md={6} className="rightDecisionPanel" style={{paddingTop:'5px'}}>
             <div className="rightDecisionPanelContainer">
               {collectionRightPanel}
             </div>
