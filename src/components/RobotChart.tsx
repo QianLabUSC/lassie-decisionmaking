@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 import { LinePath } from '@visx/shape';
 import { curveBasis } from '@visx/curve';
 import { Text } from '@visx/text';
@@ -9,7 +9,7 @@ import { AxisLeft, AxisBottom } from '@visx/axis';
 import { useStateValue } from '../state';
 import { Action } from '../state';
 import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
-import ChartColourLegendPanel from '../components/Charts/ChartColourLegendPanel' 
+import ChartColourLegendPanel from '../components/Charts/ChartColourLegendPanel' ;
 // Dimensions and margins
 const width = 400;
 const height = 400;

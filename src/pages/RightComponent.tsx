@@ -695,7 +695,7 @@ const HypothesisConfidencePanel_Step5 = (
     <Box sx={{ width: '100%' }}>
         <Typography
         variant="h6"
-        style={{ marginTop: '20px', marginLeft:'200px' }}
+        style={{ marginTop: '20px', marginLeft:'300px' }}
       >
        World Map With Robot Actual Trajectory
       </Typography>
