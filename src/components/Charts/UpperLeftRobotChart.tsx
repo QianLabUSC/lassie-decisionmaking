@@ -11,7 +11,7 @@ const patchyEnivironmentImage = require('../../assests/Patchy_Env.png');
 const graduallyChangingEnivironmentImage = require('../../assests/Picture1.png');
 import ChartColourLegendPanel from './ChartColourLegendPanel';
 // Constants for chart dimensions and margins
-const width = 780;
+const width = 790;
 const height = 390;
 const margin = { top: 20, right: 20, bottom: 50, left: 50 };
 
