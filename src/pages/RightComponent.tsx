@@ -167,6 +167,7 @@ const RightComponent = () => {
         </FormControl>
         <p><strong>Please describe your additional belief about the data collected so far:</strong></p>
         <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} />
+        <br/>
        {!loading && <Button
         style={{"marginTop":"15px"}}
           disabled={selectedBelief.length === 0}
@@ -178,7 +179,7 @@ const RightComponent = () => {
         </Button>}
         {loading && <CircularProgress size={24} /> }
         <Button
-          style={{"marginBottom":"15px"}}
+          style={{"marginBottom":"15px","marginLeft": "358px", "marginTop":"30px"}}
           className="continueButton"
           variant="contained"
           color="primary"
@@ -296,10 +297,8 @@ const RightComponent = () => {
         Next
       </Button>}
       {loading && <CircularProgress size={24} /> }
-      <br/>
-      <br/>
       <Button
-        style={{"marginBottom":"15px"}}
+          style={{"marginBottom":"15px","marginLeft": "358px", "marginTop":"30px"}}
         className="continueButton"
         variant="contained"
         color="primary"
@@ -457,6 +456,7 @@ const RightComponent = () => {
         />
       </RadioGroup>
      {!loading &&  <Button
+        style={{"marginTop":"20px"}}
         disabled={!selectedPathIndex}
         variant="contained"
         color="secondary"
@@ -465,10 +465,8 @@ const RightComponent = () => {
         Submit
       </Button>}
       {loading && <CircularProgress size={24} /> }
-      <br/>
-      <br/>
       <Button
-        style={{"marginBottom":"15px"}}
+        style={{"marginBottom":"15px","marginLeft": "429px", "marginTop":"-40px"}}
         className="continueButton"
         variant="contained"
         color="primary"
@@ -494,11 +492,18 @@ const rankingEvaluationPanel_Step4 = (
           className="continueButton"
           variant="contained"
           color="primary"
-          style={{"marginTop":"35px", "marginBottom":"15px"}}
+          style={{"marginTop":"45px", "marginBottom":"15px"}}
           onClick={onSubmitRankingEvaluation}>
-              Submit ranking
+          Submit ranking
         </Button>
-      
+        <Button
+        style={{"marginBottom":"15px","marginLeft": "429px", "marginTop":"-65px"}}
+        className="continueButton"
+        variant="contained"
+        color="primary"
+        onClick={onContinueClick}>
+        End Collection Transect
+      </Button>
   </div>
 );
 
@@ -544,7 +549,7 @@ const HypothesisConfidencePanel_Step5 = (
       className="continueButton"
       variant="contained"
       color="primary"
-      style={{"marginTop":'10px'}}
+      style={{"marginTop":'25px'}}
       onClick={onSubmitHypothesisConfidence}>
         Submit Hypothesis
       </Button> }
@@ -552,7 +557,7 @@ const HypothesisConfidencePanel_Step5 = (
       <br/>
       <br/>
       <Button
-        style={{"marginBottom":"15px"}}
+        style={{"marginBottom":"15px","marginLeft": "429px", "marginTop":"-75px"}}
         className="continueButton"
         variant="contained"
         color="primary"
@@ -633,6 +638,7 @@ const HypothesisConfidencePanel_Step5 = (
         />
       </RadioGroup>
       {!loading && <Button
+      style={{"marginTop":'15px'}}
         disabled={!selectedBelief}
         variant="contained"
         color="secondary"
@@ -644,7 +650,7 @@ const HypothesisConfidencePanel_Step5 = (
       <br/>
       <br/>
       <Button
-        style={{"marginBottom":"15px"}}
+        style={{"marginBottom":"15px","marginLeft": "429px", "marginTop":"-80px"}}
         className="continueButton"
         variant="contained"
         color="primary"
