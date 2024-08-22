@@ -13,6 +13,8 @@ const ChartColourLegendPanel = ({ width, height, colorFrom, colorTo }) => {
     const legendWidth = width -55;
     const legendHeight = height - 110;
 
+
+
     // Create gradient
     const defs = svg.append('defs');
     const gradient = defs.append('linearGradient')

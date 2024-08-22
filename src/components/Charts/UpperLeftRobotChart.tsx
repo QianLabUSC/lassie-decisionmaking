@@ -9,6 +9,7 @@ import { AxisLeft, AxisBottom } from '@visx/axis';
 import { useStateValue } from '../../state';
 const patchyEnivironmentImage = require('../../assests/Patchy_Env.png');
 const graduallyChangingEnivironmentImage = require('../../assests/Picture1.png');
+const robot = require('../../assests/spirit.png');
 import ChartColourLegendPanel from './ChartColourLegendPanel';
 // Constants for chart dimensions and margins
 const width = 740;
@@ -71,10 +72,23 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
     }
   }, [threePaths]);
 
+  // const RobotIcon = ({ x, y }) => (
+  //   <svg x={x-10}
+  //   y={y-15} xmlns="http://www.w3.org/2000/svg"  viewBox="0,0,256,256" width="24px" height="24px"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" ><g transform="scale(10.66667,10.66667)"><path d="M17,10h-10c-0.552,0 -1,-0.448 -1,-1v-1c0,-3.314 2.686,-6 6,-6v0c3.314,0 6,2.686 6,6v1c0,0.552 -0.448,1 -1,1z" fill="#000000"></path><path d="M13,21h-2c-2.761,0 -5,-2.239 -5,-5v-4c0,-1.105 0.895,-2 2,-2h8c1.105,0 2,0.895 2,2v4c0,2.761 -2.239,5 -5,5z" fill="#ff7a0f" opacity="0.35"></path><path d="M6,20.092v-8.592c0,-0.829 -0.671,-1.5 -1.5,-1.5c-0.829,0 -1.5,0.671 -1.5,1.5v8.592c-0.581,0.207 -1,0.756 -1,1.408c0,0.829 0.671,1.5 1.5,1.5h2c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.652 -0.419,-1.202 -1,-1.408z" fill="#ff7a0f"></path><path d="M21,20.092v-8.592c0,-0.829 -0.671,-1.5 -1.5,-1.5c-0.829,0 -1.5,0.671 -1.5,1.5v8.592c-0.581,0.207 -1,0.756 -1,1.408c0,0.829 0.671,1.5 1.5,1.5h2c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.652 -0.419,-1.202 -1,-1.408z" fill="#ff7a0f"></path><path d="M14.5,12h-5c-0.829,0 -1.5,0.671 -1.5,1.5c0,0.829 0.671,1.5 1.5,1.5h5c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.829 -0.671,-1.5 -1.5,-1.5z" fill="#ff7a0f"></path><circle cx="13.5" cy="6.5" r="1.5" fill="#b3b3b3"></circle></g></g></svg>
+  // );
   const RobotIcon = ({ x, y }) => (
-    <svg x={x-10}
-    y={y-15} xmlns="http://www.w3.org/2000/svg"  viewBox="0,0,256,256" width="24px" height="24px"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" ><g transform="scale(10.66667,10.66667)"><path d="M17,10h-10c-0.552,0 -1,-0.448 -1,-1v-1c0,-3.314 2.686,-6 6,-6v0c3.314,0 6,2.686 6,6v1c0,0.552 -0.448,1 -1,1z" fill="#000000"></path><path d="M13,21h-2c-2.761,0 -5,-2.239 -5,-5v-4c0,-1.105 0.895,-2 2,-2h8c1.105,0 2,0.895 2,2v4c0,2.761 -2.239,5 -5,5z" fill="#ff7a0f" opacity="0.35"></path><path d="M6,20.092v-8.592c0,-0.829 -0.671,-1.5 -1.5,-1.5c-0.829,0 -1.5,0.671 -1.5,1.5v8.592c-0.581,0.207 -1,0.756 -1,1.408c0,0.829 0.671,1.5 1.5,1.5h2c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.652 -0.419,-1.202 -1,-1.408z" fill="#ff7a0f"></path><path d="M21,20.092v-8.592c0,-0.829 -0.671,-1.5 -1.5,-1.5c-0.829,0 -1.5,0.671 -1.5,1.5v8.592c-0.581,0.207 -1,0.756 -1,1.408c0,0.829 0.671,1.5 1.5,1.5h2c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.652 -0.419,-1.202 -1,-1.408z" fill="#ff7a0f"></path><path d="M14.5,12h-5c-0.829,0 -1.5,0.671 -1.5,1.5c0,0.829 0.671,1.5 1.5,1.5h5c0.829,0 1.5,-0.671 1.5,-1.5c0,-0.829 -0.671,-1.5 -1.5,-1.5z" fill="#ff7a0f"></path><circle cx="13.5" cy="6.5" r="1.5" fill="#b3b3b3"></circle></g></g></svg>
-  );
+    <img 
+        src={robot}  // Adjust the path as necessary
+        alt="Robot Icon"
+        style={{
+            position: 'absolute',
+            left: `${x - 10}px`,
+            top: `${y - 15}px`,
+            width: '40px',
+            height: '40px'
+        }}
+    />
+);
 
   const getPathData = (paths: TestPath, index: number): Point[] => {
     if (index < paths.length) {
@@ -136,12 +150,16 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
   return (
   <div>
     <div className="legend"  style={{marginLeft:'5px'}}>
-      <ChartColourLegendPanel width={70} height={300} colorFrom="#ffffff" colorTo="#ff8731" />
+      <ChartColourLegendPanel width={70} height={300} colorFrom="#FA8072" colorTo="#B0C4DE" />
       <svg width={width} height={height}  style={{marginLeft:'15px'}}>      
       <image href={backgoundImg} x={50} y={20} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
         <Group left={margin.left} top={margin.top}>
           {/* For showing initial robot icon at (0,0) */}
-          {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
+          {allPaths?.[0]?.[0]?.[0].length === 0 && 
+              <foreignObject x={xScale(0) - 10} y={yScale(0) - 15} width={40} height={40}>
+                      <RobotIcon x={0} y={0} /> {/* Pass 0,0 since it's already positioned in the parent */}
+              </foreignObject>
+              }
           {allPaths.map((paths, idx) =>
             paths.map((_, pathIndex) => {
               const data = getPathData(allPaths[allPaths.length - 1], pathIndex);
@@ -171,18 +189,21 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
                   />
 
                   <Text
-                    x={xScale(lastPoint.x)}
-                    y={yScale(lastPoint.y)}
+                    x={xScale(lastPoint.x) + 10}
+                    y={yScale(lastPoint.y) - 10}
                     dx={-10}
                     dy={5}
-                    fill="red"
+                    fill= {colors[pathIndex % colors.length]}
                     fontSize={25}
                     fontWeight="bold"
                   >
-                    {pathIndex}
+                    {labels[pathIndex]}
                   </Text>
                   {isSelectedPath && (
-                    <RobotIcon x={xScale(lastPoint.x)} y={yScale(lastPoint.y)} />
+                 
+                    <foreignObject x={xScale(lastPoint.x )-30} y={yScale(lastPoint.y)-25} width={40} height={40}>
+                            <RobotIcon x={0} y={0} /> {/* Pass 0,0 since it's already positioned in the parent */}
+                    </foreignObject>
                   )}
                 </React.Fragment>
               );

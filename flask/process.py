@@ -90,7 +90,7 @@ def pathsuggestion():
     robot_path_x = concatenated_path_x
     robot_path_y = concatenated_path_y
     ENV = ManuallyEnv()
-    PLANNER = ReactivePlanning(0.02, 50)
+    PLANNER = ReactivePlanning(0.02, 30)
     ESTIMATOR = Estimation(False, 0.2, 0.15, 4)
 
     measured_robot_coordinates, measured_shear, measured_moisture = ENV.gather_data(robot_path_x, robot_path_y)
@@ -101,15 +101,18 @@ def pathsuggestion():
     information_shear = information_shear.reshape(estimatedNum, estimatedNum)
     shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
     PLANNER.update_robot_path(robot_path_x, robot_path_y)
-    F_x, F_y, path_x_new, path_y_new = PLANNER.plan_for_next_horizon(shear_std.T) 
+    path_x_1, path_y_1, \
+    path_x_2, path_y_2,  \
+    path_x_3, path_y_3, \
+    path_x_4, path_y_4 = PLANNER.plan_for_next_horizon(shear_std.T) 
 
     #print('measured_robot_coordinates',measured_robot_coordinates, 'measured_moisture' , measured_moisture, 'measured_shear', measured_shear)
-    print(path_x_new)
+   
     return jsonify(
     [
-        [path_x_new, path_y_new, [], []],
-        [path_x_new, path_y_new, [], []],
-        [path_x_new, path_y_new, [], []]
+        [path_x_1, path_y_1, [], []],
+        [path_x_2, path_y_2, [], []],
+        [path_x_3, path_y_3, [], []]
     ]
     )
 
