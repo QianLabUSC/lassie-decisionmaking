@@ -116,14 +116,23 @@ class ReactivePlanning:
         # directly apply the information reward as vector to guide with reactive path
         # check if the path is empty:
         assert(len(self.robot_path_x) > 0 and len(self.robot_path_y) > 0)
-
-        F_x, F_y = self.calculate_gradient_with_adding(reward)
-        # Determine the direction of the highest gradient
         current_x, current_y = self.robot_path_x[-1], self.robot_path_y[-1]
-        path_x, path_y = self.integrate_path(current_x, current_y, F_x, F_y,
+        F_x, F_y = self.calculate_gradient_with_adding(reward, 2)
+        # Determine the direction of the highest gradient
+        path_x_1, path_y_1 = self.integrate_path(current_x, current_y, F_x, F_y,
                                                 self.plan_step_interval, 
                                                 self.step_per_horizon)
-        return F_x, F_y, path_x, path_y
+        F_x, F_y = self.calculate_gradient_with_adding(reward, 0)
+        # Determine the direction of the highest gradient
+        path_x_2, path_y_2 = self.integrate_path(current_x, current_y, F_x, F_y,
+                                                self.plan_step_interval, 
+                                                self.step_per_horizon)
+        F_x, F_y = self.calculate_gradient_with_adding(reward, 100)
+        # Determine the direction of the highest gradient
+        path_x_3, path_y_3 = self.integrate_path(current_x, current_y, F_x, F_y,
+                                                self.plan_step_interval, 
+                                                self.step_per_horizon)
+        return path_x_1, path_y_1, path_x_2, path_y_2, path_x_3, path_y_3, [],[]
 
     def integrate_path(self, start_x, start_y, vector_field_x, vector_field_y, 
                        step_length, num_steps):
@@ -281,9 +290,8 @@ class ReactivePlanning:
 
 
 
-    def calculate_gradient_with_adding(self, reward):
+    def calculate_gradient_with_adding(self, reward, k_attr=3):
 
-        k_attr = 3
         max_index = np.argmax(reward)
         row_index, col_index = np.unravel_index(max_index, reward.shape)
         max_x, max_y = col_index / reward.shape[0], row_index / reward.shape[1]
