@@ -102,16 +102,14 @@ export default function ChartPanel(props: ChartPanelProps) {
             <div className={`chartPanel ${props.fullSize ? "chartPanelFullSize" : ""}`}>
                 { showOptions && optionsPanel }
                 <div style={{height: "100%", display: showOptions ? "none" : "block"}}>
-                    <div className="chartTabs">
+                    {/* <div className="chartTabs">
                         {
                             chartTabMap[props.mode].map((text, i) => (
                                 <div key={i} className={`chartTab ${tab === i && "chartTabSelected"}`} onClick={() => setCurrentTab(i)}>{ text }</div>
                             ))
                         }
-                    </div>
-                    <ChartOptionsSummary 
-                        displayOption={displayOption}
-                        onOptionsClick={() => setShowOptions(true)}/>
+                    </div> */}
+                  
                     <div className="chartsArea">
                         <div className={chartClassMap[props.mode][tab][0]} id="shearMoistChartParent">
                             <canvas id={`shearMoistChart${chartIDSuffix}`} />
@@ -128,3 +126,7 @@ export default function ChartPanel(props: ChartPanelProps) {
         </div>
     );
 }
+
+{/* <ChartOptionsSummary 
+displayOption={displayOption}
+onOptionsClick={() => setShowOptions(true)}/> */}
