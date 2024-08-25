@@ -248,6 +248,86 @@ export const PopboxTypeEnum = {
   ERROR: 'error'
 };
 
+export const explanationChartOption = {
+  type: 'line',
+  data: {
+    datasets: [
+      {
+        label: 'Reward',
+        yAxisID: 'reward',
+        data: []
+      }
+    ]
+  },
+  options: {
+      title: {
+        display: true,
+        text: "Reward Value for Each Objective Across Transect",
+        fontStyle: "bold"
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+      chartArea: { backgroundColor: '#FFF' },
+      legend: { display: false },
+      elements: {
+        point: {
+          radius: 6,
+          hoverRadius: 6,
+          borderWidth: 0,
+          hoverBorderWidth: 0
+        },
+        line: {
+          tension: 0.3
+        }
+      },
+      // Disable all animations
+      animation: {
+        duration: 0
+      },
+      hover: {
+        animationDuration: 0
+      },
+      onHover: null as any,
+      responsiveAnimationDuration: 0,
+      scales: {
+          yAxes: [{
+            position: 'left',
+            id: 'reward',
+            scaleLabel: {
+              display: true,
+              labelString: 'Reward Value'
+            },
+            ticks: {
+              min: 0,
+              max: 1
+            }
+          }],
+          xAxes: [{
+              type: 'linear',
+              position: 'bottom',
+              scaleLabel: {
+                display: true,
+                labelString: 'Transect'
+              },
+              ticks: {
+                min: 0,
+                max: 21
+              }
+          }]
+      },
+    //   tooltips: {
+    //     callbacks: {
+    //         label: function(tooltipItem, data) {
+    //           const { datasetIndex, index } = tooltipItem;
+    //           const rawData = data.datasets[datasetIndex].data[index];
+    //           const { x, y, rowIndex } = rawData;
+    //           return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+    //         }
+    //     }
+    // }
+  }
+};
+
 export const shearChartOption = {
   type: 'scatter',
   data: {

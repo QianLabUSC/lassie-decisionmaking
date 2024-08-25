@@ -20,10 +20,12 @@ import {
 } from '../constants';
 import { useStateValue, Action } from '../state';
 import ChartPanel from '../components/ChartPanel';
+import ExplanationPanel from '../components/ExplanationPanel';
 // import BarChart from '../components/BarChart';
 import "../styles/decision.scss";
 import { CurrUserStepData, UserStepsData, Sample, PreSample } from '../types';
 import { initializeCharts } from '../handlers/ChartHandler';
+import { initializeExplanationChart } from '../handlers/ExplanationChartHandler';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import RadioButtonGroupMultipleOptions from '../components/RadioButtonGroupMultipleOptions';
 import RadioButtonGroupMultipleSelectionOptions from '../components/RadioButtonGroupMultipleSelectionOptions';
@@ -50,7 +52,7 @@ export default function Main() {
   const [showImgAlert, setImgAlert] = useState(false);
   const [globalState, dispatch] = useStateValue();
 
-  const { currSampleIdx, samples, currUserStep, userSteps, chart, chartSettings, 
+  const { currSampleIdx, samples, currUserStep, userSteps, chart, chartSettings, explanationChart, explanationChartSettings,
     loadingRobotSuggestions, showRobotSuggestions, disableSubmitButton, numSubmitClicks, 
     imgClickEnabled, numImgClicks, transectIdx } = globalState;
 
@@ -69,6 +71,10 @@ export default function Main() {
     initializeCharts(globalState, dispatch);
     // Make the charts update on first render
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
+
+    //LUCKY starting this chart as well
+    initializeExplanationChart(globalState, dispatch);
+    dispatch({ type: Action.SET_EXPLANATION_CHART_SETTINGS, value: { updateRequired: true}});
   }, []);
 
   // Function to add next sample to the data plot
@@ -566,6 +572,7 @@ const onObjectiveTextChange = e => {
             dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
 
             dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
+            dispatch({ type: Action.SET_EXPLANATION_CHART_SETTINGS, value: {updateRequired: true}});
             dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
             dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
             dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
@@ -781,6 +788,9 @@ const onObjectiveTextChange = e => {
             <ClickableImage width={750} enabled={imgClickEnabled} addDataFunc={() => addDataToPlot()} setPopOver={setImgAlert} />  
           </div>
       </Tooltip>
+      {/* <div>
+        <BarChart isBarMode = {true}/>
+      </div> */}
       {!loadingRobotSuggestions && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
         {userFeedbackStateMap[userFeedbackState]}
         <div className="submit-user-feedback-button">
@@ -883,8 +893,10 @@ const onObjectiveTextChange = e => {
           <Grid item xs={12} md={6} className="rightDecisionPanel">
             <div className="rightDecisionPanelContainer">
               { collectionRightPanel }
-              {/* <BarChart/> */}
             </div>
+          </Grid>
+          <Grid> 
+            <ExplanationPanel/>
           </Grid>
         </Grid>
       </Grid>

@@ -9,6 +9,11 @@ export type ChartSettings = {
   updateRequired: boolean
 };
 
+export type ExplanationChartSettings = {
+  //TODO: add mode later to customize bar or line chart
+  updateRequired: boolean
+};
+
 export const ChartDisplayMode = {
   RAW: 0,
   AVERAGE: 1
@@ -25,6 +30,8 @@ export type Charts = {
   moistChartMap : Chart | null,
   shearMoistChartMap : Chart | null,
 } | null;
+
+export type ExplanationChart = any;
 
 export interface IState {
   // Data fields
@@ -45,6 +52,8 @@ export interface IState {
   // Chart fields
   chart: Charts,
   chartSettings: ChartSettings,
+  explanationChart: ExplanationChart,
+  explanationChartSettings: ExplanationChartSettings
   // Miscellaneous fields
   transectIdx: number, // single transect version (setting transect index to 0 by default)
   loadingRobotSuggestions: boolean,
@@ -113,6 +122,10 @@ export const initialState : IState = {
     mode: 0,
     updateRequired: false
   },
+  explanationChart: null,
+  explanationChartSettings: {
+    updateRequired: false
+  },
   transectIdx: 0, 
   loadingRobotSuggestions: false,
   showRobotSuggestions: false,
@@ -175,6 +188,8 @@ export enum Action {
     SET_INITIAL_RESOLUTION_METHOD,
     SET_CHART,
     SET_CHART_SETTINGS,
+    SET_EXPLANATION_CHART,
+    SET_EXPLANATION_CHART_SETTINGS,
     CLEAR_CHART_CURRENT,
     SET_DIALOG_PROPS,
     SET_IMG_CLICK_ENABLED,
@@ -204,6 +219,8 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_INITIAL_RESOLUTION_METHOD]:'initialResolutionMethod',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
+  [Action.SET_EXPLANATION_CHART]: 'explanationChart',
+  [Action.SET_EXPLANATION_CHART_SETTINGS]: 'explanationChartSettings',
   [Action.SET_LOADING_ROBOT_SUGGESTIONS]: 'loadingRobotSuggestions',
   [Action.SET_SHOW_ROBOT_SUGGESTIONS]: 'showRobotSuggestions',
   [Action.SET_DIALOG_PROPS]: 'dialogProps',
