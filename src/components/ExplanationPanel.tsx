@@ -4,6 +4,7 @@ import * as Chart from 'chart.js';
 import { useStateValue, Action } from '../state';
 import { initializeExplanationChart, updateExplanationChart } from '../handlers/ExplanationChartHandler';
 import '../styles/explanationPanel.scss';
+import { relative } from 'path';
 
 //TODO: add in modes to switch between types of charts
 

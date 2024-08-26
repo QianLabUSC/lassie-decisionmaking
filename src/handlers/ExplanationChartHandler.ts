@@ -84,8 +84,8 @@ export const initializeExplanationChart = (globalState: IState, dispatch: any) :
     // const minReward = 0;
     // const maxReward = 1;
   
-    explanationChartOption.options.scales.xAxes[0].ticks = { min: 0, max: 21};
-    explanationChartOption.options.scales.yAxes[0].ticks = { min:0, max: 1 };
+    // explanationChartOption.options.scales.xAxes[0].ticks = { min: 0, max: 21};
+    // explanationChartOption.options.scales.yAxes[0].ticks = { min:0, max: 1 };
 
     // const onHoverFunc = (ev, activeElements) => {
     //   if (activeElements.length === 0) {
@@ -145,10 +145,11 @@ export const initializeExplanationChart = (globalState: IState, dispatch: any) :
 export const clearExplanationChart = (chart) => {
     resetCanvas(); // reset the chart canvases
     if (!chart) return;
-    Object.values(chart).forEach((c: any) => {
-      if (!c) return; 
-      c.destroy();
-    });
+    chart.destroy();
+    // Object.values(chart).forEach((c: any) => {
+    //   if (!c) return; 
+    //   c.destroy();
+    // });
   }
   
 

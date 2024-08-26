@@ -791,6 +791,7 @@ const onObjectiveTextChange = e => {
       {/* <div>
         <BarChart isBarMode = {true}/>
       </div> */}
+      <ExplanationPanel/>
       {!loadingRobotSuggestions && <div className={numSubmitClicks === 0 ? "user-feedback-flashing" : "user-feedback"}>
         {userFeedbackStateMap[userFeedbackState]}
         <div className="submit-user-feedback-button">
@@ -894,9 +895,7 @@ const onObjectiveTextChange = e => {
             <div className="rightDecisionPanelContainer">
               { collectionRightPanel }
             </div>
-          </Grid>
-          <Grid> 
-            <ExplanationPanel/>
+            
           </Grid>
         </Grid>
       </Grid>

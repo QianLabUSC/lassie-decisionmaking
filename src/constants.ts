@@ -251,11 +251,13 @@ export const PopboxTypeEnum = {
 export const explanationChartOption = {
   type: 'line',
   data: {
+    labels: ['one', 'two', 'three'],
     datasets: [
       {
         label: 'Reward',
         yAxisID: 'reward',
-        data: []
+        data: [0.25, 0.59, 0.9],
+        tension:0.3
       }
     ]
   },
@@ -265,8 +267,8 @@ export const explanationChartOption = {
         text: "Reward Value for Each Objective Across Transect",
         fontStyle: "bold"
       },
-      responsive: true,
-      maintainAspectRatio: false,
+      // responsive: true,
+      maintainAspectRatio: true,
       chartArea: { backgroundColor: '#FFF' },
       legend: { display: false },
       elements: {
@@ -493,7 +495,7 @@ export const moistChartOption = {
 };
 
 export const shearMoistChartOption = {
-  type: 'scatter',
+  type: 'line',
   data: {
     datasets: [
       {

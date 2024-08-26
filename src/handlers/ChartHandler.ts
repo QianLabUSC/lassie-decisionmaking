@@ -152,7 +152,7 @@ export const initializeCharts = (globalState: IState, dispatch: any) : Charts =>
 
 export const clearCharts = (chart) => {
   resetCanvas(); // reset the chart canvases
-  if (!chart) return;
+  if (!chart) return
   Object.values(chart).forEach((c: any) => {
     if (!c) return; 
     c.destroy();
