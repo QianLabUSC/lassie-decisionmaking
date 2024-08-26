@@ -16,6 +16,7 @@ export default function ExplanationChartPanel() {
   //const [displayOption, setDisplayOption] = useState(chartSettings.mode);
 
   if (explanationChartSettings.updateRequired) {
+      console.log("updating chart");
       updateExplanationChart(globalState, dispatch);
       dispatch({ type: Action.SET_EXPLANATION_CHART_SETTINGS, value: {updateRequired: false} });
   }
@@ -55,7 +56,7 @@ export default function ExplanationChartPanel() {
                 
 
                       <div className={"explanationParent"} id="explanationChartParent">
-                          <canvas id={`explanationChart${chartIDSuffix}`} />
+                          <canvas id={`explanationChart`} />
                       </div>
 
               </div>

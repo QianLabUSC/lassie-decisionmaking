@@ -251,13 +251,23 @@ export const PopboxTypeEnum = {
 export const explanationChartOption = {
   type: 'line',
   data: {
-    labels: ['one', 'two', 'three'],
+    labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '','','','','','','',''],
     datasets: [
       {
-        label: 'Reward',
+        label: 'Primary objective',
         yAxisID: 'reward',
         data: [0.25, 0.59, 0.9],
-        tension:0.3
+        tension:0.3,
+        borderColor: 'rgba(128, 0, 128, 1)',
+        fill: false
+      },
+      {
+        label: 'Secondary objective',
+        yAxisID: 'reward',
+        data: [],
+       tension: 0.3,
+        borderColor: 'rgba(0, 128, 0, 1)',
+        fill: false
       }
     ]
   },
@@ -273,7 +283,7 @@ export const explanationChartOption = {
       legend: { display: false },
       elements: {
         point: {
-          radius: 6,
+          radius: 0.1,
           hoverRadius: 6,
           borderWidth: 0,
           hoverBorderWidth: 0
@@ -301,21 +311,49 @@ export const explanationChartOption = {
             },
             ticks: {
               min: 0,
-              max: 1
+              max: 1.1,
+              stepSize: 0.1
             }
           }],
-          xAxes: [{
-              type: 'linear',
-              position: 'bottom',
-              scaleLabel: {
-                display: true,
-                labelString: 'Transect'
-              },
-              ticks: {
-                min: 0,
-                max: 21
-              }
-          }]
+          
+          xAxes:    [{
+            type: 'linear',
+            position: 'bottom',
+            scaleLabel: {
+              display: true,
+              labelString: 'Transect'
+            },
+            ticks: {
+              display: false,  
+              min: 0,
+              max: 21,
+              stepSize: 1
+            }
+        }]
+
+
+
+
+
+
+
+
+// [{
+//             type: 'category',
+//             barPercentage: 0.5,
+//             barThickness: 6,
+//             maxBarThickness: 8,
+//             minBarLength: 2,
+//             gridLines: {
+//                 offsetGridLines: true
+//             },
+//             ticks: {
+//               min: 0,
+//               max: 21,
+//               stepSize: 1
+//             }
+//         }]
+       
       },
     //   tooltips: {
     //     callbacks: {

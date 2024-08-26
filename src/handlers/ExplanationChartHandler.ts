@@ -48,10 +48,63 @@ export const updateExplanationChart = (globalState: IState, dispatch: any) => {
     //     pushChartArrayValue(shearMoistureDataPoints, averageMoistureValue, averageShearValue, rowIndex, currSampleIdx, index);
     //   }
     // }
-    
+    console.log("update chart called");
   
     if (explanationChart) {
-      explanationChart.data.datasets[0].data = variableReward;
+      console.log(variableReward);
+      console.log("logged var reward");
+      //spatial
+      explanationChart.data.datasets[0].data = [
+        { x: 0, y: 0.7429797155009306 },
+        { x: 1, y: 0.43861608620107184 },
+        { x: 2, y: 0.7429797155009306 },
+        { x: 3, y: 0.9753345122421678 },
+        { x: 4, y: 0.9995038341283518 },
+        { x: 5, y: 0.9999979060678188 },
+        { x: 6, y: 0.9999979060678188 },
+        { x: 7, y: 0.9995038341283518 },
+        { x: 8, y: 0.9753345122418252 },
+        { x: 9, y: 0.7429797136518924 },
+        { x: 10, y: 0.4386139941179287 },
+        { x: 11, y: 0.7424835496296249 },
+        { x: 12, y: 0.9506690244843357 },
+        { x: 13, y: 0.7424835496292823 },
+        { x: 14, y: 0.43861399226889053 },
+        { x: 15, y: 0.7429776215687494 },
+        { x: 16, y: 0.9748383463705196 },
+        { x: 17, y: 0.9748383463708622 },
+        { x: 18, y: 0.7429776234177874 },
+        { x: 19, y: 0.4386160843520337 },
+        { x: 20, y: 0.742979715500588 },
+        { x: 21, y: 0.9753345122421678 }
+    ];
+    //discrepancy - green
+    explanationChart.data.datasets[1].data = [
+        { x: 0, y: 0.3154091199969593 },
+        { x: 1, y: 0.2838104103438007 },
+        { x: 2, y: 0.264149394170256 },
+        { x: 3, y: 0.24484835963150375 },
+        { x: 4, y: 0.22554732509275158 },
+        { x: 5, y: 0.20624629055399937 },
+        { x: 6, y: 0.18694525601524728 },
+        { x: 7, y: 0.16764422147649513 },
+        { x: 8, y: 0.1483431869377429 },
+        { x: 9, y: 0.1291622211682804 },
+        { x: 10, y: 0.13026312607811671 },
+        { x: 11, y: 0.18016271759208138 },
+        { x: 12, y: 0.23357978352283973 },
+        { x: 13, y: 0.2870782718242321 },
+        { x: 14, y: 0.339743653685639 },
+        { x: 15, y: 0.3460147117399505 },
+        { x: 16, y: 0.34759080041423723 },
+        { x: 17, y: 0.34919553274652965 },
+        { x: 18, y: 0.35668745798119095 },
+        { x: 19, y: 0.36725129317627575 },
+        { x: 20, y: 0.37752276015714054 },
+        { x: 21, y: 0.3805363782074797 }
+
+    ]
+    ;
      
     } else {
       //console.log("chart.shearChart undefined");
@@ -66,7 +119,12 @@ export const updateExplanationChart = (globalState: IState, dispatch: any) => {
     // }
   
     explanationChart.update();
+    dispatch({
+        type: Action.SET_EXPLANATION_CHART,
+        value: explanationChart
+    });
   }
+
 
 
 export const initializeExplanationChart = (globalState: IState, dispatch: any) : ExplanationChart => {
@@ -81,6 +139,7 @@ export const initializeExplanationChart = (globalState: IState, dispatch: any) :
   
     const { currUserStep } = globalState;
     const { variableReward, discrepancyReward, robotSuggestions } = currUserStep;
+    console.log("initialized chart");
     // const minReward = 0;
     // const maxReward = 1;
   
@@ -111,13 +170,24 @@ export const initializeExplanationChart = (globalState: IState, dispatch: any) :
     // Assume that if one chart is in DOM, the others also are.
     if (document.getElementById('explanationChart')) {
       const explanationCtx = (document.getElementById('explanationChart') as HTMLCanvasElement).getContext('2d');
-      
+
   
       if (explanationCtx) {
         explanationChart = new Chart(explanationCtx, explanationChartOption as any);
 
       }
     }
+    explanationChart.data.datasets[0].data = [{
+        x: 10,
+        y: 0.6
+    }, {
+        x: 15,
+        y: 0.8
+    }, {
+        x: 5,
+        y: 0.3
+    }];
+
   
     // if (document.getElementById('shearChartMap')) {
     //   const shearMapCtx = (document.getElementById('shearChartMap') as HTMLCanvasElement).getContext('2d');
@@ -159,6 +229,8 @@ var resetCanvas = function(){
   
     let explanationCanvas = document.createElement('canvas');
     explanationCanvas.id = 'explanationChart';
+    explanationCanvas.width = 672;
+    explanationCanvas.height = 200;
     document.getElementById('explanationChartParent')?.appendChild(explanationCanvas);
     //TODO: make sure to add everything under a parent div in ExplanationChart file with the right title
   };
