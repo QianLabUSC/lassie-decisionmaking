@@ -108,6 +108,19 @@ const instructionImageComponentB = (question: SurveyQuestion, depth: number) => 
         </div>
     );
 }
+
+
+//adding new image for the other chart image
+const ContinuousExplanation = require('../../assets/continuousExplanation.png');
+const continuousImageComponent = (question: SurveyQuestion, depth: number) => {
+    const id: string = question.id || "-1";
+    return (
+        <div className="section" style={{marginLeft: `${depth * tileIndentation}px`}} key={id}>
+            <img src={ContinuousExplanation} alt="ContinuousExplanation"
+            style={{width: '600px', height: '400px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
+        </div>
+    )
+}
 //Add dropDown menu by Zeyu 6/16/2022
 const singleTransectNullHypothesis = require('../../assets/SingleTransectNullHypothesis.png');
 // const [hypothesisOpen, setHypothesisOpen] = useState(false);
@@ -281,6 +294,7 @@ const buildQuestionComponents = (questionList: SurveyQuestion[], answers: Survey
             question.type === QuestionType.Instruction ? instructionComponent(question, depth) :
             question.type === QuestionType.Image1 ? instructionImageComponentA(question, depth) :
             question.type === QuestionType.Image2 ? instructionImageComponentB(question, depth) :
+            question.type === QuestionType.ContinuousExplanation ? continuousImageComponent(question, depth) :
             question.type === QuestionType.MultipleChoice ? multipleChoiceComponent(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.dropDownMenuComponent1 ? dropDownMenuComponent1(question, setAnswer, answers, depth, showAsUnanswered) :
             question.type === QuestionType.dropDownMenuComponent2 ? dropDownMenuComponent2(question, setAnswer, answers, depth, showAsUnanswered) :

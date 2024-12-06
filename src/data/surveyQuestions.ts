@@ -2,7 +2,7 @@ import { confidenceTexts, robotAgreeDisagreeOptions, robotTrustOptions } from '.
 
 
 export enum QuestionType {
-    MultipleChoice, MultipleChoiceHorizontal, Ranked, Instruction, Text, Image1, Image2,
+    MultipleChoice, MultipleChoiceHorizontal, Ranked, Instruction, Text, Image1, Image2, ContinuousExplanation,
     dropDownMenuComponent1, dropDownMenuComponent2
 }
 export enum TextAreaType { Small, Number, Large }
@@ -106,50 +106,88 @@ export const surveyQuestions: SurveyQuestion[][] = [
         }
     ],
     [
+        // {
+        //     type: QuestionType.MultipleChoice,
+        //     text: "How often did you hold multiple beliefs at a time (e.g., believing simultaneously that there are areas along the dune transect where data is needed, AND that there are potential discrepancies between measurements and the given hypothesis that needs to be further investigated)?",
+        //     responses: ["Always", "Most of the time", "Sometimes", "Rarely", "Never"],
+        //     followUps: [
+        //         multipleBeliefsFollowUp,
+        //         multipleBeliefsFollowUp,
+        //         multipleBeliefsFollowUp,
+        //         multipleBeliefsFollowUp,
+        //         null
+        //     ]
+        // },
         {
             type: QuestionType.MultipleChoice,
-            text: "How often did you hold multiple beliefs at a time (e.g., believing simultaneously that there are areas along the dune transect where data is needed, AND that there are potential discrepancies between measurements and the given hypothesis that needs to be further investigated)?",
-            responses: ["Always", "Most of the time", "Sometimes", "Rarely", "Never"],
-            followUps: [
-                multipleBeliefsFollowUp,
-                multipleBeliefsFollowUp,
-                multipleBeliefsFollowUp,
-                multipleBeliefsFollowUp,
-                null
-            ]
+            text: "How often did you utilize the provided explanations to determine if to accept/reject the robot’s sampling suggestions?",
+            responses: ["Always", "Most of the time", "Sometimes", "Rarely", "Never"]
+
         },
         {
             type: QuestionType.MultipleChoice,
-            text: "If the robot collected data autonomously using its own suggestions, how satisfied would you be with the resulting data collection strategy?",
-            responses: ["Very satisfied", "Satisfied", "Somewhat satisfied", "Neither satisfied nor unsatisfied", 
+            text: "How easy was it to use the information in the explanation to determine to accept/reject the robot’s sampling suggestions?",
+            responses: ["Very easy", "Easy", "Somewhat easy", "Difficult", "Very difficult"]
+
+        },
+        {
+            type: QuestionType.MultipleChoice,
+            text: "How confident were you in using the explanation to determine if to accept/reject the robot’s sampling location?",
+            responses: ["Very confident", "Confident", "Somewhat confident", "Not confident", "Very not confident"]
+
+        },
+        {
+            type: QuestionType.Instruction,
+            text: "Another way we could have presented the explanations is shown below. Would you have preferred seeing the explanations in this format?",
+        },
+        {
+            type: QuestionType.ContinuousExplanation,
+            // text: "Image B"
+        },
+        {
+            type: QuestionType.MultipleChoice,
+            // text: "Provide a ranking of your certainty that the hypothesis is supported or refuted by this data. If you have no preference, select “I am unsure”:",
+            responses: ["Highly preferred", "Preferred", "Somewhat preferred", "Not preferred", 
+                "Strongly not preferred"]
+        },
+        {
+            type: QuestionType.MultipleChoice,
+            text: "If the robot collected data autonomously using its own suggestions without providing explanations, how satisfied would you be with the resulting data collection strategy?",
+            responses: ["Very satisfied", "Satisfied", "Somewhat satisfied", 
             "Somewhat unsatisfied", "Unsatisfied", "Very unsatisfied"]
+        },
+        {
+            type: QuestionType.MultipleChoice,
+            text: "What do you think your confidence in the system to autonomously collect data would be if no explanations were provided?",
+            responses: ["Very confident", "Confident", "Somewhat confident", 
+            "Somewhat not confident", "Not confident", "Very not confident"]
         },
     ],
     [
         {
             type: QuestionType.Instruction,
-            text: "Rank the extent to which you agree/disagree with each of the following statements:"
+            text: "Rank the extent to which you agree/disagree with the following statement:"
         },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot's suggestions were useful <u>when my reported belief was to increase spatial coverage</u>.",
-            responses: robotAgreeDisagreeOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot's  suggestions were useful <u>when my reported belief was to increase moisture-range coverage</u>.",
-            responses: robotAgreeDisagreeOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot's suggestions were useful <u>when my reported belief was that there was a discrepancy between the data and hypothesis that needed further evaluation</u>.",
-            responses: robotAgreeDisagreeOptions
-        },
-        {
-            type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot's suggestions were useful <u>when my reported belief was the the data was supporting the hypothesis but additional evaluation was needed</u>.",
-            responses: robotAgreeDisagreeOptions
-        },
+        // {
+        //     type: QuestionType.MultipleChoiceHorizontal,
+        //     text: "The robot's suggestions were useful <u>when my reported belief was to increase spatial coverage</u>.",
+        //     responses: robotAgreeDisagreeOptions
+        // },
+        // {
+        //     type: QuestionType.MultipleChoiceHorizontal,
+        //     text: "The robot's  suggestions were useful <u>when my reported belief was to increase moisture-range coverage</u>.",
+        //     responses: robotAgreeDisagreeOptions
+        // },
+        // {
+        //     type: QuestionType.MultipleChoiceHorizontal,
+        //     text: "The robot's suggestions were useful <u>when my reported belief was that there was a discrepancy between the data and hypothesis that needed further evaluation</u>.",
+        //     responses: robotAgreeDisagreeOptions
+        // },
+        // {
+        //     type: QuestionType.MultipleChoiceHorizontal,
+        //     text: "The robot's suggestions were useful <u>when my reported belief was the the data was supporting the hypothesis but additional evaluation was needed</u>.",
+        //     responses: robotAgreeDisagreeOptions
+        // },
         {
             type: QuestionType.MultipleChoiceHorizontal,
             text: "The robot's suggestions were <b>NOT</b> useful.",
@@ -157,7 +195,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.Text,
-            text: "If you were to use this robot for data collection in real life, what changes or improvements would you make in how the robot interacts with you to suggest locations?",
+            text: "If you were to use this robot for data collection in real life, what changes or improvements would you make to the explanations to make it more likely to use the explanations in the field?",
         }
     ],
     [
