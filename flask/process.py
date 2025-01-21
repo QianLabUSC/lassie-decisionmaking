@@ -589,8 +589,6 @@ def simulate():
         'robot_state': robot_state
     })
 
-# Set up OpenAI client
-client = OpenAI(api_key='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')
 
 # Initialize LLM agent
 llm_agent = LLMAgent(client)
