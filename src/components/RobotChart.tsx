@@ -18,6 +18,7 @@ import {
 import { useStateValue } from '../state';
 import { Action } from '../state';
 import InformationGainHeatMap from '../components/Charts/InformationGainHeatMap';
+import ChatPanel from './ChatPanel';
 
 // these are for robot chart borders rectangle
 const width = 550;
@@ -262,6 +263,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
           </Select>
         </FormControl>
       </div>
+
       <svg width={width} height={height} style={{ border: '1px solid black', marginLeft: '50px' }}>
       {/* For showing intila robot icon to 00 */}
       {allPaths?.[0]?.[0]?.[0].length === 0 && <RobotIcon x={xScale(0)} y={yScale(0)} />}
@@ -355,6 +357,8 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath }) => {
           Y
         </Text>
       </svg>
+      
+      <ChatPanel mode="passive" />
     </div>
   );
 };

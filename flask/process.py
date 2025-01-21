@@ -12,9 +12,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import numpy as np
 # from ros2_node_webgui import *
+from openai import OpenAI
+from llm_agent import LLMAgent
+from subtask_graph import SubTaskGraph, SubTask
 app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Accept"]
+    }
+})
 # node_web_gui = Ros2NodeWebGui()
 # app.config['ros_node'] = node_web_gui
 
@@ -40,6 +48,20 @@ k_info_signal_ = 0.5
 k_noise_ = 2
 k_info_low_ = 0.27
 k_info_high_ = 0.7
+
+# Initialize global variables
+simulation_api_full_data = {
+    'info_gain_shear': None,
+    'uncertainity': None
+}
+
+# Add to global variables section
+robot_state = {
+    'position': (0.0, 0.0),
+    'paths': [],
+    'visited_locations': [],
+    'current_objective': None
+}
 
 # backend decision making algorithm processing steps
 # requires a json object which contains list <location>, list <sample>
@@ -150,10 +172,6 @@ def getVariable():
 # @app.route('/first_api/generate_initial_path', methods=['POST'])
 # @cross_origin()
 # def getFirstApi():
-
-
-#     inputs = request.json
-#     print(inputs,'inputs')
 
 
 # # export const objectiveOptions = [
@@ -512,10 +530,11 @@ def getFirstApi():
 
 @app.route('/fourth_api/simulate', methods=['POST'])
 def simulate():
+    global simulation_api_full_data, robot_state
     inputs = request.json
     print('inputs',inputs)
 
-    iterations = inputs['step']  # Default to 1 if not specified
+    iterations = inputs['step']
     prior_x = np.array([0.15, 0.12])
     prior_y = np.array([0.11, 0.29])
     robot_start_point = [0.0, 0.0]
@@ -545,24 +564,81 @@ def simulate():
 
         #print('measured_robot_coordinates',measured_robot_coordinates, 'measured_moisture' , measured_moisture, 'measured_shear', measured_shear)
     
-    return jsonify(
-        {
-            'path_x': path_x, 
-            'path_y': path_y, 
-            'uncertainity': shear_std.tolist(),
-            'shear_prediction': shear_prediction.tolist(),
-            'info_gain_shear':information_shear.tolist(), # Todo: CONFIRM ONCE THIS IS INFO GAIN
-            'measured_data' : 
-                { 
-                    "moisture": measured_moisture.tolist(),
-                    "shear":measured_shear.tolist()
-                }
-        }
-        )
+    # Update robot state after simulation
+    robot_state['position'] = (path_x[-1], path_y[-1])
+    robot_state['paths'].append((path_x, path_y))
+    robot_state['visited_locations'].append((path_x[-1], path_y[-1]))
+    
+    # Update simulation data
+    simulation_api_full_data = {
+        'info_gain_shear': information_shear.tolist(),
+        'uncertainity': shear_std.tolist(),
+        'robot_state': robot_state
+    }
 
+    return jsonify({
+        'path_x': path_x, 
+        'path_y': path_y, 
+        'uncertainity': shear_std.tolist(),
+        'shear_prediction': shear_prediction.tolist(),
+        'info_gain_shear': information_shear.tolist(),
+        'measured_data': { 
+            "moisture": measured_moisture.tolist(),
+            "shear": measured_shear.tolist()
+        },
+        'robot_state': robot_state
+    })
+
+# Set up OpenAI client
+client = OpenAI(api_key='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')
+
+# Initialize LLM agent
+llm_agent = LLMAgent(client)
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    data = request.json
+    user_message = data.get('message')
+    mode = data.get('mode', 'passive')
+    
+    try:
+        # Update LLM agent with current robot state
+        llm_agent.update_robot_state(robot_state)
+        llm_agent.add_message(user_message, True)
+        
+        # Get current state information with fallback values
+        info_map = simulation_api_full_data.get('info_gain_shear', [[0.5]])
+        disp_map = simulation_api_full_data.get('uncertainity', [[0.5]])
+        
+        # Get suggestion based on mode
+        if mode == 'passive':
+            response = llm_agent.get_suggestion(info_map, disp_map)
+        elif mode == 'active':
+            if should_initiate_discussion():
+                response = llm_agent.get_suggestion(info_map, disp_map) + "\nWould you like to explore this area?"
+            else:
+                response = llm_agent.get_suggestion(info_map, disp_map)
+        else:  # superactive
+            response = llm_agent.get_suggestion(info_map, disp_map) + "\nPlease share your thoughts on this suggestion."
+        
+        return jsonify({'response': response})
+        
+    except Exception as e:
+        print(f"Error in chat endpoint: {str(e)}")
+        return jsonify({'response': "I apologize, but I encountered an error processing your message."}), 500
+
+@app.route('/test', methods=['GET'])
+@cross_origin()
+def test():
+    return jsonify({'message': 'Flask server is running!'})
+
+# Add helper function for active mode
+def should_initiate_discussion() -> bool:
+    # Add your logic here to determine if the agent should initiate discussion
+    # For example, based on high reward locations or significant changes in the maps
+    return False  # Default to False for now
 
 if __name__ == '__main__':
-    
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
 
