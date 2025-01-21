@@ -18,6 +18,23 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ mode }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [selectedBeliefs, setSelectedBeliefs] = useState<number[]>([]);
+
+  // Add initial beliefs message when component mounts
+  useEffect(() => {
+    const initialMessage = {
+      text: "Based on the data collected so far, select which of the following beliefs you currently hold, you may select multiple:",
+      isUser: false,
+      type: 'belief_options',
+      options: [
+        "There are areas along the dune transect (between crest and interdune) where data is needed",
+        "There is a discrepancy between the data and the hypothesis that needs additional evaluation",
+        "The data seems to be supporting the hypothesis so far but additional evaluation is needed",
+        "I hold a different belief that is not described here"
+      ]
+    };
+    setMessages([initialMessage]);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -67,8 +84,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ mode }) => {
                 key={optIndex}
                 control={
                   <Checkbox 
+                    checked={selectedBeliefs.includes(optIndex)}
                     onChange={(e) => {
-                      // Handle checkbox changes if needed
+                      if (e.target.checked) {
+                        setSelectedBeliefs(prev => [...prev, optIndex]);
+                      } else {
+                        setSelectedBeliefs(prev => prev.filter(i => i !== optIndex));
+                      }
                     }}
                   />
                 }
@@ -76,6 +98,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ mode }) => {
               />
             ))}
           </FormGroup>
+          {selectedBeliefs.length > 0 && (
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ marginTop: '10px' }}
+              onClick={() => {
+                const selectedOptions = selectedBeliefs
+                  .map(index => message.options?.[index])
+                  .filter(Boolean);
+                handleSendMessage(`Selected beliefs: ${selectedOptions.join('; ')}`);
+                setSelectedBeliefs([]);
+              }}
+            >
+              Confirm Selection
+            </Button>
+          )}
         </Box>
       );
     }
@@ -99,10 +137,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ mode }) => {
     );
   };
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async (predefinedMessage?: string) => {
+    const messageToSend = predefinedMessage || inputMessage;
+    if (!messageToSend.trim()) return;
 
-    setMessages(prev => [...prev, { text: inputMessage, isUser: true, type: 'normal' }]);
+    setMessages(prev => [...prev, { text: messageToSend, isUser: true, type: 'normal' }]);
     setIsLoading(true);
 
     try {
@@ -113,7 +152,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ mode }) => {
           'Accept': 'application/json',
         },
         body: JSON.stringify({ 
-          message: inputMessage,
+          message: messageToSend,
           mode: mode 
         }),
       });
@@ -138,7 +177,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ mode }) => {
       }]);
     } finally {
       setIsLoading(false);
-      setInputMessage('');
+      if (!predefinedMessage) {
+        setInputMessage('');
+      }
     }
   };
 
