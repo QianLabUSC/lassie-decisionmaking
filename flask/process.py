@@ -176,43 +176,26 @@ def gatherDataAndUpdate():
 @cross_origin()
 def getSecondApi():
     inputs = request.json
-    print(inputs,'inputs')
-    # inputs1= {
-    #   "step_number":1,
-    #   "selected_path_number":2,
-    #   "inputof_first_time_Path_Selected":  [
-    #     [[], [], [], []],
-    #     [
-    #     [0, 0.012699544, 0.0142308, 0.01501995, 0.1727556, 0.17514517],
-    #     [0, 0.01330707, 0.01417771, 0.161951, 0.16915733, 0.1737063],
-        #   [1, 1, 1, 1, 1],
-        #   [1, 1, 1, 1, 1]
-    #     ],
-    #     [[], [], [], []]
-    # ]
-    # }
+    print(inputs, 'inputs')
 
-    # TODO: CUSTOMISE THIS TO DETECT AUTOMATICALLY THE json_paths FOLDER to save the paths
-    #file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/path.json' #for Harshita
-    #file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'
-
-    # file_path='/Users/shrut/Desktop/roboland/lassie-decisionmaking/flask/json_paths/path.json'
     file_path = os.getenv('LOG_FILE_LOCATION')
-    # Check if the file exists
+    if not file_path:
+        # Either return an error or use a default path
+        return jsonify({
+            "error": "LOG_FILE_LOCATION environment variable not set."
+        }), 500
+
+    # Now, file_path is guaranteed to be non-empty
     if os.path.exists(file_path):
-        # Load existing JSON data from the file
         with open(file_path, 'r') as f:
             existing_data = json.load(f)
     else:
         existing_data = []
 
-    # Append the new data to the existing data
     existing_data.append(inputs)
-
-    # Write the combined data back to the JSON file
     with open(file_path, 'w') as f:
         json.dump(existing_data, f)
-    
+
     return jsonify(inputs["inputof_first_time_Path_Selected"])
 
 
