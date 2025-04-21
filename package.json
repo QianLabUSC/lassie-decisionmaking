@@ -62,6 +62,7 @@
   },
   "description": "My webpack project",
   "scripts": {
+    "start": "react-scripts start",
     "lint": "eslint src --ext .jsx",
     "lint-fix": "eslint --ext .jsx --fix",
     "start:main": "react-scripts start",
