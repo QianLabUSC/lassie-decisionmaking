@@ -12,12 +12,29 @@ const graduallyChangingEnivironmentImage = require('../../assests/Picture1.png')
 const robot = require('../../assests/spirit.png');
 import ChartColourLegendPanel from './ChartColourLegendPanel';
 // Constants for chart dimensions and margins
-const width = 740;
-const height = 370;
 const margin = { top: 20, right: 20, bottom: 50, left: 50 };
 
-const innerWidth = width - margin.left - margin.right;
-const innerHeight = height - margin.top - margin.bottom;
+// Replace these constants with the actual dimensions of your image
+const imageWidth = 400; // Actual width of the background image
+const imageHeight = 400; // Actual height of the background image
+
+// Update chart dimensions to match the image
+const innerWidth = imageWidth;
+const innerHeight = imageHeight;
+
+const width = innerWidth + margin.left + margin.right;
+const height = innerHeight + margin.top + margin.bottom;
+
+// Update scales to align with the image dimensions
+const xScale = scaleLinear({
+  domain: [0, 1], // Keep domain as [0, 1] for normalized coordinates
+  range: [0, innerWidth], // Match the range to the image width
+});
+
+const yScale = scaleLinear({
+  domain: [0, 1], // Keep domain as [0, 1] for normalized coordinates
+  range: [innerHeight, 0], // Match the range to the image height
+});
 
 // Define the structure of a single sub-path as an array of numbers
 type SubPath = number[];
@@ -36,16 +53,6 @@ type TestPath = Path[];
 interface UpperLeftRobotChartProps {
   currentselectedpath: string;
 }
-
-const xScale = scaleLinear({
-  domain: [0, 1],
-  range: [0, innerWidth],
-});
-
-const yScale = scaleLinear({
-  domain: [0, 1],
-  range: [innerHeight, 0],
-});
 
 interface RobotChartProps {
   currentselectedpath: string;
