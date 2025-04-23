@@ -223,7 +223,7 @@ def submit_ratings():
     # TODO: CUSTOMISE THIS TO DETECT AUTOMATICALLY THE json_paths FOLDER to save the paths
     
     # Specify the file path to save the ratings
-    file_path = '/home/bolt1299/Desktop/Roboland/lassie-decisionmaking/flask/json_paths/hypothesis.json' #for Harshita
+    file_path = './json_paths/hypothesis.json' #for Harshita
     #file_path = '/home/nikola_shrutika/Documents/QianLab/lassie-decisionmaking/flask/json_paths/path.json'  #for shrutika
     # Check if the file exists
     if os.path.exists(file_path):
