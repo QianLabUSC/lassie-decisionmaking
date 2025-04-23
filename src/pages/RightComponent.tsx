@@ -755,17 +755,6 @@ const HypothesisConfidencePanel_Step5 = (
   };
 
 
-  const updateGraphData = () => { // testing
-    const newPaths = [
-      [
-        [0.1, 0.2, 0.3, 0.4], // X coordinates
-        [0.5, 0.6, 0.7, 0.8], // Y coordinates
-        [0.2, 0.3, 0.4, 0.5], // Info gain
-        [0.1, 0.2, 0.3, 0.4], // Discrepancy
-      ],
-    ];
-    dispatch({ type: Action.GENERATE_THREE_PATHS, value: newPaths });
-  };
 
   return (
     <div id="app" className="decisionPage">
@@ -795,9 +784,7 @@ const HypothesisConfidencePanel_Step5 = (
           </Grid>
         </Grid>
       </Grid>
-      <button onClick={updateGraphData} style={{ margin: '10px', padding: '5px' }}>
-        TESTING - Update Graph Data
-      </button>
+
     </div>
   );
 };
