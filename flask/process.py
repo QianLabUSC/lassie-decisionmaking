@@ -106,15 +106,23 @@ def pathsuggestion():
     path_x_3, path_y_3, \
     path_x_4, path_y_4 = PLANNER.plan_for_next_horizon(shear_std.T) 
 
+
     #print('measured_robot_coordinates',measured_robot_coordinates, 'measured_moisture' , measured_moisture, 'measured_shear', measured_shear)
-   
-    return jsonify(
+
+    # TODO: NEW PATHS
+
+    res = jsonify(
     [
         [path_x_1, path_y_1, [], []],
         [path_x_2, path_y_2, [], []],
         [path_x_3, path_y_3, [], []]
     ]
     )
+
+    # print('path_x_1', path_x_1, 'path_y_1' , path_y_1)
+
+   
+    return res
 
 
 
