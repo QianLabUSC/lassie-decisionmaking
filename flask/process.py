@@ -9,7 +9,8 @@ from pathplanning2ndPath import ReactivePlanning2ndPath
 from pathplanning3rdPath import ReactivePlanning3rdPath
 
 # new paths
-from baselinePath import generateBaselinePath
+from generatePaths import generateBaselinePath
+from generatePaths import generateZonecoveragePath
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
@@ -117,6 +118,10 @@ def pathsuggestion():
     # NOTE: currently only starting path -> next point is being returned right now
     # baseline path (path A on website)
     path_x_1, path_y_1 = generateBaselinePath(num_points_between=50).values()
+
+    # zone coverage path (path B on website)
+    path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50).values()
+
 
     res = jsonify(
     [
