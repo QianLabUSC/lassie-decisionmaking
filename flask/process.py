@@ -114,6 +114,7 @@ def pathsuggestion():
 
     # TODO: NEW PATHS
 
+    # NOTE: currently only starting path -> next point is being returned right now
     # baseline path (path A on website)
     path_x_1, path_y_1 = generateBaselinePath(num_points_between=50).values()
 
