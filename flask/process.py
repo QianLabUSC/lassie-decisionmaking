@@ -8,6 +8,9 @@ from pathplanning import ManuallyEnv, ReactivePlanning, Estimation
 from pathplanning2ndPath import ReactivePlanning2ndPath
 from pathplanning3rdPath import ReactivePlanning3rdPath
 
+# new paths
+from baselinePath import generateBaselinePath
+
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -110,6 +113,9 @@ def pathsuggestion():
     #print('measured_robot_coordinates',measured_robot_coordinates, 'measured_moisture' , measured_moisture, 'measured_shear', measured_shear)
 
     # TODO: NEW PATHS
+
+    # baseline path (path A on website)
+    path_x_1, path_y_1 = generateBaselinePath(num_points_between=50).values()
 
     res = jsonify(
     [
