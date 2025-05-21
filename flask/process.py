@@ -11,6 +11,7 @@ from pathplanning3rdPath import ReactivePlanning3rdPath
 # new paths
 from generatePaths import generateBaselinePath
 from generatePaths import generateZonecoveragePath
+from generatePaths import generateMicrogradientPath
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
@@ -121,6 +122,9 @@ def pathsuggestion():
 
     # zone coverage path (path B on website)
     path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50).values()
+
+    # microgradient path (path C on website)
+    path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50).values()
 
 
     res = jsonify(
