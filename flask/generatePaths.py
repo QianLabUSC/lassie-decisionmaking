@@ -1,70 +1,118 @@
 import numpy as np
 import pandas as pd
 
-def generateBaselinePath(num_points_between=10):
+def generateBaselinePath(num_points_between=10, step_size=1):
     # Load the data
     df = pd.read_csv('generatedPaths/ordered_baseline.csv')
-
-    # Extract first two points based on 'order'
-    point0 = df[df['order'] == 0].iloc[0]
-    point1 = df[df['order'] == 1].iloc[0]
-
+    
+    # Get all points
+    points = df.sort_values('order')
+    
+    # Get all points from 0 to step_size
+    selected_points = points[points['order'] <= step_size]
+    
     scale = 100
-    x0, y0 = point0['col'] / scale, point0['row'] / scale # scale down to graph on website coordinates
-    x1, y1 = point1['col'] / scale, point1['row'] / scale # scale down to graph on website coordinates
+    x_coords = selected_points['col'].values / scale
+    y_coords = selected_points['row'].values / scale
 
-    # Generate interpolated points (including endpoints)
-    x_values = np.linspace(x0, x1, num=num_points_between+2)  # +2 to include endpoints
-    y_values = np.linspace(y0, y1, num=num_points_between+2)
+    # Generate interpolated points between each consecutive pair
+    x_final = []
+    y_final = []
+    
+    for i in range(len(x_coords) - 1):
+        x0, x1 = x_coords[i], x_coords[i + 1]
+        y0, y1 = y_coords[i], y_coords[i + 1]
+        
+        # Generate points for this segment
+        x_segment = np.linspace(x0, x1, num=num_points_between+2)
+        y_segment = np.linspace(y0, y1, num=num_points_between+2)
+        
+        # Add all points except the last one (to avoid duplicates)
+        x_final.extend(x_segment[:-1])
+        y_final.extend(y_segment[:-1])
+    
+    # Add the final point
+    x_final.append(x_coords[-1])
+    y_final.append(y_coords[-1])
 
     # Return as dictionary
     return {
-        "x": list(x_values),
-        "y": list(y_values)
+        "x": list(x_final),
+        "y": list(y_final)
     }
 
-def generateZonecoveragePath(num_points_between=10):
+def generateZonecoveragePath(num_points_between=10, step_size=1):
     # Load the data
     df = pd.read_csv('generatedPaths/zonecoverage_ordered.csv')
-
-    # Extract first two points based on 'order'
-    point0 = df[df['order'] == 0].iloc[0]
-    point1 = df[df['order'] == 1].iloc[0]
-
+    
+    # Get all points up to step_size
+    selected_points = df[df['order'] <= step_size].sort_values('order')
+    
     scale = 148
-    x0, y0 = point0['x'] / scale, point0['y'] / scale # scale down to graph on website coordinates
-    x1, y1 = point1['x'] / scale, point1['y'] / scale # scale down to graph on website coordinates
+    x_coords = selected_points['x'].values / scale
+    y_coords = selected_points['y'].values / scale
 
-    # Generate interpolated points (including endpoints)
-    x_values = np.linspace(x0, x1, num=num_points_between+2)  # +2 to include endpoints
-    y_values = np.linspace(y0, y1, num=num_points_between+2)
+    # Generate interpolated points between each consecutive pair
+    x_final = []
+    y_final = []
+    
+    for i in range(len(x_coords) - 1):
+        x0, x1 = x_coords[i], x_coords[i + 1]
+        y0, y1 = y_coords[i], y_coords[i + 1]
+        
+        # Generate points for this segment
+        x_segment = np.linspace(x0, x1, num=num_points_between+2)
+        y_segment = np.linspace(y0, y1, num=num_points_between+2)
+        
+        # Add all points except the last one (to avoid duplicates)
+        x_final.extend(x_segment[:-1])
+        y_final.extend(y_segment[:-1])
+    
+    # Add the final point
+    x_final.append(x_coords[-1])
+    y_final.append(y_coords[-1])
 
     # Return as dictionary
     return {
-        "x": list(x_values),
-        "y": list(y_values)
+        "x": list(x_final),
+        "y": list(y_final)
     }
 
-def generateMicrogradientPath(num_points_between=10):
+def generateMicrogradientPath(num_points_between=10, step_size=1):
     # Load the data
     df = pd.read_csv('generatedPaths/microgradient_ordered.csv')
-
-    # Extract first two points based on 'order'
-    point0 = df[df['order'] == 0].iloc[0]
-    point1 = df[df['order'] == 1].iloc[0]
-
+    
+    # Get all points up to step_size
+    selected_points = df[df['order'] <= step_size].sort_values('order')
+    
     scale = 150
-    x0, y0 = point0['x'] / scale, point0['y'] / scale # scale down to graph on website coordinates
-    x1, y1 = point1['x'] / scale, point1['y'] / scale # scale down to graph on website coordinates
+    x_coords = selected_points['x'].values / scale
+    y_coords = selected_points['y'].values / scale
 
-    # Generate interpolated points (including endpoints)
-    x_values = np.linspace(x0, x1, num=num_points_between+2)  # +2 to include endpoints
-    y_values = np.linspace(y0, y1, num=num_points_between+2)
+    # Generate interpolated points between each consecutive pair
+    x_final = []
+    y_final = []
+    
+    for i in range(len(x_coords) - 1):
+        x0, x1 = x_coords[i], x_coords[i + 1]
+        y0, y1 = y_coords[i], y_coords[i + 1]
+        
+        # Generate points for this segment
+        x_segment = np.linspace(x0, x1, num=num_points_between+2)
+        y_segment = np.linspace(y0, y1, num=num_points_between+2)
+        
+        # Add all points except the last one (to avoid duplicates)
+        x_final.extend(x_segment[:-1])
+        y_final.extend(y_segment[:-1])
+    
+    # Add the final point
+    x_final.append(x_coords[-1])
+    y_final.append(y_coords[-1])
 
     # Return as dictionary
     return {
-        "x": list(x_values),
-        "y": list(y_values)
+        "x": list(x_final),
+        "y": list(y_final)
     }
 
 
