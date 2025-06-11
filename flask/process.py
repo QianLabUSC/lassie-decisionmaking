@@ -25,6 +25,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # app.config['ros_node'] = node_web_gui
 
 
+# path suggestion variables
+first_time = True
+new_step_number = 0
+
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -72,6 +77,11 @@ estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
 @cross_origin()
 
 def pathsuggestion():
+
+    global first_time # used to track if it is the first time the function is called
+    global new_step_number # used to track the last step number
+
+
     inputs = request.json
     selected_path_data = inputs['selected_path_data']
     # Flatten the selectedXs_path_cordinates
@@ -118,13 +128,31 @@ def pathsuggestion():
 
     # NOTE: currently only starting path -> next point is being returned right now
     # baseline path (path A on website)
-    path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=5).values()
+
+    if (first_time):
+        current_step = inputs.get('step_number', 0) - 1
+        first_time = False
+    else:
+        current_step = new_step_number
+
+
+
+    step_size = 5
+    start_from = current_step * step_size  # Calculate where to start based on current step
+
+    new_step_number = current_step + 1
+
+
+    print('current_step', current_step, 'start_from', start_from)
+
+    # baseline path (path A on website)
+    path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=5, start_from=start_from).values()
 
     # zone coverage path (path B on website)
-    path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=5).values()
+    path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=5, start_from=start_from).values()
 
     # microgradient path (path C on website)
-    path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=5).values()
+    path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=5, start_from=start_from).values()
 
 
     res = jsonify(
