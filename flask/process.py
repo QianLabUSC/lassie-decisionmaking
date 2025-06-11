@@ -28,6 +28,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # path suggestion variables
 first_time = True
 new_step_number = 0
+last_selected_path = None  # Will be 'A', 'B', or 'C' based on selection
 
 
 
@@ -80,10 +81,13 @@ def pathsuggestion():
 
     global first_time # used to track if it is the first time the function is called
     global new_step_number # used to track the last step number
-
+    global last_selected_path # used to track which path was last selected
 
     inputs = request.json
     selected_path_data = inputs['selected_path_data']
+
+    # print(inputs, 'inputs')
+
     # Flatten the selectedXs_path_cordinates
     flattened_selectedXs = [item for sublist in \
                             selected_path_data['selectedPath']['selectedXs_path_cordinates'] \
@@ -132,8 +136,11 @@ def pathsuggestion():
     if (first_time):
         current_step = inputs.get('step_number', 0) - 1
         first_time = False
+        print('path suggestion: last selected path number', last_selected_path)
+
     else:
         current_step = new_step_number
+        print('path suggestion: last selected path number', last_selected_path)
 
 
 
@@ -175,8 +182,11 @@ def pathsuggestion():
 @cross_origin()
 
 def gatherDataAndUpdate():
+    global last_selected_path  # Add access to the global variable
+    
     inputs = request.json
     selected_path_data = inputs['selected_path_data']
+
     # Flatten the selectedXs_path_cordinates
     flattened_selectedXs = [item for sublist in \
                             selected_path_data['selectedPath']['selectedXs_path_cordinates'] \
@@ -227,8 +237,15 @@ def gatherDataAndUpdate():
 @app.route('/second_api/save_selected_path_json', methods=['POST'])
 @cross_origin()
 def getSecondApi():
+
+    global last_selected_path
     inputs = request.json
     print(inputs, 'inputs')
+
+    print('last selected path number', inputs["selected_path_number"])
+    last_selected_path = chr(ord('A') + inputs["selected_path_number"])
+    print('last selected path', last_selected_path)
+
 
     file_path = os.getenv('LOG_FILE_LOCATION')
     if not file_path:
@@ -248,7 +265,10 @@ def getSecondApi():
     with open(file_path, 'w') as f:
         json.dump(existing_data, f)
 
+
     return jsonify(inputs["inputof_first_time_Path_Selected"])
+
+
 
 
 @app.route('/submit', methods=['POST'])
