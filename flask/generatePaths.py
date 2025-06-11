@@ -1,17 +1,17 @@
 import numpy as np
 import pandas as pd
 
-def generateBaselinePath(num_points_between=10, step_size=1):
+def generateBaselinePath(num_points_between=10, step_size=1, start_from=0):
     # Load the data
     df = pd.read_csv('generatedPaths/ordered_baseline.csv')
     
     # Get all points
     points = df.sort_values('order')
     
-    # Get all points from 0 to step_size
-    selected_points = points[points['order'] <= step_size]
+    # Get points from start_from to start_from + step_size
+    selected_points = points[(points['order'] >= start_from) & (points['order'] <= start_from + step_size)]
     
-    scale = 100
+    scale = 150
     x_coords = selected_points['col'].values / scale
     y_coords = selected_points['row'].values / scale
 
@@ -41,12 +41,12 @@ def generateBaselinePath(num_points_between=10, step_size=1):
         "y": list(y_final)
     }
 
-def generateZonecoveragePath(num_points_between=10, step_size=1):
+def generateZonecoveragePath(num_points_between=10, step_size=1, start_from=0):
     # Load the data
     df = pd.read_csv('generatedPaths/zonecoverage_ordered.csv')
     
-    # Get all points up to step_size
-    selected_points = df[df['order'] <= step_size].sort_values('order')
+    # Get points from start_from to start_from + step_size
+    selected_points = df[(df['order'] >= start_from) & (df['order'] <= start_from + step_size)].sort_values('order')
     
     scale = 148
     x_coords = selected_points['x'].values / scale
@@ -78,12 +78,12 @@ def generateZonecoveragePath(num_points_between=10, step_size=1):
         "y": list(y_final)
     }
 
-def generateMicrogradientPath(num_points_between=10, step_size=1):
+def generateMicrogradientPath(num_points_between=10, step_size=1, start_from=0):
     # Load the data
     df = pd.read_csv('generatedPaths/microgradient_ordered.csv')
     
-    # Get all points up to step_size
-    selected_points = df[df['order'] <= step_size].sort_values('order')
+    # Get points from start_from to start_from + step_size
+    selected_points = df[(df['order'] >= start_from) & (df['order'] <= start_from + step_size)].sort_values('order')
     
     scale = 150
     x_coords = selected_points['x'].values / scale
@@ -115,8 +115,10 @@ def generateMicrogradientPath(num_points_between=10, step_size=1):
         "y": list(y_final)
     }
 
-
-
 # # Example usage:
-# result = generateBaselinePath(num_points_between=50)
-# print(result)
+# # First call (0-5)
+# result1 = generateBaselinePath(num_points_between=50, step_size=5, start_from=0)
+# # Second call (5-10)
+# result2 = generateBaselinePath(num_points_between=50, step_size=5, start_from=5)
+# # Third call (10-15)
+# result3 = generateBaselinePath(num_points_between=50, step_size=5, start_from=10)
