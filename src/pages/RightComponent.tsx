@@ -310,6 +310,7 @@ const RightComponent = () => {
   //////////////////////////////////////////////////////////////////////////3RD INPUT BOX ///////////////////////
 
   const handleSelectPath = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('event', event.target.value)
     setSelectedPathIndex(event.target.value);
   };
 
@@ -318,6 +319,7 @@ const RightComponent = () => {
     setLoading(true); // Start loading spinner
     
     try{
+    console.log('selectedPathIndex', selectedPathIndex)
     const int_selected_path_index = parseInt(selectedPathIndex) - 1;
     const api_input = {
       step_number: input_box_step_btn_click,
