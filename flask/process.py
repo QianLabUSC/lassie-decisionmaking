@@ -136,11 +136,11 @@ def pathsuggestion():
     if (first_time):
         current_step = inputs.get('step_number', 0) - 1
         first_time = False
-        print('path suggestion: last selected path number', last_selected_path)
+        # print('path suggestion: last selected path number', last_selected_path)
 
     else:
         current_step = new_step_number
-        print('path suggestion: last selected path number', last_selected_path)
+        # print('path suggestion: last selected path number', last_selected_path)
 
 
 
@@ -242,9 +242,9 @@ def getSecondApi():
     inputs = request.json
     print(inputs, 'inputs')
 
-    print('last selected path number', inputs["selected_path_number"])
+    # print('last selected path number', inputs["selected_path_number"])
     last_selected_path = chr(ord('A') + inputs["selected_path_number"])
-    print('last selected path', last_selected_path)
+    # print('last selected path', last_selected_path)
 
 
     file_path = os.getenv('LOG_FILE_LOCATION')
