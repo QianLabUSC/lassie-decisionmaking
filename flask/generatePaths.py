@@ -3,7 +3,7 @@ import pandas as pd
 
 def generateBaselinePath(num_points_between=10, step_size=1, start_from=0):
     # Load the data
-    df = pd.read_csv('generatedPaths/ordered_baseline.csv')
+    df = pd.read_csv('planningStack/csv_data/ordered_baseline.csv')
     
     # Get all points
     points = df.sort_values('order')
@@ -43,7 +43,7 @@ def generateBaselinePath(num_points_between=10, step_size=1, start_from=0):
 
 def generateZonecoveragePath(num_points_between=10, step_size=1, start_from=0):
     # Load the data
-    df = pd.read_csv('generatedPaths/zonecoverage_ordered.csv')
+    df = pd.read_csv('planningStack/csv_data/zonecoverage_ordered.csv')
     
     # Get points from start_from to start_from + step_size
     selected_points = df[(df['order'] >= start_from) & (df['order'] <= start_from + step_size)].sort_values('order')
@@ -80,7 +80,7 @@ def generateZonecoveragePath(num_points_between=10, step_size=1, start_from=0):
 
 def generateMicrogradientPath(num_points_between=10, step_size=1, start_from=0):
     # Load the data
-    df = pd.read_csv('generatedPaths/microgradient_ordered.csv')
+    df = pd.read_csv('planningStack/csv_data/microgradient_ordered.csv')
     
     # Get points from start_from to start_from + step_size
     selected_points = df[(df['order'] >= start_from) & (df['order'] <= start_from + step_size)].sort_values('order')
