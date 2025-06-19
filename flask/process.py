@@ -27,7 +27,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 # path suggestion variables
 first_time = True
-new_step_number = 0
+
+baseline_step_number = 0
+zonecoverage_step_number = 0
+microgradient_step_number = 0
+
 last_selected_path = None  # Will be 'A', 'B', or 'C' based on selection
 
 
@@ -80,7 +84,9 @@ estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
 def pathsuggestion():
 
     global first_time # used to track if it is the first time the function is called
-    global new_step_number # used to track the last step number
+    global baseline_step_number # used to track the last step number
+    global zonecoverage_step_number # used to track the last step number
+    global microgradient_step_number # used to track the last step number
     global last_selected_path # used to track which path was last selected
 
     inputs = request.json
@@ -136,7 +142,18 @@ def pathsuggestion():
         # print('path suggestion: last selected path number', last_selected_path)
 
     else:
-        current_step = new_step_number
+        if (last_selected_path == 'A'): # baseline path
+            current_step = baseline_step_number
+            zonecoverage_step_number = 0
+            microgradient_step_number = 0
+        elif (last_selected_path == 'B'): # zone coverage path
+            current_step = zonecoverage_step_number
+            baseline_step_number = 0
+            microgradient_step_number = 0
+        elif (last_selected_path == 'C'): # microgradient path
+            current_step = microgradient_step_number
+            baseline_step_number = 0
+            zonecoverage_step_number = 0
         # print('path suggestion: last selected path number', last_selected_path)
 
 
@@ -144,10 +161,23 @@ def pathsuggestion():
     step_size = 5
     start_from = current_step * step_size  # Calculate where to start based on current step
 
-    new_step_number = current_step + 1
+    # new_step_number = current_step + 1
+
+    if (last_selected_path == 'A'): # baseline path
+        baseline_step_number = current_step + 1
+    elif (last_selected_path == 'B'): # zone coverage path
+        zonecoverage_step_number = current_step + 1
+    elif (last_selected_path == 'C'): # microgradient path
+        microgradient_step_number = current_step + 1
+    else: # none (first time)
+        baseline_step_number = current_step + 1
+        zonecoverage_step_number = current_step + 1
+        microgradient_step_number = current_step + 1
 
 
-    print('current_step', current_step, 'start_from', start_from)
+    # print('current_step', current_step, 'start_from', start_from)
+
+    print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
 
     # baseline path (path A on website)
     path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=start_from).values()
