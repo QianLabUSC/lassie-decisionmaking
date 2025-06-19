@@ -130,9 +130,6 @@ def pathsuggestion():
 
     # TODO: NEW PATHS
 
-    # NOTE: currently only starting path -> next point is being returned right now
-    # baseline path (path A on website)
-
     if (first_time):
         current_step = inputs.get('step_number', 0) - 1
         first_time = False
@@ -153,13 +150,13 @@ def pathsuggestion():
     print('current_step', current_step, 'start_from', start_from)
 
     # baseline path (path A on website)
-    path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=5, start_from=start_from).values()
+    path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=start_from).values()
 
     # zone coverage path (path B on website)
-    path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=5, start_from=start_from).values()
+    path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=start_from).values()
 
     # microgradient path (path C on website)
-    path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=5, start_from=start_from).values()
+    path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=start_from).values()
 
 
     res = jsonify(
