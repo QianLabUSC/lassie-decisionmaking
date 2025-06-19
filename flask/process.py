@@ -1,5 +1,6 @@
 import os
 import sys
+import csv
 sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/site-packages')
 from multiObjectiveDecisionMaking.decision_making import *
 from multiObjectiveDecisionMaking.multi_objective_tools import *
@@ -75,6 +76,29 @@ def normalize_matrix(matrix):
 
     return normalized_matrix
 
+def get_traveled_points(path_data, starting_point, step_size):
+    # get the points that the robot will travel through
+    # path_data is a list of points
+    # starting_point is a tuple (x, y)
+    # step_size is an integer
+
+    # get the points that the robot will travel through
+
+    res = []
+
+    with open(path_data, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            order_value = int(row['order'])
+            if (starting_point <= order_value <= step_size):
+                x = float(row['col'])
+                y = float(row['row'])
+                res.append((x, y))
+
+    # print('res', res)
+    
+    return res
+
 ROBOT_ESTIMATION_INTERVAL = 0.02 
 estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
 
@@ -136,6 +160,9 @@ def pathsuggestion():
 
     # TODO: NEW PATHS
 
+    step_size = 5 # step size for paths to take (ex: for each step, the robot will traverse 5 points)
+
+
     if (first_time):
         current_step = inputs.get('step_number', 0) - 1
         first_time = False
@@ -143,6 +170,11 @@ def pathsuggestion():
 
     else:
         if (last_selected_path == 'A'): # baseline path
+
+            traveled_points = get_traveled_points('planningStack/csv_data/ordered_baseline.csv', (baseline_step_number - 1) * step_size, baseline_step_number * step_size)
+            # print('traveled_points', traveled_points)
+
+
             current_step = baseline_step_number
             zonecoverage_step_number = 0
             microgradient_step_number = 0
@@ -157,9 +189,8 @@ def pathsuggestion():
         # print('path suggestion: last selected path number', last_selected_path)
 
 
-
-    step_size = 5
     start_from = current_step * step_size  # Calculate where to start based on current step
+
 
     # new_step_number = current_step + 1
 
