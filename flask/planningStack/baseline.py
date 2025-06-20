@@ -63,18 +63,21 @@ def save_tour_to_csv(tour, output_csv_path):
     tour_df.to_csv(output_csv_path, index=False)
     print(f"Saved tour ordering to {output_csv_path}")
 
-def main(csv_path):
-    df = pd.read_csv(csv_path)
-    points = list(df[['col', 'row']].itertuples(index=False, name=None))
+def generate_baseline_path(starting_point):
+
+    # starting_point format: [(x,y)] ex: [(0,0)]
+
+    df = pd.read_csv("./planningStack/csv_data/baseline.csv")
+    points = list(df[['x', 'y']].itertuples(index=False, name=None))
 
     # Insert starting point (0,0) at the beginning
-    points = [(0, 0)] + points
+    points = starting_point + points
 
     plot_points_only(points)        
     tour = tsp_networkx(points, start_idx=0)
     plot_tsp_tour(tour)
 
-    save_tour_to_csv(tour, "csv_data/ordered_baseline.csv")
+    save_tour_to_csv(tour, "./planningStack/csv_data/ordered_baseline.csv")
 
-if __name__ == "__main__":
-    main("csv_data/baseline.csv")
+# if __name__ == "__main__":
+#     main("csv_data/baseline.csv")

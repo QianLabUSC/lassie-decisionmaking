@@ -18,6 +18,7 @@ from generatePaths import get_last_point
 from generatePaths import get_scale
 
 from planningStack.zonecoverage import generate_zonecoverage_path
+from planningStack.baseline import generate_baseline_path
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
@@ -229,16 +230,23 @@ def pathsuggestion():
         newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_zonecoverage_scale)
         generate_zonecoverage_path(newStartingPoint)
 
+
         # deletePointsWithinTraveledArea('planningStack/csv_data/microgradient.csv')
 
     elif (last_selected_path == 'B'): # zone coverage path
         zonecoverage_step_number = current_step + 1
 
+        orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
         deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
+
+        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
+        generate_baseline_path(newStartingPoint)
+
         # deletePointsWithinTraveledArea('planningStack/csv_data/microgradient.csv')
     elif (last_selected_path == 'C'): # microgradient path
         microgradient_step_number = current_step + 1
 
+        # zonecoverage
         deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
 
         orig_zonecoverage_scale = get_scale('planningStack/csv_data/zonecoverage.csv')
@@ -247,6 +255,14 @@ def pathsuggestion():
 
         newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_zonecoverage_scale)
         generate_zonecoverage_path(newStartingPoint)
+
+        # baseline
+        orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
+        deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
+
+        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
+        generate_baseline_path(newStartingPoint)
+
     else: # none (first time)
         baseline_step_number = current_step + 1
         zonecoverage_step_number = current_step + 1
@@ -258,7 +274,10 @@ def pathsuggestion():
     print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
 
     # baseline path (path A on website)
-    path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=(baseline_step_number - 1) * step_size).values()
+    if (baseline_step_number > 0):
+        path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=(baseline_step_number - 1) * step_size).values()
+    else:
+        path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=0).values()
 
     # zone coverage path (path B on website)
 
