@@ -58,7 +58,7 @@ def plot_tsp_tour(tour, width=10, height=10):
     # plt.show()
 
 def save_tour_to_csv(tour, output_csv_path):
-    tour_df = pd.DataFrame(tour, columns=["col", "row"])
+    tour_df = pd.DataFrame(tour, columns=["x", "y"])
     tour_df["order"] = range(len(tour))
     tour_df.to_csv(output_csv_path, index=False)
     print(f"Saved tour ordering to {output_csv_path}")
