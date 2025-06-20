@@ -480,7 +480,7 @@ plt.axis('on')
 # Save sampled points to CSV using the csv module
 with open('csv_data/baseline.csv', mode='w', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(['row', 'col'])  # write header
+    writer.writerow(['y', 'x'])  # write header
     for point in sampled_points_area:
         writer.writerow(point)
 

@@ -149,10 +149,20 @@ def deletePointsWithinTraveledArea(path_file):
 
     # read path file, delete rows in the csv file that are within the polygon
     df = pd.read_csv(path_file)
-    df = df[~df.apply(lambda row: Point(row['x'], row['y']).within(polygon), axis=1)]
+    df = df[~df.apply(lambda row: Point(row['x'] / get_scale(path_file)[0], row['y'] / get_scale(path_file)[1]).within(polygon), axis=1)]
     df.to_csv(path_file, index=False)
 
     return df
+
+def get_scale(input_csv, x_col='x', y_col='y'):
+    # Read the CSV
+    df = pd.read_csv(input_csv)
+    
+    # Detect max values for scaling
+    max_x = df[x_col].max()
+    max_y = df[y_col].max()
+
+    return [max_x, max_y]
 
 def scale_points_to_robot_coordinates(input_csv, output_csv=None, x_col='x', y_col='y'):
     # Read the CSV
