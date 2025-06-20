@@ -2,6 +2,8 @@ import csv
 import networkx as nx
 import math
 import os
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
@@ -78,7 +80,7 @@ def generate_zonecoverage_path(starting_point):
 
     # starting_point format: [(x,y)] ex: [(0,0)]
 
-    sampled_points_file = "./csv_data/zonecoverage.csv"
+    sampled_points_file = "./planningStack/csv_data/zonecoverage.csv"
     all_locations = read_sampled_points(sampled_points_file)
 
     # Add starting point (0,0) at beginning
@@ -90,9 +92,9 @@ def generate_zonecoverage_path(starting_point):
     draw_tour(all_locations, global_tour)
 
     # Save tour to CSV
-    output_csv_file = "./csv_data/zonecoverage_ordered.csv"
+    output_csv_file = "./planningStack/csv_data/zonecoverage_ordered.csv"
     save_tour_to_csv(global_tour, output_csv_file)
 
 
 
-# generate_zonecoverage_path([(0,0)])
+# generate_zonecoverage_path([(0.3680555555555556,0.3706293706293706)])

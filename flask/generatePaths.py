@@ -187,5 +187,13 @@ def scale_points_to_robot_coordinates(input_csv, output_csv=None, x_col='x', y_c
 # scale_points_to_robot_coordinates('flask/planningStack/csv_data/zonecoverage_ordered.csv')
 # scale_points_to_robot_coordinates('flask/planningStack/csv_data/microgradient_ordered.csv')
 
+def get_last_point(input_csv, x_col='x', y_col='y', scaling_factor=[]): # used for traveled points csv file
+    df = pd.read_csv(input_csv)
+    last_row = df.iloc[-1][[x_col, y_col]]
+
+    res = [(last_row[x_col] * scaling_factor[0], last_row[y_col] * scaling_factor[1])]
+    print('res', res)
+    return res
+
 
 
