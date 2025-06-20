@@ -74,18 +74,25 @@ def save_tour_to_csv(tour, output_path):
 
 # === Main Execution ===
 
-sampled_points_file = "./csv_data/zonecoverage.csv"
-all_locations = read_sampled_points(sampled_points_file)
+def generate_zonecoverage_path(starting_point):
 
-# Add starting point (0,0) at beginning
-all_locations = [(0, 0)] + all_locations
+    # starting_point format: [(x,y)] ex: [(0,0)]
 
-print(len(all_locations), "points read from", sampled_points_file)
+    sampled_points_file = "./csv_data/zonecoverage.csv"
+    all_locations = read_sampled_points(sampled_points_file)
 
-global_tour = tsp_networkx(all_locations)
-draw_tour(all_locations, global_tour)
+    # Add starting point (0,0) at beginning
+    all_locations = starting_point + all_locations
 
-# Save tour to CSV
-output_csv_file = "./csv_data/zonecoverage_ordered.csv"
-save_tour_to_csv(global_tour, output_csv_file)
+    print(len(all_locations), "points read from", sampled_points_file)
 
+    global_tour = tsp_networkx(all_locations)
+    draw_tour(all_locations, global_tour)
+
+    # Save tour to CSV
+    output_csv_file = "./csv_data/zonecoverage_ordered.csv"
+    save_tour_to_csv(global_tour, output_csv_file)
+
+
+
+# generate_zonecoverage_path([(0,0)])

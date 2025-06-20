@@ -1,7 +1,14 @@
 import numpy as np
 import pandas as pd
+import os
+
+from scipy.spatial import ConvexHull
+from shapely.geometry import Point, Polygon
+
 
 def generateBaselinePath(num_points_between=10, step_size=1, start_from=0):
+
+    scale_points_to_robot_coordinates('planningStack/csv_data/ordered_baseline.csv')
     # Load the data
     df = pd.read_csv('planningStack/csv_data/ordered_baseline.csv')
     
@@ -11,9 +18,9 @@ def generateBaselinePath(num_points_between=10, step_size=1, start_from=0):
     # Get points from start_from to start_from + step_size
     selected_points = points[(points['order'] >= start_from) & (points['order'] <= start_from + step_size)]
     
-    scale = 150
-    x_coords = selected_points['x'].values / scale
-    y_coords = selected_points['y'].values / scale
+    # scale= 150
+    x_coords = selected_points['x'].values
+    y_coords = selected_points['y'].values
 
     # Generate interpolated points between each consecutive pair
     x_final = []
@@ -42,15 +49,18 @@ def generateBaselinePath(num_points_between=10, step_size=1, start_from=0):
     }
 
 def generateZonecoveragePath(num_points_between=10, step_size=1, start_from=0):
+
+    scale_points_to_robot_coordinates('planningStack/csv_data/zonecoverage_ordered.csv')
+
     # Load the data
     df = pd.read_csv('planningStack/csv_data/zonecoverage_ordered.csv')
     
     # Get points from start_from to start_from + step_size
     selected_points = df[(df['order'] >= start_from) & (df['order'] <= start_from + step_size)].sort_values('order')
     
-    scale = 148
-    x_coords = selected_points['x'].values / scale
-    y_coords = selected_points['y'].values / scale
+    # scale = 148
+    x_coords = selected_points['x'].values
+    y_coords = selected_points['y'].values
 
     # Generate interpolated points between each consecutive pair
     x_final = []
@@ -79,15 +89,18 @@ def generateZonecoveragePath(num_points_between=10, step_size=1, start_from=0):
     }
 
 def generateMicrogradientPath(num_points_between=10, step_size=1, start_from=0):
+
+    scale_points_to_robot_coordinates('planningStack/csv_data/microgradient_ordered.csv')
+
     # Load the data
     df = pd.read_csv('planningStack/csv_data/microgradient_ordered.csv')
     
     # Get points from start_from to start_from + step_size
     selected_points = df[(df['order'] >= start_from) & (df['order'] <= start_from + step_size)].sort_values('order')
     
-    scale = 150
-    x_coords = selected_points['x'].values / scale
-    y_coords = selected_points['y'].values / scale
+    # scale = 150
+    x_coords = selected_points['x'].values
+    y_coords = selected_points['y'].values
 
     # Generate interpolated points between each consecutive pair
     x_final = []
@@ -122,3 +135,47 @@ def generateMicrogradientPath(num_points_between=10, step_size=1, start_from=0):
 # result2 = generateBaselinePath(num_points_between=50, step_size=5, start_from=5)
 # # Third call (10-15)
 # result3 = generateBaselinePath(num_points_between=50, step_size=5, start_from=10)
+
+def deletePointsWithinTraveledArea(path_file):
+    # read traveled points coordinates csv file
+    df = pd.read_csv('planningStack/csv_data/traveledPoints.csv')
+    points = df[['x', 'y']].values
+
+    # create convex hull
+    hull = ConvexHull(points)
+
+    # create polygon from hull
+    polygon = Polygon(hull.points[hull.vertices])
+
+    # read path file, delete rows in the csv file that are within the polygon
+    df = pd.read_csv(path_file)
+    df = df[~df.apply(lambda row: Point(row['x'], row['y']).within(polygon), axis=1)]
+    df.to_csv(path_file, index=False)
+
+    return df
+
+def scale_points_to_robot_coordinates(input_csv, output_csv=None, x_col='x', y_col='y'):
+    # Read the CSV
+    df = pd.read_csv(input_csv)
+    
+    # Detect max values for scaling
+    max_x = df[x_col].max()
+    max_y = df[y_col].max()
+    
+    # Scale x and y to [0, 1]
+    df[x_col] = df[x_col] / max_x
+    df[y_col] = df[y_col] / max_y
+    
+    # Write to output (overwrite or new file)
+    if output_csv is None:
+        output_csv = input_csv  # Overwrite original
+    df.to_csv(output_csv, index=False)
+    print(f"Scaled {input_csv} and saved to {output_csv}")
+
+# # Example usage for your files:
+# scale_points_to_robot_coordinates('flask/planningStack/csv_data/ordered_baseline.csv')
+# scale_points_to_robot_coordinates('flask/planningStack/csv_data/zonecoverage_ordered.csv')
+# scale_points_to_robot_coordinates('flask/planningStack/csv_data/microgradient_ordered.csv')
+
+
+
