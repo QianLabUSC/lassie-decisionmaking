@@ -13,6 +13,7 @@ from pathplanning3rdPath import ReactivePlanning3rdPath
 from generatePaths import generateBaselinePath
 from generatePaths import generateZonecoveragePath
 from generatePaths import generateMicrogradientPath
+from generatePaths import deletePointsWithinTraveledArea
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
@@ -216,10 +217,19 @@ def pathsuggestion():
 
     if (last_selected_path == 'A'): # baseline path
         baseline_step_number = current_step + 1
+
+        deletePointsWithinTraveledArea('planningStack/csv_data/zonecoverage.csv')
+        # deletePointsWithinTraveledArea('planningStack/csv_data/microgradient.csv')
     elif (last_selected_path == 'B'): # zone coverage path
         zonecoverage_step_number = current_step + 1
+
+        deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
+        # deletePointsWithinTraveledArea('planningStack/csv_data/microgradient.csv')
     elif (last_selected_path == 'C'): # microgradient path
         microgradient_step_number = current_step + 1
+
+        deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
+        deletePointsWithinTraveledArea('planningStack/csv_data/zonecoverage.csv')
     else: # none (first time)
         baseline_step_number = current_step + 1
         zonecoverage_step_number = current_step + 1
