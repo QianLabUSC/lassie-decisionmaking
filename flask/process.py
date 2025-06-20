@@ -276,15 +276,15 @@ def pathsuggestion():
     # baseline path (path A on website)
     if (baseline_step_number > 0):
         path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=(baseline_step_number - 1) * step_size).values()
-    else:
-        path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=0).values()
+    elif (baseline_step_number == 0):
+        path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=(baseline_step_number) * step_size).values()
 
     # zone coverage path (path B on website)
 
     if (zonecoverage_step_number > 0):
         path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=(zonecoverage_step_number - 1) * step_size).values()
-    else:
-        path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=0).values()
+    elif (zonecoverage_step_number == 0):
+        path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=(zonecoverage_step_number) * step_size).values()
 
     # microgradient path (path C on website)
     path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size).values()
