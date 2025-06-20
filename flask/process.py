@@ -91,13 +91,20 @@ def get_traveled_points(path_data, starting_point, step_size):
         for row in reader:
             order_value = int(row['order'])
             if (starting_point <= order_value <= step_size):
-                x = float(row['col'])
-                y = float(row['row'])
+                x = float(row['x'])
+                y = float(row['y'])
                 res.append((x, y))
 
     # print('res', res)
     
     return res
+
+def append_traveled_points(traveled_points):
+    with open('planningStack/csv_data/traveledPoints.csv', mode='a', newline='') as file:
+        writer = csv.writer(file)
+        for point in traveled_points:
+            writer.writerow(point)
+
 
 ROBOT_ESTIMATION_INTERVAL = 0.02 
 estimatedNum = int(1/ROBOT_ESTIMATION_INTERVAL)
@@ -167,22 +174,35 @@ def pathsuggestion():
         current_step = inputs.get('step_number', 0) - 1
         first_time = False
         # print('path suggestion: last selected path number', last_selected_path)
+        with open('planningStack/csv_data/traveledPoints.csv', mode='w', newline='') as file:
+            file.truncate(0)  # This ensures the file is empty
+            writer = csv.writer(file)
+            writer.writerow(['x', 'y'])  # write header
 
     else:
         if (last_selected_path == 'A'): # baseline path
 
             traveled_points = get_traveled_points('planningStack/csv_data/ordered_baseline.csv', (baseline_step_number - 1) * step_size, baseline_step_number * step_size)
-            # print('traveled_points', traveled_points)
+            # minor issue? end point, starting point are both added (duplicate starting points)
+            append_traveled_points(traveled_points)
 
 
             current_step = baseline_step_number
             zonecoverage_step_number = 0
             microgradient_step_number = 0
         elif (last_selected_path == 'B'): # zone coverage path
+
+            traveled_points = get_traveled_points('planningStack/csv_data/zonecoverage_ordered.csv', (zonecoverage_step_number - 1) * step_size, zonecoverage_step_number * step_size)
+            append_traveled_points(traveled_points)
+
             current_step = zonecoverage_step_number
             baseline_step_number = 0
             microgradient_step_number = 0
         elif (last_selected_path == 'C'): # microgradient path
+
+            traveled_points = get_traveled_points('planningStack/csv_data/microgradient_ordered.csv', (microgradient_step_number - 1) * step_size, microgradient_step_number * step_size)
+            append_traveled_points(traveled_points)
+
             current_step = microgradient_step_number
             baseline_step_number = 0
             zonecoverage_step_number = 0

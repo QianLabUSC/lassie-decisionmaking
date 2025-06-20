@@ -12,8 +12,8 @@ def generateBaselinePath(num_points_between=10, step_size=1, start_from=0):
     selected_points = points[(points['order'] >= start_from) & (points['order'] <= start_from + step_size)]
     
     scale = 150
-    x_coords = selected_points['col'].values / scale
-    y_coords = selected_points['row'].values / scale
+    x_coords = selected_points['x'].values / scale
+    y_coords = selected_points['y'].values / scale
 
     # Generate interpolated points between each consecutive pair
     x_final = []
