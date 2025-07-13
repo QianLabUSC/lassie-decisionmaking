@@ -25,7 +25,7 @@ def generate_moisture_map_from_image(image_path, smoothness=3):
 def calculate_shear_strength(moisture_map):
     # If moisture is low, shear strength = moisture
     # If moisture is high, shear strength = 0.25 * moisture + 0.375
-    shear_strength_map = np.where(moisture_map < 5, moisture_map, 0.25 * moisture_map + 0.375)
+    shear_strength_map = np.where(moisture_map < 0.5, moisture_map, 0.25 * moisture_map + 0.375)
 
     # Add some noise
     noise = np.random.normal(loc=0, scale=0.01, size=moisture_map.shape)
@@ -236,23 +236,19 @@ plt.gca().invert_yaxis()  # optional: flip y-axis if using image coordinates
 '''
 Microgradient
 '''
+
+# gradient arrow across entire region
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from skimage.filters import threshold_multiotsu, gaussian
 from skimage.measure import regionprops, label, find_contours
 from skimage.segmentation import relabel_sequential
+from skimage.morphology import remove_small_objects
+from skimage import img_as_ubyte
+
 import csv
-
-# This script assumes 'shear_strength_map' is a pre-existing 2D numpy array.
-# For demonstration, we'll create a placeholder if it doesn't exist.
-if 'shear_strength_map' not in locals():
-    print("Warning: 'shear_strength_map' not found. Creating a placeholder map.")
-    # Create a plausible-looking map for the script to run
-    x_demo, y_demo = np.mgrid[0:1000:10, 0:1000:10]
-    noise = np.random.randn(100, 100) * 0.2
-    shear_strength_map = np.sin(x_demo / 50) * np.cos(y_demo / 50) + 1.5 + noise
-
 
 exported_points = []
 
@@ -261,14 +257,13 @@ exported_points = []
 # ---------------------------
 np.random.seed(42)
 x, y = np.mgrid[0:100, 0:100]
-# The script expects a 100x100 map from this point onwards
-reward_map = shear_strength_map[::int(shear_strength_map.shape[0]/100), ::int(shear_strength_map.shape[1]/100)]
+reward_map = shear_strength_map[::10, ::10]  # Replace with your actual shear_strength_map
 reward_map = gaussian(reward_map, sigma=1)
 
 # ---------------------------
 # Step 2: Multi-Otsu Thresholding
 # ---------------------------
-num_classes = 2
+num_classes = 2 
 thresholds = threshold_multiotsu(reward_map, classes=num_classes)
 intensity_groups = np.digitize(reward_map, bins=thresholds)
 
@@ -280,118 +275,143 @@ current_label = 1
 for i in range(num_classes):
     mask = intensity_groups == i
     labeled_mask = label(mask, connectivity=2)
-    if labeled_mask.max() > 0:
-        labeled_mask[labeled_mask > 0] += current_label - 1
-        final_labels[mask] = labeled_mask[mask]
-        current_label = final_labels.max() + 1
+    labeled_mask[labeled_mask > 0] += current_label - 1
+    final_labels[mask] = labeled_mask[mask]
+    current_label = final_labels.max() + 1
+
+regions = regionprops(final_labels)
+for region in regions:
+    print(f"Region {region.label} has area: {region.area} pixels")
 
 # ---------------------------
 # Step 4: Remove Small Regions
 # ---------------------------
 min_area = reward_map.shape[0] * reward_map.shape[1] * 0.005
-labels_filtered = remove_small_objects(final_labels, min_size=min_area)
+labels_filtered = np.zeros_like(final_labels, dtype=int)
+for region in regionprops(final_labels):
+    if region.area >= min_area:
+        labels_filtered[final_labels == region.label] = region.label
 
 labels_filtered, _, _ = relabel_sequential(labels_filtered)
 num_regions_filtered = labels_filtered.max()
-print(f"Total number of regions after filtering: {num_regions_filtered}")
+print("Total number of regions after filtering:", num_regions_filtered)
 
 # ---------------------------
-# Step 5: Draw Arrows Through and Across (MODIFIED SECTION)
+# Step 5: Plot Overview
 # ---------------------------
-line_length = 7
-num_samples = 4 # Desired number of valid arrows per region
+# fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+# axes[0].imshow(reward_map, cmap='viridis')
+# axes[0].set_title('Fake Reward Map')
+# axes[0].axis('off')
+# # plt.imsave("reward_map.png", reward_map, cmap='viridis')
+
+# axes[1].imshow(intensity_groups, cmap='nipy_spectral')
+# axes[1].set_title('Intensity Groups (Multi-Otsu)')
+# axes[1].axis('off')
+
+# axes[2].imshow(labels_filtered, cmap='nipy_spectral')
+# axes[2].set_title('Final Segmentation (Filtered)')
+# axes[2].axis('off')
+# plt.tight_layout()
+# # plt.show()
+
+# ---------------------------
+# Step 6: Helper - Uniformly Sample Contours
+# ---------------------------
+def sample_contour_uniformly(contour, num_samples):
+    distances = np.sqrt(np.sum(np.diff(contour, axis=0)**2, axis=1))
+    cumulative_distance = np.concatenate(([0], np.cumsum(distances)))
+    total_length = cumulative_distance[-1]
+    sample_dists = np.linspace(0, total_length, num_samples)
+    sample_rows = np.interp(sample_dists, cumulative_distance, contour[:, 0])
+    sample_cols = np.interp(sample_dists, cumulative_distance, contour[:, 1])
+    return np.vstack((sample_rows, sample_cols)).T
+
+# ---------------------------
+# Step 7: Draw Arrows Through and Across
+# ---------------------------
+line_length = 15
+num_samples = 4
 
 grad_y, grad_x = np.gradient(reward_map)
-map_height, map_width = reward_map.shape
 
-# --- Set up plot ---
-fig, ax = plt.subplots(figsize=(8, 8))
-ax.imshow(labels_filtered, cmap='Pastel1') # Use a simple cmap for region background
-ax.set_title('Gradient Directions Across Region (Boundary-Checked)')
-ax.set_xlim(0, map_width)
-ax.set_ylim(0, map_height)
-ax.invert_yaxis()
+cmap = plt.cm.viridis
+cmap_array = cmap(np.linspace(0, 1, cmap.N))
+custom_cmap = cmap_array.copy()
 
+last_region_label = np.max(labels_filtered)
+norm = mcolors.Normalize(vmin=labels_filtered.min(), vmax=labels_filtered.max())
+last_region_index = norm(last_region_label)
+color_index = int(last_region_index * (cmap.N - 1))
+custom_cmap[color_index, -1] = 0.0
+transparent_cmap = mcolors.ListedColormap(custom_cmap)
 
-# --- Main loop to generate and validate arrows ---
+fig2, ax2 = plt.subplots(figsize=(8, 8))
+# ax2.imshow(reward_map, cmap='viridis')
+ax2.imshow(labels_filtered, cmap=transparent_cmap)
+ax2.set_title('Gradient Directions Across Region')
+ax2.axis('on')
+ax2.invert_yaxis()
+
 for region_label in np.unique(labels_filtered):
-    if region_label == 0: # Skip background
+    if region_label == 0:
         continue
-        
     mask = labels_filtered == region_label
     contours = find_contours(mask.astype(float), level=0.5)
 
-    if not contours:
-        continue # Skip if no contour is found
+    if contours:
+        contour = max(contours, key=len)
+        sampled_coords = sample_contour_uniformly(contour, num_samples)
 
-    contour = max(contours, key=len)
-    
-    valid_arrows_count = 0
-    # Set a max number of tries to prevent infinite loops
-    max_attempts = num_samples * 20
+        for (row, col) in sampled_coords:
+            r, c = int(round(row)), int(round(col))
+            g_y = grad_y[r, c]
+            g_x = grad_x[r, c]
+            norm = np.hypot(g_y, g_x)
+            if norm == 0:
+                continue
+            g_y /= norm
+            g_x /= norm
 
-    for attempt in range(max_attempts):
-        if valid_arrows_count >= num_samples:
-            break # Exit if we have enough arrows for this region
+            # One unit vector in both directions
+            half_len = line_length
+            end_r = row + half_len * g_y
+            end_c = col + half_len * g_x
+            start_r = row - half_len * g_y
+            start_c = col - half_len * g_x
 
-        # 1. RANDOMLY SAMPLE a point from the contour
-        idx = np.random.randint(len(contour))
-        row, col = contour[idx]
-        r, c = int(round(row)), int(round(col))
-
-        # Check if the integer-rounded base point is valid
-        if not (0 <= r < map_height and 0 <= c < map_width):
-            continue
-
-        # 2. CALCULATE arrow endpoints based on the gradient
-        g_y, g_x = grad_y[r, c], grad_x[r, c]
-        norm = np.hypot(g_y, g_x)
-        if norm == 0:
-            continue # Skip if gradient is zero
-            
-        g_y /= norm
-        g_x /= norm
-        
-        half_len = line_length
-        end_r, end_c = row + half_len * g_y, col + half_len * g_x
-        start_r, start_c = row - half_len * g_y, col - half_len * g_x
-        flipped_head_r, flipped_head_c = start_r - (row - start_r), start_c - (col - start_c)
-
-        # 3. VALIDATE that all points of the arrows are within the map boundaries
-        is_in_bounds = (
-            0 <= end_r < map_height and 0 <= end_c < map_width and
-            0 <= flipped_head_r < map_height and 0 <= flipped_head_c < map_width
-        )
-
-        # 4. If valid, DRAW the arrow and count it
-        if is_in_bounds:
-            # Forward arrow
-            ax.annotate('', xy=(end_c, end_r), xytext=(col, row),
+            # 1. Forward arrow (center → end)
+            ax2.annotate('', xy=(end_c, end_r), xytext=(col, row),
                         arrowprops=dict(arrowstyle='->', color='blue', lw=1.5))
-            # Backward arrow
-            ax.annotate('', xy=(flipped_head_c, flipped_head_r), xytext=(start_c, start_r),
+
+            # 2. Backward arrow flipped 180° around tail (start → flipped direction)
+            flip_dx = col - start_c
+            flip_dy = row - start_r
+            flipped_head_c = start_c - flip_dx
+            flipped_head_r = start_r - flip_dy
+            ax2.annotate('', xy=(flipped_head_c, flipped_head_r), xytext=(start_c, start_r),
                         arrowprops=dict(arrowstyle='->', color='red', lw=1.5))
-            # Connecting line
-            ax.plot([start_c, end_c], [start_r, end_r], color='green', lw=1.5, alpha=0.7)
-            
-            exported_points.append((end_c, end_r, flipped_head_c, flipped_head_r))
-            valid_arrows_count += 1
-            
-    if valid_arrows_count < num_samples:
-        print(f"Warning: Only generated {valid_arrows_count}/{num_samples} valid arrows for region {region_label}.")
+
+            # 3. connecting line between both ends
+            ax2.plot([start_c, end_c], [start_r, end_r], color='green', lw=1, alpha=0.7)
+
+            exported_points.append((end_c, end_r, flipped_head_c, flipped_head_r))    
 
 plt.tight_layout()
+
 # plt.show()
 
+
 # ---------------------------
-# Step 6: Export Arrow Data to CSV
+# Step 7: Export Arrow Data to CSV
 # ---------------------------
-with open("microgradient.csv", "w", newline="") as csvfile:
+with open("csv_data/microgradient.csv", "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["end_c", "end_r", "flipped_head_c", "flipped_head_r"])
     writer.writerows(exported_points)
 
 print("Exported arrow points to 'microgradient.csv'")
+
 
 '''
 Baseline
