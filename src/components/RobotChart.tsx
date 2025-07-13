@@ -230,7 +230,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapTyp
                     fontSize={25}
                     fontWeight="bold"
                   >
-                    {pathIndex}
+                    {labels[pathIndex]}
                   </Text>
                   {isSelectedPath && (
                     <RobotIcon x={xScale(lastPoint.x)} y={yScale(lastPoint.y)} />
