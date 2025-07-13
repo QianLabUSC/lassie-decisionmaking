@@ -256,13 +256,13 @@ def pathsuggestion():
         newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
         generate_baseline_path(newStartingPoint)
 
-        # # microgradient
-        # microgradient_step_number = current_step + 1
-        # orig_microgradient_scale = get_scale('planningStack/csv_data/microgradient.csv')
-        # deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
+        # microgradient
+        microgradient_step_number = current_step + 1
+        orig_microgradient_scale = get_scale('planningStack/csv_data/microgradient.csv')
+        deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
 
-        # newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
-        # generate_microgradient_path(newStartingPoint)
+        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
+        generate_microgradient_path(newStartingPoint)
 
     elif (last_selected_path == 'C'): # microgradient path
         microgradient_step_number = current_step + 1
@@ -308,7 +308,11 @@ def pathsuggestion():
         path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=(zonecoverage_step_number) * step_size).values()
 
     # microgradient path (path C on website)
-    path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size).values()
+    if (microgradient_step_number > 0):
+        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size).values()
+    elif (microgradient_step_number == 0):
+        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size).values()
+
 
 
     res = jsonify(
