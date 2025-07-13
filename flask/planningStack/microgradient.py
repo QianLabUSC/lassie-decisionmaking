@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import euclidean
 from networkx.algorithms.approximation import traveling_salesman_problem
 
-# === Load CSV ===
-df = pd.read_csv("csv_data/microgradient.csv")
-segments = list(zip(df['end_c'], df['end_r'], df['flipped_head_c'], df['flipped_head_r']))
 
 # === Solve Segment TSP ===
 def solve_tsp_with_required_edges_fixed(G: nx.Graph, required_edges):
@@ -105,15 +102,29 @@ def solve_segment_tsp_fixed(segments):
     tour = solve_tsp_with_required_edges_fixed(G, segment_edges)
     return tour, G, segment_edges, node_to_point
 
-# === Run Pipeline ===
-tour, G, required_edges, node_to_point = solve_segment_tsp_fixed(segments)
 
-# === Export with (0, 0) Prepended ===
-export_rows = [{'order': 0, 'x': 0, 'y': 0}]  # Add origin
-for i, node_id in enumerate(tour):
-    x, y = node_to_point[node_id]
-    export_rows.append({'order': i + 1, 'x': x, 'y': y})  # Increment order by 1
 
-points_df = pd.DataFrame(export_rows)
-points_df.to_csv("csv_data/microgradient_ordered.csv", index=False)
-print("Saved node points with origin prepended to microgradient_ordered.csv")
+
+def generate_microgradient_path(starting_point):
+
+    # === Load CSV ===
+    df = pd.read_csv("./planningStack/csv_data/microgradient.csv")
+    segments = list(zip(df['end_c'], df['end_r'], df['flipped_head_c'], df['flipped_head_r']))
+
+
+    # starting_point format: [(x,y)] ex: [(0,0)]
+
+    x_coord = starting_point[0][0]
+    y_coord = starting_point[0][1]    
+    # === Run Pipeline ===
+    tour, G, required_edges, node_to_point = solve_segment_tsp_fixed(segments)
+
+    # === Export with (0, 0) Prepended ===
+    export_rows = [{'order': 0, 'x': x_coord, 'y': y_coord}]  # Add origin
+    for i, node_id in enumerate(tour):
+        x, y = node_to_point[node_id]
+        export_rows.append({'order': i + 1, 'x': x, 'y': y})  # Increment order by 1
+
+    points_df = pd.DataFrame(export_rows)
+    points_df.to_csv("./planningStack/csv_data/microgradient_ordered.csv", index=False)
+    print("Saved node points with origin prepended to microgradient_ordered.csv")

@@ -17,9 +17,11 @@ from generatePaths import deletePointsWithinTraveledArea
 from generatePaths import deletePointsWithinTraveledAreaMicrogradient
 from generatePaths import get_last_point
 from generatePaths import get_scale
+from generatePaths import get_scale_microgradient
 
 from planningStack.zonecoverage import generate_zonecoverage_path
 from planningStack.baseline import generate_baseline_path
+from planningStack.microgradient import generate_microgradient_path
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
@@ -235,13 +237,13 @@ def pathsuggestion():
 
 
 
-        # # microgradient
-        # microgradient_step_number = current_step + 1
-        # orig_microgradient_scale = get_scale('planningStack/csv_data/microgradient.csv')
-        # deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
+        # microgradient
+        microgradient_step_number = current_step + 1
+        orig_microgradient_scale = get_scale_microgradient('planningStack/csv_data/microgradient.csv')
+        deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
 
-        # newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
-        # generate_microgradient_path(newStartingPoint)
+        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
+        generate_microgradient_path(newStartingPoint)
 
     elif (last_selected_path == 'B'): # zone coverage path
 
