@@ -154,6 +154,12 @@ def deletePointsWithinTraveledArea(path_file):
 
     return df
 
+def get_scale_microgradient(path_file):
+    df = pd.read_csv(path_file)
+    scale_x = df['end_c'].max()
+    scale_y = df['end_r'].max()
+    return [scale_x, scale_y]
+
 def deletePointsWithinTraveledAreaMicrogradient(path_file):
     # Read traveled points coordinates csv file
     df_traveled = pd.read_csv('planningStack/csv_data/traveledPoints.csv')
