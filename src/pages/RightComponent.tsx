@@ -433,7 +433,7 @@ const RightComponent = () => {
   console.log('loading', loading)
   const objectiveSelectPath = (
     <div className="objective-questions">
-      <p style={{"paddingTop":"25px"}}><strong>  Step3: Your inputs and Data Gathered Till Now Will be saved in json</strong></p>
+      <p style={{"paddingTop":"25px"}}><strong>  Step3: Based on your belief, the robot suggests three different paths, please select one of them</strong></p>
       <RadioGroup
         row
         aria-label="path selection"
