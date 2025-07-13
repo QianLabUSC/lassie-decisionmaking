@@ -54,6 +54,11 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.MultipleChoice,
+            text: "How quickly do you typically form an initial conclusion about a hypothesis (you can keep collected data and revise it accordingly?",
+            responses: ["Very Quickly", "Moderately Quickly", "Neutral / Moderate pace", "Somewhat cautiously", "Moderately cautiously", "Very cautiously"],
+        },
+        {
+            type: QuestionType.MultipleChoice,
             text: "If the robot collected data autonomously using its own suggestions, how satisfied would you be with the resulting data collection strategy?",
             responses: ["Very satisfied", "Moderately satisfied", "Somewhat satisfied", "Neither satisfied nor unsatisfied", 
             "Somewhat unsatisfied", "Moderately unsatisfied", "Very unsatisfied"]
@@ -66,7 +71,7 @@ export const surveyQuestions: SurveyQuestion[][] = [
         },
         {
             type: QuestionType.MultipleChoiceHorizontal,
-            text: "The robot's suggestions were useful when my reported belief was to increase spatial coverage.",
+            text: "The robot's suggestions were useful when my reported belief was to increase the coverage.",
             responses: robotAgreeDisagreeOptions
         },
         // {
