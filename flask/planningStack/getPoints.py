@@ -25,7 +25,7 @@ def generate_moisture_map_from_image(image_path, smoothness=3):
 def calculate_shear_strength(moisture_map):
     # If moisture is low, shear strength = moisture
     # If moisture is high, shear strength = 0.25 * moisture + 0.375
-    shear_strength_map = np.where(moisture_map < 0.5, moisture_map, 0.25 * moisture_map + 0.375)
+    shear_strength_map = np.where(moisture_map < 5, moisture_map, 0.25 * moisture_map + 0.375)
 
     # Add some noise
     noise = np.random.normal(loc=0, scale=0.01, size=moisture_map.shape)
@@ -65,7 +65,7 @@ plt.gca().invert_yaxis()  # optional: flip y-axis if using image coordinates
 
 
 plt.tight_layout()
-# plt.show()
+plt.show()
 
 
 '''
