@@ -168,15 +168,20 @@ def deletePointsWithinTraveledAreaMicrogradient(path_file):
     # Read microgradient path file
     df = pd.read_csv(path_file)
     
+    # Get scale factors for the microgradient file
+    # For microgradient, we need to get scale from end_c/end_r columns
+    scale_x = df['end_c'].max()
+    scale_y = df['end_r'].max()
+    
     # Function to check if either point in a row is within the polygon
     def is_any_point_within_polygon(row):
-        # Check end point (end_c, end_r)
-        end_point = Point(row['end_c'], row['end_r'])
+        # Check end point (end_c, end_r) - scale the coordinates
+        end_point = Point(row['end_c'] / scale_x, row['end_r'] / scale_y)
         if end_point.within(polygon):
             return True
         
-        # Check flipped head point (flipped_head_c, flipped_head_r)
-        flipped_head_point = Point(row['flipped_head_c'], row['flipped_head_r'])
+        # Check flipped head point (flipped_head_c, flipped_head_r) - scale the coordinates
+        flipped_head_point = Point(row['flipped_head_c'] / scale_x, row['flipped_head_r'] / scale_y)
         if flipped_head_point.within(polygon):
             return True
         
@@ -193,7 +198,8 @@ def deletePointsWithinTraveledAreaMicrogradient(path_file):
     
     return df_filtered
 
-
+# # TESTING: run the function
+# deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
 
 
 def get_scale(input_csv, x_col='x', y_col='y'):
