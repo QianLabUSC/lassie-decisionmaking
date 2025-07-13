@@ -238,7 +238,6 @@ def pathsuggestion():
 
 
         # microgradient
-        microgradient_step_number = current_step + 1
         orig_microgradient_scale = get_scale_microgradient('planningStack/csv_data/microgradient.csv')
         deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
 
@@ -257,7 +256,6 @@ def pathsuggestion():
         generate_baseline_path(newStartingPoint)
 
         # microgradient
-        microgradient_step_number = current_step + 1
         orig_microgradient_scale = get_scale('planningStack/csv_data/microgradient.csv')
         deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
 
