@@ -154,6 +154,48 @@ def deletePointsWithinTraveledArea(path_file):
 
     return df
 
+def deletePointsWithinTraveledAreaMicrogradient(path_file):
+    # Read traveled points coordinates csv file
+    df_traveled = pd.read_csv('planningStack/csv_data/traveledPoints.csv')
+    traveledPoints = df_traveled[['x', 'y']].values
+
+    # Create convex hull
+    hull = ConvexHull(traveledPoints)
+
+    # Create polygon from hull
+    polygon = Polygon(hull.points[hull.vertices])
+
+    # Read microgradient path file
+    df = pd.read_csv(path_file)
+    
+    # Function to check if either point in a row is within the polygon
+    def is_any_point_within_polygon(row):
+        # Check end point (end_c, end_r)
+        end_point = Point(row['end_c'], row['end_r'])
+        if end_point.within(polygon):
+            return True
+        
+        # Check flipped head point (flipped_head_c, flipped_head_r)
+        flipped_head_point = Point(row['flipped_head_c'], row['flipped_head_r'])
+        if flipped_head_point.within(polygon):
+            return True
+        
+        # If neither point is within the polygon, keep the row
+        return False
+    
+    # Filter out rows where either point is within the polygon
+    df_filtered = df[~df.apply(is_any_point_within_polygon, axis=1)]
+    
+    # Save the filtered data back to the file
+    df_filtered.to_csv(path_file, index=False)
+    
+    print(f"Deleted {len(df) - len(df_filtered)} rows from {path_file}")
+    
+    return df_filtered
+
+
+
+
 def get_scale(input_csv, x_col='x', y_col='y'):
     # Read the CSV
     df = pd.read_csv(input_csv)

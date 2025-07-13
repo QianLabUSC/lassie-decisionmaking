@@ -14,6 +14,7 @@ from generatePaths import generateBaselinePath
 from generatePaths import generateZonecoveragePath
 from generatePaths import generateMicrogradientPath
 from generatePaths import deletePointsWithinTraveledArea
+from generatePaths import deletePointsWithinTraveledAreaMicrogradient
 from generatePaths import get_last_point
 from generatePaths import get_scale
 
@@ -221,6 +222,8 @@ def pathsuggestion():
     # new_step_number = current_step + 1
 
     if (last_selected_path == 'A'): # baseline path
+
+        # zonecoverage
         baseline_step_number = current_step + 1
 
         orig_zonecoverage_scale = get_scale('planningStack/csv_data/zonecoverage.csv')
@@ -231,9 +234,18 @@ def pathsuggestion():
         generate_zonecoverage_path(newStartingPoint)
 
 
-        # deletePointsWithinTraveledArea('planningStack/csv_data/microgradient.csv')
+
+        # # microgradient
+        # microgradient_step_number = current_step + 1
+        # orig_microgradient_scale = get_scale('planningStack/csv_data/microgradient.csv')
+        # deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
+
+        # newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
+        # generate_microgradient_path(newStartingPoint)
 
     elif (last_selected_path == 'B'): # zone coverage path
+
+        # baseline
         zonecoverage_step_number = current_step + 1
 
         orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
@@ -242,7 +254,14 @@ def pathsuggestion():
         newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
         generate_baseline_path(newStartingPoint)
 
-        # deletePointsWithinTraveledArea('planningStack/csv_data/microgradient.csv')
+        # # microgradient
+        # microgradient_step_number = current_step + 1
+        # orig_microgradient_scale = get_scale('planningStack/csv_data/microgradient.csv')
+        # deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
+
+        # newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
+        # generate_microgradient_path(newStartingPoint)
+
     elif (last_selected_path == 'C'): # microgradient path
         microgradient_step_number = current_step + 1
 
