@@ -38,7 +38,7 @@ import { SubPath } from '../state';
 const NO_OF_ITERATION = 1;
 const RightComponent = () => {
   const [loading, setLoading] = useState(false);
-  const [selectedBelief, setSelectedBelief] = useState<string[]>([]);
+  const [selectedBelief, setSelectedBelief] = useState<string>('');
   const [userBeliefText, setUserBeliefText] = useState('');
   const [selectedPathIndex, setSelectedPathIndex] = useState('');
   const [scatter_Plot_Data, setScatterPlotData] = useState<{
@@ -101,19 +101,8 @@ const RightComponent = () => {
     setUserBeliefText(e.target.value);
   };
 
-  const handleChangeCheckbox = (value: string) => {
-    setSelectedBelief(prev => {
-      const currentIndex = prev.indexOf(value);
-      const newChecked = [...prev];
-
-      if (currentIndex === -1) {
-        newChecked.push(value);
-      } else {
-        newChecked.splice(currentIndex, 1);
-      }
-
-      return newChecked;
-    });
+  const handleChangeRadio = (value: string) => {
+    setSelectedBelief(value);
   };
 
 
@@ -144,33 +133,36 @@ const RightComponent = () => {
   const objectiveQuestions = (
     <>
       <div className="objective-questions">
-        <p style={{"paddingTop":"25px"}}><strong>Based on the data collected so far, select which of the following beliefs you currently hold, you may select multiple</strong></p>
+        <p style={{"paddingTop":"25px"}}><strong>Step 1: Based on the data collected so far, select which of the following beliefs you currently hold</strong></p>
         <FormControl component="fieldset">
-          <FormGroup row>
+          <RadioGroup
+            value={selectedBelief}
+            onChange={(e) => handleChangeRadio(e.target.value)}
+          >
             <FormControlLabel
-              control={<Checkbox checked={selectedBelief.includes('1')} onChange={() => handleChangeCheckbox('1')} />}
-              label="There are areas along the dune transect (between crest and interdune) where data is needed "
+              value="1"
+              control={<Radio />}
+              label="More data is needed to make an initial evaluation"
             />
             <FormControlLabel
-              control={<Checkbox checked={selectedBelief.includes('2')} onChange={() => handleChangeCheckbox('2')} />}
-              label="There is a discrepancy between the data and the hypothesis that needs additional evaluation"
+              value="2"
+              control={<Radio />}
+              label="There is a discrepancy between the data and the hypothesis needs additional evaluation"
             />
             <FormControlLabel
-              control={<Checkbox checked={selectedBelief.includes('3')} onChange={() => handleChangeCheckbox('3')} />}
-              label="The data seems to be supporting the hypothesis so far but additional evaluation is needed"
+              value="3"
+              control={<Radio />}
+              label="The data seems to support the hypothesis, but additional evaluation is needed"
             />
-            <FormControlLabel
-              control={<Checkbox checked={selectedBelief.includes('4')} onChange={() => handleChangeCheckbox('4')} />}
-              label="I hold a different belief that is not described here"
-            />
-          </FormGroup>
+            
+          </RadioGroup>
         </FormControl>
         <p><strong>Please describe your additional belief about the data collected so far:</strong></p>
         <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} />
         <br/>
-       {!loading && <Button
+       {!loading &&         <Button
         style={{"marginTop":"15px"}}
-          disabled={selectedBelief.length === 0}
+          disabled={selectedBelief === ''}
           variant="contained"
           color="secondary"
           onClick={onSubmitHumanBelief}
@@ -227,7 +219,7 @@ const RightComponent = () => {
     try{
       
      const initial_human_belief = {
-      human_belief_selected_option: selectedBelief,
+      human_belief_selected_option: [selectedBelief],
       human_belief_text_description: userBeliefText,
     };
 
@@ -289,7 +281,7 @@ const RightComponent = () => {
         </tbody>
       </table>
       {!loading && <Button
-        disabled={!selectedBelief}
+        disabled={selectedBelief === ''}
         variant="contained"
         color="secondary"
         onClick={onSubmitRanking}
@@ -641,7 +633,7 @@ const HypothesisConfidencePanel_Step5 = (
       </RadioGroup>
       {!loading && <Button
       style={{"marginTop":'15px'}}
-        disabled={!selectedBelief}
+        disabled={selectedBelief === ''}
         variant="contained"
         color="secondary"
         onClick={onSubmitTransitionState}
