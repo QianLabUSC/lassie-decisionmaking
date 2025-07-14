@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import euclidean
 from networkx.algorithms.approximation import traveling_salesman_problem
 
+from generatePaths import get_scale_microgradient
 
 # === Solve Segment TSP ===
 def solve_tsp_with_required_edges_fixed(G: nx.Graph, required_edges):
@@ -114,10 +115,9 @@ def generate_microgradient_path(starting_point):
 
     # starting_point format: [(x,y)] ex: [(0,0)]
 
-    x_coord = starting_point[0][0]
-    y_coord = starting_point[0][1]    
+    x_coord = starting_point[0][0] / get_scale_microgradient()[0]
+    y_coord = starting_point[0][1] / get_scale_microgradient()[1]    
 
-    print('MICROGRADIENT STARTING POINT', starting_point)
     # === Run Pipeline ===
     tour, G, required_edges, node_to_point = solve_segment_tsp_fixed(segments)
 
