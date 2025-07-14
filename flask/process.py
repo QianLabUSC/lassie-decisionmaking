@@ -290,7 +290,7 @@ def pathsuggestion():
 
     # print('current_step', current_step, 'start_from', start_from)
 
-    print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
+    # print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
 
     # baseline path (path A on website)
     if (baseline_step_number > 0):
