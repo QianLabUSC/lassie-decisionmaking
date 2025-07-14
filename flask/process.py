@@ -312,9 +312,9 @@ def pathsuggestion():
         path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number) * step_size).values()
 
 
-    print('microgradient:', 'path_x_3', path_x_3, 'path_y_3', path_y_3)
-    print('baseline:', 'path_x_1', path_x_1, 'path_y_1', path_y_1)
-    print('zonecoverage:', 'path_x_2', path_x_2, 'path_y_2', path_y_2)
+    # print('microgradient:', 'path_x_3', path_x_3, 'path_y_3', path_y_3)
+    # print('baseline:', 'path_x_1', path_x_1, 'path_y_1', path_y_1)
+    # print('zonecoverage:', 'path_x_2', path_x_2, 'path_y_2', path_y_2)
 
     res = jsonify(
     [
