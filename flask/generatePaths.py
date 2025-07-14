@@ -254,7 +254,7 @@ def correct_starting_point(input_csv, output_csv=None, x_col='x', y_col='y'):
 
     # compare the starting points within a certain range (0.1)
 
-    threshold = 0.1
+    threshold = 0.01
     if np.abs(starting_point_baseline[x_col] - starting_point_zonecoverage[x_col]) < threshold and np.abs(starting_point_baseline[y_col] - starting_point_zonecoverage[y_col]) < threshold:
         starting_point = starting_point_baseline
     elif np.abs(starting_point_baseline[x_col] - starting_point_microgradient[x_col]) < threshold and np.abs(starting_point_baseline[y_col] - starting_point_microgradient[y_col]) < threshold:
