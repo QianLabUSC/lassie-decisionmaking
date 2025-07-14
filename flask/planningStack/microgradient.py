@@ -115,8 +115,8 @@ def generate_microgradient_path(starting_point):
 
     # starting_point format: [(x,y)] ex: [(0,0)]
 
-    x_coord = starting_point[0][0] / get_scale_microgradient()[0]
-    y_coord = starting_point[0][1] / get_scale_microgradient()[1]    
+    x_coord = starting_point[0][0] / get_scale_microgradient('planningStack/csv_data/microgradient.csv')[0]
+    y_coord = starting_point[0][1] / get_scale_microgradient('planningStack/csv_data/microgradient.csv')[1]    
 
     # === Run Pipeline ===
     tour, G, required_edges, node_to_point = solve_segment_tsp_fixed(segments)
