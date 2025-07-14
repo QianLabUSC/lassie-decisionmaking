@@ -247,7 +247,7 @@ def pathsuggestion():
     elif (last_selected_path == 'B'): # zone coverage path
 
         zonecoverage_step_number = current_step + 1
-        
+
         # baseline
         orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
         deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
@@ -256,7 +256,7 @@ def pathsuggestion():
         generate_baseline_path(newStartingPoint)
 
         # microgradient
-        orig_microgradient_scale = get_scale('planningStack/csv_data/microgradient.csv')
+        orig_microgradient_scale = get_scale_microgradient('planningStack/csv_data/microgradient.csv')
         deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
 
         newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
