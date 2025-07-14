@@ -5,7 +5,6 @@ import os
 from scipy.spatial import ConvexHull
 from shapely.geometry import Point, Polygon
 
-
 def generateBaselinePath(num_points_between=10, step_size=1, start_from=0):
 
     scale_points_to_robot_coordinates('planningStack/csv_data/ordered_baseline.csv')
@@ -90,7 +89,7 @@ def generateZonecoveragePath(num_points_between=10, step_size=1, start_from=0):
 
 def generateMicrogradientPath(num_points_between=10, step_size=1, start_from=0):
 
-    scale_points_to_robot_coordinates_microgradient('planningStack/csv_data/microgradient_ordered.csv', scaling_factor=get_scale_microgradient('planningStack/csv_data/microgradient.csv'))
+    scale_points_to_robot_coordinates('planningStack/csv_data/microgradient_ordered.csv')
 
     # Load the data
     df = pd.read_csv('planningStack/csv_data/microgradient_ordered.csv')
@@ -225,24 +224,6 @@ def scale_points_to_robot_coordinates(input_csv, output_csv=None, x_col='x', y_c
     # Detect max values for scaling
     max_x = df[x_col].max()
     max_y = df[y_col].max()
-    
-    # Scale x and y to [0, 1]
-    df[x_col] = df[x_col] / max_x
-    df[y_col] = df[y_col] / max_y
-    
-    # Write to output (overwrite or new file)
-    if output_csv is None:
-        output_csv = input_csv  # Overwrite original
-    df.to_csv(output_csv, index=False)
-    print(f"Scaled {input_csv} and saved to {output_csv}")
-
-def scale_points_to_robot_coordinates_microgradient(input_csv, output_csv=None, x_col='x', y_col='y', scaling_factor=[150, 150]):
-    # Read the CSV
-    df = pd.read_csv(input_csv)
-    
-    # Detect max values for scaling
-    max_x = scaling_factor[0]
-    max_y = scaling_factor[1]
     
     # Scale x and y to [0, 1]
     df[x_col] = df[x_col] / max_x
