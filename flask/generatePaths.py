@@ -262,12 +262,17 @@ def correct_starting_point(input_csv, output_csv=None, x_col='x', y_col='y'):
     else:
         starting_point = starting_point_zonecoverage
 
-
-
+    print('starting_point', starting_point)
     
     df = pd.read_csv(input_csv)
-    df.iloc[0][x_col] = starting_point[0]
-    df.iloc[0][y_col] = starting_point[1]
+    # Fix the SettingWithCopyWarning by using .loc instead of .iloc
+    df.loc[0, x_col] = starting_point[x_col]
+    df.loc[0, y_col] = starting_point[y_col]
+    
+    # Set output_csv to input_csv if None (overwrite original file)
+    if output_csv is None:
+        output_csv = input_csv
+    
     df.to_csv(output_csv, index=False)
     print(f"Corrected starting point in {input_csv} and saved to {output_csv}")
 
