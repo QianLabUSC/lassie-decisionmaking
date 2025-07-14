@@ -309,7 +309,7 @@ def pathsuggestion():
     if (microgradient_step_number > 0):
         path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size).values()
     elif (microgradient_step_number == 0):
-        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size).values()
+        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(zonecoverage_step_number) * step_size).values()
 
 
     print('microgradient:', 'path_x_3', path_x_3, 'path_y_3', path_y_3)
