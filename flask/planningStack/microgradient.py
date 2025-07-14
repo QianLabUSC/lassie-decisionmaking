@@ -116,6 +116,8 @@ def generate_microgradient_path(starting_point):
 
     x_coord = starting_point[0][0]
     y_coord = starting_point[0][1]    
+
+    print('MICROGRADIENT STARTING POINT', starting_point)
     # === Run Pipeline ===
     tour, G, required_edges, node_to_point = solve_segment_tsp_fixed(segments)
 
