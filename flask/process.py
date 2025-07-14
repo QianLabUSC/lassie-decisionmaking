@@ -225,9 +225,9 @@ def pathsuggestion():
 
     if (last_selected_path == 'A'): # baseline path
 
-        # zonecoverage
         baseline_step_number = current_step + 1
 
+        # zonecoverage
         orig_zonecoverage_scale = get_scale('planningStack/csv_data/zonecoverage.csv')
         deletePointsWithinTraveledArea('planningStack/csv_data/zonecoverage.csv')
 
@@ -246,9 +246,9 @@ def pathsuggestion():
 
     elif (last_selected_path == 'B'): # zone coverage path
 
-        # baseline
         zonecoverage_step_number = current_step + 1
-
+        
+        # baseline
         orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
         deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
 
