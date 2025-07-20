@@ -255,9 +255,9 @@ const RightComponent = () => {
 
   const ObjectiveRankingFormNew = (
     <>
-      <p style={{"paddingTop":"25px"}}><strong> Now choose the order in which you agree with each of the selected beliefs, with 1 being the strongest agreement. You must assign a unique number to each belief:</strong></p>
+      <p style={{"paddingTop":"25px"}}><strong> Click next to continue</strong></p>
 
-      <table className="dropDownMenuGroup" style={{ marginBottom: '2vh' }}>
+      {/* <table className="dropDownMenuGroup" style={{ marginBottom: '2vh' }}>
         <tbody>
           {objectives.map((option, index) => (
             <tr key={option}>
@@ -279,7 +279,7 @@ const RightComponent = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> */}
       {!loading && <Button
         disabled={selectedBelief === ''}
         variant="contained"
