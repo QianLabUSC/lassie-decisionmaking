@@ -91,7 +91,7 @@ def generateMicrogradientPath(num_points_between=10, step_size=1, start_from=0):
 
     scale_points_to_robot_coordinates('planningStack/csv_data/microgradient_ordered.csv')
 
-    correct_starting_point('planningStack/csv_data/microgradient_ordered.csv')
+    # correct_starting_point('planningStack/csv_data/microgradient_ordered.csv')
 
     # Load the data
     df = pd.read_csv('planningStack/csv_data/microgradient_ordered.csv')

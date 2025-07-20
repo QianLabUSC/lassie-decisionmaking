@@ -197,24 +197,24 @@ def pathsuggestion():
 
 
             current_step = baseline_step_number
-            zonecoverage_step_number = 0
-            microgradient_step_number = 0
+            zonecoverage_step_number = 1
+            microgradient_step_number = 1
         elif (last_selected_path == 'B'): # zone coverage path
 
             traveled_points = get_traveled_points('planningStack/csv_data/zonecoverage_ordered.csv', (zonecoverage_step_number - 1) * step_size, zonecoverage_step_number * step_size)
             append_traveled_points(traveled_points)
 
             current_step = zonecoverage_step_number
-            baseline_step_number = 0
-            microgradient_step_number = 0
+            baseline_step_number = 1
+            microgradient_step_number = 1
         elif (last_selected_path == 'C'): # microgradient path
 
             traveled_points = get_traveled_points('planningStack/csv_data/microgradient_ordered.csv', (microgradient_step_number - 1) * step_size, microgradient_step_number * step_size)
             append_traveled_points(traveled_points)
 
             current_step = microgradient_step_number
-            baseline_step_number = 0
-            zonecoverage_step_number = 0
+            baseline_step_number = 1
+            zonecoverage_step_number = 1
         # print('path suggestion: last selected path number', last_selected_path)
 
 
@@ -290,7 +290,6 @@ def pathsuggestion():
 
     # print('current_step', current_step, 'start_from', start_from)
 
-    # print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
 
     # baseline path (path A on website)
     if (baseline_step_number > 0):
@@ -315,6 +314,9 @@ def pathsuggestion():
     # print('microgradient:', 'path_x_3', path_x_3, 'path_y_3', path_y_3)
     # print('baseline:', 'path_x_1', path_x_1, 'path_y_1', path_y_1)
     # print('zonecoverage:', 'path_x_2', path_x_2, 'path_y_2', path_y_2)
+
+    print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
+
 
     res = jsonify(
     [
