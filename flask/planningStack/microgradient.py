@@ -58,29 +58,37 @@ def solve_tsp_with_required_edges_fixed(G: nx.Graph, required_edges):
                 seen.add(n)
                 expanded_tour.append(n)
 
-    pos = nx.get_node_attributes(G, 'pos')
-    plt.figure(figsize=(10, 8))
-    nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=500, edgelist=[])
+    # === Rotate tour so it starts at starting point (0,0) ===
+    start_coord = (0.0, 0.0)
+    coord_to_node = {v: k for k, v in positions.items()}
+    start_node = coord_to_node.get(start_coord)
+    if start_node is not None and start_node in expanded_tour:
+        start_index = expanded_tour.index(start_node)
+        expanded_tour = expanded_tour[start_index:] + expanded_tour[:start_index]
 
-    path_edges = list(zip(expanded_tour, expanded_tour[1:] + [expanded_tour[0]]))
-    required_set = {tuple(sorted(e)) for e in required_edges}
-    required_in_tour = [e for e in path_edges if tuple(sorted(e)) in required_set]
-    other_edges = [e for e in path_edges if tuple(sorted(e)) not in required_set]
-
-    nx.draw_networkx_edges(G, pos, edgelist=other_edges, edge_color='red', width=1.5)
-    nx.draw_networkx_edges(G, pos, edgelist=required_in_tour, edge_color='green', width=2.5, style='dashed')
-    plt.title("TSP Tour with Required Edges (Microgradient)")
-    plt.axis('equal')
+    # (Optional) Uncomment to draw graph in web app if desired
+    # pos = nx.get_node_attributes(G, 'pos')
+    # plt.figure(figsize=(10, 8))
+    # labels = {node: i for i, node in enumerate(expanded_tour)}
+    # nx.draw(G, pos, labels=labels, node_color='lightblue', node_size=500, edgelist=[])
+    # path_edges = list(zip(expanded_tour, expanded_tour[1:] + [expanded_tour[0]]))
+    # required_set = {tuple(sorted(e)) for e in required_edges}
+    # required_in_tour = [e for e in path_edges if tuple(sorted(e)) in required_set]
+    # other_edges = [e for e in path_edges if tuple(sorted(e)) not in required_set]
+    # nx.draw_networkx_edges(G, pos, edgelist=other_edges, edge_color='red', width=1.5)
+    # nx.draw_networkx_edges(G, pos, edgelist=required_in_tour, edge_color='green', width=2.5, style='dashed')
+    # plt.title("TSP Tour with Required Edges (Microgradient)")
+    # plt.axis('equal')
     # plt.show()
 
     return expanded_tour
+
 
 def solve_segment_tsp_fixed(segments):
     point_to_node, node_to_point = {}, {}
     segment_edges, current_node = [], 0
 
     for x1, y1, x2, y2 in segments:
-        # Clamp negative coordinates to boundary (0)
         p1 = (max(x1, 0), max(y1, 0))
         p2 = (max(x2, 0), max(y2, 0))
         for p in (p1, p2):
@@ -104,29 +112,25 @@ def solve_segment_tsp_fixed(segments):
     return tour, G, segment_edges, node_to_point
 
 
-
-
 def generate_microgradient_path(starting_point):
-
     # === Load CSV ===
     df = pd.read_csv("./planningStack/csv_data/microgradient.csv")
     segments = list(zip(df['end_c'], df['end_r'], df['flipped_head_c'], df['flipped_head_r']))
 
-
-    # starting_point format: [(x,y)] ex: [(0,0)]
-
-    x_coord = starting_point[0][0]
-    y_coord = starting_point[0][1]
+    # Add segment from starting point to nearby point (like in script)
+    starting_x, starting_y = starting_point[0][0], starting_point[0][1]
+    nearby_point = (starting_x + 0.05, starting_y + 0.05)
+    segments.append((starting_x, starting_y, nearby_point[0], nearby_point[1]))
 
     # === Run Pipeline ===
     tour, G, required_edges, node_to_point = solve_segment_tsp_fixed(segments)
 
-    # === Export with (0, 0) Prepended ===
-    export_rows = [{'order': 0, 'x': x_coord, 'y': y_coord}]  # Add origin
+    # === Export ordered points in tour order ===
+    export_rows = []
     for i, node_id in enumerate(tour):
         x, y = node_to_point[node_id]
-        export_rows.append({'order': i + 1, 'x': x, 'y': y})  # Increment order by 1
+        export_rows.append({'order': i, 'x': x, 'y': y})
 
     points_df = pd.DataFrame(export_rows)
     points_df.to_csv("./planningStack/csv_data/microgradient_ordered.csv", index=False)
-    print("Saved node points with origin prepended to microgradient_ordered.csv")
+    print("Saved node points to microgradient_ordered.csv")
