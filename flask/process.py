@@ -42,7 +42,7 @@ baseline_step_number = 0
 zonecoverage_step_number = 0
 microgradient_step_number = 0
 
-newStartingPoint = []
+newStartingPoint = [(0,0)]
 
 last_selected_path = None  # Will be 'A', 'B', or 'C' based on selection
 
@@ -309,9 +309,9 @@ def pathsuggestion():
 
     # microgradient path (path C on website)
     if (microgradient_step_number > 0):
-        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size).values()
+        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size, starting_coord=newStartingPoint).values()
     elif (microgradient_step_number == 0):
-        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number) * step_size).values()
+        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number) * step_size, starting_coord=newStartingPoint).values()
 
 
     # print('microgradient:', 'path_x_3', path_x_3, 'path_y_3', path_y_3)
