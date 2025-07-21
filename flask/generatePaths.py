@@ -87,11 +87,11 @@ def generateZonecoveragePath(num_points_between=10, step_size=1, start_from=0):
         "y": list(y_final)
     }
 
-def generateMicrogradientPath(num_points_between=10, step_size=1, start_from=0):
+def generateMicrogradientPath(num_points_between=10, step_size=1, start_from=0, starting_coord=[]):
 
     scale_points_to_robot_coordinates('planningStack/csv_data/microgradient_ordered.csv')
 
-    # correct_starting_point('planningStack/csv_data/microgradient_ordered.csv')
+    correct_starting_point('planningStack/csv_data/microgradient_ordered.csv', starting_coordinates=starting_coord)
 
     # Load the data
     df = pd.read_csv('planningStack/csv_data/microgradient_ordered.csv')
@@ -237,37 +237,37 @@ def scale_points_to_robot_coordinates(input_csv, output_csv=None, x_col='x', y_c
     df.to_csv(output_csv, index=False)
     print(f"Scaled {input_csv} and saved to {output_csv}")
 
-def correct_starting_point(input_csv, output_csv=None, x_col='x', y_col='y'):
+def correct_starting_point(input_csv, output_csv=None, x_col='x', y_col='y', starting_coordinates=[]):
     # if the starting point is not correct, manually change it
 
     # find the starting points of all csv files. then, compare them within a certain range. whatever is the most common, use that as the starting point.
 
-    # read the csv files
-    df_baseline = pd.read_csv('planningStack/csv_data/ordered_baseline.csv')
-    df_zonecoverage = pd.read_csv('planningStack/csv_data/zonecoverage_ordered.csv')
-    df_microgradient = pd.read_csv('planningStack/csv_data/microgradient_ordered.csv')
+    # # read the csv files
+    # df_baseline = pd.read_csv('planningStack/csv_data/ordered_baseline.csv')
+    # df_zonecoverage = pd.read_csv('planningStack/csv_data/zonecoverage_ordered.csv')
+    # df_microgradient = pd.read_csv('planningStack/csv_data/microgradient_ordered.csv')
 
-    # get the starting points
-    starting_point_baseline = df_baseline.iloc[0][[x_col, y_col]]
-    starting_point_zonecoverage = df_zonecoverage.iloc[0][[x_col, y_col]]
-    starting_point_microgradient = df_microgradient.iloc[0][[x_col, y_col]]
+    # # get the starting points
+    # starting_point_baseline = df_baseline.iloc[0][[x_col, y_col]]
+    # starting_point_zonecoverage = df_zonecoverage.iloc[0][[x_col, y_col]]
+    # starting_point_microgradient = df_microgradient.iloc[0][[x_col, y_col]]
 
-    # compare the starting points within a certain range (0.1)
+    # # compare the starting points within a certain range (0.1)
 
-    threshold = 0.01
-    if np.abs(starting_point_baseline[x_col] - starting_point_zonecoverage[x_col]) < threshold and np.abs(starting_point_baseline[y_col] - starting_point_zonecoverage[y_col]) < threshold:
-        starting_point = starting_point_baseline
-    elif np.abs(starting_point_baseline[x_col] - starting_point_microgradient[x_col]) < threshold and np.abs(starting_point_baseline[y_col] - starting_point_microgradient[y_col]) < threshold:
-        starting_point = starting_point_baseline
-    else:
-        starting_point = starting_point_zonecoverage
+    # threshold = 0.01
+    # if np.abs(starting_point_baseline[x_col] - starting_point_zonecoverage[x_col]) < threshold and np.abs(starting_point_baseline[y_col] - starting_point_zonecoverage[y_col]) < threshold:
+    #     starting_point = starting_point_baseline
+    # elif np.abs(starting_point_baseline[x_col] - starting_point_microgradient[x_col]) < threshold and np.abs(starting_point_baseline[y_col] - starting_point_microgradient[y_col]) < threshold:
+    #     starting_point = starting_point_baseline
+    # else:
+    #     starting_point = starting_point_zonecoverage
 
-    print('starting_point', starting_point)
+    # print('starting_point', starting_point)
     
     df = pd.read_csv(input_csv)
     # Fix the SettingWithCopyWarning by using .loc instead of .iloc
-    df.loc[0, x_col] = starting_point[x_col]
-    df.loc[0, y_col] = starting_point[y_col]
+    df.loc[0, x_col] = starting_coordinates[0][0]
+    df.loc[0, y_col] = starting_coordinates[0][1]
     
     # Set output_csv to input_csv if None (overwrite original file)
     if output_csv is None:

@@ -42,6 +42,8 @@ baseline_step_number = 0
 zonecoverage_step_number = 0
 microgradient_step_number = 0
 
+newStartingPoint = []
+
 last_selected_path = None  # Will be 'A', 'B', or 'C' based on selection
 
 
@@ -128,6 +130,7 @@ def pathsuggestion():
     global zonecoverage_step_number # used to track the last step number
     global microgradient_step_number # used to track the last step number
     global last_selected_path # used to track which path was last selected
+    global newStartingPoint # used to track the new starting point
 
     inputs = request.json
     selected_path_data = inputs['selected_path_data']
@@ -315,7 +318,7 @@ def pathsuggestion():
     # print('baseline:', 'path_x_1', path_x_1, 'path_y_1', path_y_1)
     # print('zonecoverage:', 'path_x_2', path_x_2, 'path_y_2', path_y_2)
 
-    print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
+    # print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
 
 
     res = jsonify(
