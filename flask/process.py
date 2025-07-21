@@ -16,6 +16,7 @@ from generatePaths import generateMicrogradientPath
 from generatePaths import deletePointsWithinTraveledArea
 from generatePaths import deletePointsWithinTraveledAreaMicrogradient
 from generatePaths import get_last_point
+from generatePaths import get_last_point_web_scaled
 from generatePaths import get_scale
 from generatePaths import get_scale_microgradient
 
@@ -42,7 +43,7 @@ baseline_step_number = 0
 zonecoverage_step_number = 0
 microgradient_step_number = 0
 
-newStartingPoint = [(0,0)]
+newStartingPointWebScaled = [(0,0)]
 
 last_selected_path = None  # Will be 'A', 'B', or 'C' based on selection
 
@@ -130,7 +131,7 @@ def pathsuggestion():
     global zonecoverage_step_number # used to track the last step number
     global microgradient_step_number # used to track the last step number
     global last_selected_path # used to track which path was last selected
-    global newStartingPoint # used to track the new starting point
+    global newStartingPointWebScaled # used to track the new starting point
 
     inputs = request.json
     selected_path_data = inputs['selected_path_data']
@@ -247,6 +248,8 @@ def pathsuggestion():
         newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
         generate_microgradient_path(newStartingPoint)
 
+        newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
+
     elif (last_selected_path == 'B'): # zone coverage path
 
         zonecoverage_step_number = current_step + 1
@@ -264,6 +267,8 @@ def pathsuggestion():
 
         newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
         generate_microgradient_path(newStartingPoint)
+
+        newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
 
     elif (last_selected_path == 'C'): # microgradient path
         microgradient_step_number = current_step + 1
@@ -284,6 +289,9 @@ def pathsuggestion():
 
         newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
         generate_baseline_path(newStartingPoint)
+
+        newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
+
 
     else: # none (first time)
         baseline_step_number = current_step + 1
@@ -309,9 +317,9 @@ def pathsuggestion():
 
     # microgradient path (path C on website)
     if (microgradient_step_number > 0):
-        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size, starting_coord=newStartingPoint).values()
+        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size, starting_coord=newStartingPointWebScaled).values()
     elif (microgradient_step_number == 0):
-        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number) * step_size, starting_coord=newStartingPoint).values()
+        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number) * step_size, starting_coord=newStartingPointWebScaled).values()
 
 
     # print('microgradient:', 'path_x_3', path_x_3, 'path_y_3', path_y_3)
