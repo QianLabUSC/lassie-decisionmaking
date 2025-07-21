@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import euclidean
 from networkx.algorithms.approximation import traveling_salesman_problem
 
-from generatePaths import get_scale_microgradient
 
 # === Solve Segment TSP ===
 def solve_tsp_with_required_edges_fixed(G: nx.Graph, required_edges):
