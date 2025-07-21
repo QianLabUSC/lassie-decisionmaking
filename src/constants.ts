@@ -28,6 +28,9 @@ export const DOMINANT_WIND_DIRECTION = 50;
 export const MOISTURE_BINS = 19;
 // Milliseconds within which progress is automatically loaded on page load.
 export const AUTO_LOAD_MS = 1000;
+// Configuration: Change this line to switch between decision modes
+
+export const DECISION_MODE: 'blend' | 'autonomous' = 'autonomous'; // Options: 'manual', 'autonomous', 'hybrid'
 
 export const sampleLocations = [
   [196.900000, 17.570000],

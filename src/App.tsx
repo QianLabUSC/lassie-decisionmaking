@@ -6,6 +6,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 import { StateProvider, useStateValue, Action } from './state';
 import Intro from './pages/intro';
 import Decision from './pages/decision';
+import AutonomousDecision from './pages/autonomous-decision';
 import Conclusion from './pages/conclusion';
 import Survey from './pages/survey';
 import { SavedProgress } from './pages/savedProgress';
@@ -17,6 +18,7 @@ import { storeState, stateExists, removeStoredState, getStoredState } from './ha
 import { AUTO_LOAD_MS } from './constants';
 import { getMoistureData, getShearData, getMeasurements } from './util';
 import { initialSamplesSet } from './sampleTemplates';
+import { DECISION_MODE } from './constants';
 
 const theme = createMuiTheme({
   palette: {
@@ -146,13 +148,26 @@ function RouteWrapper() {
       }}/>
   }
 
+  // Get the appropriate decision component based on mode
+  const getDecisionComponent = () => {
+    switch (DECISION_MODE) {
+      case 'autonomous':
+        return <AutonomousDecision />;
+
+      case 'blend':
+        return <Decision />;
+      default:
+        return <Decision />;
+    }
+  };
+
   // Page router - Redirect the user to the intro section if the user has not yet completed it yet
   return (
     <div>
       <Switch>
         <Route exact path="/" component={Intro}/>
         <Route path="/decision" render={props => (
-          globalState.introCompleted ? <Decision/> : <Redirect to={{ pathname: '/'}}/> )} />
+          globalState.introCompleted ? getDecisionComponent() : <Redirect to={{ pathname: '/'}}/> )} />
         <Route path="/conclusion" render={props => (
           globalState.introCompleted ? <Conclusion/> : <Redirect to={{ pathname: '/'}}/> )} />
         <Route path="/survey" render={props => (

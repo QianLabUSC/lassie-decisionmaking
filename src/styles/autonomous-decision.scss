@@ -1,0 +1,325 @@
+.autonomousDecisionPage {
+  height: 100vh;
+  overflow: hidden;
+  
+  .control-bar {
+    background-color: #114B5F !important;
+    
+    .title {
+      color: white;
+      display: flex;
+      align-items: center;
+      
+      .status-indicator {
+        margin-left: 10px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+        
+        &.running {
+          background-color: #2ecc71;
+          color: white;
+        }
+        
+        &.waiting {
+          background-color: #f39c12;
+          color: white;
+        }
+        
+        &.paused {
+          background-color: #f39c12;
+          color: white;
+        }
+      }
+    }
+    
+    .status-info {
+      margin-left: auto;
+      margin-right: 20px;
+      
+      .MuiTypography-body2 {
+        color: white;
+      }
+    }
+    
+    .control-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      
+      .settings-button {
+        color: white;
+      }
+      
+      .control-button {
+        display: flex;
+        align-items: center;
+        min-width: 100px;
+      }
+    }
+  }
+  
+  .rightDecisionPanel {
+    height: 100vh;
+    overflow: hidden;
+    
+    .rightDecisionPanelContainer {
+      padding: 20px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  
+  .mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    
+    .clickableImageContainer {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      
+      .loading-section {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+    }
+    
+    .center-panel-container {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: transparent;
+      border-radius: 0;
+      border: none;
+      flex: 1;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+      transition: all 0.3s ease-in-out;
+      position: relative;
+      
+      &.centered {
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      &.left-aligned {
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+    
+    .quit {
+      margin-top: auto;
+      text-align: center;
+      padding: 20px 0;
+      
+      .quitButton {
+        min-width: 200px;
+      }
+    }
+  }
+}
+
+// Center Panel Styling (when running, below charts)
+.center-panel {
+  height: 100%;
+  width: 90%;
+  margin: 0;
+  padding: 15px;
+  overflow-y: auto;
+  background-color: transparent;
+  border-radius: 0;
+  border: none;
+  max-height: 500px;
+  overflow-y: auto;
+  background: #fff !important;
+  border-radius: 10px !important;
+  border: 1.5px solid #e0e0e0 !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1.5px 4px rgba(0,0,0,0.08) !important;
+  
+  &.paused {
+    width: 90%;
+    max-width: 90%;
+  }
+  
+  .data-collection-panel {
+    padding: 0px 16px 0px 0px; 
+    .data-input-section {
+      .input-group {
+        margin-bottom: 20px;
+        
+        .data-input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-family: inherit;
+          resize: vertical;
+          
+          &:focus {
+            outline: none;
+            border-color: #028090;
+            box-shadow: 0 0 0 2px rgba(2, 128, 144, 0.2);
+          }
+        }
+      }
+    }
+  }
+  
+  .objectives-panel,
+  .suggestions-panel,
+  .analysis-panel,
+  .settings-panel {
+    .MuiTypography-body2 {
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+  }
+  
+  .settings-panel {
+    .MuiButton-root {
+      margin-bottom: 10px;
+    }
+  }
+  
+  &.paused {
+    .data-collection-panel,
+    .objectives-panel,
+    .suggestions-panel,
+    .analysis-panel,
+    .settings-panel {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+}
+
+// Floating Panel Navigation (when paused)
+.panel-navigation {
+  position: fixed;
+  right: 5px !important;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+  padding: 15px;
+  
+  .panel-fab {
+    transition: all 0.2s ease-in-out;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+    
+    &.MuiFab-primary {
+      background-color: #028090;
+      
+      &:hover {
+        background-color: #026d7a;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 960px) {
+  .autonomousDecisionPage {
+    .center-panel {
+      height: auto;
+      min-height: 300px;
+      margin: 5px;
+      padding: 15px;
+    }
+    
+    .panel-navigation {
+      right: 5px;
+      gap: 3px;
+      padding: 8px;
+      
+      .panel-fab {
+        width: 35px !important;
+        height: 35px !important;
+      }
+    }
+    
+    .control-bar {
+      .control-buttons {
+        gap: 5px;
+        
+        .control-button {
+          min-width: 80px;
+          font-size: 0.8em;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .autonomousDecisionPage {
+    .center-panel {
+      margin: 2px;
+      padding: 10px;
+    }
+    
+    .panel-navigation {
+      bottom: -45px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 3px;
+      padding: 6px 10px;
+      
+      .panel-fab {
+        width: 35px !important;
+        height: 35px !important;
+        flex-shrink: 0 !important;
+      }
+    }
+    
+    .control-bar {
+      .title {
+        font-size: 1rem;
+        
+        .status-indicator {
+          font-size: 0.7em;
+          padding: 2px 6px;
+        }
+      }
+      
+      .status-info {
+        margin-right: 10px;
+      }
+      
+      .control-buttons {
+        .control-button {
+          min-width: 60px;
+          font-size: 0.7em;
+        }
+      }
+    }
+  }
+} 
