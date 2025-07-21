@@ -290,5 +290,12 @@ def get_last_point(input_csv, x_col='x', y_col='y', scaling_factor=[]): # used f
     print('res', res)
     return res
 
+def get_last_point_web_scaled(input_csv, x_col='x', y_col='y'):
+    df = pd.read_csv(input_csv)
+    last_row = df.iloc[-1][[x_col, y_col]]
+
+    res = [(last_row[x_col], last_row[y_col])]
+    print('res', res)
+    return res
 
 
