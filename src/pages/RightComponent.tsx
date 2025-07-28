@@ -133,8 +133,8 @@ const RightComponent = () => {
   const objectiveQuestions = (
     <>
       <div className="objective-questions">
-        <p style={{"paddingTop":"25px"}}><strong>Based on the data collected so far, select which of the following beliefs you currently hold</strong></p>
-        <FormControl component="fieldset">
+        <p style={{paddingTop: "20px", marginBottom: "15px"}}><strong>Based on the data collected so far, select which of the following beliefs you currently hold</strong></p>
+        <FormControl component="fieldset" style={{marginBottom: "20px"}}>
           <RadioGroup
             value={selectedBelief}
             onChange={(e) => handleChangeRadio(e.target.value)}
@@ -157,28 +157,28 @@ const RightComponent = () => {
             
           </RadioGroup>
         </FormControl>
-        <p><strong>Please describe your additional belief about the data collected so far:</strong></p>
-        <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} />
-        <br/>
-       {!loading &&         <Button
-        style={{"marginTop":"15px"}}
-          disabled={selectedBelief === ''}
-          variant="contained"
-          color="secondary"
-          onClick={onSubmitHumanBelief}
-        >
-          Next  
-        </Button>}
-        {loading && <CircularProgress size={24} /> }
-        <Button
-          style={{"marginBottom":"15px","marginLeft": "358px", "marginTop":"30px"}}
-          className="continueButton"
-          variant="contained"
-          color="primary"
-          onClick={onContinueClick}>
-          End Collection Transect
-        </Button>
-        <br/>
+        <p style={{marginBottom: "10px"}}><strong>Please describe your additional belief about the data collected so far:</strong></p>
+        <textarea onChange={onUserTextInputForBelief} rows={5} cols={85} style={{marginBottom: "15px", width: "100%", maxWidth: "500px"}} />
+        <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px"}}>
+          <div>
+            {!loading && <Button
+              disabled={selectedBelief === ''}
+              variant="contained"
+              color="secondary"
+              onClick={onSubmitHumanBelief}
+            >
+              Next  
+            </Button>}
+            {loading && <CircularProgress size={24} /> }
+          </div>
+          <Button
+            className="continueButton"
+            variant="contained"
+            color="primary"
+            onClick={onContinueClick}>
+            End Collection Transect
+          </Button>
+        </div>
       </div>
     
     </>
@@ -255,7 +255,7 @@ const RightComponent = () => {
 
   const ObjectiveRankingFormNew = (
     <>
-      <p style={{"paddingTop":"25px"}}><strong> Click next to continue</strong></p>
+      <p style={{paddingTop: "20px", marginBottom: "20px"}}><strong>Click next to continue</strong></p>
 
       {/* <table className="dropDownMenuGroup" style={{ marginBottom: '2vh' }}>
         <tbody>
@@ -280,23 +280,26 @@ const RightComponent = () => {
           ))}
         </tbody>
       </table> */}
-      {!loading && <Button
-        disabled={selectedBelief === ''}
-        variant="contained"
-        color="secondary"
-        onClick={onSubmitRanking}
-      >
-        Next
-      </Button>}
-      {loading && <CircularProgress size={24} /> }
-      <Button
-          style={{"marginBottom":"15px","marginLeft": "358px", "marginTop":"30px"}}
-        className="continueButton"
-        variant="contained"
-        color="primary"
-        onClick={onContinueClick}>
-        End Collection Transect
-      </Button>
+      <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px"}}>
+        <div>
+          {!loading && <Button
+            disabled={selectedBelief === ''}
+            variant="contained"
+            color="secondary"
+            onClick={onSubmitRanking}
+          >
+            Next
+          </Button>}
+          {loading && <CircularProgress size={24} /> }
+        </div>
+        <Button
+          className="continueButton"
+          variant="contained"
+          color="primary"
+          onClick={onContinueClick}>
+          End Collection Transect
+        </Button>
+      </div>
     </>
   );
   //////////////////////////////////////////////////////////////////////////3RD INPUT BOX ///////////////////////
@@ -425,48 +428,52 @@ const RightComponent = () => {
   console.log('loading', loading)
   const objectiveSelectPath = (
     <div className="objective-questions">
-      <p style={{"paddingTop":"25px"}}><strong>Based on your belief, the robot suggests three different paths, please select one of them</strong></p>
-      <RadioGroup
-        row
-        aria-label="path selection"
-        name="path_selection"
-        value={selectedPathIndex}
-        onChange={handleSelectPath}
-      >
-        <FormControlLabel
-          value="1"
-          control={<Radio />}
-          label="Accept suggested path A"
-        />
-        <FormControlLabel
-          value="2"
-          control={<Radio />}
-          label="Accept suggested path B"
-        />
-        <FormControlLabel
-          value="3"
-          control={<Radio />}
-          label="Accept suggested path C"
-        />
-      </RadioGroup>
-     {!loading &&  <Button
-        style={{"marginTop":"20px"}}
-        disabled={!selectedPathIndex}
-        variant="contained"
-        color="secondary"
-        onClick={onSubmitSelectedPath}
-      >
-        Submit
-      </Button>}
-      {loading && <CircularProgress size={24} /> }
-      <Button
-        style={{"marginBottom":"15px","marginLeft": "429px", "marginTop":"-40px"}}
-        className="continueButton"
-        variant="contained"
-        color="primary"
-        onClick={onContinueClick}>
-        End Collection Transect
-      </Button>
+      <p style={{paddingTop: "20px", marginBottom: "20px"}}><strong>Based on your belief, the robot suggests three different paths, please select one of them</strong></p>
+      <FormControl component="fieldset" style={{marginBottom: "20px"}}>
+        <RadioGroup
+          row
+          aria-label="path selection"
+          name="path_selection"
+          value={selectedPathIndex}
+          onChange={handleSelectPath}
+        >
+          <FormControlLabel
+            value="1"
+            control={<Radio />}
+            label="Accept suggested path A"
+          />
+          <FormControlLabel
+            value="2"
+            control={<Radio />}
+            label="Accept suggested path B"
+          />
+          <FormControlLabel
+            value="3"
+            control={<Radio />}
+            label="Accept suggested path C"
+          />
+        </RadioGroup>
+      </FormControl>
+      <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px"}}>
+        <div>
+          {!loading && <Button
+            disabled={!selectedPathIndex}
+            variant="contained"
+            color="secondary"
+            onClick={onSubmitSelectedPath}
+          >
+            Submit
+          </Button>}
+          {loading && <CircularProgress size={24} /> }
+        </div>
+        <Button
+          className="continueButton"
+          variant="contained"
+          color="primary"
+          onClick={onContinueClick}>
+          End Collection Transect
+        </Button>
+      </div>
     </div>
   );
 //////      4th step 
@@ -480,24 +487,24 @@ const onSubmitRankingEvaluation = () => {
 
 const rankingEvaluationPanel_Step4 = (
   <div className="objective-questions">
-    <p style={{"paddingTop":"25px"}}><strong>Ranking Evaluation  Panel</strong></p>
+    <p style={{paddingTop: "20px", marginBottom: "20px"}}><strong>Ranking Evaluation Panel</strong></p>
     <RatingComponent/>
-    <Button
-          className="continueButton"
-          variant="contained"
-          color="primary"
-          style={{"marginTop":"45px", "marginBottom":"15px"}}
-          onClick={onSubmitRankingEvaluation}>
-          Submit ranking
-        </Button>
-        <Button
-        style={{"marginBottom":"15px","marginLeft": "429px", "marginTop":"-65px"}}
+    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "30px"}}>
+      <Button
+        className="continueButton"
+        variant="contained"
+        color="primary"
+        onClick={onSubmitRankingEvaluation}>
+        Submit ranking
+      </Button>
+      <Button
         className="continueButton"
         variant="contained"
         color="primary"
         onClick={onContinueClick}>
         End Collection Transect
       </Button>
+    </div>
   </div>
 );
 
@@ -530,7 +537,7 @@ const confidenceTexts = ['Very Low', 'Low', 'Neutral', 'High', 'Very High']; // 
 
 const HypothesisConfidencePanel_Step5 = (
   <div className="objective-questions">
-    <p style={{"paddingTop":"25px"}}><strong>Provide Your Hypothesis Confidence</strong></p>
+    <p style={{paddingTop: "20px", marginBottom: "20px"}}><strong>Provide Your Hypothesis Confidence</strong></p>
     <HypothesisConfidencePanel
       open={hypothesisOpen}
       hypoConfidence={hypoConfidence}
@@ -539,25 +546,25 @@ const HypothesisConfidencePanel_Step5 = (
       handleHypoResponse={handleHypoResponse}
     />
    
-  {!loading &&  <Button
-      className="continueButton"
-      variant="contained"
-      color="primary"
-      style={{"marginTop":'25px'}}
-      onClick={onSubmitHypothesisConfidence}>
-        Submit Hypothesis
-      </Button> }
-      {loading && <CircularProgress size={24} /> }
-      <br/>
-      <br/>
+    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "30px"}}>
+      <div>
+        {!loading && <Button
+          className="continueButton"
+          variant="contained"
+          color="primary"
+          onClick={onSubmitHypothesisConfidence}>
+          Submit Hypothesis
+        </Button> }
+        {loading && <CircularProgress size={24} /> }
+      </div>
       <Button
-        style={{"marginBottom":"15px","marginLeft": "429px", "marginTop":"-75px"}}
         className="continueButton"
         variant="contained"
         color="primary"
         onClick={onContinueClick}>
         End Collection Transect
       </Button>
+    </div>
   </div>
 );
 
@@ -601,56 +608,58 @@ const HypothesisConfidencePanel_Step5 = (
 
   const objectiveTranisition = (
     <div className="objective-questions">
-       <p style={{"paddingTop":"25px"}}><strong>During the sampling process, the following objectives are considered.</strong></p>
+       <p style={{paddingTop: "20px", marginBottom: "20px"}}><strong>During the sampling process, the following objectives are considered.</strong></p>
 
-      <RadioGroup
-        row
-        aria-label="path selection"
-        name="path_selection"
-        value={selectedTransitionState}
-        onChange={handleTransitionState}
-      >
-        <FormControlLabel
-          value="1"
-          control={<Radio />}
-          label="See Robot's suggestions for where to sample next based on your current belief rankings"
-        />
-        <FormControlLabel
-          value="2"
-          control={<Radio />}
-          label="Update belief rankings to receive new suggestions from Robot of where to sample next"
-        />
-        <FormControlLabel
-          value="3"
-          control={<Radio />}
-          label="Ignore suggestions and select a location for Robot to sample next"
-        />
-        <FormControlLabel
-          value="4"
-          control={<Radio />}
-          label="Stop data collection and make a conclusion about the hypothesis"
-        />
-      </RadioGroup>
-      {!loading && <Button
-      style={{"marginTop":'15px'}}
-        disabled={selectedBelief === ''}
-        variant="contained"
-        color="secondary"
-        onClick={onSubmitTransitionState}
-      >
-        Submit Transition State
-      </Button>}
-      {loading && <CircularProgress size={24} /> }
-      <br/>
-      <br/>
-      <Button
-        style={{"marginBottom":"15px","marginLeft": "429px", "marginTop":"-80px"}}
-        className="continueButton"
-        variant="contained"
-        color="primary"
-        onClick={onContinueClick}>
-        End Collection Transect
-      </Button>
+      <FormControl component="fieldset" style={{marginBottom: "20px"}}>
+        <RadioGroup
+          row
+          aria-label="path selection"
+          name="path_selection"
+          value={selectedTransitionState}
+          onChange={handleTransitionState}
+        >
+          <FormControlLabel
+            value="1"
+            control={<Radio />}
+            label="See Robot's suggestions for where to sample next based on your current belief rankings"
+          />
+          <FormControlLabel
+            value="2"
+            control={<Radio />}
+            label="Update belief rankings to receive new suggestions from Robot of where to sample next"
+          />
+          <FormControlLabel
+            value="3"
+            control={<Radio />}
+            label="Ignore suggestions and select a location for Robot to sample next"
+          />
+          <FormControlLabel
+            value="4"
+            control={<Radio />}
+            label="Stop data collection and make a conclusion about the hypothesis"
+          />
+        </RadioGroup>
+      </FormControl>
+      <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px"}}>
+        <div>
+          {!loading && <Button
+            disabled={selectedBelief === ''}
+            variant="contained"
+            color="secondary"
+            onClick={onSubmitTransitionState}
+          >
+            Submit Transition State
+          </Button>}
+          {loading && <CircularProgress size={24} /> }
+        </div>
+        <Button
+          className="continueButton"
+          variant="contained"
+          color="primary"
+          onClick={onContinueClick}>
+          End Collection Transect
+        </Button>
+      </div>
     </div>
   );
 
@@ -673,17 +682,17 @@ const HypothesisConfidencePanel_Step5 = (
   ];
 
   const collectionRightPanel = (
-    <div className="collectionRightPanel" style={{marginLeft:'80px'}}>
+    <div className="collectionRightPanel" style={{marginLeft: '80px', padding: '20px 0'}}>
          <Typography
         variant="h6"
-        style={{ textAlign: 'center' }}
+        style={{ textAlign: 'center', marginBottom: '15px' }}
       >
       Information Gain 
       </Typography>
       <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='INFO_GAIN'/>
       <Typography
         variant="h6"
-        style={{  textAlign: 'center' }}
+        style={{ textAlign: 'center', marginTop: '20px', marginBottom: '15px' }}
       >
        Discrepancy Reward
       </Typography>
@@ -695,7 +704,7 @@ const HypothesisConfidencePanel_Step5 = (
     <Box sx={{ width: '100%' }}>
         <Typography
         variant="h6"
-        style={{ marginTop: '10px', marginLeft:'300px' }}
+        style={{ marginTop: '10px', marginBottom: '15px', textAlign: 'center' }}
       >
        World Map With Robot Actual Trajectory
       </Typography>
@@ -707,19 +716,16 @@ const HypothesisConfidencePanel_Step5 = (
  
       <div className="collectionRightPanel" 
        style={{
-        marginLeft: '30px',
-        marginRight: '30px',
-        boxShadow:' 0px 2px 6px rgba(0, 0, 0, 0.3)'
+        margin: '20px 30px',
+        boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.3)'
       }}>
         {!updateTransition && (
-          <div className="user-feedback" style={{    marginLeft: '50px',
-            marginRight: '50px',}}>
+          <div className="user-feedback" style={{margin: '0 50px'}}>
             {userFeedbackStateMap[input_box_step_btn_click]}
           </div>
         )}
         {updateTransition && (
-          <div className="user-feedback" style={{    marginLeft: '50px',
-            marginRight: '50px',}}>
+          <div className="user-feedback" style={{margin: '0 50px'}}>
             {userFeedbackStateMap[currentView]}
           </div>
         )}
@@ -768,10 +774,10 @@ const HypothesisConfidencePanel_Step5 = (
 
       <Grid container>
         <Grid container>
-          <Grid item xs={12} md={6} style={{padding:'0px'}}>
+          <Grid item xs={12} md={6} style={{padding: '0'}}>
             {<ChartTabs />}
           </Grid>
-          <Grid item xs={12} md={6} className="rightDecisionPanel" style={{paddingTop:'5px'}}>
+          <Grid item xs={12} md={6} className="rightDecisionPanel" style={{paddingTop: '10px'}}>
             <div className="rightDecisionPanelContainer">
               {collectionRightPanel}
             </div>
