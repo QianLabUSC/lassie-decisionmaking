@@ -57,8 +57,9 @@
 
     .rightDecisionPanel {
         font-family: "Roboto", "Helvetica", "Arial", sans-serif;
-        padding: 20px;
+        padding: 24px;
         height: 100%;
+        background-color: #fafafa;
 
         .rightDecisionPanelContainer {
      
@@ -66,7 +67,11 @@
             width: 100%;
 
             .collectionRightPanel {
-                
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                margin: 10px 0;
 
                 .middleRow {
                     padding: 20px;
@@ -160,24 +165,24 @@
 
             .rowTableContainer {
                 width: 70%;
-                padding: 20px;
-                margin-top: 2vh;
-                margin-bottom: 2vh;
-                margin-left: auto;
-                margin-right: auto;
+                padding: 24px;
+                margin: 20px auto;
                 height: 25%;
                 max-height: 15vh;
                 overflow-y: scroll;
                 background-color: white;
-                border-radius: 4px;
-                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+                border-radius: 8px;
+                box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+                border: 1px solid #f0f0f0;
             }
             .clickableImageContainer {
                 background-color: white;
-                padding: 2vw;
-                width:max-content;
+                padding: 24px;
+                width: max-content;
                 margin: auto;
-                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+                box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+                border-radius: 8px;
+                border: 1px solid #f0f0f0;
             }
             .buttonList {
                 text-align: center;
@@ -191,17 +196,13 @@
                 width: 90%;
                 height: 39vh;
                 max-height: 50vh;
-                padding-left: 2vh;
-                padding-right: 2vh;
-                padding-top: 1vh;
-                padding-bottom: 2vh;
+                padding: 24px;
                 background-color: white;
-                margin-top: 2vh;
-                margin-bottom: 2vh;
-                margin-left: auto;
-                margin-right: auto;
+                margin: 20px auto;
                 overflow-y: auto;
-                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+                box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+                border-radius: 8px;
+                border: 1px solid #f0f0f0;
                 .loading-section {
                     display: flex;
                     align-items: center;
@@ -214,12 +215,13 @@
                 width: 90%;
                 // height: 39vh;
                 // max-height: 50vh;
-                padding: 20px;
+                padding: 24px;
                 background-color: white;
                 margin: 20px auto;
                 overflow-y: auto;
-                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
-                border-radius: 4px;
+                box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+                border-radius: 8px;
+                border: 1px solid #f0f0f0;
 
                 .submit-user-feedback-button {
                     display: flex;
@@ -252,14 +254,22 @@
 
                 .objective-questions {
                     p {
-                        margin-bottom: 15px;
+                        margin-bottom: 16px;
+                        line-height: 1.5;
                     }
                     
                     textarea {
-                        border: 1px solid #ccc;
-                        border-radius: 4px;
-                        padding: 8px;
+                        border: 1px solid #e0e0e0;
+                        border-radius: 6px;
+                        padding: 12px;
                         font-family: inherit;
+                        transition: border-color 0.2s ease;
+                        
+                        &:focus {
+                            outline: none;
+                            border-color: #1976d2;
+                            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+                        }
                     }
                 }
             }
