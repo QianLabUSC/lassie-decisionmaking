@@ -133,7 +133,7 @@ const RightComponent = () => {
   const objectiveQuestions = (
     <>
       <div className="objective-questions">
-        <p style={{"paddingTop":"25px"}}><strong>Step 1: Based on the data collected so far, select which of the following beliefs you currently hold</strong></p>
+        <p style={{"paddingTop":"25px"}}><strong>Based on the data collected so far, select which of the following beliefs you currently hold</strong></p>
         <FormControl component="fieldset">
           <RadioGroup
             value={selectedBelief}
@@ -425,7 +425,7 @@ const RightComponent = () => {
   console.log('loading', loading)
   const objectiveSelectPath = (
     <div className="objective-questions">
-      <p style={{"paddingTop":"25px"}}><strong>  Step3: Based on your belief, the robot suggests three different paths, please select one of them</strong></p>
+      <p style={{"paddingTop":"25px"}}><strong>Based on your belief, the robot suggests three different paths, please select one of them</strong></p>
       <RadioGroup
         row
         aria-label="path selection"
@@ -480,7 +480,7 @@ const onSubmitRankingEvaluation = () => {
 
 const rankingEvaluationPanel_Step4 = (
   <div className="objective-questions">
-    <p style={{"paddingTop":"25px"}}><strong>  Step 4: Ranking Evaluation  Panel</strong></p>
+    <p style={{"paddingTop":"25px"}}><strong>Ranking Evaluation  Panel</strong></p>
     <RatingComponent/>
     <Button
           className="continueButton"
@@ -530,7 +530,7 @@ const confidenceTexts = ['Very Low', 'Low', 'Neutral', 'High', 'Very High']; // 
 
 const HypothesisConfidencePanel_Step5 = (
   <div className="objective-questions">
-    <p style={{"paddingTop":"25px"}}><strong>  Step 5: Provide Your Hypothesis Confidence</strong></p>
+    <p style={{"paddingTop":"25px"}}><strong>Provide Your Hypothesis Confidence</strong></p>
     <HypothesisConfidencePanel
       open={hypothesisOpen}
       hypoConfidence={hypoConfidence}
@@ -601,7 +601,7 @@ const HypothesisConfidencePanel_Step5 = (
 
   const objectiveTranisition = (
     <div className="objective-questions">
-       <p style={{"paddingTop":"25px"}}><strong>   Step 6: During the sampling process, the following objectives are considered.</strong></p>
+       <p style={{"paddingTop":"25px"}}><strong>During the sampling process, the following objectives are considered.</strong></p>
 
       <RadioGroup
         row
