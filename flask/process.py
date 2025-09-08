@@ -36,7 +36,7 @@ k_info_signal_ = 0.5
 k_noise_ = 2
 k_info_low_ = 0.27
 k_info_high_ = 0.7
-
+multi_objective_pattern = 0
 # backend decision making algorithm processing steps
 # requires a json object which contains list <location>, list <sample>
 # a matrix moist: a row is the sampled moists in one location, 
@@ -51,69 +51,84 @@ def process():
     sample = np.array(inputs['measurements'])
     mm = np.array(inputs['moistureValues'])
     erodi = np.array(inputs['shearValues'])
-    multi_objective_pattern = np.array(inputs['objective_repre'])
-    # print(multi_objective_pattern)
-    # print('location', location)
-    # print('sample', sample)
-    # print('mm',mm)
-    # print('erodi', erodi)
-    DM = DecisionMaking()
-    DM.update_current_state(location, sample, mm, erodi)
-    info_gaussian, information_level, info_signal = DM.handle_spatial_information_gaussian()
-    disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model,\
-          gasussian_prediction, gaussian_uncertainty \
-            = DM.handle_discrepancy_direct_gaussian()
-    reward_vector = np.vstack((info_gaussian, disp_gaussian)).T
-    final_type, final_suggestion_index, suggestion_sets_index, except_index, pareto_sets, pareto_locs = run_multi_objective_odsf(
-                    reward_vector, information_level, multi_objective_pattern, 
-                    info_signal, disp_signal, noise_esti, k_info_signal=k_info_signal_, k_noise=k_noise_, k_info_low = k_info_low_, k_info_high = k_info_high_)
-    final_suggestion = DM.detailed_loc_flattend[final_suggestion_index]
-    suggestion_sets = DM.detailed_loc_flattend[suggestion_sets_index]
-    plot_test(DM.location_flattend, DM.detailed_loc_flattend,  
-              DM.shearstrength_flattend, info_gaussian, information_level,
-              info_signal, disp_gaussian, feature_gaussian, noise_esti, 
-              disp_signal, xx_model, gasussian_prediction, gaussian_uncertainty, pareto_sets, pareto_locs)
-    # print("final_type: ", final_type)
-    # print("final_suggestion: ", final_suggestion)
-    # print("suggestion_sets: ", suggestion_sets)
-    print('-----------------------------------------------------------robot algorithm state-----------------------------------------------------------')
-    print('----------------balance type: 0: info focused, 0.25: info hierarchy, 0.5: trade off, 0.75: disp hierarchy, 1: disp focused-----------------')
-    print('user type', multi_objective_pattern)
-    print('current information level:           ', information_level, 'current information threshold: ', [k_info_low_,k_info_high_])
-    print('current information signal strength: ', info_signal, 'current information threshold: ', k_info_signal_)
-    print('current discrepancy signal strength: ', disp_signal, 'current disp signal threshold', k_noise_)
-    print('current balance type', final_type)
-    print('-------------------------------------------------------------------------------------------------------------------------------------------')
     
-    print('-----------------------------------------------------------robot explanation-----------------------------------------------------------')
-    print(exception_list[except_index])
-    if(float(multi_objective_pattern) == final_type):
-        print('Your objective looks good, the robot did follow the objectives.')
-        print(reported_balance_type[final_type])
+    # --- Extract human input parameters ---
+    human_objectives = np.array(inputs.get('human_objectives', [1, 0]))  # default [1, 0] for info-focused
+    human_weights = np.array(inputs.get('human_weights', [1.0, 0.0]))  # default weights
+    human_confidence = inputs.get('human_confidence', 0)  # default neutral confidence
+    human_selected_location = inputs.get('human_selected_location', None)  # human's choice
+    
+    # Validate human_confidence is one of the allowed values
+    allowed_confidence = [-0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9]
+    if human_confidence not in allowed_confidence:
+        # Find the closest confidence level
+        closest_idx = np.argmin(np.abs(np.array(allowed_confidence) - human_confidence))
+        human_confidence = allowed_confidence[closest_idx]
+    
+    # Check if there are any samples
+    if len(location) == 0 or len(sample) == 0 or np.sum(sample) == 0:
+        # No samples available, suggest location 0.5
+        final_suggestion = 0.5
+        best_location = 0.5
+        suggestion_sets = np.array([0.5])
+        info_gaussian = np.zeros(100)  # Assuming density is 100
+        disp_gaussian = np.zeros(100)
+        information_level = 0.0
+        disp_signal = 0.0
+        weights = np.array([0.5, 0.5])
+        variances = 0.0
+        suggestion_sets = np.array([0.5])
     else:
-        print('Therefore, robot overrides your objective resolution preference:')
-        print(reported_balance_type[float(multi_objective_pattern)])
-        print('to:')
-        print(reported_balance_type[final_type])
-    
-    print('Therefore, the robot suggests sampling at location : ', final_suggestion)
-    print('---------------------------------------------------------------------------------------------------------------------------------------')
-    print(suggestion_sets)
+        DM = DecisionMaking()
+        DM.update_current_state(location, sample, mm, erodi)
+        info_gaussian, information_level, info_signal = DM.handle_spatial_information_gaussian()
+        disp_gaussian, feature_gaussian, noise_esti, disp_signal, xx_model,\
+              gasussian_prediction, gaussian_uncertainty \
+                = DM.handle_discrepancy_direct_gaussian()
+        reward_vector = np.vstack((info_gaussian, disp_gaussian)).T
+
+        # --- Use new preference model for multi-objective decision ---
+        # info_gaussian: objective 1, disp_gaussian: objective 2
+        # information_level: s_t, disp_signal: d_t
+        from multiObjectiveDecisionMaking.multi_objective_tools import run_multi_objective_preference
+        best_index, best_location, weights, ranking, weighted_rewards, variances = run_multi_objective_preference(
+            reward_vector,
+            info_level=information_level,
+            disp_level=disp_signal,
+            return_all=True
+        )
+        final_suggestion = DM.detailed_loc_flattend[best_location]
+        suggestion_sets = DM.detailed_loc_flattend[np.array(ranking)]
+
+    # --- Output and explanation ---
+    print('-----------------------------------------------------------robot algorithm state (preference model)-----------------------------------------------------------')
+    print('Human objectives:', human_objectives)
+    print('Human weights:', human_weights)
+    print('Human confidence:', human_confidence)
+    print('Human selected location:', human_selected_location)
+    print('Current information level:', information_level)
+    print('Current discrepancy signal:', disp_signal)
+    print('Preference weights [info, disp]:', weights)
+    print('Variance of weights:', variances)
+    print('Best suggestion index:', best_location)
+    print('Best suggestion location:', final_suggestion)
+    print('All suggestions (ranked):', suggestion_sets)
+    print('-------------------------------------------------------------------------------------------------------------------------------------------')
+
     output = {
-        'final_type': final_type,
         'final_suggestion': final_suggestion,
         'suggestion_sets': suggestion_sets.tolist(),
         'info_gaussian': info_gaussian.tolist(),
         'disp_gaussian': disp_gaussian.tolist(),
         'information_level': information_level,
-        'info_signal': info_signal,
-        'noise_esti': noise_esti,
         'disp_signal': disp_signal,
-
+        'weights': weights.tolist(),
+        'variances': variances,
+        'human_objectives': human_objectives.tolist(),
+        'human_weights': human_weights.tolist(),
+        'human_confidence': human_confidence,
+        'human_selected_location': human_selected_location,
     }
-    # output = findbestlocation(DM.location_flattend, info_gaussian, disp_gaussian, feature_gaussian)
-    # app.config['ros_node'].publish_gui_information([0.2,0.1,0.1])
-    # deploy_plot(PathPlanning.ObjectiveComputing, location, location, sample, mm, erodi, output)
     return jsonify(output)
     
     

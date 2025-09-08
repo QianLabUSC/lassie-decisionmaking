@@ -224,44 +224,37 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
     shearValues.push(Array.from(samples[i].shear));
   }
 
-  //console.log({locations, measurements, moistureValues, shearValues});
-  let objective_pattern = globalState.initialobjectivePattern;
-  // Compute the robot suggestions based on each objective (limit to 3 suggestions)
+  // Extract human input parameters from existing global state
+  const { currUserStep } = globalState;
+  
+  // Extract human objectives from objectives array (assuming first objective is info, second is discrepancy)
+  const human_objectives = objectives.length >= 2 ? [objectives[0].ranking, objectives[1].ranking] : [1, 0];
+  
+  // Use hypoConfidence as human confidence
+  const human_confidence = currUserStep.hypoConfidence;
+  
+  // Use humanSuggestedLocation if available, otherwise null
+  const human_selected_location = globalState.humanSuggestedLocation;
+  
+  // Calculate human weights based on objectives ranking (normalize to sum to 1)
+  const totalRanking = human_objectives.reduce((sum, rank) => sum + rank, 0);
+  const human_weights = totalRanking > 0 
+    ? [human_objectives[0] / totalRanking, human_objectives[1] / totalRanking] as [number, number]
+    : [1.0, 0.0] as [number, number];
 
-  let objective_repre;
-  switch (objectives[0].objective) {
-    case objectiveOptions[0]: {
-      if (objective_pattern == 0) {
-        objective_repre = 0; //info focused
-      } else if (objective_pattern == 1) {
-          objective_repre = 0.25; //info hier
-      } else {
-          objective_repre = 0.5; // trade off
-      }
-        
-      break;
-    }
-    case objectiveOptions[1]: {
-      if (objective_pattern == 0) {
-        objective_repre = 1; //disp focused
-      } else if (objective_pattern == 1) {
-          objective_repre = 0.75; //disp hier
-      } else {
-          objective_repre = 0.5; // trade off
-      }
-      break;
-    }
-    // case objectiveOptions[2]: {
-    //   locs = discrepancy_low_selection;
-    //   break;
-    // }
-    // case objectiveOptions[3]: {
-    //   locs = discrepancy_low_selection;
-    //   break;
-    // }
-  }
-  let robotSuggestions : any = await flaskCalculations(locations, measurements, moistureValues, shearValues, objective_repre);
+  // Compute the robot suggestions based on each objective (limit to 3 suggestions)
+  let robotSuggestions : any = await flaskCalculations(
+    locations, 
+    measurements, 
+    moistureValues, 
+    shearValues,
+    human_objectives,
+    human_weights,
+    human_confidence,
+    human_selected_location
+  );
   console.log(robotSuggestions)
+  
   let final_suggestion = [robotSuggestions.final_suggestion]
   let discrepancy_selection = [0.1,0.2,0.4]
   let spatial_reward = []
@@ -281,6 +274,43 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
     }
     return suggestion;
   });
+  
+  // Extract weights from the response and update objectives if weights are not 0
+  if (robotSuggestions.weights && robotSuggestions.weights.length > 0) {
+    const weights = robotSuggestions.weights;
+    console.log('Received weights from backend:', weights);
+    console.log('Current objectives count:', objectives.length);
+    
+    // Check if any weight is not 0 and update objectives accordingly
+    if (weights.some((weight: number) => weight > 0)) {
+      // Create new objectives based on weights and objectiveOptions constants
+      let updatedObjectives: Objective[] = [];
+      
+      for (let i = 0; i < weights.length; i++) {
+        if (weights[i] > 0 && i < objectiveOptions.length) {
+          const newRanking = weights[i] > 0.5 ? 1 : 2;
+          updatedObjectives.push({
+            objective: objectiveOptions[i],
+            ranking: newRanking,
+            addressedRating: 1
+          });
+          console.log(`Created objective ${i} (${objectiveOptions[i]}) with ranking ${newRanking} based on weight ${weights[i]}`);
+        }
+      }
+      
+      console.log('Updated objectives based on weights:', updatedObjectives);
+      
+      // Return the updated objectives along with the results
+      return {
+        results: results,
+        spatialReward: spatial_reward,
+        variableReward: variable_reward,
+        discrepancyReward: discrepancy_reward,
+        updatedObjectives: updatedObjectives,
+        weights: weights
+      };
+    }
+  }
 
   console.log({locations, measurements, moistureValues, shearValues, robotSuggestions, results});
   
@@ -292,14 +322,26 @@ export async function calculateRobotSuggestions(samples: Sample[], globalState: 
   };
 }
 
-function flaskCalculations(locations: number[], measurements: number[], moistureValues: number[][], shearValues: number[][], objective_repre: number) {
+function flaskCalculations(
+  locations: number[], 
+  measurements: number[], 
+  moistureValues: number[][], 
+  shearValues: number[][],
+  human_objectives: number[] = [1, 0],
+  human_weights: number[] = [1.0, 0.0],
+  human_confidence: number = 0,
+  human_selected_location: number | null = null
+) {
 
   let inputs = {
     locations : locations,
     measurements: measurements,
     moistureValues: moistureValues,
     shearValues: shearValues,
-    objective_repre: objective_repre
+    human_objectives: human_objectives,
+    human_weights: human_weights,
+    human_confidence: human_confidence,
+    human_selected_location: human_selected_location,
   }
   
   return new Promise((resolve, reject) => {

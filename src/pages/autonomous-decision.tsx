@@ -95,7 +95,7 @@ export default function AutonomousDecision() {
 
   const { currSampleIdx, samples, currUserStep, userSteps, chart, chartSettings, 
     loadingRobotSuggestions, showRobotSuggestions, disableSubmitButton, numSubmitClicks, 
-    imgClickEnabled, numImgClicks, transectIdx, } = globalState;
+    imgClickEnabled, numImgClicks, transectIdx, tempObjectives } = globalState;
 
   const { step, userFeedbackState, objectives, objectiveFreeResponse, sampleType,
     robotSuggestions, spatialReward, variableReward, discrepancyReward, acceptOrRejectOptions, acceptOrReject, 
@@ -113,7 +113,6 @@ export default function AutonomousDecision() {
 
   // Add local state for input values
   const [inputStrength, setInputStrength] = useState("");
-  const [inputLocation, setInputLocation] = useState("");
 
   // Initial page set up
   useEffect(() => {
@@ -124,6 +123,36 @@ export default function AutonomousDecision() {
     // Make the charts update on first render
     dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} });
   }, []);
+
+  // Automatically generate robot suggestions on initial load since we have default objectives
+  useEffect(() => {
+    const generateInitialRobotSuggestions = async () => {
+      if (objectives.length > 0 && robotSuggestions.length === 0 && !loadingRobotSuggestions) {
+        dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: true });
+        
+        let robotResults = await calculateRobotSuggestions(samples, globalState, objectives);
+        const { results, spatialReward, variableReward, discrepancyReward, updatedObjectives, weights } = robotResults;
+        
+        dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
+        dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
+        dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
+        dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
+        
+        // Update objectives if weights were received and are not 0
+        if (updatedObjectives && weights && weights.some((weight: number) => weight > 0)) {
+          dispatch({ type: Action.SET_OBJECTIVES, value: updatedObjectives });
+          console.log('Updated objectives based on backend weights:', updatedObjectives);
+        }
+        
+        dispatch({ type: Action.SET_SHOW_ROBOT_SUGGESTIONS, value: true });
+        dispatch({ type: Action.SET_ACCEPT_OR_REJECT, value: 0 });
+        dispatch({ type: Action.SET_USER_FEEDBACK_STATE, value: UserFeedbackState.ACCEPT_OR_REJECT_SUGGESTION });
+        dispatch({ type: Action.SET_LOADING_ROBOT_SUGGESTIONS, value: false });
+      }
+    };
+
+    generateInitialRobotSuggestions();
+  }, [objectives, robotSuggestions.length, loadingRobotSuggestions]);
 
   // Function to add next sample to the data plot
   const addDataToPlot = () => {
@@ -355,18 +384,15 @@ export default function AutonomousDecision() {
     setInputStrength(e1.target.value);
     dispatch({ type: Action.SET_USER_STRENGTH_DATA, value: e1.target.value });
   };
-  const onLocationDataChange = e2 => {
-    setInputLocation(e2.target.value);
-    dispatch({ type: Action.SET_USER_LOCATION_DATA, value: e2.target.value });
-  };
 
   // Submit data collection (for when running)
   const onSubmitDataCollection = async () => {
-    const { userStrengthData, userLocationData } = globalState;
+    const { userStrengthData } = globalState;
     const stringStrengthData = String(userStrengthData);
     var splittedStrength = stringStrengthData.split(" ");
     const strengthNumArr = splittedStrength.map(Number);
-    const newLocationData = Number(userLocationData);
+    // Use the suggested location from robot instead of user input
+    const newLocationData = robotSuggestions && robotSuggestions.length > 0 ? robotSuggestions[0].index : 0.5;
 
     // 1. Add the sample at the user-typed location (adds a circle to the chart)
     const newSample: Sample = {
@@ -391,11 +417,17 @@ export default function AutonomousDecision() {
         { ...globalState, samples: [...samples, newSample] },
         objectives
       );
-      const { results, spatialReward, variableReward, discrepancyReward } = robotResults;
+      const { results, spatialReward, variableReward, discrepancyReward, updatedObjectives, weights } = robotResults;
       dispatch({ type: Action.SET_ROBOT_SUGGESTIONS, value: results });
       dispatch({ type: Action.SET_SPATIAL_REWARD, value: spatialReward });
       dispatch({ type: Action.SET_VARIABLE_REWARD, value: variableReward });
       dispatch({ type: Action.SET_DISCREPANCY_REWARD, value: discrepancyReward });
+      
+      // Update objectives if weights were received and are not 0
+      if (updatedObjectives && weights && weights.some((weight: number) => weight > 0)) {
+        dispatch({ type: Action.SET_OBJECTIVES, value: updatedObjectives });
+        console.log('Updated objectives based on backend weights:', updatedObjectives);
+      }
     }, 0);
 
     // 3. Move to next step and reset panel for next round
@@ -409,7 +441,6 @@ export default function AutonomousDecision() {
     setCurrentStep(prev => prev + 1);
     // Optionally clear input fields if using local state
     setInputStrength("");
-    setInputLocation("");
     console.log({ globalState });
   };
 
@@ -467,7 +498,7 @@ export default function AutonomousDecision() {
       ? robotSuggestions[0].index.toFixed(2)
       : '--';
   // --- Panel JSX Definitions (top-level, outside render) ---
-  const getDataCollectionPanel = (onStrengthDataChange, onLocationDataChange, onSubmitDataCollection) => (
+  const getDataCollectionPanel = (onStrengthDataChange, onSubmitDataCollection) => (
     <div className="data-collection-panel">
       <div style={{
           background: '#e3f2fd',
@@ -497,21 +528,6 @@ export default function AutonomousDecision() {
             cols={40}
             className="data-input"
             value={inputStrength}
-          />
-        </div>
-        <div className="input-group">
-          <Typography variant="body2" gutterBottom>
-            <strong>Enter location (0-1):</strong>
-          </Typography>
-          <textarea
-            placeholder="e.g., 0.5"
-            id="latestLocation"
-            name="latestLocation"
-            onChange={onLocationDataChange}
-            rows={3}
-            cols={40}
-            className="data-input"
-            value={inputLocation}
           />
         </div>
         <Button
@@ -547,7 +563,7 @@ export default function AutonomousDecision() {
         </span>
      </div>
       
-      <Button
+      {/* <Button
         variant="outlined"
         onClick={() => dispatch({ type: Action.SET_CHART_SETTINGS, value: {...chartSettings, updateRequired: true} })}
         style={{ marginBottom: 10 }}
@@ -562,7 +578,7 @@ export default function AutonomousDecision() {
         fullWidth
       >
         {showRobotSuggestions ? "Hide" : "Show"} Robot Suggestions
-      </Button>
+      </Button> */}
     </div>
   );
 
@@ -641,9 +657,70 @@ export default function AutonomousDecision() {
       <textarea onChange={onRejectReasonTextChange} rows={5} cols={75}/>
     </div>
 
+  // Add state for user location input
+  const [userLocationInput, setUserLocationInput] = useState("");
+
+  const onUserLocationInputChange = (e) => {
+    const value = e.target.value;
+    setUserLocationInput(value);
+  };
+
+  const onSubmitUserLocation = () => {
+    const locationValue = parseFloat(userLocationInput);
+    if (isNaN(locationValue) || locationValue < 0 || locationValue > 1) {
+      alert("Please enter a valid location between 0 and 1");
+      return;
+    }
+
+    // Set the human suggested location instead of creating a user sample
+    dispatch({ type: Action.SET_HUMAN_SUGGESTED_LOCATION, value: locationValue });
+
+    // Clear the input
+    setUserLocationInput("");
+  };
+
   const userLocationSelectionQuestion = 
     <div className="user-location_selection-question">
-      <p><strong>Please select the next location you'd like to sample from by clicking anywhere along the transect surface in the dune cross-section above. When you have finalized your selection and are ready to collect data from that location, click "Submit."</strong></p>
+      <Typography variant="h6" gutterBottom>
+        Manual Location Selection
+      </Typography>
+      <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16 }}>
+        Enter a location value between 0 and 1 to specify where you want to sample from.
+      </Typography>
+      {globalState.humanSuggestedLocation !== null && (
+        <div style={{
+          background: '#e8f5e8',
+          color: '#2e7d32',
+          padding: '10px 16px',
+          borderRadius: '6px',
+          marginBottom: 16,
+          fontSize: 14,
+        }}>
+          <strong>Current human suggested location:</strong> {globalState.humanSuggestedLocation.toFixed(2)}
+        </div>
+      )}
+      <div className="input-group">
+        <Typography variant="body2" gutterBottom>
+          <strong>Enter location (0-1):</strong>
+        </Typography>
+        <textarea
+          placeholder="e.g., 0.5"
+          value={userLocationInput}
+          onChange={onUserLocationInputChange}
+          rows={3}
+          cols={40}
+          className="data-input"
+          style={{ marginBottom: 16 }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={onSubmitUserLocation}
+          fullWidth
+        >
+          Submit Location
+        </Button>
+      </div>
     </div>
 
   // Hook for displaying hypothesis popup
@@ -778,13 +855,42 @@ export default function AutonomousDecision() {
           </table>
         </div>
       )}
+      
+      
+      
       {/* Free response UI */}
       <div className="objective-free-response-question" style={{marginBottom: '2vh'}}>
-        <p><strong>Please describe your belief about the data collected so far:</strong></p>
+        <p><strong>Please describe your objective if you have addtional thoughts</strong></p>
         <textarea onChange={onObjectiveTextChange} rows={5} cols={85}/>
       </div>
-      {/* Reject reason UI */}
-      {rejectReasonQuestions}
+      {/* Reject reason UI
+      {rejectReasonQuestions} */}
+      
+      {/* Submit Button */}
+      <div style={{marginTop: '2vh', textAlign: 'center'}}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          size="large"
+          onClick={() => {
+            // Append current objectives to tempObjectives
+            const newTempObjectives = [...tempObjectives, ...objectives];
+            dispatch({ type: Action.SET_TEMP_OBJECTIVES, value: newTempObjectives });
+            console.log('Objectives submitted to temp storage:', objectives);
+            console.log('All temp objectives:', newTempObjectives);
+          }}
+          style={{
+            padding: '12px 32px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            textTransform: 'none'
+          }}
+        >
+          Submit Objective Updates
+        </Button>
+      </div>
     </div>
   );
 
@@ -799,7 +905,7 @@ export default function AutonomousDecision() {
 
   // Center Panel Component (shown when running or paused)
   const CenterPanel = () => {
-    if (isRunning) return getDataCollectionPanel(onStrengthDataChange, onLocationDataChange, onSubmitDataCollection);
+    if (isRunning) return getDataCollectionPanel(onStrengthDataChange, onSubmitDataCollection);
     if (isPaused) return panelMap[currentPanel] || <div>Select a panel</div>;
     return null;
   };
@@ -882,7 +988,7 @@ export default function AutonomousDecision() {
               boxShadow: '0 4px 24px rgba(0,0,0,0.12), 0 1.5px 4px rgba(0,0,0,0.08)'
             }}
           >
-            {isRunning ? getDataCollectionPanel(onStrengthDataChange, onLocationDataChange, onSubmitDataCollection)
+            {isRunning ? getDataCollectionPanel(onStrengthDataChange, onSubmitDataCollection)
               : isPaused && currentPanel === PanelType.SETTINGS ? getPausedPanel()
               : panelMap[currentPanel] || <div>Select a panel</div>}
           </Paper>
@@ -935,13 +1041,7 @@ export default function AutonomousDecision() {
     );
   }
 
-  // Prefill the location input box with the suggested location
-  useEffect(() => {
-    if (robotSuggestions && robotSuggestions.length > 0) {
-      setInputLocation(robotSuggestions[0].index.toFixed(2));
-      dispatch({ type: Action.SET_USER_LOCATION_DATA, value: robotSuggestions[0].index.toFixed(2) });
-    }
-  }, [robotSuggestions]);
+
 
   return (
     <div id="app" className="autonomousDecisionPage">

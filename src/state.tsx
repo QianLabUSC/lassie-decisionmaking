@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createContext, useContext, useReducer } from 'react';
-import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample, PreSample } from './types';
+import { DialogProps, DataVersion, CurrUserStepData, UserStepsData, Sample, PreSample, Objective } from './types';
 import { objectiveOptions } from './constants';
 import { getShearData, getMoistureData } from './util';
 
@@ -35,6 +35,7 @@ export interface IState {
   moistureData: number[][],
   userStrengthData: number[],
   userLocationData: number[],
+  humanSuggestedLocation: number | null,
   // Step fields
   currSampleIdx: number,
   samples: Sample[] // will be in final output after survey is completed
@@ -42,7 +43,6 @@ export interface IState {
   userSteps: UserStepsData[], // will be in final output after survey is completed
   // Hypothesis fields
   initialHypo: number, // will be in final output after survey is completed
-  initialobjectivePattern: number 
   finalHypo: number, // will be in final output after survey is completed
   // Chart fields
   chart: Charts,
@@ -59,7 +59,9 @@ export interface IState {
   numImgClicks: number, // controls when the global state's "rows" get loaded into the actual strategy and populated in the charts
   showNOMInput: boolean,
   introCompleted: boolean,
-  submitted: boolean
+  submitted: boolean,
+  // Temporary objectives storage
+  tempObjectives: Objective[]
 }
 
 // Default initial state
@@ -71,12 +73,19 @@ export const initialState : IState = {
   moistureData: [],
   userLocationData: [],
   userStrengthData: [],
+  humanSuggestedLocation: null,
   currSampleIdx: 0,
   samples: [],
   currUserStep: {
     step: 1,
     userFeedbackState: 0,
-    objectives: [],
+    objectives: [
+      {
+        objective: "There are areas along the line where data is needed",
+        ranking: 1,
+        addressedRating: 1
+      }
+    ],
     objectiveFreeResponse: "",
     sampleType: null,
     robotSuggestions: [],
@@ -96,7 +105,6 @@ export const initialState : IState = {
   },
   userSteps: [],
   initialHypo: 0,
-  initialobjectivePattern: 0, 
   finalHypo: 0,
   chart: null,
   chartSettings: {
@@ -114,7 +122,8 @@ export const initialState : IState = {
   numImgClicks: 0,
   showNOMInput: false,
   introCompleted: false,
-  submitted: false
+  submitted: false,
+  tempObjectives: []
 };
 
 export type IAction = { type: any, value?: any }
@@ -152,13 +161,13 @@ export enum Action {
   SET_REJECT_REASON_FREE_RESPONSE,
   SET_USER_FREE_SELECTION,
   SET_USER_SAMPLE,
+  SET_HUMAN_SUGGESTED_LOCATION,
   SET_HYPO_CONFIDENCE,
   SET_TRANSITION,
   SET_DISABLE_SUBMIT_BUTTON,
   SET_NUM_SUBMIT_CLICKS,
   /** FINISH */
   SET_INIT_HYPO_CONFIDENCE,
-  SET_OBJECTIVE_PATTERN,
   SET_FINAL_HYPO_CONFIDENCE,
   SET_CHART,
   SET_CHART_SETTINGS,
@@ -169,7 +178,8 @@ export enum Action {
   SET_HOVER, // A table row/figure pos/plot data is hovered
   SET_SHOW_NOM_INPUT,
   SET_INTRO_STATUS, // Executed when user completes the introduction agreements
-  SET_SUBMITTED_STATUS // Executed when user submits final responses
+  SET_SUBMITTED_STATUS, // Executed when user submits final responses
+  SET_TEMP_OBJECTIVES // Executed when user submits objectives to temp storage
 };
 
 // For actions that simply replace the corresponding key in state,
@@ -183,11 +193,12 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_MOISTURE_DATA]: 'moistureData',
   [Action.SET_USER_LOCATION_DATA]: 'userLocationData',
   [Action.SET_USER_STRENGTH_DATA]: 'userStrengthData',
+  [Action.SET_HUMAN_SUGGESTED_LOCATION]: 'humanSuggestedLocation',
   [Action.SET_CURR_SAMPLE_IDX]: 'currSampleIdx',
   [Action.SET_SAMPLES]: 'samples',
   [Action.SET_CURR_USER_STEP]: 'currUserStep',
   [Action.SET_INIT_HYPO_CONFIDENCE]: 'initialHypo',
-  [Action.SET_OBJECTIVE_PATTERN]: 'initialobjectivePattern',
+
   [Action.SET_FINAL_HYPO_CONFIDENCE]: 'finalHypo',
   [Action.SET_CHART]: 'chart',
   [Action.SET_CHART_SETTINGS]: 'chartSettings',
@@ -201,6 +212,7 @@ const actionKeyMap : ActionKeyMap = {
   [Action.SET_SHOW_NOM_INPUT]: 'showNOMInput',
   [Action.SET_INTRO_STATUS]: 'introCompleted',
   [Action.SET_SUBMITTED_STATUS]: 'submitted',
+  [Action.SET_TEMP_OBJECTIVES]: 'tempObjectives',
 };
 
 type SubReducer<T> = (subState: T, state: Readonly<IState>, action: IAction) => T;

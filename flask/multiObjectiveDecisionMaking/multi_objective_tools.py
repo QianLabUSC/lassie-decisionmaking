@@ -190,7 +190,87 @@ def run_multi_objective_odsf(vector, info_level, human_reported_type,
         final_suggestion = suggestion_sets[int(final_type * 4)]
     return final_type, final_suggestion, suggestion_sets, except_list, pareto_sets, pareto_sets_loc
         
+def run_multi_objective_preference(
+    reward_vector,  # shape (n, 2): columns are [info_reward, disp_reward]
+    info_level,     # s_t: information level, scalar in [0,1]
+    disp_level,     # d_t: discrepancy/novelty level, scalar in [0,1]
+    gamma=5.0,      # preference progression sharpness
+    c=0.5,          # preference progression center
+    alpha_s=0.0,    # short-term bias for info
+    alpha_d=0.0,    # short-term bias for discrepancy
+    return_all=False
+):
+    """
+    Compute the trade-off between two objectives using a human-in-the-loop preference model.
+    Also estimate the uncertainty (variance) of each random variable in the preference model.
+    This function does NOT require multi_objective_pattern as input.
 
+    Args:
+        reward_vector (np.ndarray): shape (n, 2), columns are [info_reward, disp_reward]
+        info_level (float): s_t, information level in [0,1]
+        disp_level (float): d_t, discrepancy/novelty level in [0,1]
+        gamma (float): preference progression sharpness (default 5.0)
+        c (float): preference progression center (default 0.5)
+        alpha_s (float): short-term bias for info (default 0.0)
+        alpha_d (float): short-term bias for discrepancy (default 0.0)
+        return_all (bool): if True, return full ranking, weights, and variances
+
+    Returns:
+        best_index (int): index of the best location
+        best_location (int): index or identifier of the best location
+        weights (np.ndarray): normalized preference weights [w_info, w_disp]
+        (optionally) ranking (np.ndarray): indices of locations sorted by weighted reward
+        (optionally) variances (dict): variances of tau_t, w_info, w_disp
+    """
+    # 1. Compute latent preference progression tau_t
+    tau_t = 1.0 / (1.0 + np.exp(-gamma * (info_level - c)))
+
+    # 2. Compute unnormalized weights for info and discrepancy
+    w_info = 1 - tau_t + alpha_s * info_level
+    w_disp = tau_t + alpha_d * disp_level
+    w_vec = np.array([w_info, w_disp])
+    # 3. Normalize weights to sum to 1
+    w_vec = w_vec / np.sum(w_vec)
+
+    # 4. Compute weighted reward for each candidate
+    weighted_rewards = reward_vector @ w_vec
+    # 5. Select the best location (max weighted reward)
+    best_index = np.argmax(weighted_rewards)
+    best_location = best_index  # or use external mapping if available
+
+    # --- Uncertainty estimation (delta method) ---
+    # Assume info_level and disp_level are Bernoulli, so Var[s_t] = s_t*(1-s_t), Var[d_t] = d_t*(1-d_t)
+    var_s = info_level * (1 - info_level)
+    var_d = disp_level * (1 - disp_level)
+
+    # tau_t = 1/(1+exp(-gamma*(s_t-c)))
+    # d tau_t/d s_t = gamma * exp(-gamma*(s_t-c)) / (1+exp(-gamma*(s_t-c)))^2 = gamma * tau_t * (1-tau_t)
+    dtau_ds = gamma * tau_t * (1 - tau_t)
+    var_tau = (dtau_ds ** 2) * var_s
+
+    # w_info = 1 - tau_t + alpha_s * s_t
+    # d w_info/d s_t = -dtau_ds + alpha_s
+    dwinfo_ds = -dtau_ds + alpha_s
+    var_winfo = (dwinfo_ds ** 2) * var_s
+
+    # w_disp = tau_t + alpha_d * d_t
+    # d w_disp/d s_t = dtau_ds
+    # d w_disp/d d_t = alpha_d
+    var_wdisp = (dtau_ds ** 2) * var_s + (alpha_d ** 2) * var_d
+
+    variances = {
+        'var_s': var_s,
+        'var_d': var_d,
+        'var_tau_t': var_tau,
+        'var_w_info': var_winfo,
+        'var_w_disp': var_wdisp
+    }
+
+    if return_all:
+        ranking = np.argsort(-weighted_rewards)  # descending order
+        return best_index, best_location, w_vec, ranking, weighted_rewards, variances
+    else:
+        return best_index, best_location, w_vec
 
 
 
@@ -245,3 +325,5 @@ if __name__ == "__main__":
     # plt.grid(True, linestyle='--')
     # plt.legend(loc="lower right", fontsize=15)
     # plt.show()
+
+

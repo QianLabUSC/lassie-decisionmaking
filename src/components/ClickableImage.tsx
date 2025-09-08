@@ -18,7 +18,7 @@ import AddSamplePopup from "./AddSamplePopup";
 import PositionIndicator from "./PositionIndicator";
 import PositionIndicatorRhex from "./PositionIndicatorRhex";
 
-const diagram = require("../../assets/diagram_scalebar.png");
+const diagram = require("../../assets/hypows25.png");
 
 const useStyles = makeStyles({
   cross: {
@@ -224,12 +224,12 @@ export default function ClickableImage({
           <PositionIndicator
             key={sampleIdx}
             left={
-              (index / INDEX_LENGTH) * (imgWidth - 1)
+              (0.12 + 0.88 * index / INDEX_LENGTH) * (imgWidth - 1)
               // (NORMALIZED_FLAGATOB * (index / INDEX_LENGTH) +
               //   NORMALIZED_STRAT) *
               // (height / NORMALIZED_HEIGHT)
             }
-            top={height - height / 1.7}
+            top={height - height / 1.75}
             rowIndex={sampleIdx}
             isHovered={isHovered}
             type={type}
@@ -238,18 +238,18 @@ export default function ClickableImage({
           />
         );
       })}
-      {
+      {samples.length > 0 && (
         <PositionIndicatorRhex
           left={
-            (samples[samples.length - 1].index / INDEX_LENGTH) * (imgWidth - 1)
+            (0.12 + 0.88 * samples[samples.length - 1].index / INDEX_LENGTH) * (imgWidth - 1)
             // (NORMALIZED_FLAGATOB *
             //   (samples[samples.length - 1].index / INDEX_LENGTH) +
             //   NORMALIZED_STRAT) *
             // (height / NORMALIZED_HEIGHT)
           }
-          top={height - height / 2 - 40}
+          top={height - height / 2 - 30}
         />
-      }
+      )}
       {showRobotSuggestions &&
         robotSuggestions &&
         robotSuggestions.map((suggestion, rowIndex) => (
@@ -258,12 +258,12 @@ export default function ClickableImage({
               suggestion.index + suggestion.normOffsetX + suggestion.normOffsetY
             }
             left={
-              (suggestion.index / INDEX_LENGTH) * (imgWidth - 1)
+              (0.12 + 0.88 * suggestion.index / INDEX_LENGTH) * (imgWidth - 1)
               // (NORMALIZED_FLAGATOB * (suggestion.index / INDEX_LENGTH) +
               //   NORMALIZED_STRAT) *
               // (height / NORMALIZED_HEIGHT)
             }
-            top={height - height / 1.7}
+            top={height - height / 1.75}
             rowIndex={rowIndex}
             isHovered={suggestion.isHovered}
             type={suggestion.type}

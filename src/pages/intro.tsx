@@ -7,7 +7,7 @@ import ProgressBar from '../components/ProgressBar';
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { useStateValue, Action } from '../state';
 import { initialConfidenceTexts } from '../constants';
-import { intialMultiobjectiveTexts } from '../constants';
+
 import "../styles/intro.scss";
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -22,7 +22,7 @@ export default function Intro(props) {
     const history = useHistory();
     const [globalState, dispatch] = useStateValue();
     const { initialHypo } = globalState;
-    const { initialobjectivePattern } = globalState;
+
     const [currentPage, setCurrentPage] = useState(0);
     const [animationDirection, setAnimationDirection] = useState("Right");
     const pageCount = 2;
@@ -69,12 +69,7 @@ export default function Intro(props) {
         });
     }
 
-    const handleobjectiveResponse = (value: any) => {
-        dispatch({ 
-            type: Action.SET_OBJECTIVE_PATTERN, 
-            value: value 
-        });
-    }
+
 
     const pages = [
         // Panel 0
@@ -126,22 +121,7 @@ export default function Intro(props) {
                             </Select>
                         </FormControl>
                     </div>
-                    <div className="multiobjectiveBlock">
-                        <div className="multiobjectiveTitle"><strong>Multiple objective pattern</strong></div>
-                        <div className="multiobjectiveText">
-                        When you held multiple beliefs, how did you resolve them?
-                        </div>
-                        <FormControl>
-                            <Select
-                                style={{fontSize: '1.5vh'}}
-                                value={initialobjectivePattern}
-                                onChange={event => handleobjectiveResponse(Number(event.target.value))}>
-                                {
-                                    intialMultiobjectiveTexts.map((text, i) => (<MenuItem key={i} value={i}>{text}</MenuItem>))
-                                }
-                            </Select>
-                        </FormControl>
-                    </div>
+
                 </div>
             </div>
             { buttonRow }
