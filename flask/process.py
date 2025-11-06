@@ -5,7 +5,7 @@ sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/sit
 from multiObjectiveDecisionMaking.decision_making import *
 from multiObjectiveDecisionMaking.multi_objective_tools import *
 import json
-from pathplanning import ManuallyEnv, ReactivePlanning, Estimation
+from pathplanning import ManuallyEnv, ReactivePlanning, Estimation, MCTSPlanning
 from pathplanning2ndPath import ReactivePlanning2ndPath
 from pathplanning3rdPath import ReactivePlanning3rdPath
 
@@ -159,7 +159,8 @@ def pathsuggestion():
     robot_path_x = concatenated_path_x
     robot_path_y = concatenated_path_y
     ENV = ManuallyEnv()
-    PLANNER = ReactivePlanning(0.02, 30)
+    #PLANNER = ReactivePlanning(0.02, 30)
+    PLANNER = MCTSPlanning(0.02, 30)
     ESTIMATOR = Estimation(False, 0.2, 0.15, 4)
 
     measured_robot_coordinates, measured_shear, measured_moisture = ENV.gather_data(robot_path_x, robot_path_y)
@@ -173,7 +174,7 @@ def pathsuggestion():
     path_x_1, path_y_1, \
     path_x_2, path_y_2,  \
     path_x_3, path_y_3, \
-    path_x_4, path_y_4 = PLANNER.plan_for_next_horizon(shear_std.T) 
+    path_x_4, path_y_4 = PLANNER.plan_for_next_horizon(shear_std.T, True) ## add generate_plan_multi_obj logic into this function
 
 
     #print('measured_robot_coordinates',measured_robot_coordinates, 'measured_moisture' , measured_moisture, 'measured_shear', measured_shear)
@@ -414,7 +415,9 @@ def getSecondApi():
     # print('last selected path', last_selected_path)
 
 
-    file_path = os.getenv('LOG_FILE_LOCATION')
+    log_path = os.getenv('LOG_FILE_LOCATION')
+    REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(REPO_ROOT, log_path)
     if not file_path:
         # Either return an error or use a default path
         return jsonify({

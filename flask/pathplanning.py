@@ -2,12 +2,20 @@ import numpy as np
 # import matplotlib.pyplot as plt
 # from matplotlib.animation import FuncAnimation
 # import matplotlib.animation as animation
+import sys, os
+import sys, os
+sys.path.append(os.path.abspath("/Users/helen/Documents/ROBOLAND/scout_planner/src"))
+import scout_planner as scout
+from scout_planner.planner.multi_objective_planner import generate_plan_multi_obj, calc_reward_scout, setup_data_planner
+from scout_planner.planner.planner_primitives import ScoutNode, ScoutEdge, ScoutSearchNode
+import rdml_graph as gr
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel as C
-import numpy as np
+
 import warnings
 # Configure warnings to always be triggered
 warnings.simplefilter("always")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ==============================
 #      Utility Functions
@@ -111,6 +119,16 @@ class ReactivePlanning:
     def update_robot_path(self, path_x, path_y):
         self.robot_path_x = path_x
         self.robot_path_y = path_y
+
+    def init_scout_planner():
+        parser = scout.setup_args()
+        args = parser.parse_args([])  # empty list = use defaults instead of command line
+        planner = scout.ScoutPlanner(args)
+        planner.init_planner_before_interface()
+        planner.setup_preference_model()
+        return planner, args
+    
+
     def plan_for_next_horizon(self, reward):
         ## now generate field vector to guide with the path selection. 
         # directly apply the information reward as vector to guide with reactive path
@@ -301,7 +319,72 @@ class ReactivePlanning:
         F_x = np.gradient(U_attr + reward, axis=1)
         F_y = np.gradient(U_attr + reward, axis=0)
         return F_x, F_y
+class MCTSPlanning(ReactivePlanning):
+    def __init__(self, plan_step_interval_, step_per_horizon_):
+        super().__init__(plan_step_interval_, step_per_horizon_)
+        self.planner, self.args = self.init_scout_planner()
 
+    def init_scout_planner(self):
+        print(BASE_DIR)
+        parser = scout.setup_args()
+        geotiff = os.path.join(BASE_DIR, "planningStack/06-18-2025_Ortho_4Band.tif")
+        geojson = os.path.join(BASE_DIR, "planningStack/loc_3_regions_UTM13.geojson")
+        args = parser.parse_args(["--geotiff", geotiff, "--geojson", geojson])
+        planner = scout.ScoutPlanner(args)
+        planner.init_planner_before_interface()
+        planner.setup_preference_model()
+        return planner, args
+
+    def plan_for_next_horizon(self, reward, use_mcts=False, mcts_params=None):
+        # Check path is non-empty
+        assert(len(self.robot_path_x) > 0 and len(self.robot_path_y) > 0)
+        current_x, current_y = 380727.0715708, 3631761.53684479
+
+        # ---- Gradient-based paths ----
+        F_x, F_y = self.calculate_gradient_with_adding(reward, 2)
+        path_x_1, path_y_1 = self.integrate_path(current_x, current_y, F_x, F_y,
+                                                self.plan_step_interval, 
+                                                self.step_per_horizon)
+
+        F_x, F_y = self.calculate_gradient_with_adding(reward, 0)
+        path_x_2, path_y_2 = self.integrate_path(current_x, current_y, F_x, F_y,
+                                                self.plan_step_interval, 
+                                                self.step_per_horizon)
+
+        F_x, F_y = self.calculate_gradient_with_adding(reward, 100)
+        path_x_3, path_y_3 = self.integrate_path(current_x, current_y, F_x, F_y,
+                                                self.plan_step_interval, 
+                                                self.step_per_horizon)
+
+        # ---- MCTS-based path ----
+        path_x_mcts, path_y_mcts = [], []
+        if use_mcts:
+            if mcts_params is None:
+                path_x_mcts, path_y_mcts = self.run_mcts_planner(current_x, current_y)
+            else:
+                path_x_mcts, path_y_mcts = self.run_mcts_planner(current_x, current_y, mcts_params.itrs, mcts_params.budget, mcts_params.sample_radius, mcts_params.use_objs)
+        return path_x_1, path_y_1, path_x_2, path_y_2, path_x_3, path_y_3, path_x_mcts, path_y_mcts
+    
+    def run_mcts_planner(self, start_x, start_y, itrs=200, budget=5, sample_radius=20, use_obj=[True, False, False, False, False, False, False]):
+        params = {
+        "mcts_itrs": itrs,
+        "budget": budget,
+        "sample_radius": sample_radius,
+        "use_obj": [True, True, True, True, True, True, True, False, False, False, False, False, False, False, False, False, False],
+        }
+        print("Running MCTS planner")
+        self.planner.current_location = np.array([start_x, start_y])
+        self.planner.run_planner(params)
+        best_path, _ = self.planner.get_best()
+        sols = self.planner.solutions
+        path_x = [edge.p.pt[0] for edge in best_path] + [best_path[-1].c.pt[0]]
+        path_y = [edge.p.pt[1] for edge in best_path] + [best_path[-1].c.pt[1]]
+        path_x = [x - start_x for x in path_x]
+        path_y = [y - start_y for y in path_y]
+        #print(f"Solution Example: {sols}")
+        return path_x, path_y
+
+        
 class Estimation:
     def __init__(self, if_optimize, noise_level, length_scale, sigma_f) -> None:
         """
