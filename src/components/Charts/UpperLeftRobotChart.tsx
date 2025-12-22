@@ -159,8 +159,16 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
     <div className="legend"  style={{marginLeft:'5px'}}>
       <ChartColourLegendPanel width={70} height={300} colorFrom="#FA8072" colorTo="#B0C4DE" />
       <svg width={width} height={height}  style={{marginLeft:'15px'}}>      
-      <image href={backgoundImg} x={50} y={20} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" />
+      {/* <image href={backgoundImg} x={50} y={20} width={innerWidth} height={innerHeight} filter="url(#blurFilter)" /> */}
         <Group left={margin.left} top={margin.top}>
+        {<image
+              href={backgoundImg}
+              x={xScale(0)}
+              y={yScale(1)} 
+              width={xScale(1) - xScale(0)}
+              height={yScale(0) - yScale(1)}
+              preserveAspectRatio="none"
+            />}
           {/* For showing initial robot icon at (0,0) */}
           {allPaths?.[0]?.[0]?.[0].length === 0 && 
               <foreignObject x={xScale(0) - 10} y={yScale(0) - 15} width={40} height={40}>

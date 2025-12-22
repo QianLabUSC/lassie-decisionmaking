@@ -1,6 +1,16 @@
 import os
+# Force single-threading for all BLAS / MKL / OpenBLAS / NumExpr / VECLIB
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
+# Force joblib to not spawn subprocesses
+os.environ["JOBLIB_MULTIPROCESSING"] = "0"
 import sys
 import csv
+import time
 sys.path.insert(0, '/home1/f/foraging/public_html/cgi-bin/venv/lib/python3.6/site-packages')
 from multiObjectiveDecisionMaking.decision_making import *
 from multiObjectiveDecisionMaking.multi_objective_tools import *
@@ -46,6 +56,7 @@ microgradient_step_number = 0
 newStartingPointWebScaled = [(0,0)]
 
 last_selected_path = None  # Will be 'A', 'B', or 'C' based on selection
+PLANNER = MCTSPlanning(0.02, 30)
 
 
 
@@ -160,9 +171,7 @@ def pathsuggestion():
     robot_path_y = concatenated_path_y
     ENV = ManuallyEnv()
     #PLANNER = ReactivePlanning(0.02, 30)
-    PLANNER = MCTSPlanning(0.02, 30)
     ESTIMATOR = Estimation(False, 0.2, 0.15, 4)
-
     measured_robot_coordinates, measured_shear, measured_moisture = ENV.gather_data(robot_path_x, robot_path_y)
     vals = np.array([[x1_, x2_] for x1_ in np.linspace(0, 1, num=int(1/0.02)) for x2_ in np.linspace(0, 1, num=int(1/0.02))])
     shear_prediction, information_shear, shear_std, gp = ESTIMATOR.estimate(measured_robot_coordinates, measured_shear, vals)
@@ -171,164 +180,166 @@ def pathsuggestion():
     information_shear = information_shear.reshape(estimatedNum, estimatedNum)
     shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
     PLANNER.update_robot_path(robot_path_x, robot_path_y)
-    path_x_1, path_y_1, \
-    path_x_2, path_y_2,  \
-    path_x_3, path_y_3, \
-    path_x_4, path_y_4 = PLANNER.plan_for_next_horizon(shear_std.T, True) ## add generate_plan_multi_obj logic into this function
+    # path_x_1, path_y_1, \
+    # path_x_2, path_y_2,  \
+    # path_x_3, path_y_3, \
+    # path_x_4, path_y_4 = PLANNER.plan_for_next_horizon(shear_std.T, True) ## add generate_plan_multi_obj logic into this function
 
+    path_x_1, path_y_1, path_x_2, path_y_2 = PLANNER.plan_for_next_horizon()
 
     #print('measured_robot_coordinates',measured_robot_coordinates, 'measured_moisture' , measured_moisture, 'measured_shear', measured_shear)
 
     # TODO: NEW PATHS
 
-    step_size = 5 # step size for paths to take (ex: for each step, the robot will traverse 5 points)
+    # step_size = 5 # step size for paths to take (ex: for each step, the robot will traverse 5 points)
 
 
-    if (first_time):
-        current_step = inputs.get('step_number', 0) - 1
-        first_time = False
+    # if (first_time):
+    #     current_step = inputs.get('step_number', 0) - 1
+    #     first_time = False
+    #     # print('path suggestion: last selected path number', last_selected_path)
+    #     with open('planningStack/csv_data/traveledPoints.csv', mode='w', newline='') as file:
+    #         file.truncate(0)  # This ensures the file is empty
+    #         writer = csv.writer(file)
+    #         writer.writerow(['x', 'y'])  # write header
+
+    # else:
+    #     if (last_selected_path == 'A'): # baseline path
+
+    #         traveled_points = get_traveled_points('planningStack/csv_data/ordered_baseline.csv', (baseline_step_number - 1) * step_size, baseline_step_number * step_size)
+    #         # minor issue? end point, starting point are both added (duplicate starting points)
+    #         append_traveled_points(traveled_points)
+
+
+    #         current_step = baseline_step_number
+    #         zonecoverage_step_number = 1
+    #         microgradient_step_number = 1
+    #     elif (last_selected_path == 'B'): # zone coverage path
+
+    #         traveled_points = get_traveled_points('planningStack/csv_data/zonecoverage_ordered.csv', (zonecoverage_step_number - 1) * step_size, zonecoverage_step_number * step_size)
+    #         append_traveled_points(traveled_points)
+
+    #         current_step = zonecoverage_step_number
+    #         baseline_step_number = 1
+    #         microgradient_step_number = 1
+    #     elif (last_selected_path == 'C'): # microgradient path
+
+    #         traveled_points = get_traveled_points('planningStack/csv_data/microgradient_ordered.csv', (microgradient_step_number - 1) * step_size, microgradient_step_number * step_size)
+    #         append_traveled_points(traveled_points)
+
+    #         current_step = microgradient_step_number
+    #         baseline_step_number = 1
+    #         zonecoverage_step_number = 1
         # print('path suggestion: last selected path number', last_selected_path)
-        with open('planningStack/csv_data/traveledPoints.csv', mode='w', newline='') as file:
-            file.truncate(0)  # This ensures the file is empty
-            writer = csv.writer(file)
-            writer.writerow(['x', 'y'])  # write header
-
-    else:
-        if (last_selected_path == 'A'): # baseline path
-
-            traveled_points = get_traveled_points('planningStack/csv_data/ordered_baseline.csv', (baseline_step_number - 1) * step_size, baseline_step_number * step_size)
-            # minor issue? end point, starting point are both added (duplicate starting points)
-            append_traveled_points(traveled_points)
 
 
-            current_step = baseline_step_number
-            zonecoverage_step_number = 1
-            microgradient_step_number = 1
-        elif (last_selected_path == 'B'): # zone coverage path
-
-            traveled_points = get_traveled_points('planningStack/csv_data/zonecoverage_ordered.csv', (zonecoverage_step_number - 1) * step_size, zonecoverage_step_number * step_size)
-            append_traveled_points(traveled_points)
-
-            current_step = zonecoverage_step_number
-            baseline_step_number = 1
-            microgradient_step_number = 1
-        elif (last_selected_path == 'C'): # microgradient path
-
-            traveled_points = get_traveled_points('planningStack/csv_data/microgradient_ordered.csv', (microgradient_step_number - 1) * step_size, microgradient_step_number * step_size)
-            append_traveled_points(traveled_points)
-
-            current_step = microgradient_step_number
-            baseline_step_number = 1
-            zonecoverage_step_number = 1
-        # print('path suggestion: last selected path number', last_selected_path)
+    # start_from = current_step * step_size  # Calculate where to start based on current step
 
 
-    start_from = current_step * step_size  # Calculate where to start based on current step
+    # # new_step_number = current_step + 1
+
+    # if (last_selected_path == 'A'): # baseline path
+
+    #     baseline_step_number = current_step + 1
+
+    #     # zonecoverage
+    #     orig_zonecoverage_scale = get_scale('planningStack/csv_data/zonecoverage.csv')
+    #     deletePointsWithinTraveledArea('planningStack/csv_data/zonecoverage.csv')
 
 
-    # new_step_number = current_step + 1
-
-    if (last_selected_path == 'A'): # baseline path
-
-        baseline_step_number = current_step + 1
-
-        # zonecoverage
-        orig_zonecoverage_scale = get_scale('planningStack/csv_data/zonecoverage.csv')
-        deletePointsWithinTraveledArea('planningStack/csv_data/zonecoverage.csv')
-
-
-        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_zonecoverage_scale)
-        generate_zonecoverage_path(newStartingPoint)
+    #     newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_zonecoverage_scale)
+    #     generate_zonecoverage_path(newStartingPoint)
 
 
 
-        # microgradient
-        orig_microgradient_scale = get_scale_microgradient('planningStack/csv_data/microgradient.csv')
-        deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
+    #     # microgradient
+    #     orig_microgradient_scale = get_scale_microgradient('planningStack/csv_data/microgradient.csv')
+    #     deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
 
-        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
-        generate_microgradient_path(newStartingPoint)
+    #     newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
+    #     generate_microgradient_path(newStartingPoint)
 
-        newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
+    #     newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
 
-    elif (last_selected_path == 'B'): # zone coverage path
+    # elif (last_selected_path == 'B'): # zone coverage path
 
-        zonecoverage_step_number = current_step + 1
+    #     zonecoverage_step_number = current_step + 1
 
-        # baseline
-        orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
-        deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
+    #     # baseline
+    #     orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
+    #     deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
 
-        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
-        generate_baseline_path(newStartingPoint)
+    #     newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
+    #     generate_baseline_path(newStartingPoint)
 
-        # microgradient
-        orig_microgradient_scale = get_scale_microgradient('planningStack/csv_data/microgradient.csv')
-        deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
+    #     # microgradient
+    #     orig_microgradient_scale = get_scale_microgradient('planningStack/csv_data/microgradient.csv')
+    #     deletePointsWithinTraveledAreaMicrogradient('planningStack/csv_data/microgradient.csv')
 
-        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
-        generate_microgradient_path(newStartingPoint)
+    #     newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_microgradient_scale)
+    #     generate_microgradient_path(newStartingPoint)
 
-        newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
+    #     newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
 
-    elif (last_selected_path == 'C'): # microgradient path
-        microgradient_step_number = current_step + 1
+    # elif (last_selected_path == 'C'): # microgradient path
+    #     microgradient_step_number = current_step + 1
 
-        # zonecoverage
-        deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
+    #     # zonecoverage
+    #     deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
 
-        orig_zonecoverage_scale = get_scale('planningStack/csv_data/zonecoverage.csv')
-        deletePointsWithinTraveledArea('planningStack/csv_data/zonecoverage.csv')
-
-
-        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_zonecoverage_scale)
-        generate_zonecoverage_path(newStartingPoint)
-
-        # baseline
-        orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
-        deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
-
-        newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
-        generate_baseline_path(newStartingPoint)
-
-        newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
+    #     orig_zonecoverage_scale = get_scale('planningStack/csv_data/zonecoverage.csv')
+    #     deletePointsWithinTraveledArea('planningStack/csv_data/zonecoverage.csv')
 
 
-    else: # none (first time)
-        baseline_step_number = current_step + 1
-        zonecoverage_step_number = current_step + 1
-        microgradient_step_number = current_step + 1
+    #     newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_zonecoverage_scale)
+    #     generate_zonecoverage_path(newStartingPoint)
+
+    #     # baseline
+    #     orig_baseline_scale = get_scale('planningStack/csv_data/baseline.csv')
+    #     deletePointsWithinTraveledArea('planningStack/csv_data/baseline.csv')
+
+    #     newStartingPoint = get_last_point('planningStack/csv_data/traveledPoints.csv', scaling_factor=orig_baseline_scale)
+    #     generate_baseline_path(newStartingPoint)
+
+    #     newStartingPointWebScaled = get_last_point_web_scaled('planningStack/csv_data/traveledPoints.csv')
 
 
-    # print('current_step', current_step, 'start_from', start_from)
+    # else: # none (first time)
+    #     baseline_step_number = current_step + 1
+    #     zonecoverage_step_number = current_step + 1
+    #     microgradient_step_number = current_step + 1
 
 
-    # baseline path (path A on website)
-    if (baseline_step_number > 0):
-        path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=(baseline_step_number - 1) * step_size).values()
-    elif (baseline_step_number == 0):
-        path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=(baseline_step_number) * step_size).values()
-
-    # zone coverage path (path B on website)
-
-    if (zonecoverage_step_number > 0):
-        path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=(zonecoverage_step_number - 1) * step_size).values()
-    elif (zonecoverage_step_number == 0):
-        path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=(zonecoverage_step_number) * step_size).values()
-
-    # microgradient path (path C on website)
-    if (microgradient_step_number > 0):
-        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size, starting_coord=newStartingPointWebScaled).values()
-    elif (microgradient_step_number == 0):
-        path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number) * step_size, starting_coord=newStartingPointWebScaled).values()
+    # # print('current_step', current_step, 'start_from', start_from)
 
 
-    # print('microgradient:', 'path_x_3', path_x_3, 'path_y_3', path_y_3)
-    # print('baseline:', 'path_x_1', path_x_1, 'path_y_1', path_y_1)
-    # print('zonecoverage:', 'path_x_2', path_x_2, 'path_y_2', path_y_2)
+    # # baseline path (path A on website)
+    # if (baseline_step_number > 0):
+    #     path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=(baseline_step_number - 1) * step_size).values()
+    # elif (baseline_step_number == 0):
+    #     path_x_1, path_y_1 = generateBaselinePath(num_points_between=50, step_size=step_size, start_from=(baseline_step_number) * step_size).values()
 
-    # print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
+    # # zone coverage path (path B on website)
 
+    # if (zonecoverage_step_number > 0):
+    #     path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=(zonecoverage_step_number - 1) * step_size).values()
+    # elif (zonecoverage_step_number == 0):
+    #     path_x_2, path_y_2 = generateZonecoveragePath(num_points_between=50, step_size=step_size, start_from=(zonecoverage_step_number) * step_size).values()
+
+    # # microgradient path (path C on website)
+    # if (microgradient_step_number > 0):
+    #     path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number - 1) * step_size, starting_coord=newStartingPointWebScaled).values()
+    # elif (microgradient_step_number == 0):
+    #     path_x_3, path_y_3 = generateMicrogradientPath(num_points_between=50, step_size=step_size, start_from=(microgradient_step_number) * step_size, starting_coord=newStartingPointWebScaled).values()
+
+
+    # # print('microgradient:', 'path_x_3', path_x_3, 'path_y_3', path_y_3)
+    # # print('baseline:', 'path_x_1', path_x_1, 'path_y_1', path_y_1)
+    # # print('zonecoverage:', 'path_x_2', path_x_2, 'path_y_2', path_y_2)
+
+    # # print('baseline_step_number', baseline_step_number, 'zonecoverage_step_number', zonecoverage_step_number, 'microgradient_step_number', microgradient_step_number)
+
+    path_x_3, path_y_3 = [], []
 
     res = jsonify(
     [
@@ -343,6 +354,17 @@ def pathsuggestion():
    
     return res
 
+@app.route('/preferPath', methods=['POST'])
+@cross_origin()
+
+def preferPath():
+    inputs = request.json
+    prefered_path_idx = inputs['selected_path_idx']
+    PLANNER.planner.prefer_path(prefered_path_idx)
+    return jsonify({
+        "status": "success",
+        "message": f"Preference for path {preferred_path_idx} received."
+    })
 
 
 
@@ -378,10 +400,15 @@ def gatherDataAndUpdate():
     ENV = ManuallyEnv()
     PLANNER = ReactivePlanning(0.02, 50)
     ESTIMATOR = Estimation(False, 0.2, 0.15, 4)
+    t1 = time.time()
     measured_robot_coordinates, measured_shear, measured_moisture = ENV.gather_data(robot_path_x, robot_path_y)
     vals = np.array([[x1_, x2_] for x1_ in np.linspace(0, 1, num=int(1/0.02)) for x2_ in np.linspace(0, 1, num=int(1/0.02))])
-    shear_prediction, information_shear, shear_std, gp = ESTIMATOR.estimate(measured_robot_coordinates, measured_shear, vals)
-    
+    t2 = time.time()
+    try:
+        shear_prediction, information_shear, shear_std, gp = ESTIMATOR.estimate(measured_robot_coordinates, measured_shear, vals)
+    except Exception as e:
+        print("ESTIMATOR.estimate raised:", repr(e))
+        return jsonify({"error": "estimator failed", "detail": str(e)}), 500
     shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
     information_shear = information_shear.reshape(estimatedNum, estimatedNum)
     shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
@@ -434,29 +461,32 @@ def getSecondApi():
     existing_data.append(inputs)
     with open(file_path, 'w') as f:
         json.dump(existing_data, f)
-
-
     return jsonify(inputs["inputof_first_time_Path_Selected"])
 
 
 
 
-@app.route('/submit', methods=['POST'])
+@app.route('/submit_rating', methods=['POST'])
 @cross_origin()
-def submit_ratings():
+def submit_rating():
+
     inputs = request.json
     print('Received ratings:', inputs)
 
     # Extract the ratings from the JSON payload
-    rating1 = inputs.get('first')
-    rating2 = inputs.get('second')
+    rating = inputs.get('ratings')
+    idx = int(inputs.get('chosenIndex'))-1
+    print(rating)
 
     # Prepare the data to be saved
     result = {
-        'first': rating1,
-        'second': rating2
+        'first': rating[0],
+        'second': rating[1]
     }
-
+    rating_sum = float((rating[0]+rating[1])/10)
+    print(rating_sum)
+    print(idx)
+    PLANNER.planner.rate_path(rating_sum, idx)
     
 
 
@@ -481,7 +511,7 @@ def submit_ratings():
     # Write the combined data back to the JSON file
     with open(file_path, 'w') as f:
         json.dump(existing_data, f)
-
+    print("REACHED END OF HANDLER")
     return jsonify({'status': 'success', 'message': 'Ratings saved successfully.'})
 
 
@@ -512,7 +542,7 @@ def fouthApi():
 
 
 if __name__ == '__main__':
-    
-    app.run(debug=True, port=8090)
+    app.run(debug=False, use_reloader=False, port=8090)
+    #app.run(debug=True, port=8090)
 
 

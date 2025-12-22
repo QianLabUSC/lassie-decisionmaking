@@ -277,7 +277,7 @@ const buildQuestionComponents = (
   firstUnansweredId,
   depth = 0
 ) => {
-  let components = [] as JSX.Element[];
+  let components = [] as React.ReactElement[];;
 
   questionList.forEach((question) => {
     const showAsUnanswered = firstUnansweredId === question.id;

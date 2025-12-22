@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import './rating.css'; // Import the CSS for styling
+import { submit_rating } from '../ApiCalls/submit_rating';
 import Button from '@material-ui/core/Button';
 const labels = [
     "1-\nUnsure",
@@ -11,29 +12,48 @@ const labels = [
     "6-Definitely\nAddressed"
 ];
 
-const RatingComponent = () => {
+const RatingComponent = ({ chosenIndex }) => {
     const [rating1, setRating1] = useState(1);
     const [rating2, setRating2] = useState(1);
 
     const handleSubmit = async (e) => {
+        // e.preventDefault();
+        // const result = [rating1,rating2];
+        // console.log('Sending data to API:', result);
+
+
+        // const response = await fetch(' http://127.0.0.1:8090/submit', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify(result)
+        // });
+        // const data = await response.json();
+        // console.log('Response from API:', data);
         e.preventDefault();
+        console.log("Performing RATE behavior...", chosenIndex);
         const result = {
-            first: rating1,
-            second: rating2
+            ratings: [rating1, rating2],
+            chosenIndex: chosenIndex
         };
-        console.log('Sending data to API:', result);
+        if (chosenIndex !== null && chosenIndex !== '') {
+            console.log("Performing RATE behavior...");
+            console.log("Sending data to API:", result);
 
+            const response = await fetch("http://127.0.0.1:8090/submit_rating", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(result),
+            });
 
-        const response = await fetch(' http://127.0.0.1:8090/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(result)
-        });
-        const data = await response.json();
-        console.log('Response from API:', data);
+            const data = await response.json();
+            console.log("Response from API:", data);
+        }
     };
+   
 
     return (
         <form onSubmit={handleSubmit}>
@@ -68,7 +88,15 @@ const RatingComponent = () => {
                     ))}
                 </div>
             </div>
-        </form>
+            <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            style={{ marginTop: "20px" }}
+        >
+            Submit Rating
+        </Button>
+    </form>
     );
 };
 

@@ -3,7 +3,8 @@ import numpy as np
 # from matplotlib.animation import FuncAnimation
 # import matplotlib.animation as animation
 import sys, os
-import sys, os
+from joblib import parallel_backend
+import time, traceback, sys
 sys.path.append(os.path.abspath("/Users/helen/Documents/ROBOLAND/scout_planner/src"))
 import scout_planner as scout
 from scout_planner.planner.multi_objective_planner import generate_plan_multi_obj, calc_reward_scout, setup_data_planner
@@ -323,6 +324,12 @@ class MCTSPlanning(ReactivePlanning):
     def __init__(self, plan_step_interval_, step_per_horizon_):
         super().__init__(plan_step_interval_, step_per_horizon_)
         self.planner, self.args = self.init_scout_planner()
+        self.paths = []
+        self.rewards = []
+        self.xmin = 380200
+        self.xmax = 380800
+        self.ymin = 3631500
+        self.ymax = 3631910
 
     def init_scout_planner(self):
         print(BASE_DIR)
@@ -335,37 +342,37 @@ class MCTSPlanning(ReactivePlanning):
         planner.setup_preference_model()
         return planner, args
 
-    def plan_for_next_horizon(self, reward, use_mcts=False, mcts_params=None):
+    def plan_for_next_horizon(self, mcts_params=None):
         # Check path is non-empty
         assert(len(self.robot_path_x) > 0 and len(self.robot_path_y) > 0)
-        current_x, current_y = 380727.0715708, 3631761.53684479
+        x_norm = self.robot_path_x[-1]
+        y_norm = self.robot_path_y[-1]
+        current_x = x_norm * (self.xmax - self.xmin) + self.xmin
+        current_y = y_norm * (self.ymax - self.ymin) + self.ymin
 
-        # ---- Gradient-based paths ----
-        F_x, F_y = self.calculate_gradient_with_adding(reward, 2)
-        path_x_1, path_y_1 = self.integrate_path(current_x, current_y, F_x, F_y,
-                                                self.plan_step_interval, 
-                                                self.step_per_horizon)
+        if mcts_params is None:
+            self.run_mcts_planner(current_x, current_y)
+        else:
+            self.run_mcts_planner(current_x, current_y, mcts_params.itrs, mcts_params.budget, mcts_params.sample_radius, mcts_params.use_objs)
+        path_x1 = [edge.p.pt[0] for edge in self.paths[0]] + [self.paths[0][-1].c.pt[0]] 
+        path_y1 = [edge.p.pt[1] for edge in self.paths[0]] + [self.paths[0][-1].c.pt[1]]
+        x1_norm = [(x - self.xmin) / (self.xmax - self.xmin) for x in path_x1]
+        y1_norm = [(y - self.ymin) / (self.ymax - self.ymin) for y in path_y1]
 
-        F_x, F_y = self.calculate_gradient_with_adding(reward, 0)
-        path_x_2, path_y_2 = self.integrate_path(current_x, current_y, F_x, F_y,
-                                                self.plan_step_interval, 
-                                                self.step_per_horizon)
-
-        F_x, F_y = self.calculate_gradient_with_adding(reward, 100)
-        path_x_3, path_y_3 = self.integrate_path(current_x, current_y, F_x, F_y,
-                                                self.plan_step_interval, 
-                                                self.step_per_horizon)
-
-        # ---- MCTS-based path ----
-        path_x_mcts, path_y_mcts = [], []
-        if use_mcts:
-            if mcts_params is None:
-                path_x_mcts, path_y_mcts = self.run_mcts_planner(current_x, current_y)
-            else:
-                path_x_mcts, path_y_mcts = self.run_mcts_planner(current_x, current_y, mcts_params.itrs, mcts_params.budget, mcts_params.sample_radius, mcts_params.use_objs)
-        return path_x_1, path_y_1, path_x_2, path_y_2, path_x_3, path_y_3, path_x_mcts, path_y_mcts
+        print(f"PATH {x1_norm}")
+        print(f"PATH {y1_norm}")
+        if len(self.paths) > 1:
+            path_x2 = [edge.p.pt[0] for edge in self.paths[1]] + [self.paths[1][-1].c.pt[0]] 
+            path_y2 = [edge.p.pt[1] for edge in self.paths[1]] + [self.paths[1][-1].c.pt[1]]
+            x2_norm = [(x - self.xmin) / (self.xmax - self.xmin) for x in path_x2]
+            y2_norm = [(y - self.ymin) / (self.ymax - self.ymin) for y in path_y2]
+            print(f"PATH {x2_norm}")
+            print(f"PATH {y2_norm}")
+            return x1_norm,y1_norm,x2_norm,y2_norm
+        else:
+            return x1_norm,y1_norm, [], []
     
-    def run_mcts_planner(self, start_x, start_y, itrs=200, budget=5, sample_radius=20, use_obj=[True, False, False, False, False, False, False]):
+    def run_mcts_planner(self, start_x, start_y, itrs=500, budget=250, sample_radius=1.0, use_obj=[True, False, False, False, False, False, False]):
         params = {
         "mcts_itrs": itrs,
         "budget": budget,
@@ -375,14 +382,8 @@ class MCTSPlanning(ReactivePlanning):
         print("Running MCTS planner")
         self.planner.current_location = np.array([start_x, start_y])
         self.planner.run_planner(params)
-        best_path, _ = self.planner.get_best()
-        sols = self.planner.solutions
-        path_x = [edge.p.pt[0] for edge in best_path] + [best_path[-1].c.pt[0]]
-        path_y = [edge.p.pt[1] for edge in best_path] + [best_path[-1].c.pt[1]]
-        path_x = [x - start_x for x in path_x]
-        path_y = [y - start_y for y in path_y]
-        #print(f"Solution Example: {sols}")
-        return path_x, path_y
+        self.paths, self.rewards = self.planner.select_query()
+        print("Selected Path(s) REWARDS:", self.rewards)
 
         
 class Estimation:
@@ -416,29 +417,65 @@ class Estimation:
                                                random_state=0, optimizer=None)
         else:
             self.gp = GaussianProcessRegressor(kernel=self.kernel)
- 
-
     def estimate(self, x, y, prediction_range):
         """
-        Fit the Gaussian Process model and predict over a new range.
-
-        Parameters:
-        x (np.array): Input features for training the Gaussian Process.
-        y (np.array): Target values corresponding to 'x'.
-        prediction_range (np.array): Input features for making predictions.
-
-        Returns:
-        tuple: A tuple containing predicted values, informational metric on predictions,
-               standard deviations of the predictions, and the trained Gaussian Process model.
+        GP fit & predict using single-threaded backend to avoid Flask hangs.
         """
-        self.gp.fit(x, y)
-        # Make predictions on new data points
-        X_new = prediction_range
-        y_pred, y_std = self.gp.predict(X_new, return_std=True)
-        #calculate discrepancy
-        information = np.exp(-np.square(y_std))
-        # noise_level_optimized = gp.kernel_.get_params()["k2__noise_level"]
-        return y_pred, information, y_std, self.gp#noise_level_optimized
+        try:
+            print("ENTER ESTIMATE", "PID:", os.getpid())
+            sys.stdout.flush()
+
+            x = np.asarray(x)
+            y = np.asarray(y)
+            DOWNSAMPLE= 10
+            x = x[::DOWNSAMPLE]
+            y = y[::DOWNSAMPLE]
+            X_new = np.asarray(prediction_range)
+
+            print("x.shape", x.shape, "y.shape", y.shape, "X_new.shape", X_new.shape)
+            sys.stdout.flush()
+
+            # Force single-threaded joblib for GP
+            with parallel_backend("threading", n_jobs=1):
+                t_fit = time.time()
+                self.gp.fit(x, y)
+                print("gp.fit finished, took", time.time() - t_fit)
+                sys.stdout.flush()
+
+                t_pred = time.time()
+                y_pred, y_std = self.gp.predict(X_new, return_std=True)
+                print("gp.predict finished, took", time.time() - t_pred)
+                sys.stdout.flush()
+
+            information = np.exp(-np.square(y_std))
+            return y_pred, information, y_std, self.gp
+
+        except Exception as e:
+            print("ESTIMATE failed:", repr(e))
+            traceback.print_exc()
+            sys.stdout.flush()
+            return None, None, None, None
+    # def estimate(self, x, y, prediction_range):
+    #     """
+    #     Fit the Gaussian Process model and predict over a new range.
+
+    #     Parameters:
+    #     x (np.array): Input features for training the Gaussian Process.
+    #     y (np.array): Target values corresponding to 'x'.
+    #     prediction_range (np.array): Input features for making predictions.
+
+    #     Returns:
+    #     tuple: A tuple containing predicted values, informational metric on predictions,
+    #            standard deviations of the predictions, and the trained Gaussian Process model.
+    #     """
+    #     self.gp.fit(x, y)
+    #     # Make predictions on new data points
+    #     X_new = prediction_range
+    #     y_pred, y_std = self.gp.predict(X_new, return_std=True)
+    #     #calculate discrepancy
+    #     information = np.exp(-np.square(y_std))
+    #     # noise_level_optimized = gp.kernel_.get_params()["k2__noise_level"]
+    #     return y_pred, information, y_std, self.gp#noise_level_optimized
     
 # ==============================
 #      Main simulation/upating

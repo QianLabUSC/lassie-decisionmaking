@@ -26,6 +26,7 @@ interface IProps {
   forceExpanded?: boolean,
   initialState?: boolean,
   onExpand?: any
+  children?: React.ReactNode
 }
 
 const CollapsablePaper : FunctionComponent<IProps> = ({ children, icon, top, right, left, width, height, className, forceExpanded, initialState, onExpand }) => {

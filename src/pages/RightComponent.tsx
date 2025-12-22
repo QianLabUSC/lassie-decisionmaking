@@ -20,6 +20,7 @@ import { secondApiCreateJson } from '../ApiCalls/second_api_create_json';
 import { thirdApiCallHeatMapScatterPLot } from '../ApiCalls/third_api_call_heat_map_scatterplot';
 import { pathsuggestion } from '../ApiCalls/pathsuggestion';
 import { gatherDataAndUpdate } from '../ApiCalls/gatherDataAndUpdate';
+import { submit_rating } from '../ApiCalls/submit_rating';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { useStateValue, Action } from '../state';
 import '../styles/decision.scss';
@@ -40,7 +41,9 @@ const RightComponent = () => {
   const [loading, setLoading] = useState(false);
   const [selectedBelief, setSelectedBelief] = useState<string>('');
   const [userBeliefText, setUserBeliefText] = useState('');
-  const [selectedPathIndex, setSelectedPathIndex] = useState('');
+  const [selectedLabel, setSelectedLabel] = useState('');
+  const [chosenIndex, setChosenIndex] = useState('');
+  const [savedPathIndex, setSavedPathIndex] = useState('');
   const [scatter_Plot_Data, setScatterPlotData] = useState<{
     x: number[];
     y: number[];
@@ -59,7 +62,7 @@ const RightComponent = () => {
   const [{ simulation_api_full_data }] = useStateValue();
   const [heatMapUncertainity, setHeatMapUncertainity] = useState();
   const [currentView, setCurrentView] = useState(0);
-
+  const [numPaths, setNumPaths] = useState<number>(0);
   const history = useHistory();
 
   const { input_box_step_btn_click, threePaths, all_single_curve_selected_black_path } = globalState;
@@ -216,6 +219,7 @@ const RightComponent = () => {
     }
 
     setRanking(newRanking);
+    console.log(newRanking);
   };
 
   const onSubmitRanking = async () => {
@@ -227,7 +231,14 @@ const RightComponent = () => {
       human_belief_selected_option: [selectedBelief],
       human_belief_text_description: userBeliefText,
     };
-
+    // if (chosenIndex !== null && chosenIndex !== '') {
+    //   console.log("Performing RATE behavior...");
+    //   const simulationApiFullData = await submit_rating(ranking, chosenIndex);
+    // }
+    // dispatch({
+    //   type: Action.GATHER_SIMULATION_API_FULL_DATA,
+    //   value: simulationApiFullData,
+    // });
     
 
     let threePaths;
@@ -237,7 +248,15 @@ const RightComponent = () => {
       ranking,
       all_single_curve_selected_black_path,  
     );
+    const realPaths = threePaths.filter(path =>
+      Array.isArray(path) &&
+      path.some(segment => Array.isArray(segment) && segment.length > 0)
+    );
+    
+    console.log("Raw paths:", threePaths);
+    console.log("Filtered real paths:", realPaths);
     console.log(threePaths)
+    setNumPaths(realPaths.length)
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
       value: input_box_step_btn_click + 1,
@@ -262,7 +281,7 @@ const RightComponent = () => {
     <>
       <p style={{paddingTop: "20px", marginBottom: "20px"}}><strong>Click next to continue</strong></p>
 
-      {/* <table className="dropDownMenuGroup" style={{ marginBottom: '2vh' }}>
+      <table className="dropDownMenuGroup" style={{ marginBottom: '2vh' }}>
         <tbody>
           {objectives.map((option, index) => (
             <tr key={option}>
@@ -284,7 +303,7 @@ const RightComponent = () => {
             </tr>
           ))}
         </tbody>
-      </table> */}
+      </table>
       <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px"}}>
         <div>
           {!loading && <Button
@@ -310,22 +329,48 @@ const RightComponent = () => {
   //////////////////////////////////////////////////////////////////////////3RD INPUT BOX ///////////////////////
 
   const handleSelectPath = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('event', event.target.value)
-    setSelectedPathIndex(event.target.value);
+    const val = event.target.value; // e.g., 'selectA', 'preferB', etc.
+    console.log("radio clicked:", val);
+  
+    // Set both selectedPathIndex and savedPathIndex if needed
+    setSelectedLabel(val);
+  
+    if (val === 'selectA') setSavedPathIndex("1");
+    if (val === 'selectB') setSavedPathIndex("2");
+    setChosenIndex('1')
+    if (val === "selectB" || val === "preferB") {
+      setChosenIndex('2')
+    }
   };
 
   const onSubmitSelectedPath = async () => {
 
     setLoading(true); // Start loading spinner
-    
+    let int_chosen_idx = 0;
     try{
-    console.log('selectedPathIndex', selectedPathIndex)
-    const int_selected_path_index = parseInt(selectedPathIndex) - 1;
+    console.log('selectedPathIndex', selectedLabel)
+    setChosenIndex('1')
+    if (selectedLabel === "selectB" || selectedLabel === "preferB") {
+      setChosenIndex('2')
+      int_chosen_idx = 1
+    } 
+    const isSelectAction = 
+      selectedLabel === "selectA" || selectedLabel === "selectB";
+
+    const isRateAction =
+      selectedLabel === "rateA" || selectedLabel === "rateB";
+
+    const isPreferAction =
+      selectedLabel === "preferA" || selectedLabel === "preferB";
+
+
+    const int_selected_path_index = int_chosen_idx
     const api_input = {
       step_number: input_box_step_btn_click,
       selected_path_number: int_selected_path_index,
       inputof_first_time_Path_Selected: threePaths[int_selected_path_index],
     };
+    
     const selectedPathXs = threePaths[int_selected_path_index][0];
     const selectedPathYs = threePaths[int_selected_path_index][1];
 
@@ -370,19 +415,19 @@ const RightComponent = () => {
         selectedXs_path_end_corinates: endX,
         selectedYs_path_end_corinates: endY,
       }
-    };
-    // Dispatch the action with the updated state
-    dispatch({
-      type: Action.ALL_SELECTED_BLACK_PATH,
-      value: updatedAllSingleCurveSelectedBlackPath,
-    });
+     };
+    //Dispatch the action with the updated state
+    // dispatch({
+    //   type: Action.ALL_SELECTED_BLACK_PATH,
+    //   value: updatedAllSingleCurveSelectedBlackPath,
+    // });
 
-    dispatch({
-      type: Action.GENERATE_PATH_FULL_DATA,
-      value: jsonCreationApiResponse,
-    });
+    // dispatch({
+    //   type: Action.GENERATE_PATH_FULL_DATA,
+    //   value: jsonCreationApiResponse,
+    // });
 
-    const int_selected_path_index_2 = parseInt(selectedPathIndex) - 1;
+    const int_selected_path_index_2 = int_chosen_idx;
 
     const api_input_2 = {
       step_number: input_box_step_btn_click,
@@ -406,17 +451,49 @@ const RightComponent = () => {
     // );
     // check what is returned here. 
     
-    
-    const simulationApiFullData: any = await gatherDataAndUpdate(
-      input_box_step_btn_click,
-      updatedAllSingleCurveSelectedBlackPath
-    )
-    dispatch({
-      type: Action.GATHER_SIMULATION_API_FULL_DATA,
-      value: simulationApiFullData,
-    });
-    // setScatterPlotData(scatterData?.scatter_plot_data);
-    setHeatMapUncertainity(simulationApiFullData?.uncertainity);
+    // --- BRANCH LOGIC HERE ---
+    if (isSelectAction) {
+      console.log("Performing SELECT behavior...");
+      dispatch({
+        type: Action.ALL_SELECTED_BLACK_PATH,
+        value: updatedAllSingleCurveSelectedBlackPath,
+      });
+  
+      dispatch({
+        type: Action.GENERATE_PATH_FULL_DATA,
+        value: jsonCreationApiResponse,
+      });
+      // Do your SELECT workflow here
+      const simulationApiFullData: any = await gatherDataAndUpdate(
+        input_box_step_btn_click,
+        updatedAllSingleCurveSelectedBlackPath
+      )
+      dispatch({
+        type: Action.GATHER_SIMULATION_API_FULL_DATA,
+        value: simulationApiFullData,
+      });
+      // setScatterPlotData(scatterData?.scatter_plot_data);
+      setHeatMapUncertainity(simulationApiFullData?.uncertainity);
+    }
+
+    if (isRateAction) {
+      // Do your RATE workflow here
+    }
+
+    if (isPreferAction) {
+      console.log("Performing PREFER behavior...");
+      // Do your PREFER workflow here
+    }
+    // const simulationApiFullData: any = await gatherDataAndUpdate(
+    //   input_box_step_btn_click,
+    //   updatedAllSingleCurveSelectedBlackPath
+    // )
+    // dispatch({
+    //   type: Action.GATHER_SIMULATION_API_FULL_DATA,
+    //   value: simulationApiFullData,
+    // });
+    // // setScatterPlotData(scatterData?.scatter_plot_data);
+    // setHeatMapUncertainity(simulationApiFullData?.uncertainity);
 
     dispatch({
       type: Action.UPDATE_INPUT_BOX_BTN_CLICK,
@@ -431,40 +508,83 @@ const RightComponent = () => {
   };
 
   console.log('loading', loading)
+  console.log('numpaths', numPaths)
   const objectiveSelectPath = (
     <div className="objective-questions">
-      <p style={{paddingTop: "20px", marginBottom: "20px", fontSize: "16px", color: "#333"}}><strong>Based on your belief, the robot suggests three different paths, please select one of them</strong></p>
-      <FormControl component="fieldset" style={{marginBottom: "24px"}}>
+      <p
+        style={{
+          paddingTop: "20px",
+          marginBottom: "20px",
+          fontSize: "16px",
+          color: "#333"
+        }}
+      >
+        <strong>
+          {numPaths === 2
+            ? "Two paths were generated. Please choose how you'd like to proceed."
+            : "One path was generated. Please choose how you'd like to proceed."}
+        </strong>
+      </p>
+  
+      <FormControl component="fieldset" style={{ marginBottom: "24px" }}>
         <RadioGroup
           row
           aria-label="path selection"
           name="path_selection"
-          value={selectedPathIndex}
+          value={selectedLabel}
           onChange={handleSelectPath}
         >
-          <FormControlLabel
-            value="1"
-            control={<Radio />}
-            label="Accept suggested path A"
-            style={{marginRight: "16px"}}
-          />
-          <FormControlLabel
-            value="2"
-            control={<Radio />}
-            label="Accept suggested path B"
-            style={{marginRight: "16px"}}
-          />
-          <FormControlLabel
-            value="3"
-            control={<Radio />}
-            label="Accept suggested path C"
-          />
+          {numPaths === 2 && (
+            <>
+              <FormControlLabel
+                value="preferA"
+                control={<Radio />}
+                label="Prefer path A"
+                style={{ marginRight: "16px" }}
+              />
+              <FormControlLabel
+                value="preferB"
+                control={<Radio />}
+                label="Prefer path B"
+                style={{ marginRight: "16px" }}
+              />
+              <FormControlLabel
+                value="selectA"
+                control={<Radio />}
+                label="Select path A"
+                style={{ marginRight: "16px" }}
+              />
+              <FormControlLabel
+                value="selectB"
+                control={<Radio />}
+                label="Select path B"
+                style={{ marginRight: "16px" }}
+              />
+            </>
+          )}
+  
+          {numPaths === 1 && (
+            <>
+              <FormControlLabel
+                value="selectA"
+                control={<Radio />}
+                label="Select path A"
+                style={{ marginRight: "16px" }}
+              />
+              <FormControlLabel
+                value="rateA"
+                control={<Radio />}
+                label="Rate path A"
+                style={{ marginRight: "16px" }}
+              />
+            </>
+          )}
         </RadioGroup>
       </FormControl>
       <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "24px"}}>
         <div>
           {!loading && <Button
-            disabled={!selectedPathIndex}
+            disabled={!selectedLabel}
             variant="contained"
             color="secondary"
             onClick={onSubmitSelectedPath}
@@ -485,6 +605,60 @@ const RightComponent = () => {
       </div>
     </div>
   );
+  // const objectiveSelectPath = (
+  //   <div className="objective-questions">
+  //     <p style={{paddingTop: "20px", marginBottom: "20px", fontSize: "16px", color: "#333"}}><strong>Based on your belief, the robot suggests three different paths, please select one of them</strong></p>
+  //     <FormControl component="fieldset" style={{marginBottom: "24px"}}>
+  //       <RadioGroup
+  //         row
+  //         aria-label="path selection"
+  //         name="path_selection"
+  //         value={selectedPathIndex}
+  //         onChange={handleSelectPath}
+  //       >
+  //         <FormControlLabel
+  //           value="1"
+  //           control={<Radio />}
+  //           label="Accept suggested path A"
+  //           style={{marginRight: "16px"}}
+  //         />
+  //         <FormControlLabel
+  //           value="2"
+  //           control={<Radio />}
+  //           label="Accept suggested path B"
+  //           style={{marginRight: "16px"}}
+  //         />
+  //         <FormControlLabel
+  //           value="3"
+  //           control={<Radio />}
+  //           label="Accept suggested path C"
+  //         />
+  //       </RadioGroup>
+  //     </FormControl>
+  //     <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "24px"}}>
+  //       <div>
+  //         {!loading && <Button
+  //           disabled={!selectedPathIndex}
+  //           variant="contained"
+  //           color="secondary"
+  //           onClick={onSubmitSelectedPath}
+  //           style={{padding: "10px 24px"}}
+  //         >
+  //           Submit
+  //         </Button>}
+  //         {loading && <CircularProgress size={24} /> }
+  //       </div>
+  //       <Button
+  //         className="continueButton"
+  //         variant="contained"
+  //         color="primary"
+  //         onClick={onContinueClick}
+  //         style={{padding: "10px 24px"}}>
+  //         End Collection Transect
+  //       </Button>
+  //     </div>
+  //   </div>
+  // );
 //////      4th step 
 const onSubmitRankingEvaluation = () => {
   dispatch({
@@ -497,7 +671,7 @@ const onSubmitRankingEvaluation = () => {
 const rankingEvaluationPanel_Step4 = (
   <div className="objective-questions">
     <p style={{paddingTop: "20px", marginBottom: "20px"}}><strong>Ranking Evaluation Panel</strong></p>
-    <RatingComponent/>
+    <RatingComponent chosenIndex={chosenIndex}/>
     <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "30px"}}>
       <Button
         className="continueButton"
@@ -704,14 +878,14 @@ const HypothesisConfidencePanel_Step5 = (
       >
       Information Gain 
       </Typography>
-      <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='INFO_GAIN'/>
+      <RobotChart currentselectedpath={chosenIndex}  heatMapType='INFO_GAIN'/>
       <Typography
         variant="h6"
         style={{ textAlign: 'center', marginTop: '20px', marginBottom: '15px', color: '#333', fontWeight: '600' }}
       >
        Discrepancy Reward
       </Typography>
-      <RobotChart currentselectedpath={selectedPathIndex}  heatMapType='DISCREPANCY_REWARD'/>
+      <RobotChart currentselectedpath={chosenIndex}  heatMapType='DISCREPANCY_REWARD'/>
     </div>
   );
 
@@ -726,7 +900,7 @@ const HypothesisConfidencePanel_Step5 = (
    
       {/* <ShearVsMoisturePlot width={550} height={550} /> */}
 
-      <UpperLeftRobotChart currentselectedpath={selectedPathIndex} />
+      <UpperLeftRobotChart currentselectedpath={chosenIndex} />
 
  
       <div className="collectionRightPanel" 
