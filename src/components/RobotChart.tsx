@@ -39,9 +39,10 @@ type TestPath = Path[];
 interface RobotChartProps {
   currentselectedpath: string;
   heatMapType: string;
+  hasSubmitted: boolean;
 }
 
-const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapType }) => {
+const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapType, hasSubmitted}) => {
   const [{ currUserStep, newpathvalues, threePaths, simulation_api_full_data, all_single_curve_selected_black_path }, dispatch] = useStateValue();
   
   const [selectedPath, setSelectedPath] = useState('');
@@ -210,6 +211,7 @@ const RobotChart: React.FC<RobotChartProps> = ({ currentselectedpath, heatMapTyp
                 select = 3;
               }
               const isSelectedPath = currentselectedpath === select;
+              if (hasSubmitted || !isSelectedPath) return null;
               return (
                 <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
                   <LinePath

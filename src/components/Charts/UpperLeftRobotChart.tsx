@@ -56,9 +56,10 @@ interface UpperLeftRobotChartProps {
 
 interface RobotChartProps {
   currentselectedpath: string;
+  hasSubmitted: boolean; 
 }
 
-const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath }) => {
+const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath, hasSubmitted}) => {
   const [{ threePaths, all_single_curve_selected_black_path }, dispatch] = useStateValue();
 
   const [allPaths, setAllPaths] = useState<TestPath[]>([]);
@@ -182,7 +183,7 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
               const lastPoint = data[data.length - 1];
               const globalPathIndex = allPaths.slice(0, idx).reduce((acc, cur) => acc + cur.length, 0) + pathIndex;
               const isLastThreePaths = globalPathIndex >= totalPaths - 3;
-
+              
               let select;
               if (labels[pathIndex] === 'A') {
                 select = 1;
@@ -192,6 +193,7 @@ const UpperLeftRobotChart: React.FC<RobotChartProps>  = ({currentselectedpath })
                 select = 3;
               }
               const isSelectedPath = currentselectedpath == select;
+              if (hasSubmitted && !isSelectedPath) return null;
               return (
                 <React.Fragment key={`path-set-${idx}-path-${pathIndex}`}>
                   <LinePath

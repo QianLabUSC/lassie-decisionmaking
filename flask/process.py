@@ -358,12 +358,12 @@ def pathsuggestion():
 @cross_origin()
 
 def preferPath():
-    inputs = request.json
+    inputs = request.jsons
     prefered_path_idx = inputs['selected_path_idx']
     PLANNER.planner.prefer_path(prefered_path_idx)
     return jsonify({
         "status": "success",
-        "message": f"Preference for path {preferred_path_idx} received."
+        "message": f"Preference for path {prefered_path_idx} received."
     })
 
 
@@ -398,7 +398,7 @@ def gatherDataAndUpdate():
     robot_path_x = concatenated_path_x
     robot_path_y = concatenated_path_y
     ENV = ManuallyEnv()
-    PLANNER = ReactivePlanning(0.02, 50)
+    #PLANNER = ReactivePlanning(0.02, 50)
     ESTIMATOR = Estimation(False, 0.2, 0.15, 4)
     t1 = time.time()
     measured_robot_coordinates, measured_shear, measured_moisture = ENV.gather_data(robot_path_x, robot_path_y)
@@ -412,7 +412,8 @@ def gatherDataAndUpdate():
     shear_prediction = shear_prediction.reshape(estimatedNum, estimatedNum)
     information_shear = information_shear.reshape(estimatedNum, estimatedNum)
     shear_std = normalize_matrix(shear_std.reshape(estimatedNum, estimatedNum))
-
+    labels = np.array(PLANNER.planner.objective_names)[PLANNER.rewards_used]
+    rewards = np.array(PLANNER.planner.rewards[PLANNER.planner.query_idxs])
     return jsonify(
     {
         'path_x': robot_path_x.tolist(), 
@@ -424,7 +425,9 @@ def gatherDataAndUpdate():
             { 
                 "moisture": measured_moisture.T.tolist(),
                 "shear":measured_shear.T.tolist()
-            }
+            },
+        'mcts_labels' : labels.tolist(),
+        'mcts_rewards': rewards.tolist()
     }
     )
 

@@ -33,6 +33,8 @@ import ShearStrengthOnWorldMapChart from '../components/Charts/ShearStrengthOnWo
 import { prior_samples_trajectories_x } from '../constants';
 import { prior_samples_trajectories_y } from '../constants';
 import { SubPath } from '../state';
+import MCTSBarChart from '../components/Charts/MCTSBarChart';
+
 
 
 
@@ -64,6 +66,10 @@ const RightComponent = () => {
   const [currentView, setCurrentView] = useState(0);
   const [numPaths, setNumPaths] = useState<number>(0);
   const history = useHistory();
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [mctsLabels, setMctsLabels] = useState<string[]>([]);
+  const [mctsRewards, setMctsRewards] = useState<number[]>([]);
+
 
   const { input_box_step_btn_click, threePaths, all_single_curve_selected_black_path } = globalState;
 
@@ -266,6 +272,7 @@ const RightComponent = () => {
       type: Action.GENERATE_THREE_PATHS,
       value: threePaths,
     });
+    setHasSubmitted(false);
 
    
   }catch (error) {
@@ -344,7 +351,7 @@ const RightComponent = () => {
   };
 
   const onSubmitSelectedPath = async () => {
-
+    setHasSubmitted(true);
     setLoading(true); // Start loading spinner
     let int_chosen_idx = 0;
     try{
@@ -472,7 +479,13 @@ const RightComponent = () => {
         type: Action.GATHER_SIMULATION_API_FULL_DATA,
         value: simulationApiFullData,
       });
+      setMctsLabels(simulationApiFullData?.mcts_labels ?? []);
       // setScatterPlotData(scatterData?.scatter_plot_data);
+      let mcts_rewards
+      mcts_rewards = simulationApiFullData?.mcts_rewards
+      console.log(mcts_rewards[int_chosen_idx])
+      console.log(simulationApiFullData?.mcts_labels)
+      setMctsRewards(mcts_rewards[int_chosen_idx]);
       setHeatMapUncertainity(simulationApiFullData?.uncertainity);
     }
 
@@ -876,16 +889,41 @@ const HypothesisConfidencePanel_Step5 = (
         variant="h6"
         style={{ textAlign: 'center', marginBottom: '15px', color: '#333', fontWeight: '600' }}
       >
+            {mctsLabels.length > 0 && (
+      <>
+        <Typography
+          variant="h6"
+          style={{
+            textAlign: 'center',
+            marginTop: '30px',
+            marginBottom: '15px',
+            color: '#333',
+            fontWeight: '600',
+          }}
+        >
+          MCTS Rewards
+        </Typography>
+
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <MCTSBarChart
+            labels={mctsLabels}
+            rewards={mctsRewards}
+            width={420}
+            height={260}
+          />
+        </div>
+      </>
+    )}
       Information Gain 
       </Typography>
-      <RobotChart currentselectedpath={chosenIndex}  heatMapType='INFO_GAIN'/>
+      <RobotChart currentselectedpath={chosenIndex}  heatMapType='INFO_GAIN' hasSubmitted={hasSubmitted}/>
       <Typography
         variant="h6"
         style={{ textAlign: 'center', marginTop: '20px', marginBottom: '15px', color: '#333', fontWeight: '600' }}
       >
        Discrepancy Reward
       </Typography>
-      <RobotChart currentselectedpath={chosenIndex}  heatMapType='DISCREPANCY_REWARD'/>
+      <RobotChart currentselectedpath={chosenIndex}  heatMapType='DISCREPANCY_REWARD'  hasSubmitted={hasSubmitted}/>
     </div>
   );
 
@@ -900,7 +938,7 @@ const HypothesisConfidencePanel_Step5 = (
    
       {/* <ShearVsMoisturePlot width={550} height={550} /> */}
 
-      <UpperLeftRobotChart currentselectedpath={chosenIndex} />
+      <UpperLeftRobotChart currentselectedpath={chosenIndex} hasSubmitted={hasSubmitted}/>
 
  
       <div className="collectionRightPanel" 

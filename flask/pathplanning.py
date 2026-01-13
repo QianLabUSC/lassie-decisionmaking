@@ -330,6 +330,7 @@ class MCTSPlanning(ReactivePlanning):
         self.xmax = 380800
         self.ymin = 3631500
         self.ymax = 3631910
+        self.rewards_used = [True, True, True, True, True, True, True, False, False, False, False, False, False, False, False, False, False]
 
     def init_scout_planner(self):
         print(BASE_DIR)
@@ -377,11 +378,12 @@ class MCTSPlanning(ReactivePlanning):
         "mcts_itrs": itrs,
         "budget": budget,
         "sample_radius": sample_radius,
-        "use_obj": [True, True, True, True, True, True, True, False, False, False, False, False, False, False, False, False, False],
+        "use_obj": self.rewards_used,
         }
         print("Running MCTS planner")
         self.planner.current_location = np.array([start_x, start_y])
         self.planner.run_planner(params)
+        print("Selected Path(s) REWARDS BEFORE:", self.rewards)
         self.paths, self.rewards = self.planner.select_query()
         print("Selected Path(s) REWARDS:", self.rewards)
 
